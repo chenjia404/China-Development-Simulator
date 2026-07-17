@@ -1,0 +1,19 @@
+{
+  "baseAnnualBirthRate": 0.039,
+  "minimumAnnualBirthRate": 0.005,
+  "maximumAnnualBirthRate": 0.05,
+  "baseAnnualDeathRate": 0.019,
+  "minimumAnnualDeathRate": 0.004,
+  "maximumAnnualDeathRate": 0.08,
+  "birthRateNoise": 0.00025,
+  "deathRateNoise": 0.00015,
+  "childhoodYears": 15,
+  "workingAgeYears": 50,
+  "baseLaborParticipationRate": 0.78,
+  "minimumLaborParticipationRate": 0.45,
+  "maximumLaborParticipationRate": 0.85,
+  "baseUnemploymentRate": 0.04,
+  "maximumUnemploymentRate": 0.6,
+  "annualUrbanMigrationRate": 0.011,
+  "monthlyAdjustmentSpeed": 0.08
+}

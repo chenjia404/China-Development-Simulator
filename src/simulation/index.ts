@@ -1,5 +1,6 @@
 export * from "./core/commands";
 export * from "./core/engine";
+export * from "./core/math";
 export * from "./core/protocol";
 export * from "./core/random";
 export * from "./core/time";

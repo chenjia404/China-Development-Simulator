@@ -101,9 +101,9 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
         priceLevelIndex: 1,
       },
       sectors: {
-        primary: createSector("primary", 62_000_000_000, 45_000_000_000, 240_000_000, 0.65),
-        secondary: createSector("secondary", 28_000_000_000, 78_000_000_000, 38_000_000, 0.55),
-        tertiary: createSector("tertiary", 33_000_000_000, 62_000_000_000, 45_000_000, 0.6),
+        primary: createSector("primary", 62_000_000_000, 45_000_000_000, 180_000_000, 0.65),
+        secondary: createSector("secondary", 28_000_000_000, 78_000_000_000, 20_000_000, 0.55),
+        tertiary: createSector("tertiary", 33_000_000_000, 62_000_000_000, 27_000_000, 0.6),
       },
       fiscal: {
         revenue: 12_000_000_000,
