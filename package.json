@@ -6,9 +6,9 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
-    "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
-    "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
+    "dev": "vinext dev",
+    "build": "vinext build",
+    "start": "vinext start",
     "simulate": "tsx tools/baseline-calibration/index.ts",
     "simulate:baseline": "tsx tools/baseline-calibration/index.ts historical 1949 1 1949 2026",
     "test": "npm run test:unit",
@@ -20,10 +20,12 @@
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
+    "echarts": "6.1.0",
+    "idb": "8.0.3",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "react-loading-skeleton": "3.5.0"
+    "zustand": "5.0.14"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
