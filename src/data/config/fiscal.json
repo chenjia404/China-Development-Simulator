@@ -1,0 +1,18 @@
+{
+  "normalTaxRate": 0.22,
+  "minimumTaxRate": 0.03,
+  "maximumTaxRate": 0.8,
+  "taxDistortionThreshold": 0.25,
+  "taxDistortionCoefficient": 3.2,
+  "minimumTaxCompliance": 0.25,
+  "taxableGDPShare": 0.85,
+  "baseSpendingToGDP": 0.105,
+  "baseDebtInterestRate": 0.025,
+  "debtRiskThreshold": 0.55,
+  "monetizationThreshold": 0.75,
+  "maximumMonetizationShare": 0.7,
+  "baseInflationRate": 0.018,
+  "minimumInflationRate": -0.2,
+  "maximumInflationRate": 10,
+  "inflationAdjustmentSpeed": 0.12
+}
