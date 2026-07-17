@@ -173,6 +173,7 @@ export interface ProjectState {
 export interface NationState {
   id: "china";
   name: "中国";
+  internationalInfluence: number;
   date: GameDate;
   population: PopulationState;
   labor: LaborState;

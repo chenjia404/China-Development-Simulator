@@ -6,6 +6,8 @@ import type {
   SectorId,
   SectorState,
 } from "./game-state";
+import { createInitialWorldState } from "../world/countries";
+import { calculateWorldRankings } from "../world/rankings";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -46,7 +48,7 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
   const population = 541_670_000;
   const workingAge = population * 0.56;
 
-  return {
+  const state: GameState = {
     schemaVersion: SAVE_SCHEMA_VERSION,
     simulationVersion: SIMULATION_VERSION,
     seed: normalizedSeed,
@@ -54,6 +56,7 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
     nation: {
       id: "china",
       name: "中国",
+      internationalInfluence: 12,
       date: createGameDate(startYear),
       population: {
         total: population,
@@ -170,19 +173,8 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
       modifiers: [],
       history: { monthly: [], annual: [], reports: [] },
     },
-    world: {
-      countries: [],
-      rankings: {
-        nominalGDP: {},
-        nominalGDPPerCapita: {},
-        technology: {},
-        education: {},
-        lifeExpectancy: {},
-        happiness: {},
-        influence: {},
-      },
-      globalDemandIndex: 1,
-      worldPriceLevel: 1,
-    },
+    world: createInitialWorldState(),
   };
+  calculateWorldRankings(state);
+  return state;
 }

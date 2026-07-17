@@ -18,6 +18,9 @@ import { updateEducation } from "../society/education";
 import { updateHealth } from "../society/health";
 import { updateTechnology } from "../technology/research";
 import { updateWellbeing } from "../society/wellbeing";
+import { simulateWorldCountries } from "../world/world-simulation";
+import { calculateWorldRankings } from "../world/rankings";
+import { isEndOfYear } from "./time";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -39,5 +42,9 @@ export function simulateMonth(
   updateDebt(state.nation);
   updateInflation(state.nation);
   updateWellbeing(state.nation);
+  simulateWorldCountries(state, _random);
+  if (isEndOfYear(state.nation.date)) {
+    calculateWorldRankings(state);
+  }
   advanceMonth(state.nation.date);
 }
