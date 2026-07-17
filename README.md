@@ -7,6 +7,8 @@
 ```powershell
 npm run typecheck
 npm test
+npm run calibrate -- outputs/calibration-errors.csv
+npm run audit -- outputs/final-audit.json
 npm run build
 ```
 
@@ -20,3 +22,7 @@ npm run simulate -- historical 1949 5 1949 2026 json outputs/baseline.json
 ```
 
 策略可选：`historical`、`industrial`、`livelihood`、`education_technology`、`debt`、`none`。格式可选 `json` 或 `csv`；省略输出文件时只在终端显示汇总。
+
+模拟使用彼此独立、可序列化的人口/世界随机流与事件随机流。相同存档、策略和种子会得到相同年度序列；状态相关随机事件统一通过 Modifier 系统生效并记录到年度报告。
+
+最终验收结果见[最终审计报告](./最终审计报告.md)。

@@ -53,6 +53,7 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
     simulationVersion: SIMULATION_VERSION,
     seed: normalizedSeed,
     randomState: normalizedSeed,
+    eventRandomState: (normalizedSeed ^ 0x9e3779b9) >>> 0,
     nation: {
       id: "china",
       name: "中国",

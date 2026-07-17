@@ -30,6 +30,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
 
   constructor(initialState?: GameState) {
     this.state = cloneState(initialState ?? createInitialGameState(1));
+    if (!Number.isFinite(this.state.eventRandomState)) {
+      this.state.eventRandomState = (this.state.seed ^ 0x9e3779b9) >>> 0;
+    }
   }
 
   getState(): Readonly<GameState> {
@@ -74,10 +77,12 @@ class DeterministicSimulationEngine implements SimulationEngine {
       throw new Error("推进月数必须是 1 至 12000 的整数");
     }
     const random = new Mulberry32(this.state.randomState);
+    const eventRandom = new Mulberry32(this.state.eventRandomState);
     for (let index = 0; index < months; index += 1) {
-      simulateMonth(this.state, random);
+      simulateMonth(this.state, random, eventRandom);
     }
     this.state.randomState = random.getState();
+    this.state.eventRandomState = eventRandom.getState();
   }
 }
 

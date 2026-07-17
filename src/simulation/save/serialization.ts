@@ -36,5 +36,9 @@ export function deserializeGameState(serialized: string): GameState {
   if (actualChecksum !== save.checksum) {
     throw new Error("存档校验失败，数据可能已损坏");
   }
-  return structuredClone(save.state);
+  const state = structuredClone(save.state);
+  if (!Number.isFinite(state.eventRandomState)) {
+    state.eventRandomState = (state.seed ^ 0x9e3779b9) >>> 0;
+  }
+  return state;
 }

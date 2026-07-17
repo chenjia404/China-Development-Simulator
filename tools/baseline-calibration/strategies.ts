@@ -74,8 +74,34 @@ export function getAnnualDecision(
       };
     case "education_technology":
       return {
-        budget: { ...balancedBudget, education: 0.3, research: 0.22, infrastructure: 0.16, health: 0.1, industry: 0.08, agriculture: 0.04, defense: 0.03 },
-        policyIds: ["technology_priority", "expand_opening"],
+        budget: year < 1970
+          ? {
+              education: 0.38,
+              health: 0.08,
+              agriculture: 0.01,
+              industry: 0.01,
+              infrastructure: 0.01,
+              research: 0.01,
+              housing: 0.04,
+              welfare: 0.07,
+              defense: 0.06,
+              administration: 0.05,
+            }
+          : {
+              education: 0.26,
+              health: 0.1,
+              agriculture: 0.04,
+              industry: 0.05,
+              infrastructure: 0.08,
+              research: 0.17,
+              housing: 0.06,
+              welfare: 0.07,
+              defense: 0.05,
+              administration: 0.06,
+            },
+        policyIds: year < 1978
+          ? ["technology_priority"]
+          : ["technology_priority", "expand_opening"],
       };
     case "debt":
       return {

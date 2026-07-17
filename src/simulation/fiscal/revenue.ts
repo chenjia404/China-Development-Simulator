@@ -1,6 +1,7 @@
 import fiscalConfig from "../../data/config/fiscal.json";
 import { approach, clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 export function calculateEffectiveTaxRate(
   statutoryTaxRate: number,
@@ -47,5 +48,12 @@ export function calculateFiscalRevenue(nation: NationState): void {
   const stateOwnedProfit = sectors.secondary.valueAdded * 0.055;
   const tariffRevenue =
     (trade.exports + trade.imports) * trade.openness * 0.035;
-  fiscal.revenue = Math.max(0, generalTax + stateOwnedProfit + tariffRevenue);
+  fiscal.revenue = Math.max(
+    0,
+    applyModifiers(
+      nation,
+      "fiscal.revenue",
+      generalTax + stateOwnedProfit + tariffRevenue,
+    ),
+  );
 }

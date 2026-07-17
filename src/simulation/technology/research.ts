@@ -1,6 +1,7 @@
 import technologyConfig from "../../data/config/technology.json";
 import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 export function updateTechnology(nation: NationState): void {
   const { technology, education, fiscal, economy, sectors, trade } = nation;
@@ -22,13 +23,16 @@ export function updateTechnology(nation: NationState): void {
     0.25,
     0.8,
   );
-  const researchOutput =
+  const researchOutput = applyModifiers(
+    nation,
+    "technology.researchOutput",
     technologyConfig.researchProductivity *
     fundingIntensity *
     talentFactor *
     universityFactor *
     institutionFactor *
-    industryDemand;
+    industryDemand,
+  );
   technology.monthlyResearchOutput = researchOutput;
   technology.researchPoints += researchOutput;
 

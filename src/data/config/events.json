@@ -1,0 +1,77 @@
+{
+  "maximumEventsPerYear": 1,
+  "randomProbabilityMinimum": 0.85,
+  "randomProbabilityRange": 0.3,
+  "events": [
+    {
+      "id": "natural_disaster",
+      "name": "自然灾害",
+      "baseProbability": 0.045,
+      "durationMonths": 12,
+      "modifiers": [
+        { "target": "sector.primary.output", "operation": "multiply", "value": 0.97 },
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 0.97 },
+        { "target": "population.deathRate", "operation": "multiply", "value": 1.02 }
+      ]
+    },
+    {
+      "id": "epidemic",
+      "name": "疫情",
+      "baseProbability": 0.03,
+      "durationMonths": 12,
+      "modifiers": [
+        { "target": "population.deathRate", "operation": "multiply", "value": 1.08 },
+        { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.94 }
+      ]
+    },
+    {
+      "id": "energy_crisis",
+      "name": "能源危机",
+      "baseProbability": 0.035,
+      "durationMonths": 18,
+      "modifiers": [
+        { "target": "resources.energySupply", "operation": "multiply", "value": 0.82 },
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 0.93 }
+      ]
+    },
+    {
+      "id": "financial_crisis",
+      "name": "金融危机",
+      "baseProbability": 0.025,
+      "durationMonths": 18,
+      "modifiers": [
+        { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.92 },
+        { "target": "fiscal.revenue", "operation": "multiply", "value": 0.92 }
+      ]
+    },
+    {
+      "id": "trade_opportunity",
+      "name": "国际贸易机会",
+      "baseProbability": 0.055,
+      "durationMonths": 12,
+      "modifiers": [
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
+        { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.02 }
+      ]
+    },
+    {
+      "id": "technology_breakthrough",
+      "name": "重大科技突破",
+      "baseProbability": 0.02,
+      "durationMonths": 18,
+      "modifiers": [
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.22 }
+      ]
+    },
+    {
+      "id": "food_crisis",
+      "name": "粮食危机",
+      "baseProbability": 0.025,
+      "durationMonths": 12,
+      "modifiers": [
+        { "target": "resources.foodSupply", "operation": "multiply", "value": 0.8 },
+        { "target": "population.deathRate", "operation": "multiply", "value": 1.06 }
+      ]
+    }
+  ]
+}

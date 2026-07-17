@@ -197,6 +197,7 @@ export interface GameState {
   simulationVersion: string;
   seed: number;
   randomState: number;
+  eventRandomState: number;
   nation: NationState;
   world: WorldState;
 }

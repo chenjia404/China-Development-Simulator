@@ -2,6 +2,7 @@ import populationConfig from "../../data/config/population.json";
 import { clamp, safeDivide } from "../core/math";
 import type { RandomGenerator } from "../core/random";
 import type { NationState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 function distributeDeaths(
   children: number,
@@ -52,9 +53,13 @@ export function updateDemographics(
     clamp(health.index / 100, 0, 1) *
     populationConfig.healthMortalityProtection;
   const annualDeathRate = clamp(
-    populationConfig.baseAnnualDeathRate *
+    applyModifiers(
+      nation,
+      "population.deathRate",
+      populationConfig.baseAnnualDeathRate *
       (1 - healthProtection) *
-      (1 + foodShortage * 2.5 + elderlyShare * 0.65) +
+      (1 + foodShortage * 2.5 + elderlyShare * 0.65),
+    ) +
       random.nextNormal(0, populationConfig.deathRateNoise),
     populationConfig.minimumAnnualDeathRate,
     populationConfig.maximumAnnualDeathRate,

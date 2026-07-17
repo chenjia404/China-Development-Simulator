@@ -4,10 +4,10 @@ import {
   LegendComponent,
   TooltipComponent,
 } from "echarts/components";
-import { init, use, type ECharts } from "echarts/core";
+import { init, use as registerEChartsComponents, type ECharts } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 
-use([LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
+registerEChartsComponents([LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
 
 export function createChart(element: HTMLElement): ECharts {
   return init(element, undefined, { renderer: "canvas" });

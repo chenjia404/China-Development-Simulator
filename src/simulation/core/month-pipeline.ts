@@ -23,12 +23,16 @@ import { calculateWorldRankings } from "../world/rankings";
 import { isEndOfYear } from "./time";
 import { recordHistory } from "../reports/history";
 import { updatePolicyEnvironment } from "../policies/policy-engine";
+import { checkRandomEvents } from "../events/event-engine";
+import { advanceModifiers } from "../events/modifiers";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
   state: GameState,
   _random: RandomGenerator,
+  eventRandom: RandomGenerator,
 ): void {
+  checkRandomEvents(state.nation, eventRandom);
   updatePolicyEnvironment(state.nation);
   updateDemographics(state.nation, _random);
   updateEducation(state.nation);
@@ -50,5 +54,6 @@ export function simulateMonth(
     calculateWorldRankings(state);
   }
   recordHistory(state);
+  advanceModifiers(state.nation);
   advanceMonth(state.nation.date);
 }

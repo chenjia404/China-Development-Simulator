@@ -254,9 +254,9 @@ function SettingsSection() {
 
 export function SimulatorDashboard() {
   const store = useSimulationStore();
-  const { game, activeSection, darkMode, speed, autoRunning, busy, error } = store;
+  const { game, activeSection, darkMode, speed, autoRunning, busy, error, initialize } = store;
 
-  useEffect(() => { void store.initialize(); }, [store.initialize]);
+  useEffect(() => { void initialize(); }, [initialize]);
   useEffect(() => { document.documentElement.dataset.theme = darkMode ? "dark" : "light"; }, [darkMode]);
   useEffect(() => {
     if (!autoRunning) return;

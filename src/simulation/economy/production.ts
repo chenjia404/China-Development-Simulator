@@ -6,6 +6,7 @@ import type {
   SectorId,
   SectorState,
 } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 export interface ProductionInput {
   productivity: number;
@@ -94,7 +95,10 @@ export function calculateSectorOutput(
       economyConfig.maximumCapacityUtilization,
     );
 
-  return Math.max(0, output);
+  return Math.max(
+    0,
+    applyModifiers(nation, `sector.${id}.output`, output),
+  );
 }
 
 export function allocateLabor(nation: NationState): void {
@@ -142,17 +146,24 @@ export function updateResourceSupply(nation: NationState): void {
   const secondaryCapitalScale =
     nation.sectors.secondary.capitalStock /
     industryConfigs.secondary.baselineCapital;
-  nation.resources.foodProduction = 113_000_000 * Math.max(0.2, primaryScale);
+  nation.resources.foodProduction = applyModifiers(
+    nation,
+    "resources.foodSupply",
+    113_000_000 * Math.max(0.2, primaryScale),
+  );
   nation.resources.foodDemand = nation.population.total * 0.225;
   nation.resources.foodSupplyRatio = clamp(
     safeDivide(nation.resources.foodProduction, nation.resources.foodDemand),
     0.1,
     1.3,
   );
-  nation.resources.energySupply =
+  nation.resources.energySupply = applyModifiers(
+    nation,
+    "resources.energySupply",
     24 *
-    secondaryCapitalScale ** 0.72 *
-    (0.88 + nation.technology.index / 100 * 0.8);
+      secondaryCapitalScale ** 0.72 *
+      (0.88 + nation.technology.index / 100 * 0.8),
+  );
   nation.resources.energyDemand = Math.max(
     1,
     8 + nation.sectors.secondary.output / 2_000_000_000,

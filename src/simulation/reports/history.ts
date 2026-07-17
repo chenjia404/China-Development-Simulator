@@ -2,6 +2,7 @@ import { clamp, safeDivide } from "../core/math";
 import { isEndOfYear } from "../core/time";
 import type { GameState } from "../state/game-state";
 import type { AnnualSnapshot, MonthlySnapshot } from "../state/history-state";
+import { eventName } from "../events/event-engine";
 
 const MAX_MONTHLY_HISTORY = 120;
 
@@ -21,11 +22,13 @@ function calculateScore(state: GameState): number {
     (1 - clamp((nation.society.giniCoefficient - 0.2) / 0.5, 0, 1)) * 100;
   const fiscalScore =
     (1 - clamp(nation.fiscal.debtToGDP / 1.5, 0, 1)) * 100;
+  const priceStabilityScore =
+    (1 - clamp(Math.abs(nation.economy.inflationRate - 0.02) / 0.18, 0, 1)) * 100;
 
   return clamp(
     incomeScore * 0.2 +
       scaleScore * 0.1 +
-      incomeScore * 0.1 +
+      priceStabilityScore * 0.1 +
       nation.technology.index * 0.1 +
       nation.education.index * 0.1 +
       nation.health.lifeExpectancy * 0.1 +
@@ -100,7 +103,7 @@ export function recordHistory(state: GameState): void {
       : 0,
     fiscalBalance: nation.fiscal.balance,
     rankingChange: previous ? previous.gdpRank - annual.gdpRank : 0,
-    majorEvents: [],
+    majorEvents: [...new Set(nation.modifiers.map((modifier) => eventName(modifier.sourceId)))],
     completedProjects: [],
   });
 }
