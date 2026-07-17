@@ -11,6 +11,7 @@
     "start": "vinext start",
     "simulate": "tsx tools/baseline-calibration/index.ts",
     "simulate:baseline": "tsx tools/baseline-calibration/index.ts historical 1949 1 1949 2026",
+    "calibrate": "tsx tools/baseline-calibration/calibrate.ts",
     "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:ui": "npm run build && node --test tests/rendered-html.test.mjs",

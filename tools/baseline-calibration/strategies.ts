@@ -42,12 +42,16 @@ function historicalDecision(year: number): AnnualDecision {
   if (year < 2000) {
     return {
       budget: { ...balancedBudget, agriculture: 0.09, industry: 0.22, infrastructure: 0.2, education: 0.11, research: 0.05, administration: 0.07 },
-      policyIds: ["industry_priority", "expand_opening"],
+      policyIds: year < 1992
+        ? ["industry_priority"]
+        : ["industry_priority", "expand_opening"],
     };
   }
   return {
     budget: { ...balancedBudget, agriculture: 0.055, industry: 0.16, infrastructure: 0.18, education: 0.16, health: 0.11, research: 0.1, administration: 0.055 },
-    policyIds: ["expand_opening", "technology_priority"],
+    policyIds: year < 2012
+      ? ["expand_opening", "technology_priority", "industry_priority"]
+      : ["expand_opening", "technology_priority"],
   };
 }
 

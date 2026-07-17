@@ -1,0 +1,7 @@
+{
+  "openingTarget": 0.78,
+  "closedTarget": 0.08,
+  "openingAdjustmentSpeed": 0.004,
+  "institutionAdjustmentSpeed": 0.0025,
+  "maximumForeignInvestmentShare": 0.035
+}

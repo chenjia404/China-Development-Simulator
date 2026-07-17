@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "description": "V1 历史参考策略的数量级校准目标。实际 GDP 使用 1949 游戏内部不变价口径，不与现价人民币直接比较。",
+    "currentYearMethod": "2026 年目标以 2025 年国家统计局已公布数据为基准，人口延续小幅下降、城镇化温和上升；不作为 2026 年完整年度实绩。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1900430.html",
+      "https://www.stats.gov.cn/zt_18555/zthd/sjtjr/d10j/70cj/202302/t20230216_1909162.html",
+      "https://www.stats.gov.cn/sj/ndsj/2010/html/B0103C.HTM",
+      "https://www.stats.gov.cn/zt_18555/ztfx/yjsld/202303/t20230301_1920321.html",
+      "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1901004.html",
+      "https://www.stats.gov.cn/sj/zxfbhjd/202602/t20260228_1962662.html",
+      "https://uis.unesco.org/sites/default/files/documents/adult-and-youth-literacy-national-regional-and-global-trends-1985-2015-en_0.pdf"
+    ]
+  },
+  "tolerances": {
+    "population": { "kind": "relative", "value": 0.05 },
+    "realGDP": { "kind": "relative", "value": 0.15 },
+    "urbanizationRate": { "kind": "absolute", "value": 0.08 },
+    "lifeExpectancy": { "kind": "absolute", "value": 5 },
+    "literacyRate": { "kind": "absolute", "value": 0.1 },
+    "primarySectorShare": { "kind": "absolute", "value": 0.1 },
+    "secondarySectorShare": { "kind": "absolute", "value": 0.1 },
+    "tertiarySectorShare": { "kind": "absolute", "value": 0.1 }
+  },
+  "years": [
+    { "year": 1949, "population": 541670000, "realGDP": 123000000000, "urbanizationRate": 0.1064, "lifeExpectancy": 36, "literacyRate": 0.2, "primarySectorShare": 0.505, "secondarySectorShare": 0.228, "tertiarySectorShare": 0.267 },
+    { "year": 1957, "population": 646530000, "realGDP": 155000000000, "urbanizationRate": 0.1539, "lifeExpectancy": 57, "literacyRate": 0.35, "primarySectorShare": 0.405, "secondarySectorShare": 0.31, "tertiarySectorShare": 0.285 },
+    { "year": 1965, "population": 725380000, "realGDP": 230000000000, "urbanizationRate": 0.1798, "lifeExpectancy": 64, "literacyRate": 0.5, "primarySectorShare": 0.38, "secondarySectorShare": 0.35, "tertiarySectorShare": 0.27 },
+    { "year": 1978, "population": 962590000, "realGDP": 580000000000, "urbanizationRate": 0.1792, "lifeExpectancy": 67.8, "literacyRate": 0.66, "primarySectorShare": 0.281, "secondarySectorShare": 0.482, "tertiarySectorShare": 0.237 },
+    { "year": 1990, "population": 1143330000, "realGDP": 1600000000000, "urbanizationRate": 0.2641, "lifeExpectancy": 68.55, "literacyRate": 0.778, "primarySectorShare": 0.271, "secondarySectorShare": 0.413, "tertiarySectorShare": 0.316 },
+    { "year": 2000, "population": 1267430000, "realGDP": 5000000000000, "urbanizationRate": 0.3622, "lifeExpectancy": 71.4, "literacyRate": 0.909, "primarySectorShare": 0.147, "secondarySectorShare": 0.456, "tertiarySectorShare": 0.397 },
+    { "year": 2010, "population": 1340910000, "realGDP": 11000000000000, "urbanizationRate": 0.4995, "lifeExpectancy": 74.83, "literacyRate": 0.95, "primarySectorShare": 0.093, "secondarySectorShare": 0.465, "tertiarySectorShare": 0.442 },
+    { "year": 2020, "population": 1412120000, "realGDP": 21000000000000, "urbanizationRate": 0.6389, "lifeExpectancy": 77.93, "literacyRate": 0.97, "primarySectorShare": 0.077, "secondarySectorShare": 0.378, "tertiarySectorShare": 0.545 },
+    { "year": 2026, "population": 1401000000, "realGDP": 26500000000000, "urbanizationRate": 0.686, "lifeExpectancy": 79.2, "literacyRate": 0.975, "primarySectorShare": 0.064, "secondarySectorShare": 0.35, "tertiarySectorShare": 0.586 }
+  ]
+}

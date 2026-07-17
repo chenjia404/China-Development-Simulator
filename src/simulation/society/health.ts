@@ -48,9 +48,9 @@ export function updateHealth(nation: NationState): void {
     100,
   );
   const targetLifeExpectancy = clamp(
-    30 +
-      health.index * 0.55 +
-      Math.min(resources.foodSupplyRatio, 1.05) * 9,
+    35 +
+      Math.sqrt(health.index / 100) * 45 +
+      Math.min(resources.foodSupplyRatio, 1.05) * 5,
     healthConfig.minimumLifeExpectancy,
     healthConfig.maximumLifeExpectancy,
   );

@@ -40,7 +40,7 @@ export function updateWellbeing(nation: NationState): void {
     economy.nominalGDP,
   );
   society.housingIndex = clamp(
-    society.housingIndex + housingInvestment * 2.5 / 12 - 0.001,
+    society.housingIndex + housingInvestment * 20 / 12 - 0.001,
     0,
     100,
   );

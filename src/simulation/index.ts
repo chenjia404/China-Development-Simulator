@@ -20,6 +20,7 @@ export * from "./world/world-simulation";
 export * from "./save/schema";
 export * from "./save/serialization";
 export * from "./reports/history";
+export * from "./policies/policy-engine";
 export * from "./state/game-state";
 export * from "./state/history-state";
 export * from "./state/initial-state";

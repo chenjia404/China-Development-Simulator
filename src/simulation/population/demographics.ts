@@ -33,9 +33,9 @@ export function updateDemographics(
     1,
   );
   const birthSuppression =
-    urbanization * 0.35 +
-    (education.index / 100) * 0.28 +
-    incomeDevelopment * 0.12;
+    urbanization * populationConfig.urbanBirthSuppression +
+    (education.index / 100) * populationConfig.educationBirthSuppression +
+    incomeDevelopment * populationConfig.incomeBirthSuppression;
   const annualBirthRate = clamp(
     populationConfig.baseAnnualBirthRate * (1 - birthSuppression) +
       random.nextNormal(0, populationConfig.birthRateNoise),
@@ -48,7 +48,9 @@ export function updateDemographics(
     population.ageGroups.elderly,
     population.total,
   );
-  const healthProtection = clamp(health.index / 100, 0, 1) * 0.65;
+  const healthProtection =
+    clamp(health.index / 100, 0, 1) *
+    populationConfig.healthMortalityProtection;
   const annualDeathRate = clamp(
     populationConfig.baseAnnualDeathRate *
       (1 - healthProtection) *
@@ -106,7 +108,9 @@ export function updateDemographics(
     ruralPopulation *
     populationConfig.annualUrbanMigrationRate /
     12 *
-    migrationCapacity;
+    migrationCapacity *
+    (nation.policies.includes("expand_opening") ? 2 : 1) *
+    (nation.policies.includes("industry_priority") ? 1.15 : 1);
   population.urbanPopulation = clamp(
     population.total * urbanization + ruralToUrban,
     0,

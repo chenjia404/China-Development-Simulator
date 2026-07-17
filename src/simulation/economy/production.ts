@@ -100,9 +100,17 @@ export function calculateSectorOutput(
 export function allocateLabor(nation: NationState): void {
   const urbanization = nation.society.urbanizationRate;
   const education = nation.education.index / 100;
-  const primaryShare = clamp(0.82 - urbanization * 0.88, 0.08, 0.78);
+  const industrialShift = nation.policies.includes("industry_priority") ? 0.2 : 0;
+  const primaryShare = clamp(
+    0.82 - urbanization * 0.88 - industrialShift * 0.15,
+    0.08,
+    0.78,
+  );
   const tertiaryShare = clamp(
-    0.08 + urbanization * 0.46 + education * 0.18,
+    0.08 +
+      urbanization * 0.46 +
+      education * 0.18 -
+      industrialShift * 0.85,
     0.08,
     0.68,
   );
@@ -143,8 +151,8 @@ export function updateResourceSupply(nation: NationState): void {
   );
   nation.resources.energySupply =
     24 *
-    secondaryCapitalScale ** 0.42 *
-    (0.88 + nation.technology.index / 100 * 0.5);
+    secondaryCapitalScale ** 0.72 *
+    (0.88 + nation.technology.index / 100 * 0.8);
   nation.resources.energyDemand = Math.max(
     1,
     8 + nation.sectors.secondary.output / 2_000_000_000,

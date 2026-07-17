@@ -5,9 +5,9 @@
   "secondaryLagMonths": 108,
   "universityLagMonths": 144,
   "researchTalentLagMonths": 180,
-  "literacyEffect": 0.2,
-  "primaryEffect": 0.16,
-  "secondaryEffect": 0.12,
-  "universityEffect": 0.08,
+  "literacyEffect": 0.4,
+  "primaryEffect": 0.28,
+  "secondaryEffect": 0.22,
+  "universityEffect": 0.12,
   "maximumIndex": 100
 }

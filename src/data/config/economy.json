@@ -4,7 +4,7 @@
   "maximumAnnualCapitalGrowth": 0.18,
   "minimumCapacityUtilization": 0.5,
   "maximumCapacityUtilization": 1.08,
-  "infrastructureMonthlyConvergence": 0.0025,
+  "infrastructureMonthlyConvergence": 3,
   "laborAllocationSpeed": 0.035,
   "annualTFPGrowthSoftLimit": 0.05
 }

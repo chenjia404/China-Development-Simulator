@@ -52,19 +52,21 @@ export function updateTechnology(nation: NationState): void {
     technologyConfig.diffusionStrength;
   const technologyGain =
     researchOutput * (0.2 + technology.adoptionRate * 0.8) + diffusion;
+  const previousTechnologyIndex = technology.index;
   technology.index = clamp(
     technology.index + technologyGain,
     0,
     technologyConfig.maximumTechnologyIndex,
   );
+  const effectiveTechnologyGain = technology.index - previousTechnologyIndex;
 
   const monthlyTFPGrowth = clamp(
-    technologyGain * 0.0035,
+    effectiveTechnologyGain * 0.0267,
     -technologyConfig.maximumMonthlyTFPGrowth,
     technologyConfig.maximumMonthlyTFPGrowth,
   );
   economy.totalFactorProductivity *= 1 + monthlyTFPGrowth;
-  sectors.primary.productivity *= 1 + monthlyTFPGrowth * 0.75;
-  sectors.secondary.productivity *= 1 + monthlyTFPGrowth * 1.15;
-  sectors.tertiary.productivity *= 1 + monthlyTFPGrowth;
+  sectors.primary.productivity *= 1 + monthlyTFPGrowth * 0.65;
+  sectors.secondary.productivity *= 1 + monthlyTFPGrowth * 0.88;
+  sectors.tertiary.productivity *= 1 + monthlyTFPGrowth * 1.25;
 }
