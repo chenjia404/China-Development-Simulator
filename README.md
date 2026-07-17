@@ -11,3 +11,12 @@ npm run build
 ```
 
 模拟逻辑位于 `src/simulation`，浏览器 Worker 位于 `src/worker`。所有数值参数集中放入 `src/data/config`，React 组件不得直接计算经济指标。
+
+## 无界面批量模拟
+
+```powershell
+# 策略 种子 次数 开始年份 结束年份 格式 输出文件
+npm run simulate -- historical 1949 5 1949 2026 json outputs/baseline.json
+```
+
+策略可选：`historical`、`industrial`、`livelihood`、`education_technology`、`debt`、`none`。格式可选 `json` 或 `csv`；省略输出文件时只在终端显示汇总。

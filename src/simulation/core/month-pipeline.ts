@@ -21,6 +21,7 @@ import { updateWellbeing } from "../society/wellbeing";
 import { simulateWorldCountries } from "../world/world-simulation";
 import { calculateWorldRankings } from "../world/rankings";
 import { isEndOfYear } from "./time";
+import { recordHistory } from "../reports/history";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -46,5 +47,6 @@ export function simulateMonth(
   if (isEndOfYear(state.nation.date)) {
     calculateWorldRankings(state);
   }
+  recordHistory(state);
   advanceMonth(state.nation.date);
 }

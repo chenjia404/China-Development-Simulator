@@ -17,6 +17,11 @@ export interface AnnualSnapshot extends MonthlySnapshot {
   lifeExpectancy: number;
   happinessIndex: number;
   povertyRate: number;
+  urbanizationRate: number;
+  literacyRate: number;
+  primarySectorShare: number;
+  secondarySectorShare: number;
+  tertiarySectorShare: number;
   gdpRank: number;
   score: number;
 }
