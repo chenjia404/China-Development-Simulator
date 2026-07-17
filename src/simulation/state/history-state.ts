@@ -1,0 +1,38 @@
+export interface MonthlySnapshot {
+  year: number;
+  month: number;
+  population: number;
+  realGDP: number;
+  nominalGDP: number;
+  inflationRate: number;
+  unemploymentRate: number;
+}
+
+export interface AnnualSnapshot extends MonthlySnapshot {
+  realGDPPerCapita: number;
+  fiscalBalance: number;
+  debtToGDP: number;
+  educationIndex: number;
+  technologyIndex: number;
+  lifeExpectancy: number;
+  happinessIndex: number;
+  povertyRate: number;
+  gdpRank: number;
+  score: number;
+}
+
+export interface AnnualReport {
+  year: number;
+  realGDPGrowth: number;
+  populationGrowth: number;
+  fiscalBalance: number;
+  rankingChange: number;
+  majorEvents: string[];
+  completedProjects: string[];
+}
+
+export interface NationHistory {
+  monthly: MonthlySnapshot[];
+  annual: AnnualSnapshot[];
+  reports: AnnualReport[];
+}
