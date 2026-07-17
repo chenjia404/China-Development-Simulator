@@ -1,0 +1,44 @@
+{
+  "primary": {
+    "baselineOutput": 62000000000,
+    "baselineCapital": 45000000000,
+    "baselineLabor": 180000000,
+    "baselineHumanCapital": 12,
+    "baselineProductivity": 0.65,
+    "capitalElasticity": 0.25,
+    "laborElasticity": 0.65,
+    "humanCapitalElasticity": 0.1,
+    "annualDepreciationRate": 0.03,
+    "valueAddedRatio": 1,
+    "energySensitivity": 0.15,
+    "infrastructureSensitivity": 0.2
+  },
+  "secondary": {
+    "baselineOutput": 28000000000,
+    "baselineCapital": 78000000000,
+    "baselineLabor": 20000000,
+    "baselineHumanCapital": 12,
+    "baselineProductivity": 0.55,
+    "capitalElasticity": 0.42,
+    "laborElasticity": 0.43,
+    "humanCapitalElasticity": 0.15,
+    "annualDepreciationRate": 0.055,
+    "valueAddedRatio": 1,
+    "energySensitivity": 0.65,
+    "infrastructureSensitivity": 0.5
+  },
+  "tertiary": {
+    "baselineOutput": 33000000000,
+    "baselineCapital": 62000000000,
+    "baselineLabor": 27000000,
+    "baselineHumanCapital": 12,
+    "baselineProductivity": 0.6,
+    "capitalElasticity": 0.28,
+    "laborElasticity": 0.47,
+    "humanCapitalElasticity": 0.25,
+    "annualDepreciationRate": 0.045,
+    "valueAddedRatio": 1,
+    "energySensitivity": 0.25,
+    "infrastructureSensitivity": 0.65
+  }
+}

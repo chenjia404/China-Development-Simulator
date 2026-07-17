@@ -4,6 +4,8 @@ export * from "./core/math";
 export * from "./core/protocol";
 export * from "./core/random";
 export * from "./core/time";
+export * from "./economy/gdp";
+export * from "./economy/production";
 export * from "./save/schema";
 export * from "./state/game-state";
 export * from "./state/history-state";
