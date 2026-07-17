@@ -1,9 +1,10 @@
 /// <reference lib="webworker" />
 
 import type { WorkerRequest, WorkerResponse } from "../simulation";
-import { SIMULATION_VERSION } from "../simulation";
+import { createSimulationEngine, SIMULATION_VERSION } from "../simulation";
 
 const scope: DedicatedWorkerGlobalScope = self as DedicatedWorkerGlobalScope;
+const engine = createSimulationEngine();
 
 scope.addEventListener("message", (event: MessageEvent<WorkerRequest>) => {
   const request = event.data;
@@ -18,15 +19,24 @@ scope.addEventListener("message", (event: MessageEvent<WorkerRequest>) => {
     return;
   }
 
-  const response: WorkerResponse = {
-    requestId: request.requestId,
-    type: "ERROR",
-    error: {
-      code: "ENGINE_NOT_READY",
-      message: "模拟引擎将在后续任务中接入。",
-    },
-  };
-  scope.postMessage(response);
+  try {
+    const response: WorkerResponse = {
+      requestId: request.requestId,
+      type: "RESULT",
+      result: engine.dispatch(request.command),
+    };
+    scope.postMessage(response);
+  } catch (error) {
+    const response: WorkerResponse = {
+      requestId: request.requestId,
+      type: "ERROR",
+      error: {
+        code: "SIMULATION_ERROR",
+        message: error instanceof Error ? error.message : "未知模拟错误",
+      },
+    };
+    scope.postMessage(response);
+  }
 });
 
 export {};

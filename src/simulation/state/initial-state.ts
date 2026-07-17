@@ -1,0 +1,188 @@
+import { createGameDate } from "../core/time";
+import { SAVE_SCHEMA_VERSION, SIMULATION_VERSION } from "../save/schema";
+import type {
+  FiscalBudget,
+  GameState,
+  SectorId,
+  SectorState,
+} from "./game-state";
+
+const INITIAL_BUDGET: FiscalBudget = {
+  education: 0.1,
+  health: 0.08,
+  agriculture: 0.12,
+  industry: 0.18,
+  infrastructure: 0.15,
+  research: 0.03,
+  housing: 0.06,
+  welfare: 0.08,
+  defense: 0.1,
+  administration: 0.1,
+};
+
+function createSector(
+  id: SectorId,
+  output: number,
+  capitalStock: number,
+  laborForce: number,
+  productivity: number,
+): SectorState {
+  return {
+    id,
+    output,
+    valueAdded: output,
+    capitalStock,
+    laborForce,
+    productivity,
+    capacityUtilization: 0.75,
+    averageWage: 0,
+    employment: laborForce,
+    technologyLevel: 5,
+  };
+}
+
+export function createInitialGameState(seed: number, startYear = 1949): GameState {
+  const normalizedSeed = seed >>> 0;
+  const population = 541_670_000;
+  const workingAge = population * 0.56;
+
+  return {
+    schemaVersion: SAVE_SCHEMA_VERSION,
+    simulationVersion: SIMULATION_VERSION,
+    seed: normalizedSeed,
+    randomState: normalizedSeed,
+    nation: {
+      id: "china",
+      name: "中国",
+      date: createGameDate(startYear),
+      population: {
+        total: population,
+        ageGroups: {
+          children: population * 0.35,
+          workingAge,
+          elderly: population * 0.09,
+        },
+        urbanPopulation: population * 0.1064,
+        ruralPopulation: population * 0.8936,
+        annualBirthRate: 0.036,
+        annualDeathRate: 0.02,
+        monthlyBirths: 0,
+        monthlyDeaths: 0,
+        netMigration: 0,
+      },
+      labor: {
+        laborForce: workingAge * 0.78,
+        employed: workingAge * 0.75,
+        unemployed: workingAge * 0.03,
+        participationRate: 0.78,
+        unemploymentRate: 0.0385,
+        effectiveLabor: workingAge * 0.47,
+        skillMatchRate: 0.72,
+      },
+      economy: {
+        nominalGDP: 123_000_000_000,
+        realGDP: 123_000_000_000,
+        realGDPIndex: 100,
+        nominalGDPPerCapita: 227.08,
+        realGDPPerCapita: 227.08,
+        pppGDPPerCapita: 450,
+        annualRealGDPGrowth: 0,
+        annualNominalGDPGrowth: 0,
+        capitalStock: 185_000_000_000,
+        totalFactorProductivity: 1,
+        humanCapitalIndex: 12,
+        infrastructureIndex: 8,
+        institutionalEfficiency: 0.35,
+        inflationRate: 0.02,
+        householdIncome: 65_000_000_000,
+        householdConsumption: 58_000_000_000,
+        nationalSavings: 7_000_000_000,
+        investment: 18_000_000_000,
+        priceLevelIndex: 1,
+      },
+      sectors: {
+        primary: createSector("primary", 62_000_000_000, 45_000_000_000, 240_000_000, 0.65),
+        secondary: createSector("secondary", 28_000_000_000, 78_000_000_000, 38_000_000, 0.55),
+        tertiary: createSector("tertiary", 33_000_000_000, 62_000_000_000, 45_000_000, 0.6),
+      },
+      fiscal: {
+        revenue: 12_000_000_000,
+        expenditure: 13_000_000_000,
+        balance: -1_000_000_000,
+        governmentDebt: 5_000_000_000,
+        debtToGDP: 0.0407,
+        debtInterestRate: 0.03,
+        interestExpense: 150_000_000,
+        statutoryTaxRate: 0.12,
+        effectiveTaxRate: 0.095,
+        monetaryFinancing: 0,
+        budget: { ...INITIAL_BUDGET },
+      },
+      education: {
+        literacyRate: 0.2,
+        primaryCoverage: 0.25,
+        secondaryCoverage: 0.05,
+        universityCoverage: 0.005,
+        averageYearsOfSchooling: 1.6,
+        index: 12,
+        researchTalent: 40_000,
+        delayedInvestment: Array.from({ length: 240 }, () => 0),
+      },
+      health: {
+        coverageRate: 0.12,
+        hospitalCapacity: 5,
+        doctorsPerThousand: 0.6,
+        lifeExpectancy: 35,
+        index: 12,
+      },
+      technology: {
+        index: 6,
+        researchPoints: 0,
+        adoptionRate: 0.08,
+        monthlyResearchOutput: 0,
+      },
+      resources: {
+        foodProduction: 113_000_000,
+        foodDemand: 120_000_000,
+        foodSupplyRatio: 0.942,
+        energySupply: 24,
+        energyDemand: 25,
+        energySupplyRatio: 0.96,
+      },
+      society: {
+        happinessIndex: 42,
+        stabilityIndex: 48,
+        povertyRate: 0.8,
+        giniCoefficient: 0.32,
+        urbanizationRate: 0.1064,
+        medianDisposableIncome: 85,
+        housingIndex: 18,
+      },
+      trade: {
+        exports: 2_000_000_000,
+        imports: 2_500_000_000,
+        balance: -500_000_000,
+        openness: 0.05,
+        foreignInvestment: 0,
+      },
+      policies: [],
+      projects: [],
+      modifiers: [],
+      history: { monthly: [], annual: [], reports: [] },
+    },
+    world: {
+      countries: [],
+      rankings: {
+        nominalGDP: {},
+        nominalGDPPerCapita: {},
+        technology: {},
+        education: {},
+        lifeExpectancy: {},
+        happiness: {},
+        influence: {},
+      },
+      globalDemandIndex: 1,
+      worldPriceLevel: 1,
+    },
+  };
+}
