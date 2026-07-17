@@ -1,0 +1,8 @@
+{
+  "coverageEffect": 4,
+  "capacityEffect": 16,
+  "doctorTrainingEffect": 0.22,
+  "lifeExpectancyAdjustmentSpeed": 0.0035,
+  "minimumLifeExpectancy": 20,
+  "maximumLifeExpectancy": 100
+}

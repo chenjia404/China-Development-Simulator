@@ -14,6 +14,10 @@ import { calculateFiscalRevenue } from "../fiscal/revenue";
 import { calculateFiscalSpending } from "../fiscal/spending";
 import { updateDebt } from "../fiscal/debt";
 import { updateInflation } from "../economy/inflation";
+import { updateEducation } from "../society/education";
+import { updateHealth } from "../society/health";
+import { updateTechnology } from "../technology/research";
+import { updateWellbeing } from "../society/wellbeing";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -21,7 +25,10 @@ export function simulateMonth(
   _random: RandomGenerator,
 ): void {
   updateDemographics(state.nation, _random);
+  updateEducation(state.nation);
+  updateHealth(state.nation);
   updateLaborForce(state.nation);
+  updateTechnology(state.nation);
   updateCapitalAndInvestment(state.nation);
   allocateLabor(state.nation);
   updateResourceSupply(state.nation);
@@ -31,5 +38,6 @@ export function simulateMonth(
   calculateFiscalSpending(state.nation);
   updateDebt(state.nation);
   updateInflation(state.nation);
+  updateWellbeing(state.nation);
   advanceMonth(state.nation.date);
 }

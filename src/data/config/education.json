@@ -1,0 +1,13 @@
+{
+  "queueMonths": 240,
+  "literacyLagMonths": 24,
+  "primaryLagMonths": 72,
+  "secondaryLagMonths": 108,
+  "universityLagMonths": 144,
+  "researchTalentLagMonths": 180,
+  "literacyEffect": 0.2,
+  "primaryEffect": 0.16,
+  "secondaryEffect": 0.12,
+  "universityEffect": 0.08,
+  "maximumIndex": 100
+}
