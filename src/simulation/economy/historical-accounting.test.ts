@@ -10,17 +10,17 @@ import {
 
 describe("历史经济统计口径", () => {
   it("三个关键年份可折算为国家统计局当年价人均 GDP", () => {
-    expect(calculateCurrentPriceGDPPerCapita(538.2627222468241, 1978))
+    expect(calculateCurrentPriceGDPPerCapita(540.5264821668958, 1978))
       .toBeCloseTo(381, 6);
-    expect(calculateCurrentPriceGDPPerCapita(1472.4058582406724, 1990))
+    expect(calculateCurrentPriceGDPPerCapita(1421.4933638528887, 1990))
       .toBeCloseTo(1644, 6);
-    expect(calculateCurrentPriceGDPPerCapita(4038.042111736811, 2000))
+    expect(calculateCurrentPriceGDPPerCapita(3848.768260742033, 2000))
       .toBeCloseTo(7858, 6);
   });
 
   it("1978 年史实口径为约 156.7 美元并位列 146 个经济体中的第 134 名", () => {
     const currentUSD = calculateCurrentUSDGDPPerCapita(
-      538.0966086476913,
+      540.5264821668958,
       1978,
     );
     const standing = calculateGlobalGDPPerCapitaStanding(currentUSD, 1978);

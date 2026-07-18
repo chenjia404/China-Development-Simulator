@@ -28,6 +28,7 @@ export interface HistoricalEventModifierDefinition {
   target: string;
   operation: ModifierState["operation"];
   value: number;
+  delayMonths?: number;
   durationMonths?: number;
 }
 
@@ -288,8 +289,9 @@ function applyChoice(
       target: modifier.target,
       operation: modifier.operation,
       value: modifier.value,
+      delayMonths: modifier.delayMonths ?? 0,
       remainingMonths: modifier.durationMonths ?? choice.durationMonths,
-      stackRule: "replace",
+      stackRule: "stack",
     });
   }
   const record: HistoricalEventRecord = {

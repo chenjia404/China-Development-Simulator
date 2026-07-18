@@ -23,6 +23,7 @@ import {
   type StrategyId,
 } from "../baseline-calibration/strategies";
 import koreanCatchUpTargets from "../../src/data/config/korean-catch-up-targets.json";
+import culturalRevolutionTargets from "../../src/data/config/cultural-revolution-impact-targets.json";
 
 export interface AuditCheck {
   id: string;
@@ -266,9 +267,29 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   );
   const optimized1978 = counterfactualSnapshot(optimizedHistoricalRoute, 1978);
   const strictHistorical1990 = counterfactualSnapshot(strictCounterfactual, 1990);
+  const avoidedCulturalRevolution1990 = counterfactualSnapshot(
+    avoidedCulturalRevolution,
+    1990,
+  );
   const optimized1990 = counterfactualSnapshot(optimizedHistoricalRoute, 1990);
   const strictHistorical2000 = counterfactualSnapshot(strictCounterfactual, 2000);
   const optimized2000 = counterfactualSnapshot(optimizedHistoricalRoute, 2000);
+  const culturalRevolutionGrowthResults =
+    culturalRevolutionTargets.annualRealGDPGrowthAnchors.map((target) => {
+      const current = historical.annual.find(
+        (snapshot) => snapshot.year === target.year,
+      );
+      const previous = historical.annual.find(
+        (snapshot) => snapshot.year === target.year - 1,
+      );
+      if (!current || !previous) {
+        throw new Error(`文化大革命审计缺少 ${target.year} 年相邻快照`);
+      }
+      return {
+        ...target,
+        simulatedGrowth: current.realGDP / previous.realGDP - 1,
+      };
+    });
 
   const runCrisisChoice = (choiceId: string) => {
     const engine = createSimulationEngine(
@@ -678,6 +699,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         optimized1978.educationIndex > strictHistorical1978.educationIndex &&
         optimized1990.technologyIndex > strictHistorical1990.technologyIndex,
       `1978 年史实/避免大跃进与公社化/避免文革/全部优化：$${strictHistorical1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCampaigns1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCulturalRevolution1978.currentUSDGDPPerCapita.toFixed(1)}/$${optimized1978.currentUSDGDPPerCapita.toFixed(1)}；全部优化路线 1990/2000 年为 $${optimized1990.currentUSDGDPPerCapita.toFixed(1)}/$${optimized2000.currentUSDGDPPerCapita.toFixed(1)}，分别为史实的 ${(optimized1990.currentUSDGDPPerCapita / strictHistorical1990.currentUSDGDPPerCapita).toFixed(2)} 倍/${(optimized2000.currentUSDGDPPerCapita / strictHistorical2000.currentUSDGDPPerCapita).toFixed(2)} 倍`,
+    ),
+    makeCheck(
+      "cultural-revolution-economic-impact",
+      "文化大革命史实路线重现两年收缩、阶段恢复与长期教育创新损失",
+      culturalRevolutionGrowthResults.every(
+        (result) =>
+          Math.abs(result.simulatedGrowth - result.growth) <=
+          result.absoluteTolerance,
+      ) &&
+        avoidedCulturalRevolution1978.educationIndex >
+          strictHistorical1978.educationIndex &&
+        avoidedCulturalRevolution1990.technologyIndex >
+          strictHistorical1990.technologyIndex,
+      `${culturalRevolutionGrowthResults.map((result) => `${result.year} 年 ${(result.simulatedGrowth * 100).toFixed(1)}%（参考 ${(result.growth * 100).toFixed(1)}%）`).join("；")}；避免文革后 1978 年教育指数 ${avoidedCulturalRevolution1978.educationIndex.toFixed(1)}，史实 ${strictHistorical1978.educationIndex.toFixed(1)}；1990 年科技指数 ${avoidedCulturalRevolution1990.technologyIndex.toFixed(1)}/${strictHistorical1990.technologyIndex.toFixed(1)}`,
     ),
     makeCheck(
       "historical-causality",

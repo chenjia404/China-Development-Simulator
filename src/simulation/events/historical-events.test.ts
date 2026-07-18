@@ -470,9 +470,26 @@ describe("确定性历史事件", () => {
     const choices = getHistoricalEventChoices(
       "cultural_revolution_disruption_1966",
     );
+    const historicalPath = choices[0];
     const protectedInstitutions = choices.find(
       (choice) => choice.id === "protect_institutions",
     );
+    expect(
+      historicalPath?.modifiers.some(
+        (modifier) =>
+          modifier.target === "sector.secondary.output" &&
+          modifier.delayMonths === 8 &&
+          modifier.durationMonths === 36,
+      ),
+    ).toBe(true);
+    expect(
+      historicalPath?.modifiers.some(
+        (modifier) =>
+          modifier.target === "sector.secondary.output" &&
+          modifier.delayMonths === 116 &&
+          modifier.durationMonths === 12,
+      ),
+    ).toBe(true);
     expect(protectedInstitutions).toMatchObject({
       durationMonths: 144,
       outcome: "prevented",
@@ -534,6 +551,9 @@ describe("确定性历史事件", () => {
     ).toBe(false);
     expect(protectedAfterExpiry.economy.totalFactorProductivity).toBeGreaterThan(
       historicalAfterExpiry.economy.totalFactorProductivity,
+    );
+    expect(protectedAfterExpiry.economy.humanCapitalIndex).toBeGreaterThan(
+      historicalAfterExpiry.economy.humanCapitalIndex,
     );
   });
 

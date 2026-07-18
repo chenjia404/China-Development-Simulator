@@ -7,7 +7,10 @@ export function applyModifiers(
   baseValue: number,
 ): number {
   const modifiers = nation.modifiers
-    .filter((modifier) => modifier.target === target)
+    .filter(
+      (modifier) =>
+        modifier.target === target && (modifier.delayMonths ?? 0) <= 0,
+    )
     .toSorted((left, right) => left.id.localeCompare(right.id));
   let value = baseValue;
   for (const modifier of modifiers) {
@@ -42,6 +45,10 @@ export function addModifier(nation: NationState, incoming: ModifierState): void 
 
 export function advanceModifiers(nation: NationState): void {
   for (const modifier of nation.modifiers) {
+    if ((modifier.delayMonths ?? 0) > 0) {
+      modifier.delayMonths = (modifier.delayMonths ?? 0) - 1;
+      continue;
+    }
     if (modifier.remainingMonths !== null) modifier.remainingMonths -= 1;
   }
   nation.modifiers = nation.modifiers.filter(

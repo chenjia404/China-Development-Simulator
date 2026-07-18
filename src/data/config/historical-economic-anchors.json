@@ -12,17 +12,17 @@
   },
   "currentPriceGDPPerCapitaFactors": [
     { "year": 1949, "factor": 1.0 },
-    { "year": 1978, "factor": 0.707832781749448 },
-    { "year": 1990, "factor": 1.1165399748982 },
-    { "year": 2000, "factor": 1.94599258317793 },
+    { "year": 1978, "factor": 0.7048683322094115 },
+    { "year": 1990, "factor": 1.1565301969078616 },
+    { "year": 2000, "factor": 2.0416921642575065 },
     { "year": 2020, "factor": 5.289895308745692 },
     { "year": 2026, "factor": 5.150396365080562 }
   ],
   "currentUSDGDPPerCapitaFactors": [
     { "year": 1949, "factor": 0.22 },
-    { "year": 1978, "factor": 0.291125409 },
-    { "year": 1990, "factor": 0.216314 },
-    { "year": 2000, "factor": 0.240018 },
+    { "year": 1978, "factor": 0.2899025397827159 },
+    { "year": 1990, "factor": 0.22406013851286735 },
+    { "year": 2000, "factor": 0.2518208253497551 },
     { "year": 2020, "factor": 0.77144 },
     { "year": 2026, "factor": 0.71315 }
   ],
@@ -35,9 +35,9 @@
   "rankSensitivityPerIncomeDoubling": 12,
   "worldGDPComparisonFactors": [
     { "year": 1949, "factor": 1.0 },
-    { "year": 1978, "factor": 0.466357863515 },
-    { "year": 1990, "factor": 0.18871533974458 },
-    { "year": 2000, "factor": 0.256474442613805 },
+    { "year": 1978, "factor": 0.46815353313850444 },
+    { "year": 1990, "factor": 0.1967249365291469 },
+    { "year": 2000, "factor": 0.27044011267461593 },
     { "year": 2026, "factor": 0.225889938495 }
   ]
 }

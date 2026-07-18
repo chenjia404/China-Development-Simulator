@@ -179,6 +179,8 @@ export interface ModifierState {
   target: string;
   operation: "add" | "multiply" | "override";
   value: number;
+  /** 生效前等待月数；旧存档缺失时按 0 处理。 */
+  delayMonths?: number;
   remainingMonths: number | null;
   stackRule: "stack" | "replace" | "max" | "min";
 }

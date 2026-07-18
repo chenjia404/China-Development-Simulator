@@ -47,6 +47,29 @@ describe("确定性随机事件与 Modifier", () => {
     expect(applyModifiers(nation, "sector.primary.output", 100)).toBe(100);
   });
 
+  it("延迟修正只在等待期结束后计入持续时间", () => {
+    const nation = createInitialGameState(1).nation;
+    addModifier(nation, {
+      id: "延迟测试修正器",
+      sourceId: "test",
+      target: "sector.secondary.output",
+      operation: "multiply",
+      value: 0.8,
+      delayMonths: 2,
+      remainingMonths: 1,
+      stackRule: "stack",
+    });
+
+    expect(applyModifiers(nation, "sector.secondary.output", 100)).toBe(100);
+    advanceModifiers(nation);
+    expect(applyModifiers(nation, "sector.secondary.output", 100)).toBe(100);
+    advanceModifiers(nation);
+    expect(applyModifiers(nation, "sector.secondary.output", 100)).toBe(80);
+    expect(nation.modifiers[0]?.remainingMonths).toBe(1);
+    advanceModifiers(nation);
+    expect(nation.modifiers).toHaveLength(0);
+  });
+
   it("旧存档缺少事件随机状态时自动迁移", () => {
     const legacyState = createInitialGameState(77);
     delete (legacyState as Partial<typeof legacyState>).eventRandomState;

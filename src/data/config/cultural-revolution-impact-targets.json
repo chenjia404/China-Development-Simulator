@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "description": "文化大革命宏观收缩与长期人力资本、创新损失的校验依据。宏观锚点用于检查史实路线的年度形状，不用于给 GDP 直接赋值。",
+    "sources": [
+      "https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG?locations=CN",
+      "https://ccj.pku.edu.cn/article/info?id=301469698",
+      "https://openresearch-repository.anu.edu.au/items/16cf1606-4a4c-4c6f-a62e-359c5b1e73a2",
+      "https://www.nber.org/papers/w27107"
+    ],
+    "educationEvidence": {
+      "estimatedPotentialSchoolingReduction": 0.143,
+      "urbanRegularSchoolInterruptionYears": 6,
+      "universityRecruitmentInterruption": "1966—1976"
+    }
+  },
+  "annualRealGDPGrowthAnchors": [
+    { "year": 1967, "growth": -0.0577, "absoluteTolerance": 0.025 },
+    { "year": 1968, "growth": -0.041, "absoluteTolerance": 0.025 },
+    { "year": 1969, "growth": 0.169, "absoluteTolerance": 0.04 },
+    { "year": 1970, "growth": 0.193, "absoluteTolerance": 0.04 },
+    { "year": 1976, "growth": -0.0157, "absoluteTolerance": 0.025 }
+  ]
+}

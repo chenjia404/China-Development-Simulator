@@ -245,14 +245,38 @@
     "month": 5,
     "category": "社会教育",
     "impact": "negative",
-    "description": "教育、科研、行政和企业管理体系受到长期扰动，人才培养中断，制度运行与服务业效率下降。部分工业生产依靠行政动员维持。",
-    "effects": ["教育积累受阻", "科研效率下降", "制度与服务业受损"],
+    "description": "1966—1976 年教育、科研、行政和企业管理体系长期受扰。1967—1968 年群众组织冲突、停工和运输失序造成连续经济收缩，随后生产秩序分阶段恢复；高校招生和正常教学中断又形成长期人力资本与创新损失。",
+    "effects": ["1967—1968 年工农业与服务业连续收缩", "1976 年再次出现生产扰动", "正规教育和高校招生长期中断", "科研、企业管理与投资效率下降", "人才与创新损失延续至事件结束后"],
     "durationMonths": 120,
     "modifiers": [
-      { "target": "education.efficiency", "operation": "multiply", "value": 0.82 },
-      { "target": "technology.researchOutput", "operation": "multiply", "value": 0.78 },
-      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.973 },
-      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.94 }
+      { "target": "education.efficiency", "operation": "multiply", "value": 0.68 },
+      { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 0.78 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 0.65 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.97 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.9 },
+
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.96, "delayMonths": 8, "durationMonths": 36 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.84, "delayMonths": 8, "durationMonths": 36 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.86, "delayMonths": 8, "durationMonths": 36 },
+      { "target": "resources.energySupply", "operation": "multiply", "value": 0.94, "delayMonths": 8, "durationMonths": 36 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.78, "delayMonths": 8, "durationMonths": 36 },
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.86, "delayMonths": 8, "durationMonths": 36 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.04, "delayMonths": 8, "durationMonths": 36 },
+
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.95, "delayMonths": 20, "durationMonths": 12 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.88, "delayMonths": 20, "durationMonths": 12 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.88, "delayMonths": 20, "durationMonths": 12 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.9, "delayMonths": 20, "durationMonths": 12 },
+
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.18, "delayMonths": 44, "durationMonths": 72 },
+      { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.07, "delayMonths": 44, "durationMonths": 72 },
+
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.95, "delayMonths": 116, "durationMonths": 12 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.86, "delayMonths": 116, "durationMonths": 12 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.85, "delayMonths": 116, "durationMonths": 12 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.9, "delayMonths": 116, "durationMonths": 12 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.03, "delayMonths": 116, "durationMonths": 12 }
     ]
   },
   {
