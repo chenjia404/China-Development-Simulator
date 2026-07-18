@@ -349,7 +349,7 @@ describe("确定性历史事件", () => {
         "sector.primary.output",
         100,
       ),
-    ).toBeCloseTo(112);
+    ).toBeCloseTo(120);
   });
 
   it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {
@@ -457,6 +457,59 @@ describe("确定性历史事件", () => {
       );
     }
     expect(relation(aided, "japan")).toBeCloseTo(relation(historical, "japan"));
+  });
+
+  it("不发动文革会长期保护教育、科研、制度和投资传导", () => {
+    const choices = getHistoricalEventChoices(
+      "cultural_revolution_disruption_1966",
+    );
+    const protectedInstitutions = choices.find(
+      (choice) => choice.id === "protect_institutions",
+    );
+    expect(protectedInstitutions).toMatchObject({
+      durationMonths: 144,
+      outcome: "prevented",
+    });
+    expect(
+      protectedInstitutions?.modifiers.find(
+        (modifier) => modifier.target === "education.efficiency",
+      )?.value,
+    ).toBe(1.25);
+    expect(
+      protectedInstitutions?.modifiers.some(
+        (modifier) => modifier.target === "capital.investmentEfficiency",
+      ),
+    ).toBe(true);
+
+    const runChoice = (choiceId: string) => {
+      const state = createInitialGameState(1966, 1966, "interactive");
+      state.nation.date.month = 5;
+      state.nation.date.elapsedMonths = (1966 - 1949) * 12 + 4;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "cultural_revolution_disruption_1966",
+        choiceId,
+      });
+      engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+      return engine.getState().nation;
+    };
+    const historical = runChoice("historical_path");
+    const protectedRoute = runChoice("protect_institutions");
+
+    expect(
+      applyModifiers(protectedRoute, "education.efficiency", 1),
+    ).toBeGreaterThan(
+      applyModifiers(historical, "education.efficiency", 1),
+    );
+    expect(protectedRoute.technology.index).toBeGreaterThan(
+      historical.technology.index,
+    );
+    expect(protectedRoute.economy.institutionalEfficiency).toBeGreaterThan(
+      historical.economy.institutionalEfficiency,
+    );
   });
 
   it("旧存档缺少历史事件记录时自动迁移", () => {

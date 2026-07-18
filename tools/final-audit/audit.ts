@@ -17,7 +17,11 @@ import {
 } from "../../src/simulation/index";
 import { compareWithTargets, summarizeCalibration } from "../baseline-calibration/calibration";
 import { runSimulation, type SimulationRunResult } from "../baseline-calibration/runner";
-import { strategyIds, type StrategyId } from "../baseline-calibration/strategies";
+import {
+  getAnnualDecision,
+  strategyIds,
+  type StrategyId,
+} from "../baseline-calibration/strategies";
 
 export interface AuditCheck {
   id: string;
@@ -193,45 +197,70 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const preventedEvents = causalEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "prevented");
 
-  const preGreatLeapState = runSimulation({
-    strategy: "historical",
-    seed,
-    startYear: 1949,
-    endYear: 1957,
-  }).finalState;
-  const runGreatLeapRoute = (
-    greatLeapChoiceId: string,
-    communesChoiceId: string,
+  const runHistoricalCounterfactual = (
+    choices: Readonly<Record<string, string>>,
   ) => {
-    const engine = createSimulationEngine(preGreatLeapState);
-    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
-    engine.dispatch({
-      type: "RESOLVE_HISTORICAL_EVENT",
-      eventId: "great_leap_forward_1958",
-      choiceId: greatLeapChoiceId,
-    });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
-    engine.dispatch({
-      type: "RESOLVE_HISTORICAL_EVENT",
-      eventId: "peoples_communes_1958",
-      choiceId: communesChoiceId,
-    });
-    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 245 });
-    return engine.getState().nation.history.annual.find(
-      (snapshot) => snapshot.year === 1978,
-    )!;
+    const engine = createSimulationEngine(
+      createInitialGameState(seed, 1949, "interactive"),
+    );
+    for (let year = 1949; year <= 2000; year += 1) {
+      const decision = getAnnualDecision("historical", year);
+      if (decision.budget) {
+        engine.dispatch({ type: "UPDATE_BUDGET", budget: decision.budget });
+      }
+      engine.dispatch({ type: "SET_POLICIES", policyIds: decision.policyIds });
+      for (let month = 0; month < 12; month += 1) {
+        const elapsedMonths = engine.getState().nation.date.elapsedMonths;
+        while (engine.getState().nation.date.elapsedMonths === elapsedMonths) {
+          engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+          const pendingEventId = engine.getState().nation.pendingHistoricalEventId;
+          if (pendingEventId) {
+            engine.dispatch({
+              type: "RESOLVE_HISTORICAL_EVENT",
+              eventId: pendingEventId,
+              choiceId: choices[pendingEventId] ?? "historical_path",
+            });
+          }
+        }
+      }
+    }
+    return engine.getState().nation.history.annual;
   };
-  const strictHistorical1978 = runGreatLeapRoute(
-    "historical_path",
-    "historical_path",
+  const campaignChoices = {
+    great_leap_forward_1958: "avoid_great_leap",
+    peoples_communes_1958: "avoid_communes",
+  };
+  const culturalRevolutionChoices = {
+    cultural_revolution_disruption_1966: "protect_institutions",
+  };
+  const strictCounterfactual = runHistoricalCounterfactual({});
+  const avoidedCampaigns = runHistoricalCounterfactual(campaignChoices);
+  const avoidedCulturalRevolution = runHistoricalCounterfactual(
+    culturalRevolutionChoices,
   );
-  const avoidedCampaigns1978 = runGreatLeapRoute(
-    "avoid_great_leap",
-    "avoid_communes",
+  const optimizedHistoricalRoute = runHistoricalCounterfactual({
+    ...campaignChoices,
+    ...culturalRevolutionChoices,
+  });
+  const counterfactualSnapshot = (
+    snapshots: typeof optimizedHistoricalRoute,
+    year: number,
+  ) => {
+    const snapshot = snapshots.find((candidate) => candidate.year === year);
+    if (!snapshot) throw new Error(`反事实路线缺少 ${year} 年快照`);
+    return snapshot;
+  };
+  const strictHistorical1978 = counterfactualSnapshot(strictCounterfactual, 1978);
+  const avoidedCampaigns1978 = counterfactualSnapshot(avoidedCampaigns, 1978);
+  const avoidedCulturalRevolution1978 = counterfactualSnapshot(
+    avoidedCulturalRevolution,
+    1978,
   );
+  const optimized1978 = counterfactualSnapshot(optimizedHistoricalRoute, 1978);
+  const strictHistorical1990 = counterfactualSnapshot(strictCounterfactual, 1990);
+  const optimized1990 = counterfactualSnapshot(optimizedHistoricalRoute, 1990);
+  const strictHistorical2000 = counterfactualSnapshot(strictCounterfactual, 2000);
+  const optimized2000 = counterfactualSnapshot(optimizedHistoricalRoute, 2000);
 
   const runCrisisChoice = (choiceId: string) => {
     const engine = createSimulationEngine(
@@ -603,14 +632,30 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "historical-event-income-impact",
-      "大跃进与人民公社史实选择会压低 1978 年人均产出和全球排名",
-      avoidedCampaigns1978.realGDPPerCapita >
-          strictHistorical1978.realGDPPerCapita &&
-        avoidedCampaigns1978.currentUSDGDPPerCapita >
-          strictHistorical1978.currentUSDGDPPerCapita &&
-        avoidedCampaigns1978.gdpPerCapitaRank <
-          strictHistorical1978.gdpPerCapitaRank,
-      `史实/避免路线：1978 年人均 GDP $${strictHistorical1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCampaigns1978.currentUSDGDPPerCapita.toFixed(1)}，全球第 ${strictHistorical1978.gdpPerCapitaRank}/${avoidedCampaigns1978.gdpPerCapitaRank} 名`,
+      "史实选择严格匹配现实锚点，更优历史决策按传导链产生显著累计收益",
+      [1978, 1990, 2000].every((year) => {
+        const strict = counterfactualSnapshot(strictCounterfactual, year);
+        const baseline = historical.annual.find((snapshot) => snapshot.year === year);
+        return baseline &&
+          Math.abs(strict.currentUSDGDPPerCapita - baseline.currentUSDGDPPerCapita) <
+            1e-9 &&
+          strict.gdpPerCapitaRank === baseline.gdpPerCapitaRank;
+      }) &&
+        avoidedCampaigns1978.currentUSDGDPPerCapita >=
+          strictHistorical1978.currentUSDGDPPerCapita * 1.4 &&
+        avoidedCampaigns1978.gdpPerCapitaRank <=
+          strictHistorical1978.gdpPerCapitaRank - 5 &&
+        avoidedCulturalRevolution1978.currentUSDGDPPerCapita >=
+          strictHistorical1978.currentUSDGDPPerCapita * 1.25 &&
+        optimized1978.currentUSDGDPPerCapita >=
+          strictHistorical1978.currentUSDGDPPerCapita * 1.8 &&
+        optimized1990.currentUSDGDPPerCapita >=
+          strictHistorical1990.currentUSDGDPPerCapita * 1.5 &&
+        optimized2000.currentUSDGDPPerCapita >=
+          strictHistorical2000.currentUSDGDPPerCapita * 1.15 &&
+        optimized1978.educationIndex > strictHistorical1978.educationIndex &&
+        optimized1990.technologyIndex > strictHistorical1990.technologyIndex,
+      `1978 年史实/避免大跃进与公社化/避免文革/全部优化：$${strictHistorical1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCampaigns1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCulturalRevolution1978.currentUSDGDPPerCapita.toFixed(1)}/$${optimized1978.currentUSDGDPPerCapita.toFixed(1)}；全部优化路线 1990/2000 年为 $${optimized1990.currentUSDGDPPerCapita.toFixed(1)}/$${optimized2000.currentUSDGDPPerCapita.toFixed(1)}，史实为 $${strictHistorical1990.currentUSDGDPPerCapita.toFixed(1)}/$${strictHistorical2000.currentUSDGDPPerCapita.toFixed(1)}`,
     ),
     makeCheck(
       "historical-causality",
