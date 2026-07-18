@@ -1,6 +1,7 @@
 import technologyTreeConfig from "../../data/config/technology-tree.json";
 import { clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 export type TechnologyCategory = "农业" | "工业" | "能源" | "信息";
 
@@ -142,7 +143,14 @@ export function updateTechnologyTree(
     return;
   }
   nation.technology.activeResearchProgress +=
-    Math.max(0, monthlyResearchOutput) *
+    Math.max(
+      0,
+      applyModifiers(
+        nation,
+        "technology.treeResearchProgress",
+        monthlyResearchOutput,
+      ),
+    ) *
     technologyTreeConfig.researchAllocationRate;
   if (nation.technology.activeResearchProgress >= active.researchCost) {
     nation.technology.completedTechnologyIds.push(active.id);
@@ -178,17 +186,22 @@ export function calculateTechnologyTreeMetrics(
     0,
     1,
   );
+  const tierReadiness = industryTier /
+    technologyTreeConfig.industryTierCount;
+  const capabilityReadiness =
+    effectiveIndustrialTechnology / 100 * 0.7 + educationAbsorption * 0.3;
   return {
     completedCount: completed.length,
     totalCount: technologyTreeDefinitions.length,
     industryTier,
     industrialCapabilityCeiling,
-    industrialUpgradeReadiness: clamp(
-      effectiveIndustrialTechnology / 100 * 0.7 +
-        educationAbsorption * 0.3,
-      0,
-      1,
-    ),
+    industrialUpgradeReadiness: industryTier === 0
+      ? 0
+      : clamp(
+          tierReadiness * 0.55 + capabilityReadiness * 0.45,
+          0,
+          1,
+        ),
     effectiveIndustrialTechnology,
   };
 }

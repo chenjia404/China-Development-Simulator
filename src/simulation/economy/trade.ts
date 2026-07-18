@@ -6,6 +6,7 @@ import type { GameState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
 import { reserveImportCapacityMultiplier } from "./foreign-exchange";
+import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -70,9 +71,11 @@ export function updateInternationalTrade(state: GameState): void {
     0.4,
   );
   const basicMarketAccess = 0.15 + nation.trade.openness * 0.85;
+  const effectiveIndustrialTechnology = calculateTechnologyTreeMetrics(nation)
+    .effectiveIndustrialTechnology;
   const competitiveness = clamp(
     0.42 +
-      nation.technology.index / 180 +
+      effectiveIndustrialTechnology / 180 +
       nation.economy.infrastructureIndex / 250,
     0.4,
     1.35,

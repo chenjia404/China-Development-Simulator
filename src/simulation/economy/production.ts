@@ -8,6 +8,7 @@ import type {
 } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
 
 export interface ProductionInput {
   productivity: number;
@@ -189,8 +190,15 @@ export function updateResourceSupply(nation: NationState): void {
 }
 
 export function calculateIndustryOutputs(nation: NationState): void {
+  const industrialTechnology = calculateTechnologyTreeMetrics(nation)
+    .effectiveIndustrialTechnology;
   for (const id of Object.keys(nation.sectors) as SectorId[]) {
     const sector = nation.sectors[id];
+    sector.technologyLevel = approach(
+      sector.technologyLevel,
+      id === "secondary" ? industrialTechnology : nation.technology.index,
+      0.03,
+    );
     sector.output = calculateSectorOutput(id, sector, nation);
     sector.valueAdded = sector.output * industryConfigs[id].valueAddedRatio;
     sector.averageWage = safeDivide(sector.valueAdded * 0.45, sector.employment);

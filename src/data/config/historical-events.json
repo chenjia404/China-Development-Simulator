@@ -257,6 +257,7 @@
       { "target": "education.efficiency", "operation": "multiply", "value": 0.68 },
       { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 0.78 },
       { "target": "technology.researchOutput", "operation": "multiply", "value": 0.65 },
+      { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 0.55 },
       { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.97 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.9 },

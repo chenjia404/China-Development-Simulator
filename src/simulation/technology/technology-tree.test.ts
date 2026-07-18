@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
+import { updateInternationalTrade } from "../economy/trade";
 import {
   calculateTechnologyTreeMetrics,
   ensureTechnologyTreeState,
@@ -67,5 +69,49 @@ describe("科技树", () => {
     expect(state.nation.technology.completedTechnologyIds).toEqual([]);
     expect(state.nation.technology.activeResearchId).toBeNull();
     expect(state.nation.technology.activeResearchProgress).toBe(0);
+  });
+
+  it("产业升级收益受科技树层级约束，但财政和能源代价不会消失", () => {
+    const incapable = createInitialGameState(1949).nation;
+    const capable = structuredClone(incapable);
+    incapable.policyProgress.industrial_upgrading = 1;
+    capable.policyProgress.industrial_upgrading = 1;
+    capable.education.index = 80;
+    capable.technology.index = 90;
+    capable.technology.completedTechnologyIds = technologyTreeDefinitions
+      .filter((node) => node.industryTier <= 4)
+      .map((node) => node.id);
+
+    expect(
+      applyPolicyModifiers(incapable, "trade.exportCompetitiveness", 1),
+    ).toBe(1);
+    expect(
+      applyPolicyModifiers(capable, "trade.exportCompetitiveness", 1),
+    ).toBeGreaterThan(1.08);
+    expect(applyPolicyModifiers(incapable, "fiscal.spending", 1)).toBe(
+      applyPolicyModifiers(capable, "fiscal.spending", 1),
+    );
+    expect(applyPolicyModifiers(incapable, "resources.energyDemand", 1)).toBe(
+      applyPolicyModifiers(capable, "resources.energyDemand", 1),
+    );
+  });
+
+  it("相同科技指数下，缺少产业科技节点会限制出口", () => {
+    const constrained = createInitialGameState(1949);
+    const upgraded = structuredClone(constrained);
+    for (const state of [constrained, upgraded]) {
+      state.nation.technology.index = 80;
+      state.nation.education.index = 70;
+      state.nation.trade.openness = 0.7;
+    }
+    upgraded.nation.technology.completedTechnologyIds =
+      technologyTreeDefinitions
+        .filter((node) => node.industryTier <= 4)
+        .map((node) => node.id);
+    updateInternationalTrade(constrained);
+    updateInternationalTrade(upgraded);
+    expect(upgraded.nation.trade.exports).toBeGreaterThan(
+      constrained.nation.trade.exports,
+    );
   });
 });

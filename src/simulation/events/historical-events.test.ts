@@ -589,6 +589,16 @@ describe("确定性历史事件", () => {
       )?.value,
     ).toBe(1.25);
     expect(
+      historicalPath?.modifiers.find(
+        (modifier) => modifier.target === "technology.treeResearchProgress",
+      )?.value,
+    ).toBe(0.55);
+    expect(
+      protectedInstitutions?.modifiers.find(
+        (modifier) => modifier.target === "technology.treeResearchProgress",
+      )?.value,
+    ).toBe(1.22);
+    expect(
       protectedInstitutions?.modifiers.some(
         (modifier) => modifier.target === "capital.investmentEfficiency",
       ),
@@ -643,6 +653,11 @@ describe("确定性历史事件", () => {
     );
     expect(protectedAfterExpiry.economy.humanCapitalIndex).toBeGreaterThan(
       historicalAfterExpiry.economy.humanCapitalIndex,
+    );
+    expect(
+      protectedAfterExpiry.technology.completedTechnologyIds.length,
+    ).toBeGreaterThan(
+      historicalAfterExpiry.technology.completedTechnologyIds.length,
     );
   });
 

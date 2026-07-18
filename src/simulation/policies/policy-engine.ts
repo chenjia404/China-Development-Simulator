@@ -3,6 +3,7 @@ import policyCatalog from "../../data/config/national-policies.json";
 import { approach, clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
+import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
 
 export type PolicyCategory = "产业" | "社会" | "发展" | "开放" | "财政";
 export type PolicyOperation = "add" | "multiply";
@@ -69,9 +70,22 @@ export function applyPolicyModifiers(
   baseValue: number,
 ): number {
   let value = baseValue;
+  const technologyGatedTargets = new Set([
+    "technology.exportLearningRate",
+    "economy.structuralProductivityGrowth",
+    "trade.exportCompetitiveness",
+    "capital.investmentEfficiency",
+  ]);
   for (const policy of nationalPolicyDefinitions) {
-    const progress = nation.policyProgress[policy.id] ?? 0;
+    let progress = nation.policyProgress[policy.id] ?? 0;
     if (progress <= 0) continue;
+    if (
+      policy.id === "industrial_upgrading" &&
+      technologyGatedTargets.has(target)
+    ) {
+      progress *= calculateTechnologyTreeMetrics(nation)
+        .industrialUpgradeReadiness;
+    }
     for (const modifier of policy.modifiers.filter((item) => item.target === target)) {
       if (modifier.operation === "add") value += modifier.value * progress;
       if (modifier.operation === "multiply") {
