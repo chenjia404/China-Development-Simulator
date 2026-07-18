@@ -1,0 +1,192 @@
+{
+  "maximumActivePolicies": 4,
+  "definitions": [
+    {
+      "id": "agriculture_priority",
+      "name": "农业优先",
+      "category": "产业",
+      "description": "提高农业资本配置并放缓劳动力过快流出。",
+      "transitionMonths": 24,
+      "conflictsWith": ["industry_priority"],
+      "modifiers": [
+        { "target": "capital.primaryAllocation", "operation": "add", "value": 0.1 },
+        { "target": "urban.migration", "operation": "multiply", "value": 0.92 }
+      ]
+    },
+    {
+      "id": "industry_priority",
+      "name": "工业优先",
+      "category": "产业",
+      "description": "将更多资本和劳动力引导至第二产业。",
+      "transitionMonths": 30,
+      "conflictsWith": ["agriculture_priority", "consumption_stimulus"],
+      "modifiers": [
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.12 },
+        { "target": "labor.industrialShift", "operation": "add", "value": 0.2 }
+      ]
+    },
+    {
+      "id": "education_priority",
+      "name": "教育优先",
+      "category": "社会",
+      "description": "提高教育投入转化效率，收益具有长期滞后。",
+      "transitionMonths": 48,
+      "conflictsWith": [],
+      "modifiers": [
+        { "target": "education.efficiency", "operation": "multiply", "value": 1.12 }
+      ]
+    },
+    {
+      "id": "technology_priority",
+      "name": "科技强国",
+      "category": "发展",
+      "description": "提高科研组织效率和成果转化能力。",
+      "transitionMonths": 60,
+      "conflictsWith": [],
+      "modifiers": [
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.12 }
+      ]
+    },
+    {
+      "id": "export_oriented",
+      "name": "出口导向",
+      "category": "开放",
+      "description": "提高出口竞争力，但增加对全球需求的依赖。",
+      "transitionMonths": 36,
+      "conflictsWith": ["consumption_stimulus"],
+      "modifiers": [
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.16 },
+        { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.025 }
+      ]
+    },
+    {
+      "id": "consumption_stimulus",
+      "name": "扩大内需",
+      "category": "发展",
+      "description": "提高居民消费倾向，降低储蓄驱动的投资能力。",
+      "transitionMonths": 24,
+      "conflictsWith": ["industry_priority", "export_oriented", "investment_driven"],
+      "modifiers": [
+        { "target": "economy.consumptionPropensity", "operation": "add", "value": 0.05 }
+      ]
+    },
+    {
+      "id": "investment_driven",
+      "name": "投资驱动",
+      "category": "发展",
+      "description": "提高储蓄向有效投资的转化，同时增加资源压力。",
+      "transitionMonths": 24,
+      "conflictsWith": ["consumption_stimulus"],
+      "modifiers": [
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.12 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.05 }
+      ]
+    },
+    {
+      "id": "expand_opening",
+      "name": "扩大开放",
+      "category": "开放",
+      "description": "逐步提高开放度、制度协同和外资吸引力。",
+      "transitionMonths": 48,
+      "conflictsWith": [],
+      "modifiers": []
+    },
+    {
+      "id": "livelihood_priority",
+      "name": "民生优先",
+      "category": "社会",
+      "description": "提高医疗和社会保障投入的转化效率。",
+      "transitionMonths": 36,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "health.efficiency", "operation": "multiply", "value": 1.1 },
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 1.12 }
+      ]
+    },
+    {
+      "id": "urbanization_reform",
+      "name": "城镇化改革",
+      "category": "社会",
+      "description": "减少人口流动障碍，但提高住房和公共服务压力。",
+      "transitionMonths": 48,
+      "conflictsWith": ["agriculture_priority"],
+      "modifiers": [
+        { "target": "urban.migration", "operation": "multiply", "value": 1.3 }
+      ]
+    },
+    {
+      "id": "family_support",
+      "name": "生育支持",
+      "category": "社会",
+      "description": "通过托育、住房和家庭支持温和改善出生率。",
+      "transitionMonths": 60,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "population.birthRate", "operation": "multiply", "value": 1.15 }
+      ]
+    },
+    {
+      "id": "green_development",
+      "name": "绿色发展",
+      "category": "发展",
+      "description": "降低能源强度，短期内略微降低资本扩张速度。",
+      "transitionMonths": 60,
+      "conflictsWith": ["investment_driven"],
+      "modifiers": [
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 0.9 },
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.97 }
+      ]
+    },
+    {
+      "id": "high_tax",
+      "name": "提高税率",
+      "category": "财政",
+      "description": "提高财政收入，但过高税负会压缩消费和税基。",
+      "transitionMonths": 24,
+      "conflictsWith": ["low_tax"],
+      "modifiers": []
+    },
+    {
+      "id": "low_tax",
+      "name": "减税降费",
+      "category": "财政",
+      "description": "提高居民可支配收入，但会压缩财政空间。",
+      "transitionMonths": 24,
+      "conflictsWith": ["high_tax"],
+      "modifiers": []
+    },
+    {
+      "id": "deficit_spending",
+      "name": "积极财政",
+      "category": "财政",
+      "description": "扩大公共支出，并承担更高债务与利息风险。",
+      "transitionMonths": 18,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.55 }
+      ]
+    },
+    {
+      "id": "austerity",
+      "name": "财政紧缩",
+      "category": "财政",
+      "description": "压缩公共支出以降低债务，但影响公共服务。",
+      "transitionMonths": 18,
+      "conflictsWith": ["deficit_spending", "livelihood_priority", "family_support"],
+      "modifiers": [
+        { "target": "fiscal.spending", "operation": "multiply", "value": 0.75 }
+      ]
+    },
+    {
+      "id": "monetary_financing",
+      "name": "货币化融资",
+      "category": "财政",
+      "description": "以货币融资部分赤字，显著增加通胀风险。",
+      "transitionMonths": 12,
+      "conflictsWith": [],
+      "modifiers": [
+        { "target": "fiscal.monetizationShare", "operation": "add", "value": 0.35 }
+      ]
+    }
+  ]
+}

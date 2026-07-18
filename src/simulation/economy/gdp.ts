@@ -1,5 +1,6 @@
 import { safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function calculateGDP(nation: NationState): void {
   const previousRealGDP = nation.economy.realGDP;
@@ -30,8 +31,12 @@ export function calculateGDP(nation: NationState): void {
   const disposableIncome = nation.economy.householdIncome *
     (1 - nation.fiscal.effectiveTaxRate);
   const consumptionPropensity = Math.max(
-    0.58,
-    0.9 - Math.log1p(nation.economy.realGDPPerCapita) / 40,
+    0.52,
+    applyPolicyModifiers(
+      nation,
+      "economy.consumptionPropensity",
+      0.9 - Math.log1p(nation.economy.realGDPPerCapita) / 40,
+    ),
   );
   nation.economy.householdConsumption = disposableIncome * consumptionPropensity;
   nation.economy.nationalSavings = Math.max(

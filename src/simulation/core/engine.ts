@@ -4,6 +4,7 @@ import { Mulberry32 } from "./random";
 import type { AnnualReport, MonthlySnapshot } from "../state/history-state";
 import type { GameState } from "../state/game-state";
 import { createInitialGameState } from "../state/initial-state";
+import { validatePolicySelection } from "../policies/policy-engine";
 
 export interface SimulationResult {
   state: GameState;
@@ -33,6 +34,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     if (!Number.isFinite(this.state.eventRandomState)) {
       this.state.eventRandomState = (this.state.seed ^ 0x9e3779b9) >>> 0;
     }
+    this.state.nation.policyProgress ??= {};
   }
 
   getState(): Readonly<GameState> {
@@ -54,6 +56,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         };
         break;
       case "SET_POLICIES":
+        validatePolicySelection(command.policyIds);
         this.state.nation.policies = [...command.policyIds];
         break;
       case "ADVANCE_MONTHS":

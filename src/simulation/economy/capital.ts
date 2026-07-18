@@ -2,6 +2,7 @@ import economyConfig from "../../data/config/economy.json";
 import industryConfigs from "../../data/config/industries.json";
 import { clamp } from "../core/math";
 import type { NationState, SectorId } from "../state/game-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
@@ -11,9 +12,14 @@ export function updateCapitalAndInvestment(nation: NationState): void {
       fiscal.budget.infrastructure +
       fiscal.budget.agriculture) *
     0.65;
-  const annualNominalInvestment =
+  const privateInvestment = applyPolicyModifiers(
+    nation,
+    "capital.privateInvestment",
     economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
-    economy.realGDP * 0.08 +
+      economy.realGDP * 0.08,
+  );
+  const annualNominalInvestment =
+    privateInvestment +
     governmentCapitalSpending +
     nation.trade.foreignInvestment;
   const investmentEfficiency = clamp(
@@ -29,12 +35,20 @@ export function updateCapitalAndInvestment(nation: NationState): void {
     annualNominalInvestment * investmentEfficiency / 12,
     maximumMonthlyInvestment,
   );
-  const industrialPriority = nation.policies.includes("industry_priority") ? 0.12 : 0;
-  const agriculturePriority = nation.policies.includes("agriculture_priority") ? 0.1 : 0;
+  const primaryAllocation = applyPolicyModifiers(
+    nation,
+    "capital.primaryAllocation",
+    0.2,
+  );
+  const secondaryAllocation = applyPolicyModifiers(
+    nation,
+    "capital.secondaryAllocation",
+    0.42,
+  );
   const allocation: Record<SectorId, number> = {
-    primary: 0.2 + agriculturePriority,
-    secondary: 0.42 + industrialPriority,
-    tertiary: 0.38 - agriculturePriority - industrialPriority,
+    primary: primaryAllocation,
+    secondary: secondaryAllocation,
+    tertiary: Math.max(0.08, 1 - primaryAllocation - secondaryAllocation),
   };
 
   let totalCapital = 0;

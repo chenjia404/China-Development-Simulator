@@ -7,6 +7,7 @@ import type {
   SectorState,
 } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export interface ProductionInput {
   productivity: number;
@@ -104,7 +105,11 @@ export function calculateSectorOutput(
 export function allocateLabor(nation: NationState): void {
   const urbanization = nation.society.urbanizationRate;
   const education = nation.education.index / 100;
-  const industrialShift = nation.policies.includes("industry_priority") ? 0.2 : 0;
+  const industrialShift = applyPolicyModifiers(
+    nation,
+    "labor.industrialShift",
+    0,
+  );
   const primaryShare = clamp(
     0.82 - urbanization * 0.88 - industrialShift * 0.15,
     0.08,
@@ -166,7 +171,11 @@ export function updateResourceSupply(nation: NationState): void {
   );
   nation.resources.energyDemand = Math.max(
     1,
-    8 + nation.sectors.secondary.output / 2_000_000_000,
+    applyPolicyModifiers(
+      nation,
+      "resources.energyDemand",
+      8 + nation.sectors.secondary.output / 2_000_000_000,
+    ),
   );
   nation.resources.energySupplyRatio = clamp(
     safeDivide(nation.resources.energySupply, nation.resources.energyDemand),

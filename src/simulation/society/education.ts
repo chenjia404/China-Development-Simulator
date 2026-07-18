@@ -1,6 +1,7 @@
 import educationConfig from "../../data/config/education.json";
 import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 function laggedValue(queue: number[], months: number): number {
   return queue[Math.max(0, queue.length - 1 - months)] ?? 0;
@@ -11,7 +12,11 @@ export function updateEducation(nation: NationState): void {
   const spending = fiscal.expenditure * fiscal.budget.education;
   const intensity = clamp(safeDivide(spending, economy.nominalGDP), 0, 0.2);
   const efficiency = clamp(
-    0.45 + economy.institutionalEfficiency * 0.55,
+    applyPolicyModifiers(
+      nation,
+      "education.efficiency",
+      0.45 + economy.institutionalEfficiency * 0.55,
+    ),
     0.25,
     1,
   );

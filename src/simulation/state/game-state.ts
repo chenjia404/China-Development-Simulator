@@ -187,6 +187,7 @@ export interface NationState {
   society: SocietyState;
   trade: TradeState;
   policies: string[];
+  policyProgress: Record<string, number>;
   projects: ProjectState[];
   modifiers: ModifierState[];
   history: NationHistory;

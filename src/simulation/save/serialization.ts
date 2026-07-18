@@ -40,5 +40,6 @@ export function deserializeGameState(serialized: string): GameState {
   if (!Number.isFinite(state.eventRandomState)) {
     state.eventRandomState = (state.seed ^ 0x9e3779b9) >>> 0;
   }
+  state.nation.policyProgress ??= {};
   return state;
 }

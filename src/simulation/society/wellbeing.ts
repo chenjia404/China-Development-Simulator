@@ -1,5 +1,6 @@
 import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function updateWellbeing(nation: NationState): void {
   const { society, economy, fiscal, education, health, labor, resources } = nation;
@@ -8,9 +9,13 @@ export function updateWellbeing(nation: NationState): void {
     0,
     1,
   );
-  const welfareIntensity = safeDivide(
-    fiscal.expenditure * fiscal.budget.welfare,
-    economy.nominalGDP,
+  const welfareIntensity = applyPolicyModifiers(
+    nation,
+    "wellbeing.welfare",
+    safeDivide(
+      fiscal.expenditure * fiscal.budget.welfare,
+      economy.nominalGDP,
+    ),
   );
   const targetPoverty = clamp(
     0.92 - incomeScore * 0.82 - welfareIntensity * 1.5,

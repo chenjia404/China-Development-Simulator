@@ -170,6 +170,7 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
         foreignInvestment: 0,
       },
       policies: [],
+      policyProgress: {},
       projects: [],
       modifiers: [],
       history: { monthly: [], annual: [], reports: [] },

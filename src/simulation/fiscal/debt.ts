@@ -1,9 +1,10 @@
 import fiscalConfig from "../../data/config/fiscal.json";
 import { clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function updateDebt(nation: NationState): void {
-  const { fiscal, economy, policies } = nation;
+  const { fiscal, economy } = nation;
   const previousDebtRatio = safeDivide(
     fiscal.governmentDebt,
     economy.nominalGDP,
@@ -25,7 +26,11 @@ export function updateDebt(nation: NationState): void {
     previousDebtRatio - fiscalConfig.monetizationThreshold,
   ) * 0.35;
   const monetizationShare = clamp(
-    forcedMonetization + (policies.includes("monetary_financing") ? 0.35 : 0),
+    applyPolicyModifiers(
+      nation,
+      "fiscal.monetizationShare",
+      forcedMonetization,
+    ),
     0,
     fiscalConfig.maximumMonetizationShare,
   );

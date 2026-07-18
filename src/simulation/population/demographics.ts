@@ -3,6 +3,7 @@ import { clamp, safeDivide } from "../core/math";
 import type { RandomGenerator } from "../core/random";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 function distributeDeaths(
   children: number,
@@ -38,7 +39,11 @@ export function updateDemographics(
     (education.index / 100) * populationConfig.educationBirthSuppression +
     incomeDevelopment * populationConfig.incomeBirthSuppression;
   const annualBirthRate = clamp(
-    populationConfig.baseAnnualBirthRate * (1 - birthSuppression) +
+    applyPolicyModifiers(
+      nation,
+      "population.birthRate",
+      populationConfig.baseAnnualBirthRate,
+    ) * (1 - birthSuppression) +
       random.nextNormal(0, populationConfig.birthRateNoise),
     populationConfig.minimumAnnualBirthRate,
     populationConfig.maximumAnnualBirthRate,
@@ -114,8 +119,9 @@ export function updateDemographics(
     populationConfig.annualUrbanMigrationRate /
     12 *
     migrationCapacity *
-    (nation.policies.includes("expand_opening") ? 2 : 1) *
-    (nation.policies.includes("industry_priority") ? 1.15 : 1);
+    (1 + (nation.policyProgress.expand_opening ?? 0)) *
+    (1 + (nation.policyProgress.industry_priority ?? 0) * 0.15) *
+    applyPolicyModifiers(nation, "urban.migration", 1);
   population.urbanPopulation = clamp(
     population.total * urbanization + ruralToUrban,
     0,
