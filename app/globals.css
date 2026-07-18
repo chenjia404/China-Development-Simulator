@@ -210,9 +210,15 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .organization-list { display: grid; gap: 9px; }
 .organization-card { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; }
 .organization-card.is-joined { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.organization-content { min-width: 0; }
 .organization-card h3 { margin: 0 0 5px; font-size: 12px; }
 .organization-card p { margin: 0 0 7px; color: var(--muted); font-size: 9px; line-height: 1.55; }
 .organization-card small { color: var(--muted); font-size: 8px; }
+.organization-progress { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.organization-progress span { padding: 4px 6px; color: var(--orange); background: color-mix(in srgb, var(--orange) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--orange) 22%, var(--line)); border-radius: 5px; font-size: 7px; }
+.organization-progress span.is-met { color: var(--green); background: color-mix(in srgb, var(--green) 9%, var(--surface)); border-color: color-mix(in srgb, var(--green) 24%, var(--line)); }
+.organization-card p.organization-blockers { margin: 8px 0 0; color: var(--orange); font-size: 8px; }
+.organization-card p.organization-success { margin: 8px 0 0; color: var(--green); font-size: 8px; font-weight: 700; }
 .organization-card button, .relation-actions button { padding: 7px 9px; color: var(--blue); background: var(--blue-soft); border: 1px solid transparent; border-radius: 7px; cursor: pointer; font-size: 9px; white-space: nowrap; }
 .organization-card.is-joined button { color: var(--green); background: color-mix(in srgb, var(--green) 10%, var(--surface)); }
 .relation-list { max-height: 680px; overflow-y: auto; padding-right: 4px; }

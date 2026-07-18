@@ -15,6 +15,7 @@ import {
   diplomaticStrategyCooldownRemaining,
   diplomaticStrategyDefinitions,
   diplomaticStrategyEffects,
+  getInternationalOrganizationStatus,
   internationalOrganizations,
   getHistoricalEvent,
   getHistoricalEventChoices,
@@ -370,22 +371,6 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
   );
 }
 
-function organizationUnavailableReason(
-  game: GameState,
-  organization: typeof internationalOrganizations[number],
-): string | null {
-  const diplomacy = game.nation.diplomacy;
-  if (diplomacy.organizationIds.includes(organization.id)) return "已经加入";
-  if (game.nation.date.year < organization.availableYear) return `${organization.availableYear} 年开放`;
-  if (game.nation.internationalInfluence < organization.minimumInfluence) return `需要影响力 ${organization.minimumInfluence}`;
-  if (game.nation.trade.openness < organization.minimumOpenness) return `需要开放度 ${formatPercent(organization.minimumOpenness, 0)}`;
-  if (averageInternationalRelation(game) < organization.minimumAverageRelation) return `需要平均关系 ${organization.minimumAverageRelation}`;
-  const partners = game.world.countries.filter((country) => country.diplomaticStatus === "strategic_partner").length;
-  if (partners < organization.minimumStrategicPartners) return `需要 ${organization.minimumStrategicPartners} 个战略伙伴`;
-  if (diplomacy.diplomaticPoints < organization.cost) return `需要 ${organization.cost} 点外交点数`;
-  return null;
-}
-
 function diplomaticActionUnavailableReason(
   game: GameState,
   country: GameState["world"]["countries"][number],
@@ -515,12 +500,50 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
           <div className="panel-heading"><div><span className="eyebrow">多边机制</span><h2>国际组织</h2></div></div>
           <div className="organization-list">
             {internationalOrganizations.map((organization) => {
-              const reason = organizationUnavailableReason(game, organization);
-              const joined = game.nation.diplomacy.organizationIds.includes(organization.id);
+              const status = getInternationalOrganizationStatus(game, organization.id);
+              const strategicPartners = game.world.countries.filter(
+                (country) => country.diplomaticStatus === "strategic_partner",
+              ).length;
               return (
-                <article className={joined ? "organization-card is-joined" : "organization-card"} key={organization.id}>
-                  <div><h3>{organization.name}</h3><p>{organization.description}</p><small>{organization.availableYear} 年 · 消耗 {organization.cost} 点 · 贸易 ×{organization.tradeMultiplier.toFixed(2)}</small></div>
-                  <button disabled={busy || reason !== null} title={reason ?? undefined} onClick={() => void joinOrganization(organization.id)}>{joined ? "已加入" : reason ?? "申请加入"}</button>
+                <article className={status.joined ? "organization-card is-joined" : "organization-card"} key={organization.id}>
+                  <div className="organization-content">
+                    <h3>{organization.name}</h3>
+                    <p>{organization.description}</p>
+                    <small>{organization.availableYear} 年起 · 消耗 {organization.cost} 点 · 贸易 ×{organization.tradeMultiplier.toFixed(2)}</small>
+                    <div className="organization-progress" aria-label={`${organization.name}加入条件进度`}>
+                      {organization.minimumAverageRelation > 0 && (
+                        <span className={status.averageRelation >= organization.minimumAverageRelation ? "is-met" : undefined}>
+                          平均关系 {status.averageRelation.toFixed(1)} / {organization.minimumAverageRelation}
+                        </span>
+                      )}
+                      {organization.minimumSupportingCountries > 0 && (
+                        <span className={status.supportingCountries >= organization.minimumSupportingCountries ? "is-met" : undefined}>
+                          支持国家 {status.supportingCountries} / {organization.minimumSupportingCountries}（关系 ≥ {organization.supportRelationThreshold}）
+                        </span>
+                      )}
+                      {organization.minimumTradeAgreements > 0 && (
+                        <span className={status.tradeAgreements >= organization.minimumTradeAgreements ? "is-met" : undefined}>
+                          贸易协定 {status.tradeAgreements} / {organization.minimumTradeAgreements}
+                        </span>
+                      )}
+                      {organization.minimumStrategicPartners > 0 && (
+                        <span className={strategicPartners >= organization.minimumStrategicPartners ? "is-met" : undefined}>
+                          战略伙伴 {strategicPartners} / {organization.minimumStrategicPartners}
+                        </span>
+                      )}
+                    </div>
+                    {!status.joined && status.blockers.length > 0 && (
+                      <p className="organization-blockers">尚需：{status.blockers.join("；")}</p>
+                    )}
+                    {status.joined && <p className="organization-success">成员权益已生效</p>}
+                  </div>
+                  <button
+                    disabled={busy || !status.available}
+                    title={!status.joined && status.blockers.length > 0 ? status.blockers.join("；") : undefined}
+                    onClick={() => void joinOrganization(organization.id)}
+                  >
+                    {status.joined ? "已加入" : status.available ? "申请加入" : "暂未解锁"}
+                  </button>
                 </article>
               );
             })}
