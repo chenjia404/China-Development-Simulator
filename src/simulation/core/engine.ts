@@ -5,6 +5,11 @@ import type { AnnualReport, MonthlySnapshot } from "../state/history-state";
 import type { GameState } from "../state/game-state";
 import { createInitialGameState } from "../state/initial-state";
 import { validatePolicySelection } from "../policies/policy-engine";
+import {
+  ensureDiplomacyState,
+  executeDiplomaticAction,
+  joinInternationalOrganization,
+} from "../diplomacy/diplomacy";
 
 export interface SimulationResult {
   state: GameState;
@@ -35,6 +40,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
       this.state.eventRandomState = (this.state.seed ^ 0x9e3779b9) >>> 0;
     }
     this.state.nation.policyProgress ??= {};
+    ensureDiplomacyState(this.state);
   }
 
   getState(): Readonly<GameState> {
@@ -48,6 +54,8 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "IMPORT_GAME":
         this.state = cloneState(command.state);
+        this.state.nation.policyProgress ??= {};
+        ensureDiplomacyState(this.state);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
@@ -58,6 +66,12 @@ class DeterministicSimulationEngine implements SimulationEngine {
       case "SET_POLICIES":
         validatePolicySelection(command.policyIds);
         this.state.nation.policies = [...command.policyIds];
+        break;
+      case "DIPLOMATIC_ACTION":
+        executeDiplomaticAction(this.state, command.actionId, command.countryId);
+        break;
+      case "JOIN_ORGANIZATION":
+        joinInternationalOrganization(this.state, command.organizationId);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

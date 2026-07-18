@@ -1,0 +1,110 @@
+{
+  "maximumDiplomaticPoints": 100,
+  "initialDiplomaticPoints": 35,
+  "initialReputation": 45,
+  "initialSecurityIndex": 35,
+  "initialRelations": {
+    "usa": -25,
+    "japan": -20,
+    "south_korea": -30,
+    "russia": 45,
+    "india": 15,
+    "pakistan": 10,
+    "vietnam": 35
+  },
+  "actions": {
+    "improve_relations": {
+      "name": "改善关系",
+      "cost": 12,
+      "cooldownMonths": 6,
+      "minimumRelation": -100,
+      "relationChange": 12
+    },
+    "sign_trade_agreement": {
+      "name": "签署贸易协定",
+      "cost": 28,
+      "cooldownMonths": 24,
+      "minimumRelation": 35,
+      "relationChange": 5
+    },
+    "strategic_partnership": {
+      "name": "建立战略伙伴关系",
+      "cost": 45,
+      "cooldownMonths": 36,
+      "minimumRelation": 65,
+      "relationChange": 8
+    },
+    "impose_sanctions": {
+      "name": "实施制裁",
+      "cost": 10,
+      "cooldownMonths": 12,
+      "minimumRelation": -100,
+      "relationChange": -25
+    },
+    "lift_sanctions": {
+      "name": "解除制裁",
+      "cost": 8,
+      "cooldownMonths": 6,
+      "minimumRelation": -100,
+      "relationChange": 5
+    }
+  },
+  "organizations": [
+    {
+      "id": "united_nations",
+      "name": "联合国席位",
+      "description": "恢复在联合国的合法席位，提高国际声誉与多边协调能力。",
+      "availableYear": 1971,
+      "cost": 30,
+      "minimumInfluence": 10,
+      "minimumOpenness": 0,
+      "minimumAverageRelation": -20,
+      "minimumStrategicPartners": 0,
+      "tradeMultiplier": 1.01,
+      "monthlyPointGain": 0.08,
+      "reputationBonus": 8
+    },
+    {
+      "id": "world_trade_organization",
+      "name": "世界贸易组织",
+      "description": "接入多边贸易规则，扩大市场准入并提高外资信心。",
+      "availableYear": 2001,
+      "cost": 45,
+      "minimumInfluence": 25,
+      "minimumOpenness": 0.35,
+      "minimumAverageRelation": 5,
+      "minimumStrategicPartners": 0,
+      "tradeMultiplier": 1.1,
+      "monthlyPointGain": 0.05,
+      "reputationBonus": 6
+    },
+    {
+      "id": "shanghai_cooperation_organization",
+      "name": "上海合作组织",
+      "description": "深化地区安全与发展合作，增强战略协调能力。",
+      "availableYear": 2001,
+      "cost": 30,
+      "minimumInfluence": 20,
+      "minimumOpenness": 0.2,
+      "minimumAverageRelation": 0,
+      "minimumStrategicPartners": 1,
+      "tradeMultiplier": 1.03,
+      "monthlyPointGain": 0.12,
+      "reputationBonus": 4
+    },
+    {
+      "id": "brics_cooperation",
+      "name": "金砖国家合作",
+      "description": "加强新兴经济体的金融、投资与发展合作。",
+      "availableYear": 2009,
+      "cost": 35,
+      "minimumInfluence": 30,
+      "minimumOpenness": 0.35,
+      "minimumAverageRelation": 10,
+      "minimumStrategicPartners": 1,
+      "tradeMultiplier": 1.05,
+      "monthlyPointGain": 0.1,
+      "reputationBonus": 5
+    }
+  ]
+}

@@ -20,6 +20,11 @@ export interface WorldCountryState {
   internationalInfluence: number;
   baseGrowthPotential: number;
   developmentStage: DevelopmentStage;
+  relationWithChina: number;
+  diplomaticStatus: "neutral" | "partner" | "strategic_partner" | "sanctioned";
+  tradeAgreement: boolean;
+  sanctionLevel: number;
+  lastDiplomaticActionMonth: number | null;
   modifiers: ModifierState[];
 }
 

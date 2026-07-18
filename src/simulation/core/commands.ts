@@ -1,4 +1,5 @@
 import type { FiscalBudget, GameState } from "../state/game-state";
+import type { DiplomaticActionId } from "../diplomacy/diplomacy";
 
 export interface CreateGameCommand {
   type: "CREATE_GAME";
@@ -26,9 +27,22 @@ export interface ImportGameCommand {
   state: GameState;
 }
 
+export interface DiplomaticActionCommand {
+  type: "DIPLOMATIC_ACTION";
+  actionId: DiplomaticActionId;
+  countryId: string;
+}
+
+export interface JoinOrganizationCommand {
+  type: "JOIN_ORGANIZATION";
+  organizationId: string;
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
   | UpdateBudgetCommand
   | SetPoliciesCommand
+  | DiplomaticActionCommand
+  | JoinOrganizationCommand
   | ImportGameCommand;

@@ -7,6 +7,8 @@ export * from "./core/time";
 export * from "./economy/gdp";
 export * from "./economy/inflation";
 export * from "./economy/production";
+export * from "./economy/trade";
+export * from "./diplomacy/diplomacy";
 export * from "./fiscal/debt";
 export * from "./fiscal/revenue";
 export * from "./fiscal/spending";

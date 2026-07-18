@@ -25,6 +25,8 @@ import { recordHistory } from "../reports/history";
 import { updatePolicyEnvironment } from "../policies/policy-engine";
 import { checkRandomEvents } from "../events/event-engine";
 import { advanceModifiers } from "../events/modifiers";
+import { updateDiplomacy } from "../diplomacy/diplomacy";
+import { updateInternationalTrade } from "../economy/trade";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -34,6 +36,7 @@ export function simulateMonth(
 ): void {
   checkRandomEvents(state.nation, eventRandom);
   updatePolicyEnvironment(state.nation);
+  updateDiplomacy(state);
   updateDemographics(state.nation, _random);
   updateEducation(state.nation);
   updateHealth(state.nation);
@@ -44,6 +47,7 @@ export function simulateMonth(
   updateResourceSupply(state.nation);
   calculateIndustryOutputs(state.nation);
   calculateGDP(state.nation);
+  updateInternationalTrade(state);
   calculateFiscalRevenue(state.nation);
   calculateFiscalSpending(state.nation);
   updateDebt(state.nation);

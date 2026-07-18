@@ -152,6 +152,14 @@ export interface TradeState {
   foreignInvestment: number;
 }
 
+export interface DiplomacyState {
+  diplomaticPoints: number;
+  monthlyPointGain: number;
+  globalReputation: number;
+  securityIndex: number;
+  organizationIds: string[];
+}
+
 export interface ModifierState {
   id: string;
   sourceId: string;
@@ -186,6 +194,7 @@ export interface NationState {
   resources: ResourceState;
   society: SocietyState;
   trade: TradeState;
+  diplomacy: DiplomacyState;
   policies: string[];
   policyProgress: Record<string, number>;
   projects: ProjectState[];

@@ -8,6 +8,7 @@ import type {
 } from "./game-state";
 import { createInitialWorldState } from "../world/countries";
 import { calculateWorldRankings } from "../world/rankings";
+import diplomacyConfig from "../../data/config/diplomacy.json";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -168,6 +169,13 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
         balance: -500_000_000,
         openness: 0.05,
         foreignInvestment: 0,
+      },
+      diplomacy: {
+        diplomaticPoints: diplomacyConfig.initialDiplomaticPoints,
+        monthlyPointGain: 0,
+        globalReputation: diplomacyConfig.initialReputation,
+        securityIndex: diplomacyConfig.initialSecurityIndex,
+        organizationIds: [],
       },
       policies: [],
       policyProgress: {},

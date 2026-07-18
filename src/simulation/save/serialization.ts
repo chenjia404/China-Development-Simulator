@@ -4,6 +4,7 @@ import {
   SAVE_SCHEMA_VERSION,
   type SaveEnvelope,
 } from "./schema";
+import { ensureDiplomacyState } from "../diplomacy/diplomacy";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -41,5 +42,6 @@ export function deserializeGameState(serialized: string): GameState {
     state.eventRandomState = (state.seed ^ 0x9e3779b9) >>> 0;
   }
   state.nation.policyProgress ??= {};
+  ensureDiplomacyState(state);
   return state;
 }

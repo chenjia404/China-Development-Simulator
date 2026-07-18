@@ -1,4 +1,5 @@
 import countryData from "../../data/config/world-countries.json";
+import diplomacyConfig from "../../data/config/diplomacy.json";
 import type { DevelopmentStage, WorldCountryState, WorldState } from "../state/world-state";
 
 export interface CountryGrowthPhase {
@@ -40,6 +41,14 @@ export function createInitialWorldState(): WorldState {
     internationalInfluence: config.influence,
     baseGrowthPotential: config.baseGrowth,
     developmentStage: config.stage,
+    relationWithChina:
+      diplomacyConfig.initialRelations[
+        config.id as keyof typeof diplomacyConfig.initialRelations
+      ] ?? 0,
+    diplomaticStatus: "neutral",
+    tradeAgreement: false,
+    sanctionLevel: 0,
+    lastDiplomaticActionMonth: null,
     modifiers: [],
   }));
 
