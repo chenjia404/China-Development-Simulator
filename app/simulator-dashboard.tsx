@@ -5,12 +5,16 @@ import type { ECharts } from "echarts/core";
 import type {
   AnnualSnapshot,
   DiplomaticActionId,
+  DiplomaticStrategyId,
   FiscalBudget,
   GameState,
 } from "@/src/simulation";
 import {
   averageInternationalRelation,
   diplomaticActionDefinitions,
+  diplomaticStrategyCooldownRemaining,
+  diplomaticStrategyDefinitions,
+  diplomaticStrategyEffects,
   internationalOrganizations,
   getHistoricalEvent,
   getHistoricalEventChoices,
@@ -414,9 +418,32 @@ const diplomaticStatusLabels = {
 function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   const diplomaticAction = useSimulationStore((store) => store.diplomaticAction);
   const joinOrganization = useSimulationStore((store) => store.joinOrganization);
+  const setDiplomaticStrategy = useSimulationStore(
+    (store) => store.setDiplomaticStrategy,
+  );
   const countries = [...game.world.countries].sort((first, second) =>
     second.nominalGDP - first.nominalGDP,
   );
+  const currentStrategy = diplomaticStrategyDefinitions.find(
+    (strategy) => strategy.id === game.nation.diplomacy.strategyId,
+  );
+  const currentStrategyEffects = diplomaticStrategyEffects(game.nation);
+  const strategyCooldown = diplomaticStrategyCooldownRemaining(game);
+  const alignment = game.nation.diplomacy.strategyAlignment;
+  const alignmentLabel = Math.abs(alignment) < 0.01
+    ? "平衡"
+    : alignment < 0
+      ? `偏苏 ${Math.abs(alignment * 100).toFixed(0)}%`
+      : `偏西 ${Math.abs(alignment * 100).toFixed(0)}%`;
+  const strategyTransitionComplete = currentStrategy
+    ? Math.abs(currentStrategy.targetAlignment - alignment) < 0.001
+    : true;
+  const chooseStrategy = (strategyId: DiplomaticStrategyId, name: string) => {
+    const confirmed = window.confirm(
+      `确定改为“${name}”吗？调整将消耗外交点数，并在 60 个月内不能再次改变路线。`,
+    );
+    if (confirmed) void setDiplomaticStrategy(strategyId);
+  };
 
   return (
     <section className="panel detail-page diplomacy-page">
@@ -431,6 +458,58 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
         <MetricCard label="国家安全" value={game.nation.diplomacy.securityIndex.toFixed(1)} detail={`国防预算 ${formatPercent(game.nation.fiscal.budget.defense)}`} tone="gold" />
         <MetricCard label="对外贸易" value={formatLarge(game.nation.trade.exports + game.nation.trade.imports)} detail={`顺差 ${formatLarge(game.nation.trade.balance)}`} tone={game.nation.trade.balance >= 0 ? "green" : "red"} />
       </div>
+      <section className="diplomatic-strategy-panel">
+        <div className="strategy-panel-heading">
+          <div><span className="eyebrow">长期国际取向</span><h2>外交战略路线</h2><p>路线约用三年逐步到位；切换后五年内不能再次调整。效果通过关系、贸易、外资、科研、技术扩散和安全逐月传导。</p></div>
+          <div className="strategy-current"><span>当前路线</span><strong>{currentStrategy?.name ?? game.nation.diplomacy.strategyId}</strong><small>{strategyTransitionComplete ? "路线已稳定" : `调整中 · ${alignmentLabel}`}</small></div>
+        </div>
+        <div className="alignment-scale" aria-label={`当前外交倾向：${alignmentLabel}`}>
+          <div className="alignment-labels"><span>亲苏</span><span>平衡</span><span>亲西方</span></div>
+          <div className="alignment-track"><i style={{ left: `${(alignment + 1) * 50}%` }} /></div>
+        </div>
+        <div className="strategy-live-effects">
+          <span>市场准入 ×{currentStrategyEffects.marketAccessMultiplier.toFixed(2)}</span>
+          <span>外资 ×{currentStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}</span>
+          <span>技术扩散 ×{currentStrategyEffects.technologyDiffusionMultiplier.toFixed(2)}</span>
+          <span>科研产出 ×{currentStrategyEffects.researchOutputMultiplier.toFixed(2)}</span>
+          <span>安全目标 {currentStrategyEffects.securityTargetAdjustment >= 0 ? "+" : ""}{currentStrategyEffects.securityTargetAdjustment.toFixed(1)}</span>
+        </div>
+        <div className="strategy-grid">
+          {diplomaticStrategyDefinitions.map((strategy) => {
+            const selected = strategy.id === game.nation.diplomacy.strategyId;
+            const insufficientPoints = game.nation.diplomacy.diplomaticPoints <
+              strategy.activationCost;
+            const unavailableReason = selected
+              ? "当前正在采用"
+              : strategyCooldown > 0
+                ? `还需冷却 ${strategyCooldown} 个月`
+                : insufficientPoints
+                  ? `需要 ${strategy.activationCost} 点外交点数`
+                  : null;
+            return (
+              <article className={selected ? "strategy-card is-selected" : "strategy-card"} key={strategy.id}>
+                <div className="strategy-card-head"><span>{strategy.shortName}</span><small>调整成本 {strategy.activationCost} 点</small></div>
+                <h3>{strategy.name}</h3>
+                <p>{strategy.description}</p>
+                <div className="strategy-effects">{strategy.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+                <div className="strategy-numbers">
+                  <span>贸易 ×{strategy.marketAccessMultiplier.toFixed(2)}</span>
+                  <span>外资 ×{strategy.foreignInvestmentMultiplier.toFixed(2)}</span>
+                  <span>技术 ×{strategy.technologyDiffusionMultiplier.toFixed(2)}</span>
+                  <span>科研 ×{strategy.researchOutputMultiplier.toFixed(2)}</span>
+                </div>
+                <button
+                  disabled={busy || unavailableReason !== null}
+                  title={unavailableReason ?? undefined}
+                  onClick={() => chooseStrategy(strategy.id, strategy.name)}
+                >
+                  {selected ? "当前路线" : unavailableReason ?? `选择路线 · ${strategy.activationCost} 点`}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
       <div className="diplomacy-layout">
         <section className="diplomacy-block">
           <div className="panel-heading"><div><span className="eyebrow">多边机制</span><h2>国际组织</h2></div></div>

@@ -6,6 +6,7 @@ import {
   serializeGameState,
   type FiscalBudget,
   type DiplomaticActionId,
+  type DiplomaticStrategyId,
   type GameState,
   type SimulationCommand,
 } from "../simulation";
@@ -45,6 +46,7 @@ interface SimulationStore {
   setPolicies(policyIds: string[]): Promise<void>;
   diplomaticAction(actionId: DiplomaticActionId, countryId: string): Promise<void>;
   joinOrganization(organizationId: string): Promise<void>;
+  setDiplomaticStrategy(strategyId: DiplomaticStrategyId): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   newGame(seed?: number): Promise<void>;
@@ -156,6 +158,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   async joinOrganization(organizationId) {
     await get().dispatch({ type: "JOIN_ORGANIZATION", organizationId });
+  },
+
+  async setDiplomaticStrategy(strategyId) {
+    await get().dispatch({ type: "SET_DIPLOMATIC_STRATEGY", strategyId });
   },
 
   async resolveHistoricalEvent(eventId, choiceId) {
