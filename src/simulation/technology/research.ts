@@ -6,10 +6,12 @@ import { applyPolicyModifiers } from "../policies/policy-engine";
 import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
 import { updateTechnologyTree } from "./technology-tree";
 import { calculatePrivateEconomyMultipliers } from "../economy/private-economy";
+import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
 
 export function updateTechnology(nation: NationState): void {
   const { technology, education, fiscal, economy, sectors, trade } = nation;
   const strategyEffects = diplomaticStrategyEffects(nation);
+  const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const privateEconomy = calculatePrivateEconomyMultipliers(nation);
   const researchSpending = fiscal.expenditure * fiscal.budget.research;
   const fundingIntensity = clamp(
@@ -49,7 +51,8 @@ export function updateTechnology(nation: NationState): void {
     nation,
     "technology.researchOutput",
     policyResearchOutput,
-  ) * strategyEffects.researchOutputMultiplier;
+  ) * strategyEffects.researchOutputMultiplier *
+    doctrineEffects.researchOutputMultiplier;
   const researchOutput = researchOutputBeforeContinuity *
     (0.9 + researchContinuityFactor * 0.1) *
     privateEconomy.researchCommercialization;
@@ -75,6 +78,7 @@ export function updateTechnology(nation: NationState): void {
     education.literacyRate *
     technologyConfig.diffusionStrength *
     strategyEffects.technologyDiffusionMultiplier *
+    doctrineEffects.technologyDiffusionMultiplier *
     privateEconomy.technologyDiffusion;
   const researchCommercialization = clamp(
     applyPolicyModifiers(

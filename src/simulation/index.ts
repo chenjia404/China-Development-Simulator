@@ -12,6 +12,7 @@ export * from "./economy/production";
 export * from "./economy/trade";
 export * from "./diplomacy/diplomacy";
 export * from "./diplomacy/diplomatic-strategy";
+export * from "./diplomacy/foreign-policy-doctrine";
 export * from "./fiscal/debt";
 export * from "./fiscal/revenue";
 export * from "./fiscal/spending";

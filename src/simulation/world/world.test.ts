@@ -9,7 +9,7 @@ describe("世界国家和排名", () => {
     const state = createInitialGameState(1);
     const ids = new Set(state.world.countries.map((country) => country.id));
 
-    expect(state.world.countries).toHaveLength(30);
+    expect(state.world.countries).toHaveLength(31);
     for (const id of [
       "usa",
       "japan",

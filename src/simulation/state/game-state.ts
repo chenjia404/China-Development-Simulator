@@ -233,6 +233,17 @@ export interface DiplomacyState {
   strategyId: "pro_soviet" | "balanced" | "pro_western";
   strategyAlignment: number;
   lastStrategyChangeMonth: number | null;
+  foreignPolicyDoctrineId:
+    | "status_quo"
+    | "revolutionary_internationalism"
+    | "peaceful_coexistence"
+    | "non_aligned_autonomy"
+    | "economic_diplomacy"
+    | "multilateral_institutionalism"
+    | "regional_good_neighborhood";
+  previousForeignPolicyDoctrineId: DiplomacyState["foreignPolicyDoctrineId"] | null;
+  foreignPolicyDoctrineProgress: number;
+  lastForeignPolicyDoctrineChangeMonth: number | null;
 }
 
 export interface ModifierState {

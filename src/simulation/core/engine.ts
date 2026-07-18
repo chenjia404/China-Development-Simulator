@@ -25,6 +25,7 @@ import {
   selectTechnologyResearch,
 } from "../technology/technology-tree";
 import { ensurePrivateEconomyState } from "../economy/private-economy";
+import { setForeignPolicyDoctrine } from "../diplomacy/foreign-policy-doctrine";
 
 export interface SimulationResult {
   state: GameState;
@@ -104,6 +105,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "SET_DIPLOMATIC_STRATEGY":
         setDiplomaticStrategy(this.state, command.strategyId);
+        break;
+      case "SET_FOREIGN_POLICY_DOCTRINE":
+        setForeignPolicyDoctrine(this.state, command.doctrineId);
         break;
       case "SET_HISTORICAL_EVENT_MODE":
         setHistoricalEventDecisionMode(this.state.nation, command.mode);

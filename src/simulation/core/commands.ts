@@ -1,6 +1,7 @@
 import type { FiscalBudget, GameState } from "../state/game-state";
 import type { DiplomaticActionId } from "../diplomacy/diplomacy";
 import type { DiplomaticStrategyId } from "../diplomacy/diplomatic-strategy";
+import type { ForeignPolicyDoctrineId } from "../diplomacy/foreign-policy-doctrine";
 
 export interface CreateGameCommand {
   type: "CREATE_GAME";
@@ -45,6 +46,11 @@ export interface SetDiplomaticStrategyCommand {
   strategyId: DiplomaticStrategyId;
 }
 
+export interface SetForeignPolicyDoctrineCommand {
+  type: "SET_FOREIGN_POLICY_DOCTRINE";
+  doctrineId: ForeignPolicyDoctrineId;
+}
+
 export interface SetHistoricalEventModeCommand {
   type: "SET_HISTORICAL_EVENT_MODE";
   mode: "automatic" | "interactive";
@@ -74,6 +80,7 @@ export type SimulationCommand =
   | DiplomaticActionCommand
   | JoinOrganizationCommand
   | SetDiplomaticStrategyCommand
+  | SetForeignPolicyDoctrineCommand
   | SetHistoricalEventModeCommand
   | ResolveHistoricalEventCommand
   | EnactHistoricalInitiativeCommand

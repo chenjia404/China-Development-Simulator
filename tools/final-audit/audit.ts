@@ -18,6 +18,9 @@ import {
   remittanceDirectedInvestment,
   deserializeGameState,
   diplomaticStrategyEffects,
+  foreignPolicyDoctrineDefinitions,
+  foreignPolicyDoctrineEffects,
+  foreignPolicyDoctrineRelationAdjustment,
   serializeGameState,
   updateForeignExchange,
   updateInternationalTrade,
@@ -734,6 +737,40 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const proSovietAccess = calculateTradeAccess(proSovietStrategy).marketAccessMultiplier;
   const proWesternAccess = calculateTradeAccess(proWesternStrategy).marketAccessMultiplier;
 
+  const revolutionaryDoctrine = structuredClone(neutralTrade);
+  const peacefulDoctrine = structuredClone(neutralTrade);
+  const economicDoctrine = structuredClone(neutralTrade);
+  const multilateralDoctrine = structuredClone(neutralTrade);
+  revolutionaryDoctrine.nation.diplomacy.foreignPolicyDoctrineId =
+    "revolutionary_internationalism";
+  peacefulDoctrine.nation.diplomacy.foreignPolicyDoctrineId =
+    "peaceful_coexistence";
+  economicDoctrine.nation.diplomacy.foreignPolicyDoctrineId =
+    "economic_diplomacy";
+  multilateralDoctrine.nation.diplomacy.foreignPolicyDoctrineId =
+    "multilateral_institutionalism";
+  for (const state of [
+    revolutionaryDoctrine,
+    peacefulDoctrine,
+    economicDoctrine,
+    multilateralDoctrine,
+  ]) {
+    state.nation.diplomacy.previousForeignPolicyDoctrineId = null;
+    state.nation.diplomacy.foreignPolicyDoctrineProgress = 1;
+  }
+  const revolutionaryDoctrineEffects = foreignPolicyDoctrineEffects(
+    revolutionaryDoctrine.nation,
+  );
+  const peacefulDoctrineEffects = foreignPolicyDoctrineEffects(
+    peacefulDoctrine.nation,
+  );
+  const economicDoctrineEffects = foreignPolicyDoctrineEffects(
+    economicDoctrine.nation,
+  );
+  const multilateralDoctrineEffects = foreignPolicyDoctrineEffects(
+    multilateralDoctrine.nation,
+  );
+
   const technologyConstrainedTrade = createInitialGameState(seed);
   const technologyCapableTrade = structuredClone(technologyConstrainedTrade);
   for (const state of [technologyConstrainedTrade, technologyCapableTrade]) {
@@ -977,6 +1014,29 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         proSovietStrategyEffects.securityTargetAdjustment > 0 &&
         proWesternStrategyEffects.securityTargetAdjustment < 0,
       `市场准入：亲苏 ${proSovietAccess.toFixed(3)}、平衡 ${neutralAccess.toFixed(3)}、亲西方 ${proWesternAccess.toFixed(3)}；外资倍率 ${proSovietStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}/${balancedStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}/${proWesternStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}`,
+    ),
+    makeCheck(
+      "foreign-policy-doctrines",
+      "七种外交学说可与阵营倾向组合，并对关系、经贸、科技、安全和声誉形成取舍",
+      foreignPolicyDoctrineDefinitions.length === 7 &&
+        foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "usa") >
+          foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "usa") &&
+        foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "south_korea") >
+          foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "south_korea") &&
+        foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "russia") <
+          foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "russia") &&
+        foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "north_korea") <
+          foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "north_korea") &&
+        peacefulDoctrineEffects.marketAccessMultiplier >
+          revolutionaryDoctrineEffects.marketAccessMultiplier &&
+        peacefulDoctrineEffects.foreignInvestmentMultiplier >
+          revolutionaryDoctrineEffects.foreignInvestmentMultiplier &&
+        economicDoctrineEffects.marketAccessMultiplier >
+          peacefulDoctrineEffects.marketAccessMultiplier &&
+        economicDoctrineEffects.securityTargetAdjustment < 0 &&
+        multilateralDoctrineEffects.reputationTargetAdjustment >
+          economicDoctrineEffects.reputationTargetAdjustment,
+      `和平共处/革命援助对美关系目标 ${foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "usa").toFixed(0)}/${foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "usa").toFixed(0)}，对朝 ${foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "north_korea").toFixed(0)}/${foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "north_korea").toFixed(0)}；经贸外交市场倍率 ${economicDoctrineEffects.marketAccessMultiplier.toFixed(2)}、安全调整 ${economicDoctrineEffects.securityTargetAdjustment.toFixed(0)}；多边声誉调整 ${multilateralDoctrineEffects.reputationTargetAdjustment.toFixed(0)}`,
     ),
     makeCheck(
       "foreign-exchange-remittances",

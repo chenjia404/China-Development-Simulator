@@ -12,6 +12,7 @@ import {
   calculateIndustrialStructureMetrics,
 } from "./industrial-structure";
 import { calculatePrivateEconomyMultipliers } from "./private-economy";
+import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -23,6 +24,7 @@ export interface TradeAccessMetrics {
 
 export function calculateTradeAccess(state: GameState): TradeAccessMetrics {
   const strategyEffects = diplomaticStrategyEffects(state.nation);
+  const doctrineEffects = foreignPolicyDoctrineEffects(state.nation);
   const totalForeignGDP = state.world.countries.reduce(
     (sum, country) => sum + country.nominalGDP,
     0,
@@ -45,7 +47,8 @@ export function calculateTradeAccess(state: GameState): TradeAccessMetrics {
     (1 + weightedRelation / 250 + agreementExposure * 0.2 + strategicExposure * 0.12) *
       (1 - sanctionExposure * 0.75) *
       organizationTradeMultiplier(state) *
-      strategyEffects.marketAccessMultiplier,
+      strategyEffects.marketAccessMultiplier *
+      doctrineEffects.marketAccessMultiplier,
     0.15,
     1.8,
   );
@@ -62,6 +65,7 @@ export function updateInternationalTrade(state: GameState): void {
   const { nation, world } = state;
   const access = calculateTradeAccess(state);
   const strategyEffects = diplomaticStrategyEffects(nation);
+  const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const privateEconomy = calculatePrivateEconomyMultipliers(nation);
   const secondaryShare = safeDivide(
     nation.sectors.secondary.valueAdded,
@@ -145,5 +149,6 @@ export function updateInternationalTrade(state: GameState): void {
   nation.trade.foreignInvestment *=
     investmentConfidence *
     organizationTradeMultiplier(state) *
-    strategyEffects.foreignInvestmentMultiplier;
+    strategyEffects.foreignInvestmentMultiplier *
+    doctrineEffects.foreignInvestmentMultiplier;
 }
