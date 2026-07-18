@@ -633,6 +633,10 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_special_economic_zones",
   });
+  initiativePreparation.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_private_economy_legal_recognition",
+  });
   const industrializationState = initiativePreparation.exportState();
   industrializationState.nation.date.month = 7;
   industrializationState.nation.date.elapsedMonths = 6;
@@ -677,6 +681,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     "reform_and_opening_1978",
     "joint_venture_law_1979",
     "special_economic_zones_1980",
+    "private_economy_legal_recognition_1988",
     "gatt_observer_1982",
     "gatt_accession_application_1986",
   ];
@@ -1462,7 +1467,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     makeCheck(
       "historical-initiatives",
       "适合主动推动的历史转折可提前实施，战争危机与组织资格保持事件化",
-      historicalInitiativeDefinitions.length === 14 &&
+      historicalInitiativeDefinitions.length === 15 &&
         new Set(initiativeEventIds).size === historicalInitiativeDefinitions.length &&
         excludedInitiativeEvents.every((eventId) => !initiativeEventIds.includes(eventId)) &&
         auditedEarlyInitiativeEvents.every((eventId) =>

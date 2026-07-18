@@ -190,6 +190,33 @@
     ]
   },
   {
+    "id": "early_private_economy_legal_recognition",
+    "eventId": "private_economy_legal_recognition_1988",
+    "name": "提前承认私营经济法律地位",
+    "category": "所有制法治",
+    "description": "在改革已经启动、民营经营和企业家能力具备现实基础后，提前以法律确认私营经济的存在、雇佣、产权和再投资空间；改善长期经营预期，同时建设登记、税收、劳动和竞争监管制度。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978"],
+      "minimumMonthsSinceEvents": { "reform_and_opening_1978": 0 },
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStability": 48,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0,
+      "minimumPrivateOperatingSpace": 0.2,
+      "minimumEntrepreneurialCapacity": 0.18
+    },
+    "transitionEffects": ["企业登记、税收、劳动和竞争监管建设增加财政支出", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.012 }
+    ]
+  },
+  {
     "id": "early_urban_economic_reform",
     "eventId": "urban_economic_reform_1984",
     "name": "提前推进城市经济体制改革",

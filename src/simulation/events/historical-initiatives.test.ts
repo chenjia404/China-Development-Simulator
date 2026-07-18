@@ -18,10 +18,10 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("十四项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(14);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(14);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(14);
+  it("十五项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(15);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(15);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(15);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
     expect(
       historicalInitiativeDefinitions.map((item) => item.eventId),
@@ -284,6 +284,66 @@ describe("历史转折国策", () => {
         (modifier) => modifier.sourceId === "special_economic_zones_1980",
       ),
     ).toBe(true);
+  });
+
+  it("私营经济法律承认无需外交点，但需要改革和现实民营经济基础", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
+    expect(
+      getHistoricalInitiativeStatus(
+        engine.exportState(),
+        "early_private_economy_legal_recognition",
+      ).blockers,
+    ).toContain("需先完成改革开放启动");
+
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_reform_and_opening",
+    });
+    const constrainedState = engine.exportState();
+    constrainedState.nation.privateEconomy.operatingSpace = 0.12;
+    constrainedState.nation.privateEconomy.entrepreneurialCapacity = 0.1;
+    expect(
+      getHistoricalInitiativeStatus(
+        constrainedState,
+        "early_private_economy_legal_recognition",
+      ).blockers,
+    ).toEqual(expect.arrayContaining([
+      "民营经营空间需达到 20%",
+      "企业家组织能力需达到 18%",
+    ]));
+
+    const beforePoints = engine.getState().nation.diplomacy.diplomaticPoints;
+    expect(
+      getHistoricalInitiativeStatus(
+        engine.exportState(),
+        "early_private_economy_legal_recognition",
+      ).available,
+    ).toBe(true);
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_private_economy_legal_recognition",
+    });
+
+    expect(engine.getState().nation.diplomacy.diplomaticPoints).toBe(beforePoints);
+    expect(engine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "private_economy_legal_recognition_1988",
+      year: 1949,
+      month: 1,
+      scheduledYear: 1988,
+      outcome: "enacted_early",
+    });
+    expect(
+      engine.getState().nation.modifiers.some(
+        (modifier) =>
+          modifier.sourceId === "private_economy_legal_recognition_1988" &&
+          modifier.target === "privateEconomy.operatingSpaceChange",
+      ),
+    ).toBe(true);
+
+    const historicalDateState = engine.exportState();
+    historicalDateState.nation.date.year = 1988;
+    historicalDateState.nation.date.month = 4;
+    expect(checkHistoricalEvents(historicalDateState.nation)).toEqual([]);
   });
 
   it("多边贸易主动国策只推进观察员和复关申请，不直接授予世贸成员资格", () => {

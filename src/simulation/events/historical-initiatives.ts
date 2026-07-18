@@ -24,6 +24,8 @@ export interface HistoricalInitiativeRequirements {
   minimumTechnologyIndex?: number;
   minimumUrbanizationRate?: number;
   minimumSecondarySectorShare?: number;
+  minimumPrivateOperatingSpace?: number;
+  minimumEntrepreneurialCapacity?: number;
 }
 
 export interface HistoricalInitiativeDefinition {
@@ -182,6 +184,23 @@ export function getHistoricalInitiativeStatus(
     secondarySectorShare < requirements.minimumSecondarySectorShare
   ) {
     blockers.push(`第二产业占比需达到 ${formatPercent(requirements.minimumSecondarySectorShare)}`);
+  }
+  if (
+    requirements.minimumPrivateOperatingSpace !== undefined &&
+    nation.privateEconomy.operatingSpace < requirements.minimumPrivateOperatingSpace
+  ) {
+    blockers.push(
+      `民营经营空间需达到 ${formatPercent(requirements.minimumPrivateOperatingSpace)}`,
+    );
+  }
+  if (
+    requirements.minimumEntrepreneurialCapacity !== undefined &&
+    nation.privateEconomy.entrepreneurialCapacity <
+      requirements.minimumEntrepreneurialCapacity
+  ) {
+    blockers.push(
+      `企业家组织能力需达到 ${formatPercent(requirements.minimumEntrepreneurialCapacity)}`,
+    );
   }
   if (nation.diplomacy.diplomaticPoints < definition.diplomaticPointCost) {
     blockers.push(`需要 ${definition.diplomaticPointCost} 点外交点数`);
