@@ -13,11 +13,15 @@ npm run simulate:korean-catch-up
 npm run simulate:taiwan-route
 npm run data:audit
 npm run calibrate -- outputs/calibration-errors.csv
+npm run calibrate:auto
+npm run uncertainty -- historical 1949 12 1949 2026
 npm run audit -- outputs/final-audit.json
 npm run build
 ```
 
 `historical-data-registry.json` 统一登记历史校准序列的发布者、来源地址、统计口径、单位、价格基准和分时期可信度。`npm run data:audit` 会在不访问网络的情况下检查来源引用、指标唯一性、年份覆盖和校准分组；人工复核日期保存在注册表元数据中。校准报告把 1949、1957、1978、2000、2020 年作为拟合组，把 1965、1990、2010 年作为留出验证组，2026 年单列为基于最近完整年度数据的预测基准，避免用拟合点通过率代替模型外验证。
+
+`npm run uncertainty` 会以多个连续种子运行同一无界面路线，报告实际 GDP、人均 GDP、人口、通胀、债务、科技和评分的 P10/P50/P90 区间。`npm run calibrate:auto` 使用固定网格和有界坐标搜索诊断系统性口径偏差，只用拟合组寻找候选，并单独评估留出验证组；若留出损失上升，候选会被明确拒绝。该工具不会自动改写历史目标、容差或模拟配置。
 
 模拟逻辑位于 `src/simulation`，浏览器 Worker 位于 `src/worker`。所有数值参数集中放入 `src/data/config`，React 组件不得直接计算经济指标。
 

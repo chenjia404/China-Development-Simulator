@@ -529,6 +529,18 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .settings-grid p { min-height: 40px; color: var(--muted); font-size: 11px; line-height: 1.6; }
 .settings-action { display: flex; gap: 9px; margin-top: 17px; }
 .settings-action input { min-width: 0; flex: 1; padding: 8px 10px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.settings-audit-heading { margin-top: 28px; }
+.audit-status { padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; }
+.audit-status.is-passed, .integrity-list .is-passed strong { color: var(--green); }
+.audit-status.is-warning, .integrity-list .is-warning strong { color: var(--red); }
+.integrity-grid article { min-width: 0; }
+.integrity-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 14px; margin: 14px 0 0; padding: 0; list-style: none; }
+.integrity-list li { display: flex; justify-content: space-between; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.integrity-list strong { font-size: 11px; }
+.integrity-summary { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.integrity-summary span, .integrity-summary small { color: var(--muted); font-size: 12px; }
+.integrity-summary strong { font-size: 13px; }
+.integrity-summary small { grid-column: 1 / -1; }
 .file-button { position: relative; display: inline-flex; align-items: center; }
 .file-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 

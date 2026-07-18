@@ -60,6 +60,7 @@ import {
   enterpriseOwnershipDefinitions,
   economicRegionDefinitions,
   endogenousRiskDefinitions,
+  evaluateModelIntegrity,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -1902,11 +1903,12 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
   );
 }
 
-function SettingsSection() {
+function SettingsSection({ game }: { game: GameState }) {
   const [seed, setSeed] = useState("1949");
   const newGame = useSimulationStore((store) => store.newGame);
   const importSave = useSimulationStore((store) => store.importSave);
   const exportSave = useSimulationStore((store) => store.exportSave);
+  const integrity = useMemo(() => evaluateModelIntegrity(game), [game]);
   const handleExport = () => {
     const serialized = exportSave();
     if (!serialized) return;
@@ -1917,7 +1919,70 @@ function SettingsSection() {
     link.click();
     URL.revokeObjectURL(url);
   };
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">本地数据</span><h2>存档与新游戏</h2><p>游戏数据只保存在当前浏览器的 IndexedDB，可随时导出。</p></div><div className="settings-grid"><article><h3>开始新游戏</h3><p>输入确定性种子；相同种子和决策会得到相同结果。</p><div className="settings-action"><input value={seed} onChange={(event) => setSeed(event.target.value)} inputMode="numeric" aria-label="随机种子" /><button onClick={() => void newGame(Number(seed) || 1949)}>从 1949 重新开始</button></div></article><article><h3>导入与导出</h3><p>导出文件包含模拟版本、随机状态和完整年度历史。</p><div className="settings-action"><button onClick={handleExport}>导出 JSON 存档</button><label className="file-button">导入存档<input type="file" accept="application/json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void file.text().then(importSave); }} /></label></div></article></div></section>;
+  return (
+    <section className="panel detail-page">
+      <div className="detail-hero">
+        <span className="eyebrow">本地数据</span>
+        <h2>存档与新游戏</h2>
+        <p>游戏数据只保存在当前浏览器的 IndexedDB，可随时导出。</p>
+      </div>
+      <div className="settings-grid">
+        <article>
+          <h3>开始新游戏</h3>
+          <p>输入确定性种子；相同种子和决策会得到相同结果。</p>
+          <div className="settings-action">
+            <input value={seed} onChange={(event) => setSeed(event.target.value)} inputMode="numeric" aria-label="随机种子" />
+            <button onClick={() => void newGame(Number(seed) || 1949)}>从 1949 重新开始</button>
+          </div>
+        </article>
+        <article>
+          <h3>导入与导出</h3>
+          <p>导出文件包含模拟版本、随机状态和完整年度历史。</p>
+          <div className="settings-action">
+            <button onClick={handleExport}>导出 JSON 存档</button>
+            <label className="file-button">导入存档<input type="file" accept="application/json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void file.text().then(importSave); }} /></label>
+          </div>
+        </article>
+      </div>
+      <div className="panel-heading settings-audit-heading">
+        <div>
+          <span className="eyebrow">守恒关系 · 确定性 · 风险信号</span>
+          <h2>模型完整性与审计</h2>
+        </div>
+        <span className={integrity.status === "通过" ? "audit-status is-passed" : "audit-status is-warning"}>
+          {integrity.passed}/{integrity.total} 项{integrity.status}
+        </span>
+      </div>
+      <div className="settings-grid integrity-grid">
+        <article>
+          <h3>账户守恒检查</h3>
+          <p>最大相对误差 {integrity.maximumRelativeError.toExponential(2)}；账户超过容差时会显示警告，但不会用截断掩盖公式错误。</p>
+          <ul className="integrity-list">
+            {integrity.indicators.map((item) => (
+              <li key={item.id} className={item.passed ? "is-passed" : "is-warning"}>
+                <span>{item.name}</span>
+                <strong>{item.passed ? "通过" : "警告"}</strong>
+              </li>
+            ))}
+          </ul>
+        </article>
+        <article>
+          <h3>可重复性与风险</h3>
+          <p>当前种子 {game.seed}，核心版本 {game.simulationVersion}。随机状态随存档序列化，相同决策可逐月复现。</p>
+          <div className="integrity-summary">
+            <span>当前内生风险</span>
+            <strong>{game.nation.institutions.activeRiskIds.length} 项</strong>
+            <small>最高压力 {formatPercent(game.nation.institutions.highestRiskPressure)}</small>
+          </div>
+          <div className="integrity-summary">
+            <span>离线研究工具</span>
+            <strong>多种子不确定性区间</strong>
+            <small>自动校准只给出候选，不会覆写历史锚点</small>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
 }
 
 export function SimulatorDashboard() {
@@ -1973,7 +2038,7 @@ export function SimulatorDashboard() {
           {activeSection === "history" ? <HistoricalEventsSection game={game} /> : null}
           {activeSection === "international" ? <InternationalSection game={game} /> : null}
           {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
-          {activeSection === "settings" ? <SettingsSection /> : null}
+          {activeSection === "settings" ? <SettingsSection game={game} /> : null}
           {!(["nation", "technology", "industry", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>

@@ -402,3 +402,16 @@ test("客户端展示制度执行能力与内生风险因果图", async () => {
   assert.match(source, /金融危机/);
   assert.match(source, /外部孤立/);
 });
+
+test("设置页展示模型完整性、不确定性与自动校准说明", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /模型完整性与审计/);
+  assert.match(source, /账户守恒检查/);
+  assert.match(source, /可重复性与风险/);
+  assert.match(source, /多种子不确定性区间/);
+  assert.match(source, /自动校准只给出候选/);
+});

@@ -47,7 +47,12 @@ import {
   validateFiscalFederalismConfig,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
+  evaluateModelIntegrity,
+  searchCalibrationCandidates,
+  summarizeUncertainty,
   type GameState,
+  type UncertaintySample,
+  type UncertaintySummary,
 } from "../../src/simulation/index";
 import { compareWithTargets, summarizeCalibration } from "../baseline-calibration/calibration";
 import { runSimulation, type SimulationRunResult } from "../baseline-calibration/runner";
@@ -97,6 +102,7 @@ export interface FinalAuditReport {
   period: string;
   checks: AuditCheck[];
   strategies: StrategyAuditSummary[];
+  uncertainty: UncertaintySummary;
 }
 
 async function sourceFiles(directory: string): Promise<string[]> {
@@ -208,6 +214,41 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   }
 
   const duplicate = runSimulation({ strategy: "historical", seed, startYear: 1949, endYear: 2026 });
+  const uncertaintyRuns = [
+    historical,
+    runSimulation({ strategy: "historical", seed: 1950, startYear: 1949, endYear: 2026 }),
+    runSimulation({ strategy: "historical", seed: 1951, startYear: 1949, endYear: 2026 }),
+    runSimulation({ strategy: "historical", seed: 1952, startYear: 1949, endYear: 2026 }),
+  ];
+  const uncertaintySamples: UncertaintySample[] = uncertaintyRuns.map((run) => {
+    const final = run.annual.at(-1)!;
+    return {
+      seed: run.options.seed,
+      metrics: {
+        realGDP: final.realGDP,
+        realGDPPerCapita: final.realGDPPerCapita,
+        population: final.population,
+        inflationRate: final.inflationRate,
+        debtToGDP: final.debtToGDP,
+        technologyIndex: final.technologyIndex,
+        score: final.score,
+      },
+    };
+  });
+  const uncertainty = summarizeUncertainty(uncertaintySamples);
+  const reversedUncertainty = summarizeUncertainty([...uncertaintySamples].reverse());
+  const calibrationSearchAudit = searchCalibrationCandidates(
+    [
+      { id: "outputScale", initial: 1, minimum: 0.9, maximum: 1.1, step: 0.01 },
+      { id: "populationScale", initial: 1, minimum: 0.9, maximum: 1.1, step: 0.01 },
+    ],
+    (parameters) =>
+      (parameters.outputScale - 1.04) ** 2 +
+      (parameters.populationScale - 0.97) ** 2,
+  );
+  const integrityReports = [...runs.values()].map((run) =>
+    evaluateModelIntegrity(run.finalState)
+  );
   const calibration = summarizeCalibration(compareWithTargets(historical.annual));
   const historicalComparisons = compareSimulationWithHistory(historical.annual);
   const historicalRankComparisons = historicalComparisons.filter(
@@ -1745,6 +1786,34 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "导入后继续 24 个月的完整状态逐值一致",
     ),
     makeCheck(
+      "multi-seed-uncertainty",
+      "多种子区间按固定分位算法汇总且不受批次顺序影响",
+      uncertainty.sampleCount === 4 &&
+        JSON.stringify(uncertainty) === JSON.stringify(reversedUncertainty) &&
+        Object.values(uncertainty.metrics).every((metric) =>
+          metric.minimum <= metric.p10 &&
+          metric.p10 <= metric.median &&
+          metric.median <= metric.p90 &&
+          metric.p90 <= metric.maximum &&
+          Number.isFinite(metric.coefficientOfVariation)
+        ),
+      `种子 ${uncertainty.seeds.join("、")}；2026 年实际 GDP P10/P50/P90=${uncertainty.metrics.realGDP.p10.toFixed(0)}/${uncertainty.metrics.realGDP.median.toFixed(0)}/${uncertainty.metrics.realGDP.p90.toFixed(0)}`,
+    ),
+    makeCheck(
+      "automatic-calibration-guardrail",
+      "有界自动校准候选搜索可重复且不恶化目标函数",
+      calibrationSearchAudit.bestLoss <= calibrationSearchAudit.initialLoss &&
+        calibrationSearchAudit.parameters.outputScale === 1.04 &&
+        calibrationSearchAudit.parameters.populationScale === 0.97,
+      `目标损失 ${calibrationSearchAudit.initialLoss.toExponential(3)}→${calibrationSearchAudit.bestLoss.toExponential(3)}，共评估 ${calibrationSearchAudit.evaluations} 个候选`,
+    ),
+    makeCheck(
+      "full-model-integrity",
+      "全部策略通过统一的细分账户完整性检查",
+      integrityReports.every((report) => report.status === "通过"),
+      `${integrityReports.reduce((sum, report) => sum + report.passed, 0)}/${integrityReports.reduce((sum, report) => sum + report.total, 0)} 个策略账户检查通过；最大相对误差 ${Math.max(...integrityReports.map((report) => report.maximumRelativeError)).toExponential(2)}`,
+    ),
+    makeCheck(
       "core-isolation",
       "模拟核心不依赖 React 或 DOM",
       uiDependencies.length === 0,
@@ -1765,5 +1834,6 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     period: "1949—2026",
     checks,
     strategies: summaries,
+    uncertainty,
   };
 }

@@ -18,6 +18,8 @@
     "simulate:us-route": "tsx tools/baseline-calibration/index.ts us_innovation_market 1949 1 1949 2000",
     "simulate:japan-route": "tsx tools/baseline-calibration/index.ts japan_quality_industry 1949 1 1949 2000",
     "calibrate": "tsx tools/baseline-calibration/calibrate.ts",
+    "calibrate:auto": "tsx tools/baseline-calibration/auto-calibrate.ts",
+    "uncertainty": "tsx tools/uncertainty-analysis/index.ts",
     "data:audit": "tsx tools/baseline-calibration/data-audit.ts",
     "audit": "tsx tools/final-audit/index.ts",
     "test": "npm run test:unit",
