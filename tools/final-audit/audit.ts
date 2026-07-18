@@ -244,10 +244,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       choiceId,
     });
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
-    return engine.getState().nation;
+    return engine.getState();
   };
   const historicalCrisis = runCrisisChoice("historical_path");
   const foreignAidCrisis = runCrisisChoice("accept_foreign_aid");
+  const crisisRelation = (
+    state: typeof foreignAidCrisis,
+    countryId: string,
+  ) => state.world.countries.find((country) => country.id === countryId)
+    ?.relationWithChina ?? Number.NaN;
+  const foreignAidProviders = ["russia", "canada", "australia", "usa"];
   const foreignAidContinuation = createSimulationEngine(
     createInitialGameState(seed, 1959, "interactive"),
   );
@@ -625,15 +631,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     makeCheck(
       "foreign-aid-relief",
       "三年经济困难可接受外国援助以降低死亡与经济冲击",
-      foreignAidCrisis.population.monthlyDeaths <
-          historicalCrisis.population.monthlyDeaths &&
-        foreignAidCrisis.resources.foodSupplyRatio >
-          historicalCrisis.resources.foodSupplyRatio &&
-        foreignAidCrisis.economy.realGDP > historicalCrisis.economy.realGDP &&
+      foreignAidCrisis.nation.population.monthlyDeaths <
+          historicalCrisis.nation.population.monthlyDeaths &&
+        foreignAidCrisis.nation.resources.foodSupplyRatio >
+          historicalCrisis.nation.resources.foodSupplyRatio &&
+        foreignAidCrisis.nation.economy.realGDP >
+          historicalCrisis.nation.economy.realGDP &&
+        foreignAidProviders.every((countryId) =>
+          crisisRelation(foreignAidCrisis, countryId) >
+            crisisRelation(historicalCrisis, countryId)
+        ) &&
+        Math.abs(
+          crisisRelation(foreignAidCrisis, "japan") -
+            crisisRelation(historicalCrisis, "japan"),
+        ) < 1e-9 &&
         foreignAidFinalState.nation.date.year === 2027 &&
         foreignAidFinalState.nation.history.reports.length === 68 &&
         Number.isFinite(foreignAidFinalState.nation.economy.realGDP),
-      `首月死亡人数由 ${historicalCrisis.population.monthlyDeaths.toFixed(0)} 降至 ${foreignAidCrisis.population.monthlyDeaths.toFixed(0)}，粮食供给率由 ${(historicalCrisis.resources.foodSupplyRatio * 100).toFixed(1)}% 升至 ${(foreignAidCrisis.resources.foodSupplyRatio * 100).toFixed(1)}%，援助路线生成 1959—2026 年 ${foreignAidFinalState.nation.history.reports.length} 个年度报告`,
+      `首月死亡人数由 ${historicalCrisis.nation.population.monthlyDeaths.toFixed(0)} 降至 ${foreignAidCrisis.nation.population.monthlyDeaths.toFixed(0)}，粮食供给率由 ${(historicalCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}% 升至 ${(foreignAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%；苏联、加拿大、澳大利亚和美国关系均改善，无关的日本关系不变；援助路线生成 1959—2026 年 ${foreignAidFinalState.nation.history.reports.length} 个年度报告`,
     ),
     makeCheck(
       "korean-war-branching",

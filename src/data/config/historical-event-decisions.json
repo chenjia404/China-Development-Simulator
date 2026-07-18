@@ -176,8 +176,8 @@
       {
         "id": "accept_foreign_aid",
         "name": "接受外国粮食与医疗援助",
-        "description": "通过友好国家、周边国家和国际人道渠道接受粮食、药品及运输支持，优先保障高风险地区和弱势人口，并承担援助协调、分配与对外沟通成本。",
-        "effects": ["粮食短缺大幅缓解", "死亡率冲击显著下降", "工农业收缩减轻", "国际声誉改善但财政协调支出增加"],
+        "description": "接受苏联的运输与医疗协作、加拿大和澳大利亚的粮食支持，并通过美国参与的国际人道渠道补充药品和救济物资；优先保障高风险地区和弱势人口，同时承担援助协调、分配与对外沟通成本。",
+        "effects": ["粮食短缺大幅缓解", "死亡率冲击显著下降", "工农业收缩减轻", "苏联、加拿大、澳大利亚和美国关系逐步改善", "国际声誉改善但财政协调支出增加"],
         "durationMonths": 24,
         "modifiers": [
           { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
@@ -185,7 +185,11 @@
           { "target": "sector.primary.output", "operation": "multiply", "value": 0.99 },
           { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992 },
           { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
-          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 }
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 36 },
+          { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 28 },
+          { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 24 },
+          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 18 }
         ]
       },
       {

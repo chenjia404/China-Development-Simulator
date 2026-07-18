@@ -412,6 +412,16 @@ describe("确定性历史事件", () => {
         (modifier) => modifier.target === "population.deathRate",
       )?.value,
     ).toBe(1.006);
+    expect(
+      aidChoice?.modifiers
+        .filter((modifier) => modifier.target.startsWith("diplomacy.relationTarget."))
+        .map((modifier) => modifier.target),
+    ).toEqual([
+      "diplomacy.relationTarget.russia",
+      "diplomacy.relationTarget.canada",
+      "diplomacy.relationTarget.australia",
+      "diplomacy.relationTarget.usa",
+    ]);
 
     const runChoice = (choiceId: string) => {
       const engine = createSimulationEngine(
@@ -424,18 +434,29 @@ describe("确定性历史事件", () => {
         choiceId,
       });
       engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
-      return engine.getState().nation;
+      return engine.getState();
     };
     const historical = runChoice("historical_path");
     const aided = runChoice("accept_foreign_aid");
+    const relation = (state: typeof aided, countryId: string) =>
+      state.world.countries.find((country) => country.id === countryId)
+        ?.relationWithChina ?? Number.NaN;
 
-    expect(aided.population.monthlyDeaths).toBeLessThan(
-      historical.population.monthlyDeaths,
+    expect(aided.nation.population.monthlyDeaths).toBeLessThan(
+      historical.nation.population.monthlyDeaths,
     );
-    expect(aided.resources.foodSupplyRatio).toBeGreaterThan(
-      historical.resources.foodSupplyRatio,
+    expect(aided.nation.resources.foodSupplyRatio).toBeGreaterThan(
+      historical.nation.resources.foodSupplyRatio,
     );
-    expect(aided.economy.realGDP).toBeGreaterThan(historical.economy.realGDP);
+    expect(aided.nation.economy.realGDP).toBeGreaterThan(
+      historical.nation.economy.realGDP,
+    );
+    for (const providerId of ["russia", "canada", "australia", "usa"]) {
+      expect(relation(aided, providerId)).toBeGreaterThan(
+        relation(historical, providerId),
+      );
+    }
+    expect(relation(aided, "japan")).toBeCloseTo(relation(historical, "japan"));
   });
 
   it("旧存档缺少历史事件记录时自动迁移", () => {
