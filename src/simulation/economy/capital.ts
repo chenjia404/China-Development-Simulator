@@ -4,6 +4,7 @@ import { clamp } from "../core/math";
 import type { NationState, SectorId } from "../state/game-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { applyModifiers } from "../events/modifiers";
+import { remittanceDirectedInvestment } from "./foreign-exchange";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
@@ -20,7 +21,8 @@ export function updateCapitalAndInvestment(nation: NationState): void {
       nation,
       "capital.privateInvestment",
       economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
-        economy.realGDP * 0.08,
+        economy.realGDP * 0.08 +
+        remittanceDirectedInvestment(nation),
     ),
   );
   const annualNominalInvestment =

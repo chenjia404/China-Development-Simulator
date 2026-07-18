@@ -1,15 +1,18 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  calculateGDP,
   calculateTradeAccess,
   createSimulationEngine,
   createInitialGameState,
   historicalEventDefinitions,
   historicalInitiativeDefinitions,
   getHistoricalEventChoices,
+  remittanceDirectedInvestment,
   deserializeGameState,
   diplomaticStrategyEffects,
   serializeGameState,
+  updateForeignExchange,
 } from "../../src/simulation/index";
 import { compareWithTargets, summarizeCalibration } from "../baseline-calibration/calibration";
 import { runSimulation, type SimulationRunResult } from "../baseline-calibration/runner";
@@ -369,6 +372,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const proSovietAccess = calculateTradeAccess(proSovietStrategy).marketAccessMultiplier;
   const proWesternAccess = calculateTradeAccess(proWesternStrategy).marketAccessMultiplier;
 
+  const remittanceBaseline = createInitialGameState(seed);
+  const remittanceProtection = structuredClone(remittanceBaseline);
+  const remittanceInvestment = structuredClone(remittanceBaseline);
+  const centralizedSettlement = structuredClone(remittanceBaseline);
+  remittanceProtection.nation.policyProgress.remittance_protection = 1;
+  remittanceInvestment.nation.policyProgress.overseas_chinese_investment = 1;
+  centralizedSettlement.nation.policyProgress.centralized_fx_settlement = 1;
+  for (const state of [
+    remittanceBaseline,
+    remittanceProtection,
+    remittanceInvestment,
+    centralizedSettlement,
+  ]) {
+    updateForeignExchange(state);
+    calculateGDP(state.nation);
+  }
+  const finalTrade = historical.finalState.nation.trade;
+
   const checks: AuditCheck[] = [
     makeCheck(
       "continuous-run",
@@ -432,6 +453,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         proSovietStrategyEffects.securityTargetAdjustment > 0 &&
         proWesternStrategyEffects.securityTargetAdjustment < 0,
       `市场准入：亲苏 ${proSovietAccess.toFixed(3)}、平衡 ${neutralAccess.toFixed(3)}、亲西方 ${proWesternAccess.toFixed(3)}；外资倍率 ${proSovietStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}/${balancedStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}/${proWesternStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}`,
+    ),
+    makeCheck(
+      "foreign-exchange-remittances",
+      "外汇储备、侨汇及三类侨汇国策形成可追踪的经济传导",
+      finalTrade.foreignExchangeReserves >= 2_500_000_000_000 &&
+        finalTrade.foreignExchangeReserves <= 4_500_000_000_000 &&
+        finalTrade.remittanceInflows >= 35_000_000_000 &&
+        finalTrade.remittanceInflows <= 70_000_000_000 &&
+        finalTrade.importCoverageMonths > 6 &&
+        remittanceProtection.nation.trade.remittanceInflows >
+          remittanceBaseline.nation.trade.remittanceInflows &&
+        remittanceProtection.nation.economy.householdIncome >
+          centralizedSettlement.nation.economy.householdIncome &&
+        remittanceDirectedInvestment(remittanceInvestment.nation) >
+          remittanceDirectedInvestment(remittanceBaseline.nation) &&
+        centralizedSettlement.nation.trade.remittanceInflows <
+          remittanceBaseline.nation.trade.remittanceInflows &&
+        centralizedSettlement.nation.trade.remittanceReserveContribution >
+          remittanceBaseline.nation.trade.remittanceReserveContribution,
+      `2026 年末外储 ${(finalTrade.foreignExchangeReserves / 1_000_000_000_000).toFixed(2)} 万亿美元、年度侨汇 ${(finalTrade.remittanceInflows / 100_000_000).toFixed(1)} 亿美元、进口覆盖 ${finalTrade.importCoverageMonths.toFixed(1)} 个月；保护权益提高流入，侨资创业提高定向投资，集中结汇提高储备贡献但压低家庭收入`,
     ),
     makeCheck(
       "historical-timeline",

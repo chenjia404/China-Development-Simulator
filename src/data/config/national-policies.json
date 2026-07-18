@@ -92,6 +92,44 @@
       "modifiers": []
     },
     {
+      "id": "remittance_protection",
+      "name": "保护侨汇权益",
+      "category": "开放",
+      "description": "保障侨眷对侨汇的所有权和使用权，改善正规汇款渠道与兑换服务，提高侨汇流入和实际到户比例。",
+      "transitionMonths": 24,
+      "conflictsWith": ["centralized_fx_settlement"],
+      "modifiers": [
+        { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.2 },
+        { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.04 },
+        { "target": "trade.remittanceReserveRetention", "operation": "multiply", "value": 1.05 }
+      ]
+    },
+    {
+      "id": "overseas_chinese_investment",
+      "name": "侨资回乡创业",
+      "category": "发展",
+      "description": "通过产权保护、创业服务和产业配套，引导部分侨汇转为企业、住房和地方基础设施投资，减少当期消费但提高资本形成。",
+      "transitionMonths": 36,
+      "conflictsWith": ["consumption_stimulus"],
+      "modifiers": [
+        { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.08 },
+        { "target": "capital.remittanceInvestmentRate", "operation": "add", "value": 0.18 }
+      ]
+    },
+    {
+      "id": "centralized_fx_settlement",
+      "name": "侨汇集中结汇",
+      "category": "财政",
+      "description": "提高侨汇强制结汇和储备留存比例，短期补充国家外汇，但较低的家庭兑换效率会削弱正规汇款意愿。",
+      "transitionMonths": 18,
+      "conflictsWith": ["remittance_protection"],
+      "modifiers": [
+        { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.88 },
+        { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 0.95 },
+        { "target": "trade.remittanceReserveRetention", "operation": "multiply", "value": 1.35 }
+      ]
+    },
+    {
       "id": "livelihood_priority",
       "name": "民生优先",
       "category": "社会",

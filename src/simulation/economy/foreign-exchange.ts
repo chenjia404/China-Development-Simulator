@@ -91,16 +91,41 @@ export function reserveImportCapacityMultiplier(nation: NationState): number {
 }
 
 /** 将美元等值侨汇折回游戏内部不变价口径，进入居民收入和储蓄。 */
-export function remittanceDomesticIncome(nation: NationState): number {
-  return Math.max(
+function domesticRemittanceValue(nation: NationState): number {
+  return Math.max(0, nation.trade.remittanceInflows * safeDivide(
+    nation.economy.realGDP,
+    nation.economy.internationalComparableGDP,
+  ));
+}
+
+export function remittanceInvestmentRate(nation: NationState): number {
+  return clamp(
+    applyPolicyModifiers(
+      nation,
+      "capital.remittanceInvestmentRate",
+      foreignExchangeConfig.baseRemittanceInvestmentRate,
+    ),
     0,
-    nation.trade.remittanceInflows *
-      safeDivide(
-        nation.economy.realGDP,
-        nation.economy.internationalComparableGDP,
-      ) *
-      foreignExchangeConfig.remittanceHouseholdIncomePassThrough,
+    0.65,
   );
+}
+
+export function remittanceDomesticIncome(nation: NationState): number {
+  const transferEfficiency = clamp(
+    applyPolicyModifiers(
+      nation,
+      "trade.remittanceTransferEfficiency",
+      foreignExchangeConfig.remittanceHouseholdIncomePassThrough,
+    ),
+    0.5,
+    1,
+  );
+  return domesticRemittanceValue(nation) *
+    (1 - remittanceInvestmentRate(nation)) * transferEfficiency;
+}
+
+export function remittanceDirectedInvestment(nation: NationState): number {
+  return domesticRemittanceValue(nation) * remittanceInvestmentRate(nation);
 }
 
 export function ensureForeignExchangeState(state: GameState): void {
@@ -195,9 +220,17 @@ export function updateForeignExchange(state: GameState): void {
     remittanceTarget,
     foreignExchangeConfig.remittanceAdjustmentSpeed,
   );
+  const remittanceRetentionRate = clamp(
+    applyPolicyModifiers(
+      nation,
+      "trade.remittanceReserveRetention",
+      foreignExchangeConfig.remittanceSettlementRetentionRate,
+    ),
+    0,
+    1,
+  );
   nation.trade.remittanceReserveContribution =
-    nation.trade.remittanceInflows *
-    foreignExchangeConfig.remittanceSettlementRetentionRate;
+    nation.trade.remittanceInflows * remittanceRetentionRate;
 
   const comparableConversion = safeDivide(
     comparable,

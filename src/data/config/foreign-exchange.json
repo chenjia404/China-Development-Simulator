@@ -13,6 +13,7 @@
   "remittanceAdjustmentSpeed": 0.08,
   "remittanceSettlementRetentionRate": 0.45,
   "remittanceHouseholdIncomePassThrough": 0.92,
+  "baseRemittanceInvestmentRate": 0.08,
   "tradeSurplusRetentionRate": 0.012,
   "tradeDeficitCoverageRate": 0.08,
   "foreignInvestmentRetentionRate": 0.04,

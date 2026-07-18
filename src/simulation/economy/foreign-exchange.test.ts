@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
 import { calculateGDP } from "./gdp";
-import { updateForeignExchange } from "./foreign-exchange";
+import {
+  remittanceDirectedInvestment,
+  remittanceInvestmentRate,
+  updateForeignExchange,
+} from "./foreign-exchange";
 
 describe("外汇储备与侨汇", () => {
   it("侨汇先进入居民收入和储蓄，再影响后续投资能力", () => {
@@ -57,6 +61,48 @@ describe("外汇储备与侨汇", () => {
     );
     expect(highRemittances.nation.trade.monthlyReserveChange).toBeGreaterThan(
       lowRemittances.nation.trade.monthlyReserveChange,
+    );
+  });
+
+  it("侨汇国策会在家庭收入、投资与储备之间形成取舍", () => {
+    const baseline = createInitialGameState(1949);
+    const protectedRights = structuredClone(baseline);
+    const directedInvestment = structuredClone(baseline);
+    const centralizedSettlement = structuredClone(baseline);
+    protectedRights.nation.policyProgress.remittance_protection = 1;
+    directedInvestment.nation.policyProgress.overseas_chinese_investment = 1;
+    centralizedSettlement.nation.policyProgress.centralized_fx_settlement = 1;
+
+    for (const state of [
+      baseline,
+      protectedRights,
+      directedInvestment,
+      centralizedSettlement,
+    ]) {
+      updateForeignExchange(state);
+      calculateGDP(state.nation);
+    }
+
+    expect(protectedRights.nation.trade.remittanceInflows).toBeGreaterThan(
+      baseline.nation.trade.remittanceInflows,
+    );
+    expect(protectedRights.nation.economy.householdIncome).toBeGreaterThan(
+      centralizedSettlement.nation.economy.householdIncome,
+    );
+    expect(remittanceInvestmentRate(directedInvestment.nation)).toBeCloseTo(
+      0.26,
+      8,
+    );
+    expect(remittanceDirectedInvestment(directedInvestment.nation)).toBeGreaterThan(
+      remittanceDirectedInvestment(baseline.nation),
+    );
+    expect(centralizedSettlement.nation.trade.remittanceInflows).toBeLessThan(
+      baseline.nation.trade.remittanceInflows,
+    );
+    expect(
+      centralizedSettlement.nation.trade.remittanceReserveContribution,
+    ).toBeGreaterThan(
+      baseline.nation.trade.remittanceReserveContribution,
     );
   });
 

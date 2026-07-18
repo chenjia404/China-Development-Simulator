@@ -29,6 +29,12 @@ describe("国策系统", () => {
     expect(() =>
       validatePolicySelection(["agriculture_priority", "industry_priority"]),
     ).toThrow("冲突");
+    expect(() =>
+      validatePolicySelection([
+        "remittance_protection",
+        "centralized_fx_settlement",
+      ]),
+    ).toThrow("冲突");
   });
 
   it("国策效果按过渡期逐月生效，而不是瞬间达到满值", () => {
