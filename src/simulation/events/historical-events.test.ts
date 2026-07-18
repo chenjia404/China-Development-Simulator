@@ -228,6 +228,51 @@ describe("确定性历史事件", () => {
     ).toBeCloseTo(0.9688, 6);
   });
 
+  it("三年经济困难可接受外国援助并减少死亡与经济冲击", () => {
+    const choices = getHistoricalEventChoices("three_year_difficulties_1959");
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "accept_foreign_aid",
+      "domestic_emergency_relief",
+    ]);
+    const aidChoice = choices.find(
+      (choice) => choice.id === "accept_foreign_aid",
+    );
+    expect(aidChoice).toMatchObject({
+      name: "接受外国粮食与医疗援助",
+      durationMonths: 24,
+    });
+    expect(
+      aidChoice?.modifiers.find(
+        (modifier) => modifier.target === "population.deathRate",
+      )?.value,
+    ).toBe(1.006);
+
+    const runChoice = (choiceId: string) => {
+      const engine = createSimulationEngine(
+        createInitialGameState(1959, 1959, "interactive"),
+      );
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "three_year_difficulties_1959",
+        choiceId,
+      });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      return engine.getState().nation;
+    };
+    const historical = runChoice("historical_path");
+    const aided = runChoice("accept_foreign_aid");
+
+    expect(aided.population.monthlyDeaths).toBeLessThan(
+      historical.population.monthlyDeaths,
+    );
+    expect(aided.resources.foodSupplyRatio).toBeGreaterThan(
+      historical.resources.foodSupplyRatio,
+    );
+    expect(aided.economy.realGDP).toBeGreaterThan(historical.economy.realGDP);
+  });
+
   it("旧存档缺少历史事件记录时自动迁移", () => {
     const state = createInitialGameState(1949);
     delete (

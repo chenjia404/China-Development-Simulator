@@ -183,6 +183,37 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const preventedEvents = causalEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "prevented");
 
+  const runCrisisChoice = (choiceId: string) => {
+    const engine = createSimulationEngine(
+      createInitialGameState(seed, 1959, "interactive"),
+    );
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "three_year_difficulties_1959",
+      choiceId,
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    return engine.getState().nation;
+  };
+  const historicalCrisis = runCrisisChoice("historical_path");
+  const foreignAidCrisis = runCrisisChoice("accept_foreign_aid");
+  const foreignAidContinuation = createSimulationEngine(
+    createInitialGameState(seed, 1959, "interactive"),
+  );
+  foreignAidContinuation.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+  foreignAidContinuation.dispatch({
+    type: "RESOLVE_HISTORICAL_EVENT",
+    eventId: "three_year_difficulties_1959",
+    choiceId: "accept_foreign_aid",
+  });
+  foreignAidContinuation.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  foreignAidContinuation.dispatch({ type: "ADVANCE_MONTHS", months: 816 });
+  const foreignAidFinalState = foreignAidContinuation.getState();
+
   const initiativeState = createInitialGameState(seed, 1970);
   initiativeState.nation.economy.institutionalEfficiency = 0.4;
   initiativeState.nation.society.stabilityIndex = 55;
@@ -400,6 +431,19 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           (modifier) => modifier.sourceId === "great_leap_forward_1958",
         ),
       `已避免 ${preventedEvents.map((event) => event.name).join("、")}，三年经济困难由 36 个月降至 ${causalChoices[0]?.durationMonths ?? "未知"} 个月`,
+    ),
+    makeCheck(
+      "foreign-aid-relief",
+      "三年经济困难可接受外国援助以降低死亡与经济冲击",
+      foreignAidCrisis.population.monthlyDeaths <
+          historicalCrisis.population.monthlyDeaths &&
+        foreignAidCrisis.resources.foodSupplyRatio >
+          historicalCrisis.resources.foodSupplyRatio &&
+        foreignAidCrisis.economy.realGDP > historicalCrisis.economy.realGDP &&
+        foreignAidFinalState.nation.date.year === 2027 &&
+        foreignAidFinalState.nation.history.reports.length === 68 &&
+        Number.isFinite(foreignAidFinalState.nation.economy.realGDP),
+      `首月死亡人数由 ${historicalCrisis.population.monthlyDeaths.toFixed(0)} 降至 ${foreignAidCrisis.population.monthlyDeaths.toFixed(0)}，粮食供给率由 ${(historicalCrisis.resources.foodSupplyRatio * 100).toFixed(1)}% 升至 ${(foreignAidCrisis.resources.foodSupplyRatio * 100).toFixed(1)}%，援助路线生成 1959—2026 年 ${foreignAidFinalState.nation.history.reports.length} 个年度报告`,
     ),
     makeCheck(
       "historical-initiatives",

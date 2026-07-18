@@ -118,6 +118,41 @@
     ]
   },
   {
+    "eventId": "three_year_difficulties_1959",
+    "choices": [
+      {
+        "id": "accept_foreign_aid",
+        "name": "接受外国粮食与医疗援助",
+        "description": "通过友好国家、周边国家和国际人道渠道接受粮食、药品及运输支持，优先保障高风险地区和弱势人口，并承担援助协调、分配与对外沟通成本。",
+        "effects": ["粮食短缺大幅缓解", "死亡率冲击显著下降", "工农业收缩减轻", "国际声誉改善但财政协调支出增加"],
+        "durationMonths": 24,
+        "modifiers": [
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
+          { "target": "population.deathRate", "operation": "multiply", "value": 1.006 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 0.99 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 }
+        ]
+      },
+      {
+        "id": "domestic_emergency_relief",
+        "name": "国内紧急赈济与政策纠偏",
+        "description": "压缩非必要建设，跨地区调运粮食并恢复基层自留地和真实产量统计，以更高财政投入和行政调整逐步缓解危机。",
+        "effects": ["粮食和死亡率冲击部分缓解", "工农业生产逐步恢复", "财政负担明显增加", "制度纠偏能力改善"],
+        "durationMonths": 30,
+        "modifiers": [
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95 },
+          { "target": "population.deathRate", "operation": "multiply", "value": 1.015 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 0.975 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.045 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.01 }
+        ]
+      }
+    ]
+  },
+  {
     "eventId": "cultural_revolution_disruption_1966",
     "choices": [
       {
