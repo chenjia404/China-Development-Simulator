@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   calculateGDP,
   calculateTradeAccess,
+  calculateTechnologyTreeMetrics,
   createSimulationEngine,
   createInitialGameState,
   developmentRouteBlueprints,
@@ -15,6 +16,10 @@ import {
   diplomaticStrategyEffects,
   serializeGameState,
   updateForeignExchange,
+  updateInternationalTrade,
+  applyPolicyModifiers,
+  technologyTreeDefinitions,
+  validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
   type GameState,
 } from "../../src/simulation/index";
@@ -49,6 +54,9 @@ export interface StrategyAuditSummary {
   capitalGoodsImportCoverage: number;
   educationIndex: number;
   technologyIndex: number;
+  completedTechnologyCount: number;
+  industryTechnologyTier: number;
+  industrialUpgradeReadiness: number;
   lifeExpectancy: number;
   happinessIndex: number;
   secondarySectorShare: number;
@@ -93,6 +101,10 @@ function summary(result: SimulationRunResult): StrategyAuditSummary {
     capitalGoodsImportCoverage: nation.trade.capitalGoodsImportCoverage,
     educationIndex: nation.education.index,
     technologyIndex: nation.technology.index,
+    completedTechnologyCount: nation.technology.completedTechnologyIds.length,
+    industryTechnologyTier: calculateTechnologyTreeMetrics(nation).industryTier,
+    industrialUpgradeReadiness: calculateTechnologyTreeMetrics(nation)
+      .industrialUpgradeReadiness,
     lifeExpectancy: nation.health.lifeExpectancy,
     happinessIndex: nation.society.happinessIndex,
     secondarySectorShare: final.secondarySectorShare,
@@ -149,6 +161,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     validateDevelopmentRouteBlueprints();
   } catch (error) {
     developmentBlueprintValidationError = error instanceof Error
+      ? error.message
+      : String(error);
+  }
+  let technologyTreeValidationError: string | null = null;
+  try {
+    validateTechnologyTreeDefinitions();
+  } catch (error) {
+    technologyTreeValidationError = error instanceof Error
       ? error.message
       : String(error);
   }
@@ -611,6 +631,34 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const proSovietAccess = calculateTradeAccess(proSovietStrategy).marketAccessMultiplier;
   const proWesternAccess = calculateTradeAccess(proWesternStrategy).marketAccessMultiplier;
 
+  const technologyConstrainedTrade = createInitialGameState(seed);
+  const technologyCapableTrade = structuredClone(technologyConstrainedTrade);
+  for (const state of [technologyConstrainedTrade, technologyCapableTrade]) {
+    state.nation.technology.index = 80;
+    state.nation.education.index = 70;
+    state.nation.trade.openness = 0.7;
+    state.nation.policyProgress.industrial_upgrading = 1;
+  }
+  technologyCapableTrade.nation.technology.completedTechnologyIds =
+    technologyTreeDefinitions
+      .filter((node) => node.industryTier <= 4)
+      .map((node) => node.id);
+  updateInternationalTrade(technologyConstrainedTrade);
+  updateInternationalTrade(technologyCapableTrade);
+  const constrainedUpgradeBenefit = applyPolicyModifiers(
+    technologyConstrainedTrade.nation,
+    "trade.exportCompetitiveness",
+    1,
+  );
+  const capableUpgradeBenefit = applyPolicyModifiers(
+    technologyCapableTrade.nation,
+    "trade.exportCompetitiveness",
+    1,
+  );
+  const historicalTechnologyTree = calculateTechnologyTreeMetrics(
+    historical.finalState.nation,
+  );
+
   const remittanceBaseline = createInitialGameState(seed);
   const remittanceProtection = structuredClone(remittanceBaseline);
   const remittanceInvestment = structuredClone(remittanceBaseline);
@@ -672,6 +720,21 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         initialPolicyProgress < 1 &&
         Math.abs(maturePolicyProgress - 1) < 1e-9,
       `科技强国首月生效 ${(initialPolicyProgress * 100).toFixed(1)}%，60 个月后 ${(maturePolicyProgress * 100).toFixed(0)}%`,
+    ),
+    makeCheck(
+      "technology-tree-capability",
+      "科技树由教育、科研和前置节点推进，并约束产业升级与出口竞争力",
+      technologyTreeValidationError === null &&
+        technologyTreeDefinitions.length >= 10 &&
+        historicalTechnologyTree.completedCount >= 8 &&
+        historicalTechnologyTree.effectiveIndustrialTechnology <=
+          historical.finalState.nation.technology.index &&
+        constrainedUpgradeBenefit === 1 &&
+        capableUpgradeBenefit > 1.08 &&
+        technologyCapableTrade.nation.trade.exports >
+          technologyConstrainedTrade.nation.trade.exports,
+      technologyTreeValidationError ??
+        `史实路线完成 ${historicalTechnologyTree.completedCount}/${historicalTechnologyTree.totalCount} 个节点、产业科技第 ${historicalTechnologyTree.industryTier} 层、升级准备度 ${(historicalTechnologyTree.industrialUpgradeReadiness * 100).toFixed(1)}%；同为科技指数 80 时，无节点/具备第四层节点的产业升级出口倍率 ${constrainedUpgradeBenefit.toFixed(3)}/${capableUpgradeBenefit.toFixed(3)}，月度出口 ${technologyConstrainedTrade.nation.trade.exports.toFixed(0)}/${technologyCapableTrade.nation.trade.exports.toFixed(0)}`,
     ),
     makeCheck(
       "korean-catch-up",
@@ -867,8 +930,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         avoidedCulturalRevolution1978.educationIndex >
           strictHistorical1978.educationIndex &&
         avoidedCulturalRevolution1990.technologyIndex >
-          strictHistorical1990.technologyIndex,
-      `${culturalRevolutionGrowthResults.map((result) => `${result.year} 年 ${(result.simulatedGrowth * 100).toFixed(1)}%（参考 ${(result.growth * 100).toFixed(1)}%）`).join("；")}；避免文革后 1978 年教育指数 ${avoidedCulturalRevolution1978.educationIndex.toFixed(1)}，史实 ${strictHistorical1978.educationIndex.toFixed(1)}；1990 年科技指数 ${avoidedCulturalRevolution1990.technologyIndex.toFixed(1)}/${strictHistorical1990.technologyIndex.toFixed(1)}`,
+          strictHistorical1990.technologyIndex &&
+        avoidedCulturalRevolution1990.completedTechnologyCount >
+          strictHistorical1990.completedTechnologyCount &&
+        avoidedCulturalRevolution1990.industryTechnologyTier >=
+          strictHistorical1990.industryTechnologyTier,
+      `${culturalRevolutionGrowthResults.map((result) => `${result.year} 年 ${(result.simulatedGrowth * 100).toFixed(1)}%（参考 ${(result.growth * 100).toFixed(1)}%）`).join("；")}；避免文革后 1978 年教育指数 ${avoidedCulturalRevolution1978.educationIndex.toFixed(1)}，史实 ${strictHistorical1978.educationIndex.toFixed(1)}；1990 年科技指数 ${avoidedCulturalRevolution1990.technologyIndex.toFixed(1)}/${strictHistorical1990.technologyIndex.toFixed(1)}，完成科技节点 ${avoidedCulturalRevolution1990.completedTechnologyCount}/${strictHistorical1990.completedTechnologyCount}`,
     ),
     makeCheck(
       "historical-causality",

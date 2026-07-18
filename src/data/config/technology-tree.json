@@ -20,7 +20,7 @@
       "requiredTechnologyIndex": 6,
       "prerequisiteIds": [],
       "industryTier": 0,
-      "effects": ["农业设备利用能力提高", "为现代农学提供前置条件"]
+      "effects": ["解锁现代农学研究", "建立农业技术支线基础"]
     },
     {
       "id": "basic_machine_tools",
@@ -44,7 +44,7 @@
       "requiredTechnologyIndex": 10,
       "prerequisiteIds": ["basic_machine_tools"],
       "industryTier": 1,
-      "effects": ["提高能源利用能力", "支撑化工和精密制造"]
+      "effects": ["解锁化工和精密制造", "提供先进能源系统前置条件"]
     },
     {
       "id": "modern_agronomy",
@@ -56,7 +56,7 @@
       "requiredTechnologyIndex": 24,
       "prerequisiteIds": ["mechanized_agriculture"],
       "industryTier": 0,
-      "effects": ["提高农业技术上限", "减轻工业化的粮食约束"]
+      "effects": ["完成现代农业技术支线", "形成农业科研知识节点"]
     },
     {
       "id": "chemical_materials",
@@ -140,7 +140,7 @@
       "requiredTechnologyIndex": 75,
       "prerequisiteIds": ["industrial_automation", "grid_electrification"],
       "industryTier": 4,
-      "effects": ["缓解高端工业能源约束", "提高能源系统韧性"]
+      "effects": ["完成先进能源技术支线", "形成能源系统知识节点"]
     },
     {
       "id": "artificial_intelligence",

@@ -93,6 +93,9 @@ async function main(): Promise<void> {
       capitalGoodsImportCoverage: nation.trade.capitalGoodsImportCoverage,
       educationIndex: nation.education.index,
       technologyIndex: nation.technology.index,
+      completedTechnologyCount:
+        nation.technology.completedTechnologyIds.length,
+      activeResearchId: nation.technology.activeResearchId,
       lifeExpectancy: nation.health.lifeExpectancy,
       happinessIndex: nation.society.happinessIndex,
       gdpRank: nation.history.annual.at(-1)?.gdpRank,

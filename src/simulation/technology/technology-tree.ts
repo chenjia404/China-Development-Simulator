@@ -2,6 +2,7 @@ import technologyTreeConfig from "../../data/config/technology-tree.json";
 import { clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
+import type { AnnualSnapshot } from "../state/history-state";
 
 export type TechnologyCategory = "农业" | "工业" | "能源" | "信息";
 
@@ -47,6 +48,22 @@ export function validateTechnologyTreeDefinitions(): void {
       }
     }
   }
+  const byId = new Map(technologyTreeDefinitions.map((node) => [node.id, node]));
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  const visit = (technologyId: string): void => {
+    if (visiting.has(technologyId)) {
+      throw new Error(`科技树存在循环前置关系：${technologyId}`);
+    }
+    if (visited.has(technologyId)) return;
+    visiting.add(technologyId);
+    for (const prerequisiteId of byId.get(technologyId)?.prerequisiteIds ?? []) {
+      visit(prerequisiteId);
+    }
+    visiting.delete(technologyId);
+    visited.add(technologyId);
+  };
+  for (const node of technologyTreeDefinitions) visit(node.id);
 }
 
 export function getTechnologyNode(
@@ -57,13 +74,38 @@ export function getTechnologyNode(
 
 export function ensureTechnologyTreeState(nation: NationState): void {
   const knownIds = new Set(technologyTreeDefinitions.map((node) => node.id));
-  nation.technology.completedTechnologyIds = Array.isArray(
+  const hasTechnologyTreeState = Array.isArray(
     nation.technology.completedTechnologyIds,
-  )
+  );
+  nation.technology.completedTechnologyIds = hasTechnologyTreeState
     ? [...new Set(nation.technology.completedTechnologyIds)].filter((id) =>
         knownIds.has(id),
       )
     : [];
+  if (!hasTechnologyTreeState) {
+    let reconstructableResearch = Math.max(
+      0,
+      nation.technology.researchPoints *
+        technologyTreeConfig.researchAllocationRate,
+    );
+    for (const node of technologyTreeDefinitions) {
+      const prerequisitesMet = node.prerequisiteIds.every((id) =>
+        nation.technology.completedTechnologyIds.includes(id)
+      );
+      const capabilityMet =
+        nation.education.index >= node.requiredEducationIndex &&
+        nation.technology.index >= node.requiredTechnologyIndex;
+      if (!prerequisitesMet || !capabilityMet) continue;
+      if (reconstructableResearch >= node.researchCost) {
+        nation.technology.completedTechnologyIds.push(node.id);
+        reconstructableResearch -= node.researchCost;
+        continue;
+      }
+      nation.technology.activeResearchId = node.id;
+      nation.technology.activeResearchProgress = reconstructableResearch;
+      break;
+    }
+  }
   nation.technology.activeResearchId =
     typeof nation.technology.activeResearchId === "string" &&
       knownIds.has(nation.technology.activeResearchId) &&
@@ -79,6 +121,25 @@ export function ensureTechnologyTreeState(nation: NationState): void {
     : 0;
   if (!nation.technology.activeResearchId) {
     nation.technology.activeResearchProgress = 0;
+  }
+  for (const snapshot of nation.history.annual as Array<
+    Partial<AnnualSnapshot>
+  >) {
+    snapshot.completedTechnologyCount = Number.isFinite(
+      snapshot.completedTechnologyCount,
+    )
+      ? snapshot.completedTechnologyCount
+      : 0;
+    snapshot.industryTechnologyTier = Number.isFinite(
+      snapshot.industryTechnologyTier,
+    )
+      ? snapshot.industryTechnologyTier
+      : 0;
+    snapshot.industrialUpgradeReadiness = Number.isFinite(
+      snapshot.industrialUpgradeReadiness,
+    )
+      ? snapshot.industrialUpgradeReadiness
+      : 0;
   }
 }
 
@@ -162,7 +223,6 @@ export function updateTechnologyTree(
 export function calculateTechnologyTreeMetrics(
   nation: NationState,
 ): TechnologyTreeMetrics {
-  ensureTechnologyTreeState(nation);
   const completed = technologyTreeDefinitions.filter((node) =>
     nation.technology.completedTechnologyIds.includes(node.id)
   );

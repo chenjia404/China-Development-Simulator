@@ -57,18 +57,47 @@ describe("科技树", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("旧存档缺失科技树字段时会确定性补齐", () => {
+  it("外部只能通过模拟命令切换研究目标", () => {
     const state = createInitialGameState(1949);
+    state.nation.education.index = 30;
+    state.nation.technology.index = 30;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({
+      type: "SELECT_TECH_RESEARCH",
+      technologyId: "basic_machine_tools",
+    });
+    expect(engine.getState().nation.technology.activeResearchId).toBe(
+      "basic_machine_tools",
+    );
+  });
+
+  it("旧存档缺失科技树字段时会确定性补齐", () => {
+    const source = createSimulationEngine(createInitialGameState(1949));
+    source.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+    const state = source.exportState();
     const oldTechnology = state.nation.technology as Partial<
       typeof state.nation.technology
     >;
     delete oldTechnology.completedTechnologyIds;
     delete oldTechnology.activeResearchId;
     delete oldTechnology.activeResearchProgress;
+    const oldAnnual = state.nation.history.annual[0] as Partial<
+      typeof state.nation.history.annual[0]
+    >;
+    delete oldAnnual.completedTechnologyCount;
+    delete oldAnnual.industryTechnologyTier;
+    delete oldAnnual.industrialUpgradeReadiness;
     ensureTechnologyTreeState(state.nation);
     expect(state.nation.technology.completedTechnologyIds).toEqual([]);
-    expect(state.nation.technology.activeResearchId).toBeNull();
-    expect(state.nation.technology.activeResearchProgress).toBe(0);
+    expect(state.nation.technology.activeResearchId).toBe(
+      "mechanized_agriculture",
+    );
+    expect(state.nation.technology.activeResearchProgress).toBeGreaterThan(0);
+    expect(state.nation.history.annual[0]).toMatchObject({
+      completedTechnologyCount: 0,
+      industryTechnologyTier: 0,
+      industrialUpgradeReadiness: 0,
+    });
   });
 
   it("产业升级收益受科技树层级约束，但财政和能源代价不会消失", () => {

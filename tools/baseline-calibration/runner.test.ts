@@ -71,6 +71,7 @@ describe("无界面批量模拟器", () => {
     expect(csv.split("\n")).toHaveLength(3);
     expect(csv.startsWith("年份,人口,实际GDP")).toBe(true);
     expect(csv).toContain("外债余额,外债负债率,年度外债偿付,资本品外汇满足率");
+    expect(csv).toContain("已完成科技节点,产业科技层级,产业升级准备度");
   });
 
   it("韩国式追赶预设通过积累机制在 2000 年进入韩国收入数量级", () => {

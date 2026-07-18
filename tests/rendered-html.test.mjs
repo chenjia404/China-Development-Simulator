@@ -67,3 +67,17 @@ test("客户端展示外债偿付与资本品用汇约束", async () => {
   assert.match(source, /资本品外汇满足率/);
   assert.match(source, /外储 \/ 外债/);
 });
+
+test("客户端展示可操作科技树和产业升级门槛", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /国家科技树/);
+  assert.match(source, /产业升级准备度/);
+  assert.match(source, /设为研究目标/);
+  assert.match(source, /科技指数高但产业节点落后/);
+});

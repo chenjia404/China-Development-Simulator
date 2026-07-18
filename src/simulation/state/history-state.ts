@@ -24,6 +24,9 @@ export interface AnnualSnapshot extends MonthlySnapshot {
   debtToGDP: number;
   educationIndex: number;
   technologyIndex: number;
+  completedTechnologyCount: number;
+  industryTechnologyTier: number;
+  industrialUpgradeReadiness: number;
   lifeExpectancy: number;
   happinessIndex: number;
   povertyRate: number;

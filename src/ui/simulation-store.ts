@@ -49,6 +49,7 @@ interface SimulationStore {
   setDiplomaticStrategy(strategyId: DiplomaticStrategyId): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
+  selectTechnologyResearch(technologyId: string): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
@@ -176,6 +177,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     await get().dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId,
+    });
+  },
+
+  async selectTechnologyResearch(technologyId) {
+    await get().dispatch({
+      type: "SELECT_TECH_RESEARCH",
+      technologyId,
     });
   },
 

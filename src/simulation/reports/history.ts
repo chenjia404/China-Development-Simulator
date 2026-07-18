@@ -3,6 +3,7 @@ import { isEndOfYear } from "../core/time";
 import type { GameState } from "../state/game-state";
 import type { AnnualSnapshot, MonthlySnapshot } from "../state/history-state";
 import { eventName } from "../events/event-engine";
+import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
 
 const MAX_MONTHLY_HISTORY = 120;
 
@@ -69,6 +70,7 @@ export function recordHistory(state: GameState): void {
 
   if (!isEndOfYear(nation.date)) return;
   const previous = nation.history.annual.at(-1);
+  const technologyTree = calculateTechnologyTreeMetrics(nation);
   const gdpRank = state.world.rankings.nominalGDP.china ??
     state.world.countries.length + 1;
   const annual: AnnualSnapshot = {
@@ -83,6 +85,9 @@ export function recordHistory(state: GameState): void {
     debtToGDP: nation.fiscal.debtToGDP,
     educationIndex: nation.education.index,
     technologyIndex: nation.technology.index,
+    completedTechnologyCount: technologyTree.completedCount,
+    industryTechnologyTier: technologyTree.industryTier,
+    industrialUpgradeReadiness: technologyTree.industrialUpgradeReadiness,
     lifeExpectancy: nation.health.lifeExpectancy,
     happinessIndex: nation.society.happinessIndex,
     povertyRate: nation.society.povertyRate,

@@ -130,6 +130,31 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .detail-grid p { margin: 0; color: var(--muted); font-size: 10px; }
 .detail-page .budget-panel { box-shadow: none; background: var(--surface-soft); }
 
+.technology-hero { max-width: 820px; }
+.technology-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.technology-active-progress { margin: 16px 0; padding: 14px 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
+.technology-active-progress > div { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; font-size: 12px; }
+.technology-active-progress span { color: var(--blue); font-weight: 700; }
+.technology-active-progress i { display: block; height: 7px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.technology-active-progress b { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), #6da1ff); }
+.technology-tree-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 17px; }
+.technology-node { display: flex; flex-direction: column; min-height: 330px; padding: 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
+.technology-node.is-completed { border-color: color-mix(in srgb, var(--green) 48%, var(--line)); background: color-mix(in srgb, var(--green) 6%, var(--surface)); }
+.technology-node.is-active { border-color: color-mix(in srgb, var(--blue) 60%, var(--line)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 12%, transparent); }
+.technology-node.is-locked { opacity: .78; }
+.technology-node-head { display: flex; justify-content: space-between; gap: 8px; }
+.technology-node-head span { padding: 4px 7px; color: var(--blue); background: var(--blue-soft); border-radius: 20px; font-size: 11px; font-weight: 700; }
+.technology-node-head small { color: var(--muted); font-size: 11px; }
+.technology-node h3 { margin: 13px 0 7px; font-size: 15px; }
+.technology-node > p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.technology-requirements, .technology-effects { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.technology-requirements span, .technology-effects span { padding: 4px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-size: 11px; }
+.technology-requirements span { color: var(--gold); }
+.technology-prerequisites { margin-top: 10px; color: var(--muted); font-size: 11px; }
+.technology-node p.technology-blockers { margin-top: 10px; color: var(--red); font-size: 11px; }
+.technology-node button { width: 100%; margin-top: auto; padding: 9px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
+.technology-node.is-completed button { color: var(--green); background: transparent; border-color: color-mix(in srgb, var(--green) 35%, var(--line)); }
+
 .policy-hero { position: relative; max-width: none; padding-right: 170px; }
 .selection-count { position: absolute; right: 4px; top: 26px; color: var(--muted); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; padding: 12px 16px; font-size: 11px; }
 .selection-count strong { color: var(--blue); font-size: 21px; }
@@ -161,6 +186,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .policy-card-head small { color: var(--muted); font-size: 9px; }
 .policy-card h3 { margin: 14px 0 7px; font-size: 15px; }
 .policy-card p { flex: 1; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
+.policy-capability { margin-top: 10px; padding: 7px 8px; color: var(--gold); background: color-mix(in srgb, var(--gold) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 22%, var(--line)); border-radius: 7px; font-size: 11px; line-height: 1.5; }
 .policy-progress { height: 5px; margin: 15px 0 7px; overflow: hidden; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
 .policy-progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), #6da1ff); }
 .policy-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 8px; }
@@ -448,6 +474,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .dashboard-grid { grid-template-columns: 1fr; }
   .budget-list { grid-template-columns: repeat(2, 1fr); column-gap: 20px; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
+  .technology-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .technology-tree-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .policy-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .initiative-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -480,6 +508,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .pulse-grid { grid-template-columns: repeat(2, 1fr); }
   .budget-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
+  .technology-tree-grid { grid-template-columns: 1fr; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .initiative-grid { grid-template-columns: 1fr; }
@@ -503,6 +532,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 
 @media (max-width: 470px) {
   .metrics-grid { grid-template-columns: 1fr; }
+  .technology-summary { grid-template-columns: 1fr; }
   .metric-card strong { font-size: 19px; }
   .control-button, .theme-button { display: none; }
   .panel { padding: 14px; }

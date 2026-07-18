@@ -25,6 +25,10 @@ import {
   historicalInitiativeDefinitions,
   maximumActivePolicies,
   nationalPolicyDefinitions,
+  calculateTechnologyTreeMetrics,
+  getTechnologyNode,
+  technologyResearchRequirements,
+  technologyTreeDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -244,6 +248,63 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
 }
 
+function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
+  const nation = game.nation;
+  const technology = nation.technology;
+  const metrics = calculateTechnologyTreeMetrics(nation);
+  const selectTechnologyResearch = useSimulationStore(
+    (store) => store.selectTechnologyResearch,
+  );
+  const activeNode = technology.activeResearchId
+    ? getTechnologyNode(technology.activeResearchId)
+    : undefined;
+  const activeProgress = activeNode
+    ? technology.activeResearchProgress / activeNode.researchCost
+    : 0;
+
+  return (
+    <section className="panel detail-page technology-page">
+      <div className="detail-hero technology-hero">
+        <span className="eyebrow">教育 · 科研 · 产业能力</span>
+        <h2>国家科技树</h2>
+        <p>科研预算与人才产生科研产出，教育和前置科技决定能否研究下一节点。科技指数高但产业节点落后时，产业升级收益和出口竞争力仍会受限。</p>
+      </div>
+      <div className="technology-summary">
+        <MetricCard label="科技能力" value={technology.index.toFixed(1)} detail={`教育指数 ${nation.education.index.toFixed(1)} · 采用率 ${formatPercent(technology.adoptionRate)}`} tone="blue" />
+        <MetricCard label="已掌握节点" value={`${metrics.completedCount} / ${metrics.totalCount}`} detail={`产业科技第 ${metrics.industryTier} / 5 层`} tone="green" />
+        <MetricCard label="产业升级准备度" value={formatPercent(metrics.industrialUpgradeReadiness)} detail={`有效产业科技 ${metrics.effectiveIndustrialTechnology.toFixed(1)} / ${technology.index.toFixed(1)}`} tone={metrics.industrialUpgradeReadiness >= 0.6 ? "green" : "red"} />
+        <MetricCard label="当前研究" value={activeNode?.name ?? "等待能力条件"} detail={activeNode ? `${technology.activeResearchProgress.toFixed(1)} / ${activeNode.researchCost} · 本月 ${technology.monthlyResearchOutput.toFixed(2)}` : "无可研究节点时科研仍积累为知识存量"} tone="gold" />
+      </div>
+      {activeNode ? <div className="technology-active-progress"><div><strong>{activeNode.name}</strong><span>{formatPercent(activeProgress, 0)}</span></div><i><b style={{ width: `${Math.min(activeProgress, 1) * 100}%` }} /></i></div> : null}
+      <div className="technology-tree-grid">
+        {technologyTreeDefinitions.map((node) => {
+          const completed = technology.completedTechnologyIds.includes(node.id);
+          const active = technology.activeResearchId === node.id;
+          const requirements = technologyResearchRequirements(nation, node);
+          const available = !completed && requirements.length === 0;
+          return (
+            <article className={`technology-node ${completed ? "is-completed" : ""} ${active ? "is-active" : ""} ${!available && !completed ? "is-locked" : ""}`} key={node.id}>
+              <div className="technology-node-head"><span>{node.category}</span><small>产业层级 {node.industryTier}</small></div>
+              <h3>{node.name}</h3>
+              <p>{node.description}</p>
+              <div className="technology-requirements">
+                <span>教育 ≥ {node.requiredEducationIndex}</span>
+                <span>科技 ≥ {node.requiredTechnologyIndex}</span>
+                <span>科研成本 {node.researchCost}</span>
+              </div>
+              <div className="technology-prerequisites">前置：{node.prerequisiteIds.length > 0 ? node.prerequisiteIds.map((id) => getTechnologyNode(id)?.name ?? id).join("、") : "无"}</div>
+              <div className="technology-effects">{node.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+              {!completed && requirements.length > 0 ? <p className="technology-blockers">{requirements.join("；")}</p> : null}
+              <button disabled={busy || completed || active || !available} onClick={() => void selectTechnologyResearch(node.id)}>{completed ? "已掌握" : active ? "研究中" : available ? "设为研究目标" : "能力不足"}</button>
+            </article>
+          );
+        })}
+      </div>
+      <p className="panel-note">没有手动指定目标时，模拟器会按科技树顺序自动选择当前可研究节点；更换目标会重新开始该节点的研究进度。</p>
+    </section>
+  );
+}
+
 function policyUnavailableReason(game: GameState, policyId: string): string | null {
   if (game.nation.policies.includes(policyId)) return null;
   if (game.nation.policies.length >= maximumActivePolicies) {
@@ -264,6 +325,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
   const enactHistoricalInitiative = useSimulationStore(
     (store) => store.enactHistoricalInitiative,
   );
+  const technologyMetrics = calculateTechnologyTreeMetrics(game.nation);
   const togglePolicy = (policyId: string) => {
     const selected = game.nation.policies.includes(policyId);
     const next = selected
@@ -359,6 +421,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
               <p>{policy.description}</p>
               <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
               <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
+              {policy.id === "industrial_upgrading" ? <div className="policy-capability">科技准备度 {formatPercent(technologyMetrics.industrialUpgradeReadiness)} · 产业科技第 {technologyMetrics.industryTier} 层；收益按准备度折算，成本照常发生。</div> : null}
               <button
                 className={selected ? "policy-toggle remove" : "policy-toggle"}
                 disabled={busy || (!selected && reason !== null)}
@@ -924,7 +987,7 @@ function InternationalSection({ game }: { game: GameState }) {
 }
 
 function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: boolean }) {
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div></section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>指数 {item.technologyIndex.toFixed(1)}<br />产业第 {item.industryTechnologyTier} 层 · {item.completedTechnologyCount} 节点</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div></section>;
 }
 
 function SettingsSection() {
@@ -992,12 +1055,13 @@ export function SimulatorDashboard() {
           <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}<button disabled={busy || awaitingHistoricalDecision || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
+          {activeSection === "technology" ? <TechnologySection game={game} busy={busy} /> : null}
           {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
           {activeSection === "history" ? <HistoricalEventsSection game={game} /> : null}
           {activeSection === "international" ? <InternationalSection game={game} /> : null}
           {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
           {activeSection === "settings" ? <SettingsSection /> : null}
-          {!(["nation", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+          {!(["nation", "technology", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
       <HistoricalDecisionModal game={game} busy={busy} />
