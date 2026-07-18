@@ -219,13 +219,23 @@
     "month": 5,
     "category": "工业化",
     "impact": "mixed",
-    "description": "大批国防、能源、交通和基础工业项目向内陆布局，提升战略安全和工业纵深，但选址与重复建设降低了短期资本效率。",
-    "effects": ["工业纵深增强", "国家安全提高", "短期资本效率下降"],
-    "durationMonths": 72,
+    "description": "为应对周边安全威胁，国家在1964年至1980年累计投入约2052.68亿元，把国防、机械、能源、原材料、铁路、科研和教育项目配置到中西部战略腹地；1964年至1975年三线地区基本建设投资约占全国43.5%，形成1100多个大中型项目，并带动约400万建设者及家属迁移。建设显著增强国防纵深和内陆工业基础，但巨额投入挤出沿海、农业、轻工业与民用投资，分散隐蔽选址及重复配套也降低了全国资本效率。",
+    "effects": ["国防安全与工业纵深持续增强", "政府工业投资、铁路能源和科研能力提高", "内陆人口与技术力量集聚", "财政支出和资源占用长期上升", "民间投资、农业及服务业受到挤出", "分散选址与重复建设降低配置效率"],
+    "durationMonths": 192,
     "modifiers": [
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
-      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 },
-      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
+      { "target": "diplomacy.securityTarget", "operation": "add", "value": 15 },
+      { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.998 },
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.998 },
+      { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.002 },
+      { "target": "resources.energySupply", "operation": "multiply", "value": 1.001 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 1.001, "durationMonths": 120 },
+      { "target": "urban.migration", "operation": "multiply", "value": 1.002 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.002 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02, "durationMonths": 72 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.999, "durationMonths": 120 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.998, "durationMonths": 120 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985, "durationMonths": 72 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.998 }
     ]
   },
   {

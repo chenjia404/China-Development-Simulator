@@ -224,6 +224,85 @@ describe("确定性历史事件", () => {
     );
   });
 
+  it("三线建设可选，史实、集中建设和取消路线形成完整收益代价", () => {
+    const choices = getHistoricalEventChoices("third_front_construction_1964");
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "focused_third_front",
+      "cancel_third_front",
+    ]);
+    expect(choices[0]?.durationMonths).toBe(192);
+    expect(choices[1]?.durationMonths).toBe(144);
+    expect(choices[2]?.outcome).toBe("prevented");
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "sector.secondary.output",
+      )?.durationMonths,
+    ).toBe(72);
+
+    const runChoice = (choiceId: string) => {
+      const state = createInitialGameState(1964, 1964, "interactive");
+      state.nation.date.month = 5;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "third_front_construction_1964",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "third_front_construction_1964",
+        choiceId,
+      });
+      engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+      return engine.getState();
+    };
+
+    const historical = runChoice("historical_path");
+    const focused = runChoice("focused_third_front");
+    const canceled = runChoice("cancel_third_front");
+    expect(canceled.nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "third_front_construction_1964",
+      choiceId: "cancel_third_front",
+      outcome: "prevented",
+    });
+    expect(
+      historical.nation.modifiers.find(
+        (modifier) => modifier.target === "sector.secondary.output",
+      )?.remainingMonths,
+    ).toBe(60);
+    expect(
+      historical.nation.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.securityTarget",
+      )?.remainingMonths,
+    ).toBe(180);
+    expect(historical.nation.diplomacy.securityIndex).toBeGreaterThan(
+      focused.nation.diplomacy.securityIndex,
+    );
+    expect(focused.nation.diplomacy.securityIndex).toBeGreaterThan(
+      canceled.nation.diplomacy.securityIndex,
+    );
+    expect(historical.nation.economy.infrastructureIndex).toBeGreaterThan(
+      canceled.nation.economy.infrastructureIndex,
+    );
+    expect(
+      historical.nation.fiscal.expenditure /
+        historical.nation.economy.nominalGDP,
+    ).toBeGreaterThan(
+      canceled.nation.fiscal.expenditure /
+        canceled.nation.economy.nominalGDP,
+    );
+    expect(historical.nation.sectors.tertiary.output).toBeLessThan(
+      canceled.nation.sectors.tertiary.output,
+    );
+    expect(historical.nation.society.urbanizationRate).toBeGreaterThan(
+      canceled.nation.society.urbanizationRate,
+    );
+    expect(historical.nation.economy.institutionalEfficiency).toBeLessThan(
+      canceled.nation.economy.institutionalEfficiency,
+    );
+  });
+
   it("所有历史事件都有三个会改变数值传导的方案", () => {
     for (const event of historicalEventDefinitions) {
       const choices = getHistoricalEventChoices(event);

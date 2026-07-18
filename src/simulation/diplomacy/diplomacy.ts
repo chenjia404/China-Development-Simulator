@@ -312,11 +312,15 @@ export function updateDiplomacy(state: GameState): void {
   );
 
   const securityTarget = clamp(
-    25 +
-      nation.fiscal.budget.defense * 180 +
-      nation.technology.index * 0.2 +
-      nation.society.stabilityIndex * 0.15 +
-      strategyEffects.securityTargetAdjustment,
+    applyModifiers(
+      nation,
+      "diplomacy.securityTarget",
+      25 +
+        nation.fiscal.budget.defense * 180 +
+        nation.technology.index * 0.2 +
+        nation.society.stabilityIndex * 0.15 +
+        strategyEffects.securityTargetAdjustment,
+    ),
     0,
     100,
   );

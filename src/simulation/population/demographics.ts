@@ -125,7 +125,11 @@ export function updateDemographics(
     migrationCapacity *
     (1 + (nation.policyProgress.expand_opening ?? 0)) *
     (1 + (nation.policyProgress.industry_priority ?? 0) * 0.15) *
-    applyPolicyModifiers(nation, "urban.migration", 1);
+    applyModifiers(
+      nation,
+      "urban.migration",
+      applyPolicyModifiers(nation, "urban.migration", 1),
+    );
   population.urbanPopulation = clamp(
     population.total * urbanization + ruralToUrban,
     0,

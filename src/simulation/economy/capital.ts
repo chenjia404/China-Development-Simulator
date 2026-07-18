@@ -8,12 +8,15 @@ import { remittanceDirectedInvestment } from "./foreign-exchange";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
-  const governmentCapitalSpending =
+  const governmentCapitalSpending = applyModifiers(
+    nation,
+    "capital.governmentInvestment",
     fiscal.expenditure *
-    (fiscal.budget.industry +
-      fiscal.budget.infrastructure +
-      fiscal.budget.agriculture) *
-    0.65;
+      (fiscal.budget.industry +
+        fiscal.budget.infrastructure +
+        fiscal.budget.agriculture) *
+      0.65,
+  );
   const privateInvestment = applyModifiers(
     nation,
     "capital.privateInvestment",
@@ -30,9 +33,13 @@ export function updateCapitalAndInvestment(nation: NationState): void {
     governmentCapitalSpending +
     nation.trade.foreignInvestment;
   const investmentEfficiency = clamp(
-    economyConfig.baseInvestmentEfficiency *
-      (0.7 + economy.institutionalEfficiency * 0.3) *
-      Math.min(nation.resources.energySupplyRatio, nation.resources.foodSupplyRatio),
+    applyModifiers(
+      nation,
+      "capital.investmentEfficiency",
+      economyConfig.baseInvestmentEfficiency *
+        (0.7 + economy.institutionalEfficiency * 0.3) *
+        Math.min(nation.resources.energySupplyRatio, nation.resources.foodSupplyRatio),
+    ),
     0.1,
     0.9,
   );
@@ -72,9 +79,12 @@ export function updateCapitalAndInvestment(nation: NationState): void {
 
   economy.investment = annualNominalInvestment;
   economy.capitalStock = totalCapital;
-  const infrastructureEffort =
+  const infrastructureEffort = applyModifiers(
+    nation,
+    "economy.infrastructureInvestment",
     fiscal.budget.infrastructure * fiscal.expenditure /
-    Math.max(economy.nominalGDP, 1);
+      Math.max(economy.nominalGDP, 1),
+  );
   economy.infrastructureIndex = clamp(
     economy.infrastructureIndex +
       infrastructureEffort * economyConfig.infrastructureMonthlyConvergence,

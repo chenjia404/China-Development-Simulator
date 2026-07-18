@@ -312,6 +312,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     (country) => country.id === "south_korea",
   )?.relationWithChina ?? 0;
 
+  const runThirdFrontChoice = (choiceId: string) => {
+    const state = createInitialGameState(seed, 1964, "interactive");
+    state.nation.date.month = 5;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "third_front_construction_1964",
+      choiceId,
+    });
+    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+    return engine.getState();
+  };
+  const historicalThirdFront = runThirdFrontChoice("historical_path");
+  const focusedThirdFront = runThirdFrontChoice("focused_third_front");
+  const canceledThirdFront = runThirdFrontChoice("cancel_third_front");
+  const canceledThirdFrontRecord = canceledThirdFront.nation.history
+    .historicalEvents.find((event) => event.id === "third_front_construction_1964");
+
   const initiativeState = createInitialGameState(seed, 1949);
   initiativeState.nation.economy.institutionalEfficiency = 0.4;
   initiativeState.nation.society.stabilityIndex = 55;
@@ -654,6 +674,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         preventedWarFinalState.nation.date.year === 2027 &&
         preventedWarFinalState.nation.history.reports.length === 77,
       `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
+    ),
+    makeCheck(
+      "third-front-branching",
+      "三线建设可选择史实、集中建设或取消，并形成安全与经济效率取舍",
+      historicalThirdFront.nation.diplomacy.securityIndex >
+          focusedThirdFront.nation.diplomacy.securityIndex &&
+        focusedThirdFront.nation.diplomacy.securityIndex >
+          canceledThirdFront.nation.diplomacy.securityIndex &&
+        historicalThirdFront.nation.economy.infrastructureIndex >
+          canceledThirdFront.nation.economy.infrastructureIndex &&
+        historicalThirdFront.nation.fiscal.expenditure /
+            historicalThirdFront.nation.economy.nominalGDP >
+          canceledThirdFront.nation.fiscal.expenditure /
+            canceledThirdFront.nation.economy.nominalGDP &&
+        historicalThirdFront.nation.sectors.tertiary.output <
+          canceledThirdFront.nation.sectors.tertiary.output &&
+        historicalThirdFront.nation.economy.institutionalEfficiency <
+          canceledThirdFront.nation.economy.institutionalEfficiency &&
+        canceledThirdFrontRecord?.outcome === "prevented",
+      `史实/集中/取消安全指数 ${historicalThirdFront.nation.diplomacy.securityIndex.toFixed(1)}/${focusedThirdFront.nation.diplomacy.securityIndex.toFixed(1)}/${canceledThirdFront.nation.diplomacy.securityIndex.toFixed(1)}；史实/取消基建指数 ${historicalThirdFront.nation.economy.infrastructureIndex.toFixed(2)}/${canceledThirdFront.nation.economy.infrastructureIndex.toFixed(2)}，服务业产出 ${historicalThirdFront.nation.sectors.tertiary.output.toFixed(0)}/${canceledThirdFront.nation.sectors.tertiary.output.toFixed(0)}`,
     ),
     makeCheck(
       "historical-initiatives",

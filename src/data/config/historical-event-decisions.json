@@ -206,6 +206,55 @@
     ]
   },
   {
+    "eventId": "third_front_construction_1964",
+    "choices": [
+      {
+        "id": "focused_third_front",
+        "name": "集中建设交通节点与核心基地",
+        "description": "保留必要的战略后方，但把项目集中在既有铁路、城市和资源产地周边，优先完成交通、能源及少数关键国防工业基地，减少分散选址、重复配套和突击上马。",
+        "effects": ["保留部分国防纵深和内陆工业能力", "交通能源投资效率提高", "财政与民用经济挤出较小", "战略覆盖和人口迁移规模低于史实"],
+        "durationMonths": 144,
+        "modifiers": [
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": 8 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.02 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.01 },
+          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.12 },
+          { "target": "resources.energySupply", "operation": "multiply", "value": 1.01 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.012 },
+          { "target": "urban.migration", "operation": "multiply", "value": 1.035 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.008 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.997 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.002 }
+        ]
+      },
+      {
+        "id": "cancel_third_front",
+        "name": "不启动全面三线建设",
+        "description": "判断全面战争风险不足以支持大规模内迁，取消全国性三线计划，把更多资源留给既有工业区、农业、轻工业和居民经济；短期配置效率较高，但缺少战略后方、内陆交通和国防科研储备。",
+        "effects": ["避免长期财政和民用投资挤出", "沿海及居民经济配置效率提高", "内陆基础设施与工业集聚减弱", "国防纵深和战备安全明显降低"],
+        "durationMonths": 192,
+        "modifiers": [
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": -12 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.0 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.015 },
+          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 0.97 },
+          { "target": "resources.energySupply", "operation": "multiply", "value": 0.99 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 0.99 },
+          { "target": "urban.migration", "operation": "multiply", "value": 0.98 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.99 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 1.005 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.005 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.012 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.02 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.008 }
+        ],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
     "eventId": "cultural_revolution_disruption_1966",
     "choices": [
       {

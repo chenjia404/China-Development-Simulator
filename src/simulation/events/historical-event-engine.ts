@@ -28,6 +28,7 @@ export interface HistoricalEventModifierDefinition {
   target: string;
   operation: ModifierState["operation"];
   value: number;
+  durationMonths?: number;
 }
 
 export interface HistoricalEventDefinition {
@@ -286,7 +287,7 @@ function applyChoice(
       target: modifier.target,
       operation: modifier.operation,
       value: modifier.value,
-      remainingMonths: choice.durationMonths,
+      remainingMonths: modifier.durationMonths ?? choice.durationMonths,
       stackRule: "replace",
     });
   }
