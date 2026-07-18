@@ -3,6 +3,7 @@ import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
 import {
   applyPolicyModifiers,
+  getNationalPolicy,
   maximumActivePolicies,
   validatePolicySelection,
 } from "./policy-engine";
@@ -57,6 +58,45 @@ describe("国策系统", () => {
     expect(
       applyPolicyModifiers(maturePolicy, "technology.researchOutput", 1),
     ).toBeCloseTo(1.12, 8);
+  });
+
+  it("韩国式追赶国策同时包含资本、技能、出口学习和现实代价", () => {
+    expect(maximumActivePolicies).toBe(5);
+    expect(getNationalPolicy("developmental_finance")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          target: "capital.privateInvestment",
+          operation: "multiply",
+          value: 1.22,
+        }),
+        expect.objectContaining({
+          target: "economy.consumptionPropensity",
+          operation: "add",
+          value: -0.04,
+        }),
+      ]),
+    );
+    expect(getNationalPolicy("vocational_technical_education")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          target: "education.humanCapitalFormation",
+          value: 1.3,
+        }),
+      ]),
+    );
+    expect(getNationalPolicy("export_industrial_zones")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          target: "capital.exportSurplusReinvestmentRate",
+          value: 0.55,
+        }),
+        expect.objectContaining({
+          target: "resources.energyDemand",
+          value: 1.08,
+        }),
+      ]),
+    );
+    expect(getNationalPolicy("industrial_upgrading")?.transitionMonths).toBe(72);
   });
 
   it("取消国策后效果按相同过渡期逐步退出", () => {

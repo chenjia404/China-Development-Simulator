@@ -1,5 +1,5 @@
 {
-  "maximumActivePolicies": 4,
+  "maximumActivePolicies": 5,
   "definitions": [
     {
       "id": "agriculture_priority",
@@ -57,6 +57,69 @@
       "modifiers": [
         { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.16 },
         { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.025 }
+      ]
+    },
+    {
+      "id": "developmental_finance",
+      "name": "发展型金融",
+      "category": "财政",
+      "description": "以长期信贷和高储蓄支持生产性投资，提高资本形成速度；代价是居民当期消费受压、财政协调成本和资源需求上升。",
+      "transitionMonths": 36,
+      "conflictsWith": ["consumption_stimulus", "austerity"],
+      "modifiers": [
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.22 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.12 },
+        { "target": "capital.maximumAnnualGrowth", "operation": "add", "value": 0.08 },
+        { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.04 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.03 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.05 }
+      ]
+    },
+    {
+      "id": "vocational_technical_education",
+      "name": "职业技术教育",
+      "category": "社会",
+      "description": "扩充职业学校、工程训练和企业学徒体系，加快教育投入转化为产业技能；需要持续公共支出且收益存在培养滞后。",
+      "transitionMonths": 60,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "education.efficiency", "operation": "multiply", "value": 1.16 },
+        { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.3 },
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.08 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 }
+      ]
+    },
+    {
+      "id": "export_industrial_zones",
+      "name": "出口工业区",
+      "category": "开放",
+      "description": "建设面向国际市场的工业区和港口供应链，把贸易顺差更多用于设备与产能升级；同时增加外需依赖、能源压力和产业倾斜。",
+      "transitionMonths": 48,
+      "conflictsWith": ["agriculture_priority", "consumption_stimulus"],
+      "modifiers": [
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.22 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.1 },
+        { "target": "capital.exportSurplusReinvestmentRate", "operation": "add", "value": 0.55 },
+        { "target": "technology.exportLearningRate", "operation": "add", "value": 0.008 },
+        { "target": "labor.industrialShift", "operation": "add", "value": 0.15 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.08 }
+      ]
+    },
+    {
+      "id": "industrial_upgrading",
+      "name": "产业升级",
+      "category": "发展",
+      "description": "从劳动密集型出口转向机械、化工、电子和高附加值制造，以更高科研和设备投入换取出口学习与生产率增长。",
+      "transitionMonths": 72,
+      "conflictsWith": ["agriculture_priority", "consumption_stimulus"],
+      "modifiers": [
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.25 },
+        { "target": "technology.exportLearningRate", "operation": "add", "value": 0.014 },
+        { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00035 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.12 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.04 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.06 }
       ]
     },
     {

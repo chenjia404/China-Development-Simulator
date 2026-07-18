@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "description": "韩国式出口工业化追赶路线的现价美元人均 GDP 参考，不用于回拉中国史实路线或直接改写 GDP。",
+    "indicator": "NY.GDP.PCAP.CD",
+    "sources": [
+      "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=KR",
+      "https://sri.kostat.go.kr/boardDownload.es?bid=11772&list_no=347950&seq=1"
+    ],
+    "modelingNote": "目标用于校验资本形成、出口再投资、出口学习、职业教育和产业升级的联合传导；允许汇率、人口规模和玩家历史决策造成偏离。"
+  },
+  "years": [
+    { "year": 1960, "currentUSDGDPPerCapita": 158.84 },
+    { "year": 1970, "currentUSDGDPPerCapita": 281.79 },
+    { "year": 1980, "currentUSDGDPPerCapita": 1745.58 },
+    { "year": 1990, "currentUSDGDPPerCapita": 6812.9 },
+    { "year": 2000, "currentUSDGDPPerCapita": 12710.3 }
+  ]
+}
