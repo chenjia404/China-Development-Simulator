@@ -105,6 +105,17 @@ describe("无界面批量模拟器", () => {
         (event) => event.id === "cultural_revolution_disruption_1966",
       )?.choiceId,
     ).toBe("protect_institutions");
+
+    const transition = [1978, 1979, 1980, 1981].map((year) => {
+      const annual = result.annual.find((item) => item.year === year);
+      expect(annual, `缺少 ${year} 年快照`).toBeDefined();
+      return annual!;
+    });
+    for (let index = 1; index < transition.length; index += 1) {
+      expect(transition[index].realGDP).toBeGreaterThan(
+        transition[index - 1].realGDP,
+      );
+    }
   });
 
   it("六条参考发展路线稳定运行并形成不同的结构特征", () => {

@@ -126,15 +126,11 @@
         "effects": ["避免高指标运动和无效产能", "保护农业、资本和正常统计秩序", "教育科研与民间投资保持连续", "形成可延续的组织知识和全要素生产率存量", "后续粮食危机风险显著下降"],
         "durationMonths": 252,
         "modifiers": [
-          { "target": "sector.primary.output", "operation": "multiply", "value": 1.2 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.16 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.14 },
-          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.08 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.14, "durationMonths": 504 },
           { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08, "durationMonths": 504 },
           { "target": "education.efficiency", "operation": "multiply", "value": 1.1, "durationMonths": 504 },
           { "target": "technology.researchOutput", "operation": "multiply", "value": 1.16, "durationMonths": 504 },
-          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00045, "durationMonths": 504 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00065, "durationMonths": 504 },
           { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.06, "durationMonths": 504 }
         ],
         "outcome": "prevented"
@@ -165,11 +161,8 @@
         "effects": ["人民公社化不会发生", "家庭生产与基层真实统计得到保留", "农业剩余支持消费和民间投资", "家庭经营知识和配置效率沉淀为长期生产率", "后续粮食危机风险显著下降"],
         "durationMonths": 252,
         "modifiers": [
-          { "target": "sector.primary.output", "operation": "multiply", "value": 1.18, "durationMonths": 360 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.12 },
-          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.08, "durationMonths": 360 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.08, "durationMonths": 504 },
-          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0003, "durationMonths": 504 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00045, "durationMonths": 504 },
           { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.1, "durationMonths": 504 }
         ],
         "outcome": "prevented"
@@ -306,7 +299,6 @@
           { "target": "education.efficiency", "operation": "multiply", "value": 1.25 },
           { "target": "technology.researchOutput", "operation": "multiply", "value": 1.28 },
           { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.22 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.15 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.12 },
           { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08 },
           { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00065 },

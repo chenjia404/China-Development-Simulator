@@ -438,14 +438,21 @@ describe("确定性历史事件", () => {
         "sector.primary.output",
         100,
       ),
-    ).toBeCloseTo(120);
+    ).toBe(100);
+    expect(
+      engine.getState().nation.modifiers.some(
+        (modifier) => modifier.target.startsWith("sector.") &&
+          modifier.target.endsWith(".output") &&
+          modifier.value > 1,
+      ),
+    ).toBe(false);
     expect(
       applyModifiers(
         engine.getState().nation,
         "economy.structuralProductivityGrowth",
         0,
       ),
-    ).toBeCloseTo(0.00045);
+    ).toBeCloseTo(0.00065);
   });
 
   it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {
@@ -603,6 +610,13 @@ describe("确定性历史事件", () => {
         (modifier) => modifier.target === "capital.investmentEfficiency",
       ),
     ).toBe(true);
+    expect(
+      protectedInstitutions?.modifiers.some(
+        (modifier) => modifier.target.startsWith("sector.") &&
+          modifier.target.endsWith(".output") &&
+          modifier.value > 1,
+      ),
+    ).toBe(false);
     expect(
       protectedInstitutions?.modifiers.find(
         (modifier) =>

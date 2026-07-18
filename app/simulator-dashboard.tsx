@@ -194,7 +194,13 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
   return (
     <>
       <div className="metrics-grid">
-        <MetricCard label="实际 GDP" value={formatLarge(nation.economy.realGDP)} detail={`同比 ${formatPercent(growth)}`} />
+        <MetricCard
+          label="实际 GDP"
+          value={formatLarge(nation.economy.realGDP)}
+          detail={lastAnnual
+            ? `${lastAnnual.year} 年同比 ${formatPercent(growth)}`
+            : `当前折年同比 ${formatPercent(growth)}`}
+        />
         <MetricCard label="人均 GDP（现价美元）" value={`$${formatLarge(nation.economy.currentUSDGDPPerCapita)}`} detail={`当年价 ${formatLarge(nation.economy.currentPriceGDPPerCapita)} 元`} tone="gold" />
         <MetricCard label="总人口" value={formatLarge(nation.population.total)} detail={`城市化 ${formatPercent(nation.society.urbanizationRate)}`} tone="red" />
         <MetricCard label="财政余额" value={formatLarge(nation.fiscal.balance)} detail={`债务率 ${formatPercent(nation.fiscal.debtToGDP)}`} tone={nation.fiscal.balance >= 0 ? "green" : "red"} />
