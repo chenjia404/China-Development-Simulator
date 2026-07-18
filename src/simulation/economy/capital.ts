@@ -4,7 +4,10 @@ import { clamp } from "../core/math";
 import type { NationState, SectorId } from "../state/game-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { applyModifiers } from "../events/modifiers";
-import { remittanceDirectedInvestment } from "./foreign-exchange";
+import {
+  foreignExchangeInvestmentMultiplier,
+  remittanceDirectedInvestment,
+} from "./foreign-exchange";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
@@ -55,6 +58,7 @@ export function updateCapitalAndInvestment(nation: NationState): void {
         "capital.investmentEfficiency",
         economyConfig.baseInvestmentEfficiency *
           (0.7 + economy.institutionalEfficiency * 0.3) *
+          foreignExchangeInvestmentMultiplier(nation) *
           Math.min(
             nation.resources.energySupplyRatio,
             nation.resources.foodSupplyRatio,

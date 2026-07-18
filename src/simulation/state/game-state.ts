@@ -160,6 +160,17 @@ export interface TradeState {
   remittanceInflows: number;
   remittanceReserveContribution: number;
   importCoverageMonths: number;
+  /** 全口径外债存量，采用美元等值口径。 */
+  externalDebt: number;
+  externalDebtToGDP: number;
+  externalDebtInterestRate: number;
+  annualExternalDebtService: number;
+  externalDebtServiceRatio: number;
+  monthlyExternalBorrowing: number;
+  /** 资本品进口的年度化外汇需求及实际满足程度。 */
+  capitalGoodsForeignExchangeNeed: number;
+  capitalGoodsImportShare: number;
+  capitalGoodsImportCoverage: number;
 }
 
 export interface DiplomacyState {

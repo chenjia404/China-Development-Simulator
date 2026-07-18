@@ -90,6 +90,26 @@ export function reserveImportCapacityMultiplier(nation: NationState): number {
   );
 }
 
+/** 只有投资中的进口资本品部分受外汇满足率约束。 */
+export function foreignExchangeInvestmentMultiplier(
+  nation: NationState,
+): number {
+  const importShare = clamp(
+    nation.trade.capitalGoodsImportShare,
+    foreignExchangeConfig.capitalGoodsImportShareMinimum,
+    foreignExchangeConfig.capitalGoodsImportShareMaximum,
+  );
+  const coverage = clamp(nation.trade.capitalGoodsImportCoverage, 0, 1);
+  return clamp(
+    1 -
+      importShare *
+        (1 - coverage) *
+        foreignExchangeConfig.capitalGoodsInvestmentConstraintWeight,
+    0.9,
+    1,
+  );
+}
+
 /** 将美元等值侨汇折回游戏内部不变价口径，进入居民收入和储蓄。 */
 function domesticRemittanceValue(nation: NationState): number {
   return Math.max(0, nation.trade.remittanceInflows * safeDivide(
@@ -165,6 +185,51 @@ export function ensureForeignExchangeState(state: GameState): void {
   trade.importCoverageMonths = Number.isFinite(trade.importCoverageMonths)
     ? Math.max(0, trade.importCoverageMonths)
     : calculateImportCoverageMonths(state);
+  trade.externalDebt = Number.isFinite(trade.externalDebt)
+    ? Math.max(0, trade.externalDebt)
+    : foreignExchangeConfig.initialExternalDebt;
+  trade.externalDebtToGDP = Number.isFinite(trade.externalDebtToGDP)
+    ? Math.max(0, trade.externalDebtToGDP)
+    : safeDivide(trade.externalDebt, comparable);
+  trade.externalDebtInterestRate = Number.isFinite(
+    trade.externalDebtInterestRate,
+  )
+    ? clamp(trade.externalDebtInterestRate, 0, 0.3)
+    : foreignExchangeConfig.baseExternalDebtInterestRate;
+  trade.annualExternalDebtService = Number.isFinite(
+    trade.annualExternalDebtService,
+  )
+    ? Math.max(0, trade.annualExternalDebtService)
+    : 0;
+  trade.externalDebtServiceRatio = Number.isFinite(
+    trade.externalDebtServiceRatio,
+  )
+    ? Math.max(0, trade.externalDebtServiceRatio)
+    : 0;
+  trade.monthlyExternalBorrowing = Number.isFinite(
+    trade.monthlyExternalBorrowing,
+  )
+    ? Math.max(0, trade.monthlyExternalBorrowing)
+    : 0;
+  trade.capitalGoodsForeignExchangeNeed = Number.isFinite(
+    trade.capitalGoodsForeignExchangeNeed,
+  )
+    ? Math.max(0, trade.capitalGoodsForeignExchangeNeed)
+    : 0;
+  trade.capitalGoodsImportShare = Number.isFinite(
+    trade.capitalGoodsImportShare,
+  )
+    ? clamp(
+        trade.capitalGoodsImportShare,
+        foreignExchangeConfig.capitalGoodsImportShareMinimum,
+        foreignExchangeConfig.capitalGoodsImportShareMaximum,
+      )
+    : foreignExchangeConfig.capitalGoodsImportShareMaximum;
+  trade.capitalGoodsImportCoverage = Number.isFinite(
+    trade.capitalGoodsImportCoverage,
+  )
+    ? clamp(trade.capitalGoodsImportCoverage, 0, 1)
+    : 0.65;
 
   for (const snapshot of state.nation.history.monthly as Array<
     Partial<MonthlySnapshot>
@@ -192,7 +257,7 @@ export function ensureForeignExchangeState(state: GameState): void {
   }
 }
 
-/** 更新年度化侨汇流量、外汇储备存量和进口覆盖能力。 */
+/** 更新年度化侨汇、外储、资本品用汇与外债融资偿付闭环。 */
 export function updateForeignExchange(state: GameState): void {
   ensureForeignExchangeState(state);
   const { nation } = state;
@@ -246,7 +311,7 @@ export function updateForeignExchange(state: GameState): void {
     reserveShareAnchors,
     nation.date.year,
   );
-  const annualReserveFlow =
+  const annualReserveFlowBeforeDebt =
     balanceContribution +
     nation.trade.remittanceReserveContribution +
     comparableForeignInvestment *
@@ -255,8 +320,123 @@ export function updateForeignExchange(state: GameState): void {
       foreignExchangeConfig.annualReserveInvestmentReturn +
     (reserveAnchor - nation.trade.foreignExchangeReserves) *
       foreignExchangeConfig.reserveAnchorAdjustmentRate;
+
+  const capitalGoodsImportShare = clamp(
+    foreignExchangeConfig.capitalGoodsImportShareMaximum -
+      nation.technology.index / 500 +
+      nation.trade.openness * 0.05,
+    foreignExchangeConfig.capitalGoodsImportShareMinimum,
+    foreignExchangeConfig.capitalGoodsImportShareMaximum,
+  );
+  const capitalGoodsNeed = Math.max(
+    0,
+    nation.economy.investment * comparableConversion * capitalGoodsImportShare,
+  );
+  const comparableExports = Math.max(
+    0,
+    nation.trade.exports * comparableConversion,
+  );
+  const baseCapitalGoodsForeignExchange =
+    comparableExports *
+      foreignExchangeConfig.capitalGoodsExportAllocationRate +
+    nation.trade.foreignExchangeReserves *
+      foreignExchangeConfig.capitalGoodsReserveDrawRate +
+    comparableForeignInvestment *
+      foreignExchangeConfig.capitalGoodsFDIAllocationRate +
+    nation.trade.remittanceReserveContribution *
+      foreignExchangeConfig.capitalGoodsRemittanceAllocationRate;
+  const capitalGoodsFundingGap = Math.max(
+    0,
+    capitalGoodsNeed - baseCapitalGoodsForeignExchange,
+  );
+  const externalFinancingAccess = nation.date.year <
+      foreignExchangeConfig.marketBorrowingStartYear
+    ? 0
+    : clamp(
+        0.05 +
+          nation.trade.openness * 0.5 +
+          nation.economy.institutionalEfficiency * 0.3 +
+          nation.diplomacy.globalReputation / 300,
+        0,
+        0.85,
+      );
+  const debtCapacity = Math.max(
+    0,
+    comparable * foreignExchangeConfig.maximumExternalDebtToComparableGDP -
+      nation.trade.externalDebt,
+  );
+  const marketBorrowing = Math.min(
+    capitalGoodsFundingGap * externalFinancingAccess,
+    comparable * foreignExchangeConfig.maximumAnnualMarketBorrowingToGDP,
+    debtCapacity * 12,
+  );
+  const annualExternalBorrowing = clamp(
+    applyModifiers(
+      nation,
+      "trade.externalBorrowing",
+      applyPolicyModifiers(
+        nation,
+        "trade.externalBorrowing",
+        marketBorrowing,
+      ),
+    ),
+    0,
+    debtCapacity * 12,
+  );
+  const annualNonReserveBorrowingUse = clamp(
+    applyModifiers(
+      nation,
+      "trade.externalBorrowingNonReserveUse",
+      0,
+    ),
+    0,
+    annualExternalBorrowing,
+  );
+  const annualProductiveBorrowing =
+    annualExternalBorrowing - annualNonReserveBorrowingUse;
+
+  const openingExternalDebt = nation.trade.externalDebt;
+  const openingDebtRatio = safeDivide(openingExternalDebt, comparable);
+  const externalDebtInterestRate = clamp(
+    foreignExchangeConfig.baseExternalDebtInterestRate +
+      openingDebtRatio * foreignExchangeConfig.externalDebtRiskPremium +
+      (1 - nation.economy.institutionalEfficiency) * 0.01,
+    0.01,
+    0.18,
+  );
+  const annualPrincipalRepaymentRate = nation.date.year <=
+      foreignExchangeConfig.earlyRepaymentEndYear
+    ? foreignExchangeConfig.earlyAnnualPrincipalRepaymentRate
+    : foreignExchangeConfig.baseAnnualPrincipalRepaymentRate;
+  const plannedMonthlyInterest =
+    openingExternalDebt * externalDebtInterestRate / 12;
+  const plannedMonthlyPrincipal =
+    openingExternalDebt * annualPrincipalRepaymentRate / 12;
+  const reservesBeforeDebtService = Math.max(
+    0,
+    nation.trade.foreignExchangeReserves +
+      annualReserveFlowBeforeDebt / 12,
+  );
+  const paidMonthlyInterest = Math.min(
+    plannedMonthlyInterest,
+    reservesBeforeDebtService,
+  );
+  const paidMonthlyPrincipal = Math.min(
+    plannedMonthlyPrincipal,
+    reservesBeforeDebtService - paidMonthlyInterest,
+  );
+  const unpaidMonthlyInterest =
+    plannedMonthlyInterest - paidMonthlyInterest;
+  const nextExternalDebt = clamp(
+    openingExternalDebt +
+      annualExternalBorrowing / 12 -
+      paidMonthlyPrincipal +
+      unpaidMonthlyInterest,
+    0,
+    comparable * foreignExchangeConfig.maximumExternalDebtToComparableGDP,
+  );
   const nextReserves = clamp(
-    nation.trade.foreignExchangeReserves + annualReserveFlow / 12,
+    reservesBeforeDebtService - paidMonthlyInterest - paidMonthlyPrincipal,
     0,
     comparable * foreignExchangeConfig.maximumReserveToComparableGDP,
   );
@@ -264,4 +444,33 @@ export function updateForeignExchange(state: GameState): void {
     nextReserves - nation.trade.foreignExchangeReserves;
   nation.trade.foreignExchangeReserves = nextReserves;
   nation.trade.importCoverageMonths = calculateImportCoverageMonths(state);
+  nation.trade.externalDebt = nextExternalDebt;
+  nation.trade.externalDebtToGDP = safeDivide(nextExternalDebt, comparable);
+  nation.trade.externalDebtInterestRate = externalDebtInterestRate;
+  nation.trade.annualExternalDebtService =
+    (paidMonthlyInterest + paidMonthlyPrincipal) * 12;
+  nation.trade.externalDebtServiceRatio = safeDivide(
+    nation.trade.annualExternalDebtService,
+    comparableExports,
+  );
+  nation.trade.monthlyExternalBorrowing = annualExternalBorrowing / 12;
+  nation.trade.capitalGoodsForeignExchangeNeed = capitalGoodsNeed;
+  nation.trade.capitalGoodsImportShare = capitalGoodsImportShare;
+  nation.trade.capitalGoodsImportCoverage = clamp(
+    applyModifiers(
+      nation,
+      "trade.capitalGoodsImportCoverage",
+      applyPolicyModifiers(
+        nation,
+        "trade.capitalGoodsImportCoverage",
+        safeDivide(
+          baseCapitalGoodsForeignExchange + annualProductiveBorrowing,
+          capitalGoodsNeed,
+          1,
+        ),
+      ),
+    ),
+    0,
+    1,
+  );
 }

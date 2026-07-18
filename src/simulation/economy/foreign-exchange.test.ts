@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
 import { calculateGDP } from "./gdp";
+import { updateCapitalAndInvestment } from "./capital";
 import {
   remittanceDirectedInvestment,
   remittanceInvestmentRate,
@@ -106,6 +107,81 @@ describe("外汇储备与侨汇", () => {
     );
   });
 
+  it("资本品投资受外汇满足率约束，而不是只看国内储蓄", () => {
+    const constrained = createInitialGameState(1949);
+    const funded = structuredClone(constrained);
+    constrained.nation.trade.capitalGoodsImportShare = 0.3;
+    constrained.nation.trade.capitalGoodsImportCoverage = 0.15;
+    funded.nation.trade.capitalGoodsImportShare = 0.3;
+    funded.nation.trade.capitalGoodsImportCoverage = 1;
+
+    updateCapitalAndInvestment(constrained.nation);
+    updateCapitalAndInvestment(funded.nation);
+
+    expect(funded.nation.economy.capitalStock).toBeGreaterThan(
+      constrained.nation.economy.capitalStock,
+    );
+  });
+
+  it("改革后可用生产性外债弥补资本品外汇缺口", () => {
+    const blocked = createInitialGameState(1949, 1980);
+    const financed = structuredClone(blocked);
+    for (const state of [blocked, financed]) {
+      state.nation.trade.foreignExchangeReserves = 1_000_000;
+      state.nation.trade.exports = 10_000_000;
+      state.nation.trade.foreignInvestment = 0;
+      state.nation.trade.remittanceReserveContribution = 0;
+      state.nation.trade.openness = 0.6;
+      state.nation.economy.institutionalEfficiency = 0.7;
+      state.nation.economy.investment = 120_000_000_000;
+      state.nation.diplomacy.globalReputation = 60;
+    }
+    blocked.nation.modifiers.push({
+      id: "test:no-external-borrowing",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+
+    updateForeignExchange(blocked);
+    updateForeignExchange(financed);
+
+    expect(financed.nation.trade.monthlyExternalBorrowing).toBeGreaterThan(0);
+    expect(financed.nation.trade.externalDebt).toBeGreaterThan(
+      blocked.nation.trade.externalDebt,
+    );
+    expect(financed.nation.trade.capitalGoodsImportCoverage).toBeGreaterThan(
+      blocked.nation.trade.capitalGoodsImportCoverage,
+    );
+  });
+
+  it("外债按月支付利息和本金并消耗外汇", () => {
+    const state = createInitialGameState(1949, 1955);
+    state.nation.trade.externalDebt = 500_000_000;
+    state.nation.trade.foreignExchangeReserves = 1_000_000_000;
+    state.nation.modifiers.push({
+      id: "test:no-new-debt",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+
+    updateForeignExchange(state);
+
+    expect(state.nation.trade.externalDebt).toBeLessThan(500_000_000);
+    expect(state.nation.trade.annualExternalDebtService).toBeGreaterThan(0);
+    expect(state.nation.trade.externalDebtInterestRate).toBeGreaterThan(0);
+    expect(Number.isFinite(state.nation.trade.externalDebtServiceRatio)).toBe(
+      true,
+    );
+  });
+
   it("史实路线的外储和侨汇数量级合理并稳定运行至 2026 年", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 936 });
@@ -143,6 +219,15 @@ describe("外汇储备与侨汇", () => {
     delete oldTrade.remittanceInflows;
     delete oldTrade.remittanceReserveContribution;
     delete oldTrade.importCoverageMonths;
+    delete oldTrade.externalDebt;
+    delete oldTrade.externalDebtToGDP;
+    delete oldTrade.externalDebtInterestRate;
+    delete oldTrade.annualExternalDebtService;
+    delete oldTrade.externalDebtServiceRatio;
+    delete oldTrade.monthlyExternalBorrowing;
+    delete oldTrade.capitalGoodsForeignExchangeNeed;
+    delete oldTrade.capitalGoodsImportShare;
+    delete oldTrade.capitalGoodsImportCoverage;
     const oldAnnual = oldState.nation.history.annual[0] as Partial<
       typeof oldState.nation.history.annual[0]
     >;
@@ -153,6 +238,9 @@ describe("外汇储备与侨汇", () => {
     expect(restored.nation.trade.foreignExchangeReserves).toBeGreaterThan(0);
     expect(restored.nation.trade.remittanceInflows).toBeGreaterThan(0);
     expect(restored.nation.trade.importCoverageMonths).toBeGreaterThanOrEqual(0);
+    expect(restored.nation.trade.externalDebt).toBe(0);
+    expect(restored.nation.trade.externalDebtToGDP).toBeGreaterThanOrEqual(0);
+    expect(restored.nation.trade.capitalGoodsImportCoverage).toBeGreaterThan(0);
     expect(restored.nation.history.annual[0]).toMatchObject({
       foreignExchangeReserves: 0,
       remittanceInflows: 0,

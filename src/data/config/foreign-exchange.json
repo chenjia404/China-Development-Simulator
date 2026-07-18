@@ -1,11 +1,13 @@
 {
   "metadata": {
-    "description": "外汇储备与侨汇的长期平滑参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。",
+    "description": "外汇储备、侨汇、资本品用汇与外债的长期参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。",
     "sources": [
       "https://www.safe.gov.cn/safe/whcb/",
       "https://data.worldbank.org/indicator/BX.TRF.PWKR.CD.DT?locations=CN",
       "https://www.gqb.gov.cn/node2/node3/node5/node9/node102/userobject7ai1564.html",
-      "https://policy.mofcom.gov.cn/claw/clawContent.shtml?id=36605"
+      "https://policy.mofcom.gov.cn/claw/clawContent.shtml?id=36605",
+      "https://www.safe.gov.cn/safe/2016/0331/5174.html",
+      "https://www.safe.gov.cn/xiamen/2019/0930/1371.html"
     ]
   },
   "initialForeignExchangeReserves": 150000000,
@@ -20,6 +22,22 @@
   "annualReserveInvestmentReturn": 0.01,
   "reserveAnchorAdjustmentRate": 0.08,
   "maximumReserveToComparableGDP": 0.2,
+  "initialExternalDebt": 0,
+  "baseExternalDebtInterestRate": 0.025,
+  "externalDebtRiskPremium": 0.08,
+  "baseAnnualPrincipalRepaymentRate": 0.055,
+  "earlyAnnualPrincipalRepaymentRate": 0.14,
+  "earlyRepaymentEndYear": 1964,
+  "maximumExternalDebtToComparableGDP": 0.2,
+  "maximumAnnualMarketBorrowingToGDP": 0.002,
+  "marketBorrowingStartYear": 1978,
+  "capitalGoodsImportShareMinimum": 0.12,
+  "capitalGoodsImportShareMaximum": 0.32,
+  "capitalGoodsInvestmentConstraintWeight": 0.15,
+  "capitalGoodsExportAllocationRate": 0.18,
+  "capitalGoodsReserveDrawRate": 0.12,
+  "capitalGoodsFDIAllocationRate": 0.2,
+  "capitalGoodsRemittanceAllocationRate": 0.08,
   "reserveGDPShareAnchors": [
     { "year": 1949, "share": 0.0012 },
     { "year": 1978, "share": 0.005 },
