@@ -73,8 +73,15 @@ export function updateTechnology(nation: NationState): void {
   );
   const effectiveTechnologyGain = technology.index - previousTechnologyIndex;
 
+  // 技术指数描述当期技术水平，结构性生产率则记录制度、人才和组织知识形成的
+  // 路径依赖。后者在修正到期后不会倒扣，因而能让更高的发展基数继续复利。
+  const structuralProductivityGrowth = applyModifiers(
+    nation,
+    "economy.structuralProductivityGrowth",
+    0,
+  );
   const monthlyTFPGrowth = clamp(
-    effectiveTechnologyGain * 0.0267,
+    effectiveTechnologyGain * 0.0267 + structuralProductivityGrowth,
     -technologyConfig.maximumMonthlyTFPGrowth,
     technologyConfig.maximumMonthlyTFPGrowth,
   );

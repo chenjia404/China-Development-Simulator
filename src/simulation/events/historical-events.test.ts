@@ -350,6 +350,13 @@ describe("确定性历史事件", () => {
         100,
       ),
     ).toBeCloseTo(120);
+    expect(
+      applyModifiers(
+        engine.getState().nation,
+        "economy.structuralProductivityGrowth",
+        0,
+      ),
+    ).toBeCloseTo(0.00045);
   });
 
   it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {
@@ -480,8 +487,14 @@ describe("确定性历史事件", () => {
         (modifier) => modifier.target === "capital.investmentEfficiency",
       ),
     ).toBe(true);
+    expect(
+      protectedInstitutions?.modifiers.find(
+        (modifier) =>
+          modifier.target === "economy.structuralProductivityGrowth",
+      )?.value,
+    ).toBe(0.00065);
 
-    const runChoice = (choiceId: string) => {
+    const runChoice = (choiceId: string, months = 12) => {
       const state = createInitialGameState(1966, 1966, "interactive");
       state.nation.date.month = 5;
       state.nation.date.elapsedMonths = (1966 - 1949) * 12 + 4;
@@ -493,7 +506,7 @@ describe("确定性历史事件", () => {
         choiceId,
       });
       engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
-      engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months });
       return engine.getState().nation;
     };
     const historical = runChoice("historical_path");
@@ -509,6 +522,18 @@ describe("确定性历史事件", () => {
     );
     expect(protectedRoute.economy.institutionalEfficiency).toBeGreaterThan(
       historical.economy.institutionalEfficiency,
+    );
+
+    const historicalAfterExpiry = runChoice("historical_path", 180);
+    const protectedAfterExpiry = runChoice("protect_institutions", 180);
+    expect(
+      protectedAfterExpiry.modifiers.some(
+        (modifier) =>
+          modifier.target === "economy.structuralProductivityGrowth",
+      ),
+    ).toBe(false);
+    expect(protectedAfterExpiry.economy.totalFactorProductivity).toBeGreaterThan(
+      historicalAfterExpiry.economy.totalFactorProductivity,
     );
   });
 

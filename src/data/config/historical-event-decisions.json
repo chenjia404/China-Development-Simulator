@@ -109,7 +109,7 @@
         "id": "avoid_great_leap",
         "name": "不发动大跃进",
         "description": "否决脱离资源约束的高指标运动，保持正常计划、统计和农业生产秩序。大跃进本身不会发生，并将降低后续三年经济困难的政策性冲击。",
-        "effects": ["避免高指标运动和无效产能", "保护农业、资本和正常统计秩序", "教育科研与民间投资保持连续", "后续粮食危机风险显著下降"],
+        "effects": ["避免高指标运动和无效产能", "保护农业、资本和正常统计秩序", "教育科研与民间投资保持连续", "形成可延续的组织知识和全要素生产率存量", "后续粮食危机风险显著下降"],
         "durationMonths": 252,
         "modifiers": [
           { "target": "sector.primary.output", "operation": "multiply", "value": 1.2 },
@@ -120,6 +120,7 @@
           { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08, "durationMonths": 504 },
           { "target": "education.efficiency", "operation": "multiply", "value": 1.1, "durationMonths": 504 },
           { "target": "technology.researchOutput", "operation": "multiply", "value": 1.16, "durationMonths": 504 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00045, "durationMonths": 504 },
           { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.06, "durationMonths": 504 }
         ],
         "outcome": "prevented"
@@ -147,13 +148,14 @@
         "id": "avoid_communes",
         "name": "不推动人民公社化",
         "description": "保留农业合作组织但不实行高度集中的生产与分配制度，维持基层统计、家庭生活和劳动激励。",
-        "effects": ["人民公社化不会发生", "家庭生产与基层真实统计得到保留", "农业剩余支持消费和民间投资", "后续粮食危机风险显著下降"],
+        "effects": ["人民公社化不会发生", "家庭生产与基层真实统计得到保留", "农业剩余支持消费和民间投资", "家庭经营知识和配置效率沉淀为长期生产率", "后续粮食危机风险显著下降"],
         "durationMonths": 252,
         "modifiers": [
           { "target": "sector.primary.output", "operation": "multiply", "value": 1.18, "durationMonths": 360 },
           { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.12 },
           { "target": "resources.foodSupply", "operation": "multiply", "value": 1.08, "durationMonths": 360 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.08, "durationMonths": 504 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0003, "durationMonths": 504 },
           { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.1, "durationMonths": 504 }
         ],
         "outcome": "prevented"
@@ -283,7 +285,7 @@
         "id": "protect_institutions",
         "name": "保护专业制度、避免全面冲击",
         "description": "不发动文化大革命，明确教育、科研、司法和企业制度不受群众运动冲击，通过制度化渠道处理分歧，使十余年人才培养、技术积累和资本配置保持连续。",
-        "effects": ["人才培养与科研积累保持连续", "企业管理和服务体系稳定", "投资效率与民间投资改善", "制度化治理需要短期协调支出"],
+        "effects": ["人才培养与科研积累保持连续", "企业管理和服务体系稳定", "知识资本沉淀为长期全要素生产率", "投资效率与民间投资改善", "制度化治理需要短期协调支出"],
         "durationMonths": 144,
         "modifiers": [
           { "target": "education.efficiency", "operation": "multiply", "value": 1.25 },
@@ -291,6 +293,7 @@
           { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.15 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.12 },
           { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00065 },
           { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.1 },
           { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
         ],

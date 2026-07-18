@@ -650,12 +650,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         optimized1978.currentUSDGDPPerCapita >=
           strictHistorical1978.currentUSDGDPPerCapita * 1.8 &&
         optimized1990.currentUSDGDPPerCapita >=
-          strictHistorical1990.currentUSDGDPPerCapita * 1.5 &&
+          strictHistorical1990.currentUSDGDPPerCapita * 1.85 &&
         optimized2000.currentUSDGDPPerCapita >=
-          strictHistorical2000.currentUSDGDPPerCapita * 1.15 &&
+          strictHistorical2000.currentUSDGDPPerCapita * 1.55 &&
         optimized1978.educationIndex > strictHistorical1978.educationIndex &&
         optimized1990.technologyIndex > strictHistorical1990.technologyIndex,
-      `1978 年史实/避免大跃进与公社化/避免文革/全部优化：$${strictHistorical1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCampaigns1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCulturalRevolution1978.currentUSDGDPPerCapita.toFixed(1)}/$${optimized1978.currentUSDGDPPerCapita.toFixed(1)}；全部优化路线 1990/2000 年为 $${optimized1990.currentUSDGDPPerCapita.toFixed(1)}/$${optimized2000.currentUSDGDPPerCapita.toFixed(1)}，史实为 $${strictHistorical1990.currentUSDGDPPerCapita.toFixed(1)}/$${strictHistorical2000.currentUSDGDPPerCapita.toFixed(1)}`,
+      `1978 年史实/避免大跃进与公社化/避免文革/全部优化：$${strictHistorical1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCampaigns1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCulturalRevolution1978.currentUSDGDPPerCapita.toFixed(1)}/$${optimized1978.currentUSDGDPPerCapita.toFixed(1)}；全部优化路线 1990/2000 年为 $${optimized1990.currentUSDGDPPerCapita.toFixed(1)}/$${optimized2000.currentUSDGDPPerCapita.toFixed(1)}，分别为史实的 ${(optimized1990.currentUSDGDPPerCapita / strictHistorical1990.currentUSDGDPPerCapita).toFixed(2)} 倍/${(optimized2000.currentUSDGDPPerCapita / strictHistorical2000.currentUSDGDPPerCapita).toFixed(2)} 倍`,
     ),
     makeCheck(
       "historical-causality",
