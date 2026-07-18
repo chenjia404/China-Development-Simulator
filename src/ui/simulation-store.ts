@@ -10,6 +10,7 @@ import {
   type ForeignPolicyDoctrineId,
   type GameState,
   type SimulationCommand,
+  type TechnologyIndustryPathId,
 } from "../simulation";
 import { clearAutoSave, loadAutoSave, saveAutoSave } from "./save-storage";
 import { getSimulationClient } from "./simulation-client";
@@ -52,6 +53,7 @@ interface SimulationStore {
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
+  setTechnologyIndustryPath(pathId: TechnologyIndustryPathId): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
@@ -190,6 +192,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     await get().dispatch({
       type: "SELECT_TECH_RESEARCH",
       technologyId,
+    });
+  },
+
+  async setTechnologyIndustryPath(pathId) {
+    await get().dispatch({
+      type: "SET_TECHNOLOGY_INDUSTRY_PATH",
+      pathId,
     });
   },
 

@@ -84,6 +84,13 @@ test("客户端展示可操作科技树和产业升级门槛", async () => {
   assert.match(source, /产业升级准备度/);
   assert.match(source, /设为研究目标/);
   assert.match(source, /科技指数高但产业节点落后/);
+  assert.match(source, /科技工业发展路线/);
+  assert.match(source, /轻工业与大众消费/);
+  assert.match(source, /电子信息与数字产业/);
+  assert.match(source, /航空航天与先进制造/);
+  assert.match(source, /48 个月内逐步完成转型/);
+  assert.match(source, /当前研究进度损失 35%/);
+  assert.match(source, /仍可手动选择单个科技节点/);
 });
 
 test("客户端展示十一类工业结构、技术准备度和类别出口", async () => {
@@ -101,6 +108,8 @@ test("客户端展示十一类工业结构、技术准备度和类别出口", as
   assert.match(source, /精密仪器与医疗设备/);
   assert.match(source, /航空航天与高端装备/);
   assert.match(source, /技术准备/);
+  assert.match(source, /路线传导/);
+  assert.match(source, /当前.*路线会改变各类别的扩张权重/);
 });
 
 test("客户端展示可提前发动的治理、工业化与改革国策", async () => {

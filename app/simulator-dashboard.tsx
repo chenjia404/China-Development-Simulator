@@ -11,6 +11,7 @@ import type {
   ForeignPolicyDoctrineId,
   GameState,
   TargetComparisonMetric,
+  TechnologyIndustryPathId,
 } from "@/src/simulation";
 import {
   averageInternationalRelation,
@@ -40,6 +41,11 @@ import {
   technologyResearchRequirements,
   technologyTreeDefinitions,
   industrialCategoryDefinitions,
+  getTechnologyIndustryPath,
+  technologyIndustryEffect,
+  technologyIndustryEnergyDemandMultiplier,
+  technologyIndustryPathCooldownRemaining,
+  technologyIndustryPathDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -386,6 +392,9 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
 function IndustrySection({ game }: { game: GameState }) {
   const nation = game.nation;
   const metrics = calculateIndustrialStructureMetrics(nation);
+  const developmentPath = getTechnologyIndustryPath(
+    nation.technology.developmentPathId,
+  );
   const industrialExports = Object.values(nation.industries).reduce(
     (sum, category) => sum + category.exportValue,
     0,
@@ -395,7 +404,7 @@ function IndustrySection({ game }: { game: GameState }) {
       <div className="detail-hero industry-hero">
         <span className="eyebrow">产业链 · 技术能力 · 出口结构</span>
         <h2>工业细分结构</h2>
-        <p>第二产业拆分为十一类工业。类别份额会随教育、科技节点、能源、基建、投资和开放度缓慢调整，并共同决定工业生产率及出口上限；类别增加值之和始终等于第二产业总量。</p>
+        <p>第二产业拆分为十一类工业。当前“{developmentPath?.name ?? nation.technology.developmentPathId}”路线会改变各类别的扩张权重、生产率和出口竞争力，教育、科技节点、能源、基建、投资与开放度仍共同决定实际产出。</p>
       </div>
       <div className="industry-summary">
         <MetricCard label="工业增加值" value={formatLarge(nation.sectors.secondary.valueAdded)} detail={`占实际 GDP ${formatPercent(nation.sectors.secondary.valueAdded / Math.max(nation.economy.realGDP, 1))}`} tone="blue" />
@@ -406,6 +415,7 @@ function IndustrySection({ game }: { game: GameState }) {
       <div className="industry-category-grid">
         {industrialCategoryDefinitions.map((definition) => {
           const category = nation.industries[definition.id];
+          const pathEffect = technologyIndustryEffect(nation, definition.id);
           return (
             <article className="industry-category-card" key={definition.id}>
               <div className="industry-category-head">
@@ -423,6 +433,9 @@ function IndustrySection({ game }: { game: GameState }) {
               <div className="industry-category-requirements">
                 教育 ≥ {definition.requiredEducationIndex} · 科技 ≥ {definition.requiredTechnologyIndex}
               </div>
+              <div className="industry-path-effects">
+                路线传导：份额 ×{pathEffect.outputWeightMultiplier.toFixed(2)} · 生产率 ×{pathEffect.productivityMultiplier.toFixed(2)} · 出口 ×{pathEffect.exportMultiplier.toFixed(2)}
+              </div>
             </article>
           );
         })}
@@ -438,6 +451,21 @@ function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
   const selectTechnologyResearch = useSimulationStore(
     (store) => store.selectTechnologyResearch,
   );
+  const setTechnologyIndustryPath = useSimulationStore(
+    (store) => store.setTechnologyIndustryPath,
+  );
+  const currentPath = getTechnologyIndustryPath(technology.developmentPathId);
+  const pathCooldown = technologyIndustryPathCooldownRemaining(nation);
+  const pathProgress = technology.developmentPathProgress;
+  const chooseDevelopmentPath = (
+    pathId: TechnologyIndustryPathId,
+    name: string,
+  ) => {
+    const confirmed = window.confirm(
+      `确定改为“${name}”吗？路线将在 48 个月内逐步完成转型，当前研究进度损失 35%，并在 36 个月内不能再次调整。`,
+    );
+    if (confirmed) void setTechnologyIndustryPath(pathId);
+  };
   const activeNode = technology.activeResearchId
     ? getTechnologyNode(technology.activeResearchId)
     : undefined;
@@ -458,6 +486,67 @@ function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
         <MetricCard label="产业升级准备度" value={formatPercent(metrics.industrialUpgradeReadiness)} detail={`有效产业科技 ${metrics.effectiveIndustrialTechnology.toFixed(1)} / ${technology.index.toFixed(1)}`} tone={metrics.industrialUpgradeReadiness >= 0.6 ? "green" : "red"} />
         <MetricCard label="当前研究" value={activeNode?.name ?? "等待能力条件"} detail={activeNode ? `${technology.activeResearchProgress.toFixed(1)} / ${activeNode.researchCost} · 本月 ${technology.monthlyResearchOutput.toFixed(2)}` : "无可研究节点时科研仍积累为知识存量"} tone="gold" />
       </div>
+      <section className="technology-path-panel">
+        <div className="technology-path-heading">
+          <div>
+            <span className="eyebrow">长期科研与产业取向</span>
+            <h2>科技工业发展路线</h2>
+            <p>路线决定自动科研优先级、专项与非专项研究效率，并在 48 个月内逐步改变工业份额、生产率、能源需求和出口能力。科技前置条件不会被跳过，玩家仍可手动选择单个科技节点。</p>
+          </div>
+          <div className="technology-path-current">
+            <span>当前路线</span>
+            <strong>{currentPath?.name ?? technology.developmentPathId}</strong>
+            <small>{pathProgress >= 1 ? "路线已稳定" : `转型中 · ${(pathProgress * 100).toFixed(0)}%`}</small>
+          </div>
+        </div>
+        <div className="technology-path-live-effects">
+          <span>能源需求 ×{technologyIndustryEnergyDemandMultiplier(nation).toFixed(2)}</span>
+          <span>转型周期 48 个月</span>
+          <span>调整冷却 {pathCooldown > 0 ? `${pathCooldown} 个月` : "已结束"}</span>
+          <span>切换损失当前研究进度 35%</span>
+        </div>
+        <div className="technology-path-grid">
+          {technologyIndustryPathDefinitions.map((path) => {
+            const selected = path.id === technology.developmentPathId;
+            const unavailableReason = selected
+              ? "当前正在采用"
+              : pathCooldown > 0
+                ? `还需冷却 ${pathCooldown} 个月`
+                : null;
+            const focusedTechnologies = path.preferredTechnologyIds
+              .map((id) => getTechnologyNode(id)?.name ?? id)
+              .slice(0, 5);
+            const affectedIndustries = Object.entries(path.industryEffects)
+              .map(([industryId, effect]) => {
+                const industry = industrialCategoryDefinitions.find(
+                  (definition) => definition.id === industryId,
+                );
+                return `${industry?.name ?? industryId} ${effect.outputWeightMultiplier >= 1 ? "+" : ""}${((effect.outputWeightMultiplier - 1) * 100).toFixed(0)}%`;
+              });
+            return (
+              <article className={selected ? "technology-path-card is-selected" : "technology-path-card"} key={path.id}>
+                <div className="technology-path-card-head"><span>{path.shortName}</span><small>能源 ×{path.energyDemandMultiplier.toFixed(2)}</small></div>
+                <h3>{path.name}</h3>
+                <p>{path.description}</p>
+                <div className="technology-path-effects">{path.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+                <div className="technology-path-numbers">
+                  <span>专项科研 ×{path.focusedResearchMultiplier.toFixed(2)}</span>
+                  <span>非专项科研 ×{path.unfocusedResearchMultiplier.toFixed(2)}</span>
+                </div>
+                <div className="technology-path-focus"><strong>优先科技</strong><span>{focusedTechnologies.length > 0 ? focusedTechnologies.join("、") : "保持科技树通用顺序"}</span></div>
+                <div className="technology-path-focus"><strong>产业倾斜</strong><span>{affectedIndustries.length > 0 ? affectedIndustries.join(" · ") : "保持完整产业链，不额外倾斜"}</span></div>
+                <button
+                  disabled={busy || unavailableReason !== null}
+                  title={unavailableReason ?? undefined}
+                  onClick={() => chooseDevelopmentPath(path.id, path.name)}
+                >
+                  {selected ? "当前路线" : unavailableReason ?? "选择发展路线"}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
       {activeNode ? <div className="technology-active-progress"><div><strong>{activeNode.name}</strong><span>{formatPercent(activeProgress, 0)}</span></div><i><b style={{ width: `${Math.min(activeProgress, 1) * 100}%` }} /></i></div> : null}
       <div className="technology-tree-grid">
         {technologyTreeDefinitions.map((node) => {
@@ -492,7 +581,7 @@ function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
           );
         })}
       </div>
-      <p className="panel-note">没有手动指定目标时，模拟器会按科技树顺序自动选择当前可研究节点；更换目标会重新开始该节点的研究进度。</p>
+      <p className="panel-note">没有手动指定目标时，模拟器会根据发展路线确定性选择当前可研究节点；手动研究路线外科技不会被禁止，但将采用该路线的非专项研究效率。更换单个研究目标会重新开始该节点的研究进度。</p>
     </section>
   );
 }
