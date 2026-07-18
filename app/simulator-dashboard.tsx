@@ -56,6 +56,7 @@ import {
   technologyIndustryPathCooldownRemaining,
   technologyIndustryPathDefinitions,
   nationalAccountsProductDefinitions,
+  AGE_BAND_IDS,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -463,6 +464,36 @@ function MarketDynamicsPanel({ game }: { game: GameState }) {
   );
 }
 
+const ageBandLabels = [
+  "0—4", "5—9", "10—14", "15—19", "20—24", "25—29",
+  "30—34", "35—39", "40—44", "45—49", "50—54", "55—59",
+  "60—64", "65—69", "70—74", "75—79", "80—84", "85+",
+];
+
+function DemographicDetailPanel({ game }: { game: GameState }) {
+  const detail = game.nation.population.demographicDetail;
+  return (
+    <section className="panel demographic-detail-panel">
+      <div className="panel-heading">
+        <div><span className="eyebrow">年龄×性别 · 家庭户 · 城乡流动</span><h2>人口队列账户</h2></div>
+        <span>性别比 {detail.sexRatio.toFixed(3)}</span>
+      </div>
+      <div className="detail-grid">
+        <article><span>家庭户数</span><strong>{formatLarge(detail.households.householdCount)}</strong><p>户均 {detail.households.averageHouseholdSize.toFixed(2)} 人</p></article>
+        <article><span>少儿抚养比</span><strong>{formatPercent(detail.households.childDependencyRatio)}</strong><p>0—14岁 / 15—64岁</p></article>
+        <article><span>老年抚养比</span><strong>{formatPercent(detail.households.elderlyDependencyRatio)}</strong><p>65岁及以上 / 15—64岁</p></article>
+        <article><span>本月农村转城市</span><strong>{formatLarge(detail.migration.monthlyRuralToUrban)}</strong><p>剔除总人口自然增长后的净流量</p></article>
+      </div>
+      <div className="cohort-grid">
+        {AGE_BAND_IDS.map((id, index) => {
+          const cohort = detail.cohorts[id];
+          return <article key={id}><strong>{ageBandLabels[index]}岁</strong><span>男 {formatLarge(cohort.male)}</span><span>女 {formatLarge(cohort.female)}</span></article>;
+        })}
+      </div>
+    </section>
+  );
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -477,7 +508,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

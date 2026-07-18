@@ -13,6 +13,48 @@ export interface AgeGroupState {
   elderly: number;
 }
 
+export type AgeBandId =
+  | "age_0_4" | "age_5_9" | "age_10_14" | "age_15_19"
+  | "age_20_24" | "age_25_29" | "age_30_34" | "age_35_39"
+  | "age_40_44" | "age_45_49" | "age_50_54" | "age_55_59"
+  | "age_60_64" | "age_65_69" | "age_70_74" | "age_75_79"
+  | "age_80_84" | "age_85_plus";
+
+export interface SexPopulationCohort {
+  id: AgeBandId;
+  male: number;
+  female: number;
+}
+
+export interface HouseholdDemographyState {
+  householdCount: number;
+  urbanHouseholds: number;
+  ruralHouseholds: number;
+  averageHouseholdSize: number;
+  childDependencyRatio: number;
+  elderlyDependencyRatio: number;
+  totalDependencyRatio: number;
+}
+
+export interface MigrationAccountState {
+  monthlyRuralToUrban: number;
+  monthlyUrbanToRural: number;
+  cumulativeRuralToUrban: number;
+  lastUrbanPopulation: number;
+  lastTotalPopulation: number;
+}
+
+export interface DemographicDetailState {
+  cohorts: Record<AgeBandId, SexPopulationCohort>;
+  households: HouseholdDemographyState;
+  migration: MigrationAccountState;
+  malePopulation: number;
+  femalePopulation: number;
+  sexRatio: number;
+  workingAgeFemalePopulation: number;
+  reconciliationError: number;
+}
+
 export interface PopulationState {
   total: number;
   ageGroups: AgeGroupState;
@@ -23,6 +65,7 @@ export interface PopulationState {
   monthlyBirths: number;
   monthlyDeaths: number;
   netMigration: number;
+  demographicDetail: DemographicDetailState;
 }
 
 export interface LaborState {

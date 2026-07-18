@@ -10,6 +10,9 @@ export interface MonthlySnapshot {
   realWageIndex: number;
   aggregateInventoryMonths: number;
   outputGap: number;
+  averageHouseholdSize: number;
+  totalDependencyRatio: number;
+  monthlyRuralToUrbanMigration: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

@@ -20,6 +20,7 @@ import {
   createEmptyMarketDynamicsState,
   ensureMarketDynamicsState,
 } from "../economy/market-dynamics";
+import { createInitialDemographicDetailState } from "../population/demographic-cohorts";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -63,6 +64,21 @@ export function createInitialGameState(
   const normalizedSeed = seed >>> 0;
   const population = 541_670_000;
   const workingAge = population * 0.56;
+  const initialPopulation = {
+    total: population,
+    ageGroups: {
+      children: population * 0.35,
+      workingAge,
+      elderly: population * 0.09,
+    },
+    urbanPopulation: population * 0.1064,
+    ruralPopulation: population * 0.8936,
+    annualBirthRate: 0.036,
+    annualDeathRate: 0.02,
+    monthlyBirths: 0,
+    monthlyDeaths: 0,
+    netMigration: 0,
+  };
   const historicalNormalizationAtStart =
     historicalEventDecisionMode === "automatic" &&
     startYear >= sinoUSNormalizationConfig.historicalEstablishmentYear;
@@ -85,19 +101,8 @@ export function createInitialGameState(
       internationalInfluence: 12,
       date: createGameDate(startYear),
       population: {
-        total: population,
-        ageGroups: {
-          children: population * 0.35,
-          workingAge,
-          elderly: population * 0.09,
-        },
-        urbanPopulation: population * 0.1064,
-        ruralPopulation: population * 0.8936,
-        annualBirthRate: 0.036,
-        annualDeathRate: 0.02,
-        monthlyBirths: 0,
-        monthlyDeaths: 0,
-        netMigration: 0,
+        ...initialPopulation,
+        demographicDetail: createInitialDemographicDetailState(initialPopulation),
       },
       labor: {
         laborForce: workingAge * 0.78,

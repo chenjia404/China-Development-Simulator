@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "description": "五岁年龄组、出生性别比、家庭规模与城乡迁移账户参数。队列总量每月与现有历史校准人口账户显式调和。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/pcsj/rkpc/7rp/indexch.htm",
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm"
+    ]
+  },
+  "maleBirthShare": 0.512,
+  "minimumAverageHouseholdSize": 2.35,
+  "maximumAverageHouseholdSize": 5.2,
+  "initialAverageHouseholdSize": 4.65,
+  "urbanHouseholdSizeDiscount": 0.42,
+  "developmentHouseholdSizeDiscount": 1.25,
+  "monthlyHouseholdAdjustmentSpeed": 0.015,
+  "ageBands": [
+    { "id": "age_0_4", "minimumAge": 0, "maximumAge": 4, "initialShare": 0.128, "mortalityRisk": 1.8 },
+    { "id": "age_5_9", "minimumAge": 5, "maximumAge": 9, "initialShare": 0.116, "mortalityRisk": 0.35 },
+    { "id": "age_10_14", "minimumAge": 10, "maximumAge": 14, "initialShare": 0.106, "mortalityRisk": 0.3 },
+    { "id": "age_15_19", "minimumAge": 15, "maximumAge": 19, "initialShare": 0.094, "mortalityRisk": 0.4 },
+    { "id": "age_20_24", "minimumAge": 20, "maximumAge": 24, "initialShare": 0.086, "mortalityRisk": 0.45 },
+    { "id": "age_25_29", "minimumAge": 25, "maximumAge": 29, "initialShare": 0.078, "mortalityRisk": 0.5 },
+    { "id": "age_30_34", "minimumAge": 30, "maximumAge": 34, "initialShare": 0.068, "mortalityRisk": 0.55 },
+    { "id": "age_35_39", "minimumAge": 35, "maximumAge": 39, "initialShare": 0.061, "mortalityRisk": 0.65 },
+    { "id": "age_40_44", "minimumAge": 40, "maximumAge": 44, "initialShare": 0.055, "mortalityRisk": 0.8 },
+    { "id": "age_45_49", "minimumAge": 45, "maximumAge": 49, "initialShare": 0.049, "mortalityRisk": 1 },
+    { "id": "age_50_54", "minimumAge": 50, "maximumAge": 54, "initialShare": 0.043, "mortalityRisk": 1.35 },
+    { "id": "age_55_59", "minimumAge": 55, "maximumAge": 59, "initialShare": 0.038, "mortalityRisk": 1.8 },
+    { "id": "age_60_64", "minimumAge": 60, "maximumAge": 64, "initialShare": 0.033, "mortalityRisk": 2.5 },
+    { "id": "age_65_69", "minimumAge": 65, "maximumAge": 69, "initialShare": 0.018, "mortalityRisk": 3.8 },
+    { "id": "age_70_74", "minimumAge": 70, "maximumAge": 74, "initialShare": 0.012, "mortalityRisk": 5.5 },
+    { "id": "age_75_79", "minimumAge": 75, "maximumAge": 79, "initialShare": 0.008, "mortalityRisk": 8 },
+    { "id": "age_80_84", "minimumAge": 80, "maximumAge": 84, "initialShare": 0.004, "mortalityRisk": 12 },
+    { "id": "age_85_plus", "minimumAge": 85, "maximumAge": null, "initialShare": 0.003, "mortalityRisk": 18 }
+  ]
+}

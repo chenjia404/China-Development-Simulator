@@ -32,6 +32,7 @@ import { setForeignAidProgram } from "../diplomacy/foreign-aid";
 import { startSinoUSNormalization } from "../diplomacy/sino-us-normalization";
 import { ensureNationalAccountsState } from "../economy/national-accounts";
 import { ensureMarketDynamicsState } from "../economy/market-dynamics";
+import { ensureDemographicDetailState } from "../population/demographic-cohorts";
 
 export interface SimulationResult {
   state: GameState;
@@ -71,6 +72,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureDomesticDemandState(this.state.nation);
     ensureNationalAccountsState(this.state.nation);
     ensureMarketDynamicsState(this.state.nation);
+    ensureDemographicDetailState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -98,6 +100,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureDomesticDemandState(this.state.nation);
         ensureNationalAccountsState(this.state.nation);
         ensureMarketDynamicsState(this.state.nation);
+        ensureDemographicDetailState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

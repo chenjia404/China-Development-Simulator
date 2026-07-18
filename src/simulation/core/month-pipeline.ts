@@ -36,6 +36,7 @@ import { updatePrivateEconomy } from "../economy/private-economy";
 import { updateDemandDrivenCapacityUtilization } from "../economy/domestic-demand";
 import { updateNationalAccounts } from "../economy/national-accounts";
 import { updateMarketDynamics } from "../economy/market-dynamics";
+import { updateDemographicCohorts } from "../population/demographic-cohorts";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -51,6 +52,7 @@ export function simulateMonth(
   checkAutomaticInternationalOrganizations(state);
   updatePrivateEconomy(state.nation);
   updateDemographics(state.nation, _random);
+  updateDemographicCohorts(state.nation);
   updateEducation(state.nation);
   updateHealth(state.nation);
   updateLaborForce(state.nation);

@@ -237,3 +237,19 @@ test("客户端展示部门价格、实际工资和库存周期", async () => {
   assert.match(source, /综合库存/);
   assert.match(source, /过量实物库存滞后抑制生产/);
 });
+
+test("客户端展示年龄性别队列、家庭户、抚养比和城乡迁移", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /人口队列账户/);
+  assert.match(source, /家庭户数/);
+  assert.match(source, /少儿抚养比/);
+  assert.match(source, /老年抚养比/);
+  assert.match(source, /本月农村转城市/);
+  assert.match(source, /年龄×性别/);
+});

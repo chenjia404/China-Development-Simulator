@@ -40,6 +40,8 @@ import {
   updateIndustrialStructure,
   validateIndustrialCategoryDefinitions,
   validateMarketDynamicsDefinitions,
+  validateDemographicCohortDefinitions,
+  AGE_BAND_IDS,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
   type GameState,
@@ -1015,6 +1017,25 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
             );
         }),
       `史实路线 CPI/PPI ${historical.finalState.nation.marketDynamics.consumerPriceIndex.toFixed(3)}/${historical.finalState.nation.marketDynamics.producerPriceIndex.toFixed(3)}，实际工资指数 ${historical.finalState.nation.marketDynamics.realWageIndex.toFixed(3)}，库存 ${historical.finalState.nation.marketDynamics.aggregateInventoryMonths.toFixed(2)} 个月`,
+    ),
+    makeCheck(
+      "demographic-cohort-accounts",
+      "18个年龄性别队列、家庭户、抚养比与城乡迁移账户保持守恒",
+      validateDemographicCohortDefinitions().length === 0 &&
+        [...runs.values()].every((run) => {
+          const nation = run.finalState.nation;
+          const detail = nation.population.demographicDetail;
+          const cohortTotal = AGE_BAND_IDS.reduce(
+            (sum, id) => sum + detail.cohorts[id].male + detail.cohorts[id].female,
+            0,
+          );
+          return Object.keys(detail.cohorts).length === 18 &&
+            Math.abs(cohortTotal - nation.population.total) < 1 &&
+            detail.households.householdCount > 0 &&
+            detail.households.totalDependencyRatio >= 0 &&
+            detail.migration.cumulativeRuralToUrban >= 0;
+        }),
+      `史实路线家庭 ${historical.finalState.nation.population.demographicDetail.households.householdCount.toFixed(0)} 户、户均 ${historical.finalState.nation.population.demographicDetail.households.averageHouseholdSize.toFixed(2)} 人、总抚养比 ${(historical.finalState.nation.population.demographicDetail.households.totalDependencyRatio * 100).toFixed(1)}%、累计农村转城市 ${(historical.finalState.nation.population.demographicDetail.migration.cumulativeRuralToUrban / 100_000_000).toFixed(2)} 亿人次`,
     ),
     makeCheck(
       "historical-comparison",

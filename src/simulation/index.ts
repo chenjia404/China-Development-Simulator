@@ -29,6 +29,7 @@ export * from "./economy/domestic-demand";
 export * from "./economy/private-economy";
 export * from "./economy/national-accounts";
 export * from "./economy/market-dynamics";
+export * from "./population/demographic-cohorts";
 export * from "./world/countries";
 export * from "./world/rankings";
 export * from "./world/world-simulation";

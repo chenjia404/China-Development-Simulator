@@ -148,6 +148,11 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .detail-grid p { margin: 0; color: var(--muted); font-size: 10px; }
 .national-accounts-panel { margin-top: 18px; }
 .market-dynamics-panel { margin-top: 18px; }
+.demographic-detail-panel { margin-top: 18px; }
+.cohort-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.cohort-grid article { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); }
+.cohort-grid strong, .cohort-grid span { display: block; }
+.cohort-grid span { margin-top: 4px; color: var(--muted); font-size: 12px; }
 .product-market-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .product-market-grid article { padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
 .product-market-grid article > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -609,6 +614,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .account-flow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .product-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cohort-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .account-bottlenecks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks > span { grid-column: 1 / -1; }
   .technology-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -663,6 +669,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .detail-grid { grid-template-columns: 1fr; }
   .account-flow-grid, .account-bottlenecks { grid-template-columns: 1fr; }
   .product-market-grid { grid-template-columns: 1fr; }
+  .cohort-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .technology-tree-grid { grid-template-columns: 1fr; }
   .technology-path-grid { grid-template-columns: 1fr; }
   .technology-path-heading { display: block; }

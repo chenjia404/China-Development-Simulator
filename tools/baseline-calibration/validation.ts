@@ -1,5 +1,6 @@
 import {
   NATIONAL_ACCOUNTS_PRODUCT_IDS,
+  AGE_BAND_IDS,
   type GameState,
 } from "../../src/simulation/index";
 
@@ -75,6 +76,24 @@ export function validateGameState(state: GameState): void {
     if (product.inventoryStock < 0 || product.inventoryMonths < 0) {
       throw new Error(`${product.id} 的库存不得为负`);
     }
+  }
+  const demographic = nation.population.demographicDetail;
+  if (Object.keys(demographic.cohorts).length !== AGE_BAND_IDS.length) {
+    throw new Error("年龄性别人口队列数量不完整");
+  }
+  const cohortPopulation = AGE_BAND_IDS.reduce(
+    (sum, id) => sum + demographic.cohorts[id].male + demographic.cohorts[id].female,
+    0,
+  );
+  if (Math.abs(cohortPopulation - nation.population.total) > 1) {
+    throw new Error("年龄性别队列与总人口未调和");
+  }
+  if (
+    demographic.households.householdCount <= 0 ||
+    demographic.households.averageHouseholdSize <= 0 ||
+    demographic.households.totalDependencyRatio < 0
+  ) {
+    throw new Error("家庭户或抚养比账户无效");
   }
   if (
     market.consumerPriceIndex <= 0 ||

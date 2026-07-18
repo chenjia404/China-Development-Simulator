@@ -57,6 +57,12 @@ export function recordHistory(state: GameState): void {
     realWageIndex: nation.marketDynamics.realWageIndex,
     aggregateInventoryMonths: nation.marketDynamics.aggregateInventoryMonths,
     outputGap: nation.marketDynamics.outputGap,
+    averageHouseholdSize:
+      nation.population.demographicDetail.households.averageHouseholdSize,
+    totalDependencyRatio:
+      nation.population.demographicDetail.households.totalDependencyRatio,
+    monthlyRuralToUrbanMigration:
+      nation.population.demographicDetail.migration.monthlyRuralToUrban,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,
