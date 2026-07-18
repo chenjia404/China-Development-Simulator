@@ -233,6 +233,10 @@ describe("外汇储备与侨汇", () => {
     >;
     delete oldAnnual.foreignExchangeReserves;
     delete oldAnnual.remittanceInflows;
+    delete oldAnnual.externalDebt;
+    delete oldAnnual.externalDebtToGDP;
+    delete oldAnnual.annualExternalDebtService;
+    delete oldAnnual.capitalGoodsImportCoverage;
 
     const restored = createSimulationEngine(oldState).getState();
     expect(restored.nation.trade.foreignExchangeReserves).toBeGreaterThan(0);
@@ -244,6 +248,10 @@ describe("外汇储备与侨汇", () => {
     expect(restored.nation.history.annual[0]).toMatchObject({
       foreignExchangeReserves: 0,
       remittanceInflows: 0,
+      externalDebt: 0,
+      externalDebtToGDP: 0,
+      annualExternalDebtService: 0,
+      capitalGoodsImportCoverage: 0,
     });
   });
 });

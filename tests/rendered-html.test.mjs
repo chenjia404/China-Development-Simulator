@@ -53,3 +53,17 @@ test("客户端样式为说明文字保留可读字号", async () => {
   assert.match(source, /\.brand small,[^{}]*\{font-size:11px/);
   assert.match(source, /\.route-blueprint-card button,[^{}]*\{font-size:12px/);
 });
+
+test("客户端展示外债偿付与资本品用汇约束", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /外债余额/);
+  assert.match(source, /年度外债偿付/);
+  assert.match(source, /资本品外汇满足率/);
+  assert.match(source, /外储 \/ 外债/);
+});

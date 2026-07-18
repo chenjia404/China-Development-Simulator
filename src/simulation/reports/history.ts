@@ -54,6 +54,10 @@ export function recordHistory(state: GameState): void {
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,
+    externalDebt: nation.trade.externalDebt,
+    externalDebtToGDP: nation.trade.externalDebtToGDP,
+    annualExternalDebtService: nation.trade.annualExternalDebtService,
+    capitalGoodsImportCoverage: nation.trade.capitalGoodsImportCoverage,
   };
   nation.history.monthly.push(monthly);
   if (nation.history.monthly.length > MAX_MONTHLY_HISTORY) {

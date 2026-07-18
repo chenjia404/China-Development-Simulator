@@ -44,6 +44,9 @@ export interface StrategyAuditSummary {
   inflationRate: number;
   debtToGDP: number;
   debtInterestRate: number;
+  externalDebt: number;
+  externalDebtToGDP: number;
+  capitalGoodsImportCoverage: number;
   educationIndex: number;
   technologyIndex: number;
   lifeExpectancy: number;
@@ -85,6 +88,9 @@ function summary(result: SimulationRunResult): StrategyAuditSummary {
     inflationRate: nation.economy.inflationRate,
     debtToGDP: nation.fiscal.debtToGDP,
     debtInterestRate: nation.fiscal.debtInterestRate,
+    externalDebt: nation.trade.externalDebt,
+    externalDebtToGDP: nation.trade.externalDebtToGDP,
+    capitalGoodsImportCoverage: nation.trade.capitalGoodsImportCoverage,
     educationIndex: nation.education.index,
     technologyIndex: nation.technology.index,
     lifeExpectancy: nation.health.lifeExpectancy,
@@ -396,6 +402,30 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   });
   preventedWarDiplomacyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 84 });
   const preventedWarDiplomacyState = preventedWarDiplomacyEngine.getState();
+  const koreanWarDebtEngine = prepareKoreanWarChoice("historical_path");
+  koreanWarDebtEngine.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  koreanWarDebtEngine.dispatch({ type: "ADVANCE_MONTHS", months: 37 });
+  const koreanWarDebtState = koreanWarDebtEngine.getState();
+  const preventedWarDevelopmentEngine = prepareKoreanWarChoice(
+    "oppose_korean_war",
+  );
+  preventedWarDevelopmentEngine.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  preventedWarDevelopmentEngine.dispatch({ type: "ADVANCE_MONTHS", months: 60 });
+  const preventedWarDevelopmentState = preventedWarDevelopmentEngine
+    .getState();
+  const koreanWarDevelopmentEngine = prepareKoreanWarChoice("historical_path");
+  koreanWarDevelopmentEngine.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  koreanWarDevelopmentEngine.dispatch({ type: "ADVANCE_MONTHS", months: 60 });
+  const koreanWarDevelopmentState = koreanWarDevelopmentEngine.getState();
   const preventedWarContinuation = prepareKoreanWarChoice(
     "oppose_korean_war",
   );
@@ -598,6 +628,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     calculateGDP(state.nation);
   }
   const finalTrade = historical.finalState.nation.trade;
+  const allFinalTradeStates = [...runs.values()].map(
+    (run) => run.finalState.nation.trade,
+  );
 
   const checks: AuditCheck[] = [
     makeCheck(
@@ -732,6 +765,27 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年末外储 ${(finalTrade.foreignExchangeReserves / 1_000_000_000_000).toFixed(2)} 万亿美元、年度侨汇 ${(finalTrade.remittanceInflows / 100_000_000).toFixed(1)} 亿美元、进口覆盖 ${finalTrade.importCoverageMonths.toFixed(1)} 个月；保护权益提高流入，侨资创业提高定向投资，集中结汇提高储备贡献但压低家庭收入`,
     ),
     makeCheck(
+      "foreign-exchange-external-debt",
+      "经济发展受资本品外汇约束，外债借入、专款使用与还本付息形成闭环",
+      allFinalTradeStates.every((trade) =>
+        [
+          trade.externalDebt,
+          trade.externalDebtToGDP,
+          trade.externalDebtInterestRate,
+          trade.annualExternalDebtService,
+          trade.externalDebtServiceRatio,
+          trade.monthlyExternalBorrowing,
+          trade.capitalGoodsForeignExchangeNeed,
+          trade.capitalGoodsImportShare,
+          trade.capitalGoodsImportCoverage,
+        ].every((value) => Number.isFinite(value) && value >= 0) &&
+        trade.capitalGoodsImportCoverage <= 1
+      ) &&
+        finalTrade.externalDebtToGDP <= 0.2 &&
+        finalTrade.externalDebtServiceRatio <= 0.2,
+      `12 条路线外债与资本品用汇指标均为有限非负数；史实路线 2026 年外债 ${(finalTrade.externalDebt / 100_000_000).toFixed(1)} 亿美元、负债率 ${(finalTrade.externalDebtToGDP * 100).toFixed(3)}%、偿债率 ${(finalTrade.externalDebtServiceRatio * 100).toFixed(3)}%、资本品用汇满足率 ${(finalTrade.capitalGoodsImportCoverage * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&
@@ -856,7 +910,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "korean-war-branching",
-      "朝鲜战争可被阻止，发生后会传导人口、财政、产业与外交影响",
+      "朝鲜战争形成军事外债，阻止战争会释放外汇与民用资本并改善外交",
       koreanWarState.nation.population.monthlyDeaths >
           preventedWarState.nation.population.monthlyDeaths &&
         koreanWarState.nation.fiscal.expenditure >
@@ -873,10 +927,17 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
             relationFor(preventedWarDiplomacyState, countryId) >
             relationFor(koreanWarDiplomacyState, countryId),
         ) &&
+        koreanWarDebtState.nation.trade.externalDebt >= 750_000_000 &&
+        koreanWarDebtState.nation.trade.externalDebt <= 850_000_000 &&
+        preventedWarState.nation.trade.externalDebt === 0 &&
+        preventedWarState.nation.trade.capitalGoodsImportCoverage >
+          koreanWarState.nation.trade.capitalGoodsImportCoverage &&
+        preventedWarDevelopmentState.nation.economy.capitalStock >
+          koreanWarDevelopmentState.nation.economy.capitalStock &&
         preventedWarRecord?.outcome === "prevented" &&
         preventedWarFinalState.nation.date.year === 2027 &&
         preventedWarFinalState.nation.history.reports.length === 77,
-      `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，七年后美英法加澳日平均关系 ${koreanWarWesternAverage.toFixed(2)}/${preventedWarWesternAverage.toFixed(2)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
+      `参战 37 个月后军事外债 ${(koreanWarDebtState.nation.trade.externalDebt / 100_000_000).toFixed(2)} 亿美元，阻止路线为 0；参战/阻止首月资本品用汇满足率 ${(koreanWarState.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%/${(preventedWarState.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%，五年后资本存量 ${koreanWarDevelopmentState.nation.economy.capitalStock.toFixed(0)}/${preventedWarDevelopmentState.nation.economy.capitalStock.toFixed(0)}；对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，七年后西方六国平均关系 ${koreanWarWesternAverage.toFixed(2)}/${preventedWarWesternAverage.toFixed(2)}`,
     ),
     makeCheck(
       "third-front-branching",

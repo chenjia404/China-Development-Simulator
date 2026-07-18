@@ -242,6 +242,22 @@ export function ensureForeignExchangeState(state: GameState): void {
     snapshot.remittanceInflows = Number.isFinite(snapshot.remittanceInflows)
       ? snapshot.remittanceInflows
       : 0;
+    snapshot.externalDebt = Number.isFinite(snapshot.externalDebt)
+      ? snapshot.externalDebt
+      : 0;
+    snapshot.externalDebtToGDP = Number.isFinite(snapshot.externalDebtToGDP)
+      ? snapshot.externalDebtToGDP
+      : 0;
+    snapshot.annualExternalDebtService = Number.isFinite(
+      snapshot.annualExternalDebtService,
+    )
+      ? snapshot.annualExternalDebtService
+      : 0;
+    snapshot.capitalGoodsImportCoverage = Number.isFinite(
+      snapshot.capitalGoodsImportCoverage,
+    )
+      ? snapshot.capitalGoodsImportCoverage
+      : 0;
   }
   for (const snapshot of state.nation.history.annual as Array<
     Partial<MonthlySnapshot>
@@ -253,6 +269,22 @@ export function ensureForeignExchangeState(state: GameState): void {
       : 0;
     snapshot.remittanceInflows = Number.isFinite(snapshot.remittanceInflows)
       ? snapshot.remittanceInflows
+      : 0;
+    snapshot.externalDebt = Number.isFinite(snapshot.externalDebt)
+      ? snapshot.externalDebt
+      : 0;
+    snapshot.externalDebtToGDP = Number.isFinite(snapshot.externalDebtToGDP)
+      ? snapshot.externalDebtToGDP
+      : 0;
+    snapshot.annualExternalDebtService = Number.isFinite(
+      snapshot.annualExternalDebtService,
+    )
+      ? snapshot.annualExternalDebtService
+      : 0;
+    snapshot.capitalGoodsImportCoverage = Number.isFinite(
+      snapshot.capitalGoodsImportCoverage,
+    )
+      ? snapshot.capitalGoodsImportCoverage
       : 0;
   }
 }

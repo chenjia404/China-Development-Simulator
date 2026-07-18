@@ -859,7 +859,7 @@ function InternationalSection({ game }: { game: GameState }) {
       <div className="detail-hero">
         <span className="eyebrow">全球比较</span>
         <h2>世界主要经济体</h2>
-        <p>外国经济体采用轻量增长模型，每月与中国同步更新。外汇与侨汇金额使用美元等值口径。</p>
+        <p>外国经济体采用轻量增长模型，每月与中国同步更新。外汇、侨汇与外债使用美元等值口径；资本品用汇不足会约束设备投资，外债还本付息则消耗外汇储备。</p>
       </div>
       <div className="diplomacy-metrics foreign-exchange-metrics">
         <MetricCard
@@ -887,6 +887,24 @@ function InternationalSection({ game }: { game: GameState }) {
           tone={trade.importCoverageMonths >= 6 ? "green" : "red"}
         />
         <MetricCard
+          label="外债余额"
+          value={`$${formatLarge(trade.externalDebt)}`}
+          detail={`负债率 ${formatPercent(trade.externalDebtToGDP, 3)} · 利率 ${formatPercent(trade.externalDebtInterestRate, 1)}`}
+          tone={trade.externalDebtToGDP <= 0.2 ? "gold" : "red"}
+        />
+        <MetricCard
+          label="年度外债偿付"
+          value={`$${formatLarge(trade.annualExternalDebtService)}`}
+          detail={`偿债率 ${formatPercent(trade.externalDebtServiceRatio, 3)} · 本月新增 $${formatLarge(trade.monthlyExternalBorrowing)}`}
+          tone={trade.externalDebtServiceRatio <= 0.2 ? "blue" : "red"}
+        />
+        <MetricCard
+          label="资本品外汇满足率"
+          value={formatPercent(trade.capitalGoodsImportCoverage, 1)}
+          detail={`年度需求 $${formatLarge(trade.capitalGoodsForeignExchangeNeed)} · 进口份额 ${formatPercent(trade.capitalGoodsImportShare, 0)}`}
+          tone={trade.capitalGoodsImportCoverage >= 0.75 ? "green" : "red"}
+        />
+        <MetricCard
           label="全球人均 GDP 排名"
           value={`第 ${game.nation.economy.globalGDPPerCapitaRank} 名`}
           detail={`${game.nation.economy.globalGDPPerCapitaParticipants} 个参评经济体 · $${formatLarge(game.nation.economy.currentUSDGDPPerCapita)}`}
@@ -906,7 +924,7 @@ function InternationalSection({ game }: { game: GameState }) {
 }
 
 function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: boolean }) {
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外汇储备</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>${formatLarge(item.foreignExchangeReserves)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div></section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div></section>;
 }
 
 function SettingsSection() {
