@@ -207,20 +207,23 @@ describe("外交与国际贸易", () => {
     );
   });
 
-  it("国际组织受年份和发展条件限制，加入后提供持续收益", () => {
+  it("世界贸易组织在成立后由国际支持、开放和贸易协定共同解锁", () => {
     const tooEarly = createSimulationEngine(createInitialGameState(1949));
     expect(() =>
       tooEarly.dispatch({
         type: "JOIN_ORGANIZATION",
         organizationId: "world_trade_organization",
       }),
-    ).toThrow("2001 年");
+    ).toThrow("1995 年");
 
-    const eligible = createInitialGameState(2001, 2001);
+    const eligible = createInitialGameState(1995, 1995);
     eligible.nation.internationalInfluence = 50;
     eligible.nation.trade.openness = 0.5;
     eligible.nation.diplomacy.diplomaticPoints = 100;
-    for (const country of eligible.world.countries) country.relationWithChina = 10;
+    for (const country of eligible.world.countries) country.relationWithChina = 30;
+    for (const country of eligible.world.countries.slice(0, 3)) {
+      country.tradeAgreement = true;
+    }
     const engine = createSimulationEngine(eligible);
     engine.dispatch({
       type: "JOIN_ORGANIZATION",
@@ -231,6 +234,43 @@ describe("外交与国际贸易", () => {
       "world_trade_organization",
     );
     expect(joined.nation.diplomacy.diplomaticPoints).toBe(55);
+    expect(joined.nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "wto_accession_2001",
+      year: 1995,
+      scheduledYear: 2001,
+      outcome: "enacted_early",
+    });
+  });
+
+  it("联合国席位可在足够国家形成外交支持后提前触发", () => {
+    const insufficient = createInitialGameState(1965, 1965);
+    insufficient.nation.diplomacy.diplomaticPoints = 100;
+    const insufficientEngine = createSimulationEngine(insufficient);
+    expect(() =>
+      insufficientEngine.dispatch({
+        type: "JOIN_ORGANIZATION",
+        organizationId: "united_nations",
+      }),
+    ).toThrow("8 个国家关系达到 20");
+
+    const eligible = createInitialGameState(1965, 1965);
+    eligible.nation.diplomacy.diplomaticPoints = 100;
+    for (const country of eligible.world.countries) country.relationWithChina = 25;
+    const engine = createSimulationEngine(eligible);
+    engine.dispatch({
+      type: "JOIN_ORGANIZATION",
+      organizationId: "united_nations",
+    });
+
+    expect(engine.getState().nation.diplomacy.organizationIds).toContain(
+      "united_nations",
+    );
+    expect(engine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "un_seat_restored_1971",
+      year: 1965,
+      scheduledYear: 1971,
+      outcome: "enacted_early",
+    });
   });
 
   it("国防投入通过安全指数和外交资源发挥作用", () => {

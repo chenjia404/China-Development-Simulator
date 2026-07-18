@@ -21,9 +21,23 @@ export interface InternationalOrganizationDefinition {
   minimumOpenness: number;
   minimumAverageRelation: number;
   minimumStrategicPartners: number;
+  supportRelationThreshold: number;
+  minimumSupportingCountries: number;
+  minimumTradeAgreements: number;
+  historicalEventId?: string;
   tradeMultiplier: number;
   monthlyPointGain: number;
   reputationBonus: number;
+}
+
+export interface InternationalOrganizationStatus {
+  definition: InternationalOrganizationDefinition;
+  joined: boolean;
+  available: boolean;
+  blockers: string[];
+  averageRelation: number;
+  supportingCountries: number;
+  tradeAgreements: number;
 }
 
 export const diplomaticActionDefinitions = diplomacyConfig.actions;
@@ -164,33 +178,11 @@ export function joinInternationalOrganization(
   organizationId: string,
 ): void {
   ensureDiplomacyState(state);
-  const organization = internationalOrganizations.find(
-    (item) => item.id === organizationId,
-  );
-  if (!organization) throw new Error(`未知国际组织：${organizationId}`);
-  if (state.nation.diplomacy.organizationIds.includes(organizationId)) {
-    throw new Error(`已经加入${organization.name}`);
-  }
-  if (state.nation.date.year < organization.availableYear) {
-    throw new Error(`${organization.name}需到 ${organization.availableYear} 年才可加入`);
-  }
-  if (state.nation.internationalInfluence < organization.minimumInfluence) {
-    throw new Error(`${organization.name}需要国际影响力达到 ${organization.minimumInfluence}`);
-  }
-  if (state.nation.trade.openness < organization.minimumOpenness) {
-    throw new Error(`${organization.name}需要开放度达到 ${Math.round(organization.minimumOpenness * 100)}%`);
-  }
-  if (averageInternationalRelation(state) < organization.minimumAverageRelation) {
-    throw new Error(`${organization.name}需要更好的总体国际关系`);
-  }
-  const strategicPartners = state.world.countries.filter(
-    (country) => country.diplomaticStatus === "strategic_partner",
-  ).length;
-  if (strategicPartners < organization.minimumStrategicPartners) {
-    throw new Error(`${organization.name}需要至少 ${organization.minimumStrategicPartners} 个战略伙伴`);
-  }
-  if (state.nation.diplomacy.diplomaticPoints < organization.cost) {
-    throw new Error(`加入${organization.name}需要 ${organization.cost} 点外交点数`);
+  const status = getInternationalOrganizationStatus(state, organizationId);
+  const { definition: organization } = status;
+  if (status.joined) throw new Error(`已经加入${organization.name}`);
+  if (!status.available) {
+    throw new Error(`加入${organization.name}的条件未满足：${status.blockers.join("；")}`);
   }
 
   state.nation.diplomacy.diplomaticPoints -= organization.cost;
@@ -200,6 +192,65 @@ export function joinInternationalOrganization(
     0,
     100,
   );
+}
+
+export function getInternationalOrganizationStatus(
+  state: GameState,
+  organizationId: string,
+): InternationalOrganizationStatus {
+  const organization = internationalOrganizations.find(
+    (item) => item.id === organizationId,
+  );
+  if (!organization) throw new Error(`未知国际组织：${organizationId}`);
+  const averageRelation = averageInternationalRelation(state);
+  const supportingCountries = state.world.countries.filter(
+    (country) =>
+      country.diplomaticStatus !== "sanctioned" &&
+      country.relationWithChina >= organization.supportRelationThreshold,
+  ).length;
+  const tradeAgreements = state.world.countries.filter(
+    (country) => country.tradeAgreement,
+  ).length;
+  const strategicPartners = state.world.countries.filter(
+    (country) => country.diplomaticStatus === "strategic_partner",
+  ).length;
+  const blockers: string[] = [];
+  if (state.nation.date.year < organization.availableYear) {
+    blockers.push(`最早可在 ${organization.availableYear} 年申请`);
+  }
+  if (state.nation.internationalInfluence < organization.minimumInfluence) {
+    blockers.push(`国际影响力需达到 ${organization.minimumInfluence}`);
+  }
+  if (state.nation.trade.openness < organization.minimumOpenness) {
+    blockers.push(`开放度需达到 ${Math.round(organization.minimumOpenness * 100)}%`);
+  }
+  if (averageRelation < organization.minimumAverageRelation) {
+    blockers.push(`平均国际关系需达到 ${organization.minimumAverageRelation}`);
+  }
+  if (supportingCountries < organization.minimumSupportingCountries) {
+    blockers.push(
+      `需至少 ${organization.minimumSupportingCountries} 个国家关系达到 ${organization.supportRelationThreshold}`,
+    );
+  }
+  if (tradeAgreements < organization.minimumTradeAgreements) {
+    blockers.push(`需至少签署 ${organization.minimumTradeAgreements} 项贸易协定`);
+  }
+  if (strategicPartners < organization.minimumStrategicPartners) {
+    blockers.push(`需至少拥有 ${organization.minimumStrategicPartners} 个战略伙伴`);
+  }
+  if (state.nation.diplomacy.diplomaticPoints < organization.cost) {
+    blockers.push(`需要 ${organization.cost} 点外交点数`);
+  }
+  const joined = state.nation.diplomacy.organizationIds.includes(organizationId);
+  return {
+    definition: organization,
+    joined,
+    available: !joined && blockers.length === 0,
+    blockers,
+    averageRelation,
+    supportingCountries,
+    tradeAgreements,
+  };
 }
 
 export function organizationTradeMultiplier(state: GameState): number {

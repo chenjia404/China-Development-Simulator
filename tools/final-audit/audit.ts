@@ -223,6 +223,36 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const earlyRecords = initiativeEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "enacted_early");
 
+  const unSupportState = createInitialGameState(seed, 1965);
+  unSupportState.nation.diplomacy.diplomaticPoints = 100;
+  for (const country of unSupportState.world.countries) {
+    country.relationWithChina = 25;
+  }
+  const unSupportEngine = createSimulationEngine(unSupportState);
+  unSupportEngine.dispatch({
+    type: "JOIN_ORGANIZATION",
+    organizationId: "united_nations",
+  });
+  const wtoSupportState = createInitialGameState(seed, 1995);
+  wtoSupportState.nation.internationalInfluence = 50;
+  wtoSupportState.nation.trade.openness = 0.5;
+  wtoSupportState.nation.diplomacy.diplomaticPoints = 100;
+  for (const country of wtoSupportState.world.countries) {
+    country.relationWithChina = 30;
+  }
+  for (const country of wtoSupportState.world.countries.slice(0, 3)) {
+    country.tradeAgreement = true;
+  }
+  const wtoSupportEngine = createSimulationEngine(wtoSupportState);
+  wtoSupportEngine.dispatch({
+    type: "JOIN_ORGANIZATION",
+    organizationId: "world_trade_organization",
+  });
+  const supportTriggeredRecords = [
+    unSupportEngine.getState().nation.history.historicalEvents.at(-1),
+    wtoSupportEngine.getState().nation.history.historicalEvents.at(-1),
+  ];
+
   const policyEngine = createSimulationEngine(createInitialGameState(seed));
   policyEngine.dispatch({ type: "SET_POLICIES", policyIds: ["technology_priority"] });
   policyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
@@ -383,6 +413,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         ),
       earlyRecords.map((record) =>
         `${record.name}提前至${record.year}年（史实${record.scheduledYear}年）`
+      ).join("；"),
+    ),
+    makeCheck(
+      "relationship-triggered-organizations",
+      "联合国席位和世界贸易组织可由足够的国际关系支持提前触发",
+      unSupportEngine.getState().nation.diplomacy.organizationIds.includes(
+        "united_nations",
+      ) &&
+        wtoSupportEngine.getState().nation.diplomacy.organizationIds.includes(
+          "world_trade_organization",
+        ) &&
+        supportTriggeredRecords.every(
+          (record) => record?.outcome === "enacted_early" &&
+            record.year < record.scheduledYear,
+        ),
+      supportTriggeredRecords.map((record) =>
+        `${record?.name ?? "未知"}于${record?.year ?? "未知"}年提前触发`
       ).join("；"),
     ),
     makeCheck(
