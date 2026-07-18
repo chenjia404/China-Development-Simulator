@@ -82,6 +82,7 @@ async function main(): Promise<void> {
       realGDP: nation.economy.realGDP,
       realGDPPerCapita: nation.economy.realGDPPerCapita,
       currentPriceGDPPerCapita: nation.economy.currentPriceGDPPerCapita,
+      currentUSDGDPPerCapita: nation.economy.currentUSDGDPPerCapita,
       inflationRate: nation.economy.inflationRate,
       debtToGDP: nation.fiscal.debtToGDP,
       educationIndex: nation.education.index,
@@ -89,6 +90,9 @@ async function main(): Promise<void> {
       lifeExpectancy: nation.health.lifeExpectancy,
       happinessIndex: nation.society.happinessIndex,
       gdpRank: nation.history.annual.at(-1)?.gdpRank,
+      gdpPerCapitaRank: nation.history.annual.at(-1)?.gdpPerCapitaRank,
+      gdpPerCapitaRankParticipants:
+        nation.history.annual.at(-1)?.gdpPerCapitaRankParticipants,
       score: nation.history.annual.at(-1)?.score,
     };
   });

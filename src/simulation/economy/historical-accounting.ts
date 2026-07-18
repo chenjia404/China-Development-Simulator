@@ -6,10 +6,26 @@ interface ConversionAnchor {
   factor: number;
 }
 
+interface GlobalRankAnchor {
+  year: number;
+  referenceUSD: number;
+  rank: number;
+  participants: number;
+}
+
+export interface GlobalGDPPerCapitaStanding {
+  rank: number;
+  participants: number;
+}
+
 const currentPriceAnchors =
   historicalEconomicAnchors.currentPriceGDPPerCapitaFactors as ConversionAnchor[];
+const currentUSDAnchors =
+  historicalEconomicAnchors.currentUSDGDPPerCapitaFactors as ConversionAnchor[];
 const worldComparisonAnchors =
   historicalEconomicAnchors.worldGDPComparisonFactors as ConversionAnchor[];
+const globalRankAnchors =
+  historicalEconomicAnchors.globalGDPPerCapitaRankAnchors as GlobalRankAnchor[];
 
 function interpolateFactor(anchors: ConversionAnchor[], year: number): number {
   const sorted = anchors.toSorted((left, right) => left.year - right.year);
@@ -37,6 +53,62 @@ export function calculateCurrentPriceGDPPerCapita(
   );
 }
 
+export function calculateCurrentUSDGDPPerCapita(
+  realGDPPerCapita: number,
+  year: number,
+): number {
+  return Math.max(0, realGDPPerCapita) * interpolateFactor(
+    currentUSDAnchors,
+    year,
+  );
+}
+
+function interpolateGlobalRankAnchor(year: number): GlobalRankAnchor {
+  const sorted = globalRankAnchors.toSorted((left, right) => left.year - right.year);
+  const first = sorted[0];
+  const last = sorted.at(-1);
+  if (!first || !last) throw new Error("全球人均 GDP 排名锚点不能为空");
+  if (year <= first.year) return first;
+  if (year >= last.year) return last;
+
+  const upperIndex = sorted.findIndex((anchor) => anchor.year >= year);
+  const lower = sorted[upperIndex - 1];
+  const upper = sorted[upperIndex];
+  if (!lower || !upper) return first;
+  const progress = (year - lower.year) / (upper.year - lower.year);
+  return {
+    year,
+    referenceUSD: lower.referenceUSD +
+      (upper.referenceUSD - lower.referenceUSD) * progress,
+    rank: lower.rank + (upper.rank - lower.rank) * progress,
+    participants: lower.participants +
+      (upper.participants - lower.participants) * progress,
+  };
+}
+
+/**
+ * 用公开排名锚点恢复完整全球口径，并让非史实路线按收入偏离连续移动。
+ * 轻量世界系统只模拟主要经济体，不能直接代表全部参评国家和地区。
+ */
+export function calculateGlobalGDPPerCapitaStanding(
+  currentUSDGDPPerCapita: number,
+  year: number,
+): GlobalGDPPerCapitaStanding {
+  const anchor = interpolateGlobalRankAnchor(year);
+  const participants = Math.max(1, Math.round(anchor.participants));
+  const relativeIncome = Math.max(currentUSDGDPPerCapita, 1) /
+    Math.max(anchor.referenceUSD, 1);
+  const rankAdjustment = Math.log2(relativeIncome) *
+    historicalEconomicAnchors.rankSensitivityPerIncomeDoubling;
+  return {
+    rank: Math.min(
+      participants,
+      Math.max(1, Math.round(anchor.rank - rankAdjustment)),
+    ),
+    participants,
+  };
+}
+
 /** 将中国游戏内不变价 GDP 折算到与世界轻量模型一致的比较尺度。 */
 export function calculateWorldComparableGDP(
   realGDP: number,
@@ -56,6 +128,25 @@ export function ensureHistoricalAccountingState(state: GameState): void {
           nation.economy.realGDPPerCapita,
           nation.date.year,
         );
+  nation.economy.currentUSDGDPPerCapita =
+    Number.isFinite(nation.economy.currentUSDGDPPerCapita)
+      ? nation.economy.currentUSDGDPPerCapita
+      : calculateCurrentUSDGDPPerCapita(
+          nation.economy.realGDPPerCapita,
+          nation.date.year,
+        );
+  const currentStanding = calculateGlobalGDPPerCapitaStanding(
+    nation.economy.currentUSDGDPPerCapita,
+    nation.date.year,
+  );
+  nation.economy.globalGDPPerCapitaRank =
+    Number.isFinite(nation.economy.globalGDPPerCapitaRank)
+      ? nation.economy.globalGDPPerCapitaRank
+      : currentStanding.rank;
+  nation.economy.globalGDPPerCapitaParticipants =
+    Number.isFinite(nation.economy.globalGDPPerCapitaParticipants)
+      ? nation.economy.globalGDPPerCapitaParticipants
+      : currentStanding.participants;
   for (const snapshot of nation.history.annual) {
     snapshot.currentPriceGDPPerCapita =
       Number.isFinite(snapshot.currentPriceGDPPerCapita)
@@ -64,6 +155,25 @@ export function ensureHistoricalAccountingState(state: GameState): void {
             snapshot.realGDPPerCapita,
             snapshot.year,
           );
+    snapshot.currentUSDGDPPerCapita =
+      Number.isFinite(snapshot.currentUSDGDPPerCapita)
+        ? snapshot.currentUSDGDPPerCapita
+        : calculateCurrentUSDGDPPerCapita(
+            snapshot.realGDPPerCapita,
+            snapshot.year,
+          );
+    const snapshotStanding = calculateGlobalGDPPerCapitaStanding(
+      snapshot.currentUSDGDPPerCapita,
+      snapshot.year,
+    );
+    snapshot.gdpPerCapitaRank = Number.isFinite(snapshot.gdpPerCapitaRank)
+      ? snapshot.gdpPerCapitaRank
+      : snapshotStanding.rank;
+    snapshot.gdpPerCapitaRankParticipants = Number.isFinite(
+      snapshot.gdpPerCapitaRankParticipants,
+    )
+      ? snapshot.gdpPerCapitaRankParticipants
+      : snapshotStanding.participants;
   }
   nation.economy.internationalComparableGDP =
     Number.isFinite(nation.economy.internationalComparableGDP)

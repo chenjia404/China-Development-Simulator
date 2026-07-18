@@ -1,6 +1,9 @@
 import { clamp, safeDivide } from "../core/math";
 import type { GameState } from "../state/game-state";
-import { calculateWorldComparableGDP } from "../economy/historical-accounting";
+import {
+  calculateGlobalGDPPerCapitaStanding,
+  calculateWorldComparableGDP,
+} from "../economy/historical-accounting";
 
 export function calculateRank<T extends { id: string }>(
   countries: T[],
@@ -30,6 +33,13 @@ interface RankingCountry {
 }
 
 export function calculateWorldRankings(state: GameState): void {
+  const globalStanding = calculateGlobalGDPPerCapitaStanding(
+    state.nation.economy.currentUSDGDPPerCapita,
+    state.nation.date.year,
+  );
+  state.nation.economy.globalGDPPerCapitaRank = globalStanding.rank;
+  state.nation.economy.globalGDPPerCapitaParticipants =
+    globalStanding.participants;
   const chinaComparableGDP = calculateWorldComparableGDP(
     state.nation.economy.realGDP,
     state.world.worldPriceLevel,

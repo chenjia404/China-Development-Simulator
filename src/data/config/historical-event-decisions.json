@@ -110,8 +110,16 @@
         "name": "不发动大跃进",
         "description": "否决脱离资源约束的高指标运动，保持正常计划、统计和农业生产秩序。大跃进本身不会发生，并将降低后续三年经济困难的政策性冲击。",
         "effects": ["避免高指标运动", "保护农业和投资效率", "后续粮食危机风险下降"],
-        "durationMonths": 1,
-        "modifiers": [],
+        "durationMonths": 252,
+        "modifiers": [
+          { "target": "sector.primary.output", "operation": "multiply", "value": 1.12 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.12 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.1 },
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.04 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.08 },
+          { "target": "education.efficiency", "operation": "multiply", "value": 1.05 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.1 }
+        ],
         "outcome": "prevented"
       },
       {
@@ -138,8 +146,13 @@
         "name": "不推动人民公社化",
         "description": "保留农业合作组织但不实行高度集中的生产与分配制度，维持基层统计、家庭生活和劳动激励。",
         "effects": ["人民公社化不会发生", "农业激励得到保留", "后续粮食危机风险下降"],
-        "durationMonths": 1,
-        "modifiers": [],
+        "durationMonths": 252,
+        "modifiers": [
+          { "target": "sector.primary.output", "operation": "multiply", "value": 1.12 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.08 },
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.05 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.05 }
+        ],
         "outcome": "prevented"
       },
       {

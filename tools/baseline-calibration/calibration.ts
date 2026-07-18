@@ -5,7 +5,9 @@ export type CalibrationMetric =
   | "population"
   | "realGDP"
   | "currentPriceGDPPerCapita"
+  | "currentUSDGDPPerCapita"
   | "gdpRank"
+  | "gdpPerCapitaRank"
   | "urbanizationRate"
   | "lifeExpectancy"
   | "literacyRate"
@@ -18,7 +20,9 @@ interface CalibrationTarget {
   population: number;
   realGDP: number;
   currentPriceGDPPerCapita?: number;
+  currentUSDGDPPerCapita?: number;
   gdpRank?: number;
+  gdpPerCapitaRank?: number;
   urbanizationRate: number;
   lifeExpectancy: number;
   literacyRate: number;
@@ -48,7 +52,9 @@ const metrics: CalibrationMetric[] = [
   "population",
   "realGDP",
   "currentPriceGDPPerCapita",
+  "currentUSDGDPPerCapita",
   "gdpRank",
+  "gdpPerCapitaRank",
   "urbanizationRate",
   "lifeExpectancy",
   "literacyRate",

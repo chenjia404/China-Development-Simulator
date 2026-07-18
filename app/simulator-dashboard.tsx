@@ -190,11 +190,11 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
     <>
       <div className="metrics-grid">
         <MetricCard label="实际 GDP" value={formatLarge(nation.economy.realGDP)} detail={`同比 ${formatPercent(growth)}`} />
-        <MetricCard label="人均 GDP（当年价）" value={`${formatLarge(nation.economy.currentPriceGDPPerCapita)} 元`} detail={`游戏内不变价 ${formatLarge(nation.economy.realGDPPerCapita)}`} tone="gold" />
+        <MetricCard label="人均 GDP（现价美元）" value={`$${formatLarge(nation.economy.currentUSDGDPPerCapita)}`} detail={`当年价 ${formatLarge(nation.economy.currentPriceGDPPerCapita)} 元`} tone="gold" />
         <MetricCard label="总人口" value={formatLarge(nation.population.total)} detail={`城市化 ${formatPercent(nation.society.urbanizationRate)}`} tone="red" />
         <MetricCard label="财政余额" value={formatLarge(nation.fiscal.balance)} detail={`债务率 ${formatPercent(nation.fiscal.debtToGDP)}`} tone={nation.fiscal.balance >= 0 ? "green" : "red"} />
         <MetricCard label="科技指数" value={nation.technology.index.toFixed(1)} detail={`采用率 ${formatPercent(nation.technology.adoptionRate)}`} tone="blue" />
-        <MetricCard label="世界经济排名" value={`GDP 第 ${game.world.rankings.nominalGDP.china ?? "—"} 名`} detail={`人均 GDP 第 ${game.world.rankings.nominalGDPPerCapita.china ?? "—"} 名 · 综合评分 ${lastAnnual?.score.toFixed(1) ?? "—"}`} tone="green" />
+        <MetricCard label="世界经济排名" value={`GDP 第 ${game.world.rankings.nominalGDP.china ?? "—"} 名`} detail={`全球人均第 ${nation.economy.globalGDPPerCapitaRank}/${nation.economy.globalGDPPerCapitaParticipants} · 评分 ${lastAnnual?.score.toFixed(1) ?? "—"}`} tone="green" />
       </div>
       <div className="dashboard-grid">
         <section className="panel chart-panel">
@@ -820,9 +820,15 @@ function InternationalSection({ game }: { game: GameState }) {
           detail={trade.importCoverageMonths >= 6 ? "外汇缓冲较充足" : "必要进口承压"}
           tone={trade.importCoverageMonths >= 6 ? "green" : "red"}
         />
+        <MetricCard
+          label="全球人均 GDP 排名"
+          value={`第 ${game.nation.economy.globalGDPPerCapitaRank} 名`}
+          detail={`${game.nation.economy.globalGDPPerCapitaParticipants} 个参评经济体 · $${formatLarge(game.nation.economy.currentUSDGDPPerCapita)}`}
+          tone="gold"
+        />
       </div>
       <div className="world-table">
-        <div className="world-head"><span>排名</span><span>国家</span><span>名义 GDP</span><span>人均 GDP</span><span>科技</span></div>
+        <div className="world-head"><span>主要经济体排名</span><span>国家</span><span>名义 GDP</span><span>人均 GDP</span><span>科技</span></div>
         {countries.map((country, index) => (
           <div className={country.id === "china" ? "world-row is-china" : "world-row"} key={country.id}>
             <span>{index + 1}</span><strong>{country.name}</strong><span>{formatLarge(country.nominalGDP)}</span><span>{formatLarge(country.nominalGDP / country.population)}</span><span>{country.technology.toFixed(1)}</span>
@@ -834,7 +840,7 @@ function InternationalSection({ game }: { game: GameState }) {
 }
 
 function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: boolean }) {
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>当年价人均 GDP</span><span>人口</span><span>科技</span><span>外汇储备</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>${formatLarge(item.foreignExchangeReserves)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>第 {item.gdpRank} 名</span></div>)}</div></section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外汇储备</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>${formatLarge(item.foreignExchangeReserves)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div></section>;
 }
 
 function SettingsSection() {

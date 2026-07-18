@@ -42,6 +42,9 @@ export interface EconomyState {
   nominalGDPPerCapita: number;
   realGDPPerCapita: number;
   currentPriceGDPPerCapita: number;
+  currentUSDGDPPerCapita: number;
+  globalGDPPerCapitaRank: number;
+  globalGDPPerCapitaParticipants: number;
   internationalComparableGDP: number;
   pppGDPPerCapita: number;
   annualRealGDPGrowth: number;

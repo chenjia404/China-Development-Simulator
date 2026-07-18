@@ -71,6 +71,10 @@ export function recordHistory(state: GameState): void {
     ...monthly,
     realGDPPerCapita: nation.economy.realGDPPerCapita,
     currentPriceGDPPerCapita: nation.economy.currentPriceGDPPerCapita,
+    currentUSDGDPPerCapita: nation.economy.currentUSDGDPPerCapita,
+    gdpPerCapitaRank: nation.economy.globalGDPPerCapitaRank,
+    gdpPerCapitaRankParticipants:
+      nation.economy.globalGDPPerCapitaParticipants,
     fiscalBalance: nation.fiscal.balance,
     debtToGDP: nation.fiscal.debtToGDP,
     educationIndex: nation.education.index,

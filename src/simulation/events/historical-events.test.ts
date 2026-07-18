@@ -251,12 +251,15 @@ describe("确定性历史事件", () => {
       id: "great_leap_forward_1958",
       choiceId: "avoid_great_leap",
       outcome: "prevented",
+      durationMonths: 252,
     });
     expect(
-      engine.getState().nation.modifiers.some(
-        (modifier) => modifier.sourceId === "great_leap_forward_1958",
+      applyModifiers(
+        engine.getState().nation,
+        "sector.primary.output",
+        100,
       ),
-    ).toBe(false);
+    ).toBeCloseTo(112);
   });
 
   it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {

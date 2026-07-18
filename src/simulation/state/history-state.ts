@@ -13,6 +13,9 @@ export interface MonthlySnapshot {
 export interface AnnualSnapshot extends MonthlySnapshot {
   realGDPPerCapita: number;
   currentPriceGDPPerCapita: number;
+  currentUSDGDPPerCapita: number;
+  gdpPerCapitaRank: number;
+  gdpPerCapitaRankParticipants: number;
   fiscalBalance: number;
   debtToGDP: number;
   educationIndex: number;

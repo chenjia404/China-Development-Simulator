@@ -136,9 +136,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const historicalRecords = historical.finalState.nation.history.historicalEvents;
   const historicalRecordIds = new Set(historicalRecords.map((event) => event.id));
   const historicalMilestoneTargets = new Map([
-    [1978, { currentPriceGDPPerCapita: 381, gdpRank: 10 }],
-    [1990, { currentPriceGDPPerCapita: 1644, gdpRank: 11 }],
-    [2000, { currentPriceGDPPerCapita: 7858, gdpRank: 6 }],
+    [1978, { currentPriceGDPPerCapita: 381, currentUSDGDPPerCapita: 156.7, gdpRank: 10, gdpPerCapitaRank: 134, participants: 146 }],
+    [1990, { currentPriceGDPPerCapita: 1644, currentUSDGDPPerCapita: 318.5, gdpRank: 11, gdpPerCapitaRank: null, participants: null }],
+    [2000, { currentPriceGDPPerCapita: 7858, currentUSDGDPPerCapita: 969.2, gdpRank: 6, gdpPerCapitaRank: 135, participants: null }],
   ]);
   const historicalMilestones = historical.annual.filter((snapshot) =>
     historicalMilestoneTargets.has(snapshot.year),
@@ -185,6 +185,46 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   );
   const preventedEvents = causalEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "prevented");
+
+  const preGreatLeapState = runSimulation({
+    strategy: "historical",
+    seed,
+    startYear: 1949,
+    endYear: 1957,
+  }).finalState;
+  const runGreatLeapRoute = (
+    greatLeapChoiceId: string,
+    communesChoiceId: string,
+  ) => {
+    const engine = createSimulationEngine(preGreatLeapState);
+    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "great_leap_forward_1958",
+      choiceId: greatLeapChoiceId,
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "peoples_communes_1958",
+      choiceId: communesChoiceId,
+    });
+    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 245 });
+    return engine.getState().nation.history.annual.find(
+      (snapshot) => snapshot.year === 1978,
+    )!;
+  };
+  const strictHistorical1978 = runGreatLeapRoute(
+    "historical_path",
+    "historical_path",
+  );
+  const avoidedCampaigns1978 = runGreatLeapRoute(
+    "avoid_great_leap",
+    "avoid_communes",
+  );
 
   const runCrisisChoice = (choiceId: string) => {
     const engine = createSimulationEngine(
@@ -494,7 +534,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "historical-economic-milestones",
-      "1978、1990、2000 年人均 GDP 与世界位次符合史实锚点",
+      "1978、1990、2000 年人民币、美元人均 GDP 与两类世界位次符合史实锚点",
       historicalMilestones.length === historicalMilestoneTargets.size &&
         historicalMilestones.every((snapshot) => {
           const target = historicalMilestoneTargets.get(snapshot.year);
@@ -503,11 +543,30 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
             snapshot.currentPriceGDPPerCapita -
               target.currentPriceGDPPerCapita,
           ) / target.currentPriceGDPPerCapita <= 0.03 &&
-          snapshot.gdpRank === target.gdpRank;
+          Math.abs(
+            snapshot.currentUSDGDPPerCapita -
+              target.currentUSDGDPPerCapita,
+          ) / target.currentUSDGDPPerCapita <= 0.03 &&
+          snapshot.gdpRank === target.gdpRank &&
+          (target.gdpPerCapitaRank === null ||
+            snapshot.gdpPerCapitaRank === target.gdpPerCapitaRank) &&
+          (target.participants === null ||
+            snapshot.gdpPerCapitaRankParticipants === target.participants);
         }),
       historicalMilestones.map((snapshot) =>
-        `${snapshot.year} 年 ${snapshot.currentPriceGDPPerCapita.toFixed(0)} 元、第 ${snapshot.gdpRank} 名`
+        `${snapshot.year} 年 ${snapshot.currentPriceGDPPerCapita.toFixed(0)} 元/$${snapshot.currentUSDGDPPerCapita.toFixed(1)}，总量第 ${snapshot.gdpRank} 名、人均第 ${snapshot.gdpPerCapitaRank}/${snapshot.gdpPerCapitaRankParticipants}`
       ).join("；"),
+    ),
+    makeCheck(
+      "historical-event-income-impact",
+      "大跃进与人民公社史实选择会压低 1978 年人均产出和全球排名",
+      avoidedCampaigns1978.realGDPPerCapita >
+          strictHistorical1978.realGDPPerCapita &&
+        avoidedCampaigns1978.currentUSDGDPPerCapita >
+          strictHistorical1978.currentUSDGDPPerCapita &&
+        avoidedCampaigns1978.gdpPerCapitaRank <
+          strictHistorical1978.gdpPerCapitaRank,
+      `史实/避免路线：1978 年人均 GDP $${strictHistorical1978.currentUSDGDPPerCapita.toFixed(1)}/$${avoidedCampaigns1978.currentUSDGDPPerCapita.toFixed(1)}，全球第 ${strictHistorical1978.gdpPerCapitaRank}/${avoidedCampaigns1978.gdpPerCapitaRank} 名`,
     ),
     makeCheck(
       "historical-causality",
@@ -516,8 +575,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         causalEngine.getState().nation.pendingHistoricalEventId ===
           "three_year_difficulties_1959" &&
         causalChoices[0]?.durationMonths === 24 &&
-        !causalEngine.getState().nation.modifiers.some(
-          (modifier) => modifier.sourceId === "great_leap_forward_1958",
+        causalEngine.getState().nation.modifiers.some(
+          (modifier) =>
+            modifier.sourceId === "great_leap_forward_1958" &&
+            modifier.target === "sector.primary.output" &&
+            modifier.operation === "multiply" &&
+            modifier.value > 1,
         ),
       `已避免 ${preventedEvents.map((event) => event.name).join("、")}，三年经济困难由 36 个月降至 ${causalChoices[0]?.durationMonths ?? "未知"} 个月`,
     ),
