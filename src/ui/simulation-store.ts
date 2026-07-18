@@ -24,6 +24,7 @@ export type SectionId =
   | "infrastructure"
   | "policies"
   | "diplomacy"
+  | "history"
   | "international"
   | "statistics"
   | "settings";

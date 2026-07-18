@@ -4,6 +4,7 @@ import {
   calculateTradeAccess,
   createSimulationEngine,
   createInitialGameState,
+  historicalEventDefinitions,
   deserializeGameState,
   serializeGameState,
 } from "../../src/simulation/index";
@@ -126,6 +127,8 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const historicalAcceleration = historical1990.realGDP / historical1970.realGDP;
   const distinctRanks = new Set(historical.annual.map((snapshot) => snapshot.gdpRank));
   const distinctGDP = new Set(summaries.map((item) => Math.round(item.finalGDP / 1_000_000_000)));
+  const historicalRecords = historical.finalState.nation.history.historicalEvents;
+  const historicalRecordIds = new Set(historicalRecords.map((event) => event.id));
 
   const policyEngine = createSimulationEngine(createInitialGameState(seed));
   policyEngine.dispatch({ type: "SET_POLICIES", policyIds: ["technology_priority"] });
@@ -199,6 +202,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "协定和制裁对国际贸易形成双向反馈",
       agreementAccess > neutralAccess && sanctionedAccess < neutralAccess,
       `中性 ${neutralAccess.toFixed(3)}，贸易协定 ${agreementAccess.toFixed(3)}，制裁 ${sanctionedAccess.toFixed(3)}`,
+    ),
+    makeCheck(
+      "historical-timeline",
+      "详细历史事件按年月唯一触发并进入年表",
+      historicalRecords.length === historicalEventDefinitions.length &&
+        historicalRecordIds.size === historicalRecords.length &&
+        historicalRecordIds.has("foreign_assets_reorganization") &&
+        historicalRecordIds.has("industry_wide_joint_ownership_1956"),
+      `${historicalRecords.length}/${historicalEventDefinitions.length} 个事件已记录，包含外资清理与全行业公私合营`,
     ),
     makeCheck(
       "industrial-tradeoff",

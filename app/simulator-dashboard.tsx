@@ -12,6 +12,7 @@ import {
   averageInternationalRelation,
   diplomaticActionDefinitions,
   internationalOrganizations,
+  historicalEventDefinitions,
   maximumActivePolicies,
   nationalPolicyDefinitions,
 } from "@/src/simulation";
@@ -32,6 +33,7 @@ const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "infrastructure", label: "基础设施", mark: "基" },
   { id: "policies", label: "国策中心", mark: "策" },
   { id: "diplomacy", label: "外交事务", mark: "外" },
+  { id: "history", label: "历史事件", mark: "史" },
   { id: "international", label: "国际", mark: "世" },
   { id: "statistics", label: "统计", mark: "统" },
   { id: "settings", label: "设置", mark: "设" },
@@ -217,7 +219,7 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
 
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
-  const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
+  const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
     fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)}`]],
@@ -409,6 +411,88 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   );
 }
 
+const historicalImpactLabels = {
+  positive: "积极影响",
+  negative: "负面冲击",
+  mixed: "双向影响",
+} as const;
+
+function formatEventDuration(months: number): string {
+  if (months < 12) return `${months} 个月`;
+  const years = Math.floor(months / 12);
+  const remainingMonths = months % 12;
+  return remainingMonths === 0
+    ? `${years} 年`
+    : `${years} 年 ${remainingMonths} 个月`;
+}
+
+function HistoricalEventsSection({ game }: { game: GameState }) {
+  const [category, setCategory] = useState("全部");
+  const sortedEvents = useMemo(
+    () => [...historicalEventDefinitions].sort(
+      (first, second) => first.year - second.year || first.month - second.month,
+    ),
+    [],
+  );
+  const categories = useMemo(
+    () => ["全部", ...new Set(sortedEvents.map((event) => event.category))],
+    [sortedEvents],
+  );
+  const occurredIds = new Set(
+    game.nation.history.historicalEvents.map((event) => event.id),
+  );
+  const activeIds = new Set(game.nation.modifiers.map((modifier) => modifier.sourceId));
+  const currentSerial = game.nation.date.year * 12 + game.nation.date.month;
+  const visibleEvents = category === "全部"
+    ? sortedEvents
+    : sortedEvents.filter((event) => event.category === category);
+  const nextEvent = sortedEvents.find((event) =>
+    !occurredIds.has(event.id) && event.year * 12 + event.month >= currentSerial,
+  );
+
+  return (
+    <section className="panel detail-page history-events-page">
+      <div className="detail-hero history-events-hero">
+        <span className="eyebrow">1949—2026 历史脉络</span>
+        <h2>历史事件时间线</h2>
+        <p>事件按真实年月确定触发，通过产业、人口、财政、教育、科研、外交与贸易等中间变量持续生效。相同存档与决策下，触发顺序完全确定。</p>
+        <div className="history-event-summary">
+          <div><strong>{occurredIds.size}</strong><span>已发生</span></div>
+          <div><strong>{historicalEventDefinitions.length}</strong><span>事件总数</span></div>
+          <div><strong>{activeIds.size}</strong><span>当前修正器</span></div>
+        </div>
+      </div>
+      <div className="history-event-toolbar">
+        <label>事件类别<select value={category} onChange={(event) => setCategory(event.target.value)}>{categories.map((item) => <option value={item} key={item}>{item}</option>)}</select></label>
+        <div className="next-event"><span>下一事件</span><strong>{nextEvent ? `${nextEvent.year} 年 ${nextEvent.month} 月 · ${nextEvent.name}` : "时间线已完成"}</strong></div>
+      </div>
+      <div className="historical-timeline">
+        {visibleEvents.map((event) => {
+          const occurred = occurredIds.has(event.id);
+          const active = activeIds.has(event.id);
+          const isPast = event.year * 12 + event.month < currentSerial;
+          const status = active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
+          return (
+            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""}`} key={event.id}>
+              <div className="timeline-date"><strong>{event.year}</strong><span>{event.month} 月</span><i /></div>
+              <div className="historical-event-card">
+                <div className="historical-event-head">
+                  <div><span className="event-category">{event.category}</span><span className={`event-impact ${event.impact}`}>{historicalImpactLabels[event.impact]}</span></div>
+                  <span className={active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
+                </div>
+                <h3>{event.name}</h3>
+                <p>{event.description}</p>
+                <div className="event-effects">{event.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+                <div className="event-duration">影响持续：{formatEventDuration(event.durationMonths)} · 通过 {event.modifiers.length} 个模型变量传导</div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function InternationalSection({ game }: { game: GameState }) {
   const countries = [
     { id: "china", name: "中国", nominalGDP: game.nation.economy.nominalGDP, population: game.nation.population.total, technology: game.nation.technology.index },
@@ -486,10 +570,11 @@ export function SimulatorDashboard() {
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
           {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
+          {activeSection === "history" ? <HistoricalEventsSection game={game} /> : null}
           {activeSection === "international" ? <InternationalSection game={game} /> : null}
           {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
           {activeSection === "settings" ? <SettingsSection /> : null}
-          {!(["nation", "policies", "diplomacy", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+          {!(["nation", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
     </main>
