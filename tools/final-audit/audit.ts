@@ -1439,6 +1439,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年出口 HHI ${historical.finalState.world.tradeNetwork.exportConcentrationIndex.toFixed(3)}、进口 HHI ${historical.finalState.world.tradeNetwork.importConcentrationIndex.toFixed(3)}、航运风险 ${(historical.finalState.world.tradeNetwork.averageShippingRisk * 100).toFixed(1)}%、人民币结算 ${(historical.finalState.world.tradeNetwork.renminbiSettlementShare * 100).toFixed(1)}%`,
     ),
     makeCheck(
+      "defense-war-security",
+      "国防预算、装备库存、动员战备与战争损耗形成跨期安全账户",
+      historical.finalState.nation.securityDefense.defenseCapitalStock > 0 &&
+        historical.finalState.nation.securityDefense.readinessIndex >= 0 &&
+        historical.finalState.nation.securityDefense.readinessIndex <= 100 &&
+        historical.finalState.nation.securityDefense.cumulativeWarCost >= 0 &&
+        historical.finalState.nation.securityDefense.cumulativeConflictCasualties >= 0,
+      `2026 年国防资本 ${historical.finalState.nation.securityDefense.defenseCapitalStock.toFixed(0)}、战备 ${historical.finalState.nation.securityDefense.readinessIndex.toFixed(1)}、朝鲜战争累计月数 ${historical.finalState.nation.securityDefense.cumulativeConflictMonths}、账户伤亡 ${historical.finalState.nation.securityDefense.cumulativeConflictCasualties.toFixed(0)}`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

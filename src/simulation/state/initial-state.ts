@@ -54,6 +54,10 @@ import {
   updateRegionalEconomy,
 } from "../economy/regional-economy";
 import { updateWorldTradeNetwork } from "../economy/international-network";
+import {
+  createEmptySecurityDefenseState,
+  updateSecurityDefense,
+} from "../security/defense-security";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -331,6 +335,7 @@ export function createInitialGameState(
           : 0,
         sinoUSNormalizationDelayMonths: 0,
       },
+      securityDefense: createEmptySecurityDefenseState(),
       policies: [],
       policyProgress: {},
       projects: [],
@@ -353,5 +358,6 @@ export function createInitialGameState(
   updateFinancialSystem(state, true);
   calculateWorldRankings(state);
   updateWorldTradeNetwork(state);
+  updateSecurityDefense(state.nation, true);
   return state;
 }

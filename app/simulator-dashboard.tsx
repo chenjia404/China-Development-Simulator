@@ -591,6 +591,23 @@ function RegionalEconomyPanel({ game }: { game: GameState }) {
   </section>;
 }
 
+function SecurityDefensePanel({ game }: { game: GameState }) {
+  const state = game.nation.securityDefense;
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading"><div><span className="eyebrow">预算 · 动员 · 战备 · 战争损耗</span><h2>国防战争与国家安全</h2></div><span>{state.activeConflictId ? `冲突强度 ${formatPercent(state.conflictIntensity)}` : "当前无战争"}</span></div>
+    <div className="detail-grid">
+      <article><span>年度国防预算</span><strong>{formatLarge(state.annualDefenseBudget)}</strong><p>装备 {formatLarge(state.equipmentInvestment)} · 后勤 {formatLarge(state.logisticsExpenditure)}</p></article>
+      <article><span>现役 / 预备役</span><strong>{formatLarge(state.activePersonnel)} / {formatLarge(state.reservePersonnel)}</strong><p>人员动员规模</p></article>
+      <article><span>国防资本存量</span><strong>{formatLarge(state.defenseCapitalStock)}</strong><p>现代化率 {formatPercent(state.equipmentModernizationRate)}</p></article>
+      <article><span>综合战备</span><strong>{state.readinessIndex.toFixed(1)}</strong><p>后勤 {state.logisticsReadinessIndex.toFixed(1)} · 战略纵深 {state.strategicDepthIndex.toFixed(1)}</p></article>
+      <article><span>军品进口保障</span><strong>{formatPercent(state.militaryImportCoverage)}</strong><p>国内采购 {formatPercent(state.domesticProcurementShare)}</p></article>
+      <article><span>累计战争成本</span><strong>{formatLarge(state.cumulativeWarCost)}</strong><p>累计伤亡 {formatLarge(state.cumulativeConflictCasualties)}</p></article>
+      <article><span>民用投资机会成本</span><strong>{formatLarge(state.civilianInvestmentOpportunityCost)}</strong><p>高于基准国防占比的资源占用</p></article>
+      <article><span>外部威胁</span><strong>{state.externalThreatIndex.toFixed(1)}</strong><p>民防能力 {state.civilDefenseCapacity.toFixed(1)}</p></article>
+    </div>
+  </section>;
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -605,7 +622,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <><BudgetPanel game={game} busy={false} /><SecurityDefensePanel game={game} /></> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

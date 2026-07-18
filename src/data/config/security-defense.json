@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "description": "国防预算分配、人员动员、装备库存、战备和战争损耗参数。",
+    "sources": [
+      "https://www.gov.cn/zhengce/2021-07/27/content_5627581.htm",
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm"
+    ]
+  },
+  "budgetShares": { "personnel": 0.32, "equipment": 0.34, "logistics": 0.22, "research": 0.12 },
+  "annualCapitalDepreciationRate": 0.045,
+  "baseActivePersonnelShare": 0.009,
+  "baseReserveMultiplier": 1.8,
+  "koreanWarIntensity": 0.82,
+  "annualCasualtyRateAtFullIntensity": 0.00018,
+  "wartimeBudgetMultiplier": 1.35
+}

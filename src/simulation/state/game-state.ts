@@ -695,6 +695,35 @@ export interface DiplomacyState {
   sinoUSNormalizationDelayMonths: number;
 }
 
+/** 国防预算、军力库存、战争消耗和国家安全风险账户。 */
+export interface SecurityDefenseState {
+  annualDefenseBudget: number;
+  personnelExpenditure: number;
+  equipmentInvestment: number;
+  logisticsExpenditure: number;
+  researchExpenditure: number;
+  activePersonnel: number;
+  reservePersonnel: number;
+  defenseCapitalStock: number;
+  equipmentModernizationRate: number;
+  domesticProcurementShare: number;
+  militaryImportRequirement: number;
+  militaryImportCoverage: number;
+  readinessIndex: number;
+  logisticsReadinessIndex: number;
+  strategicDepthIndex: number;
+  civilDefenseCapacity: number;
+  externalThreatIndex: number;
+  activeConflictId: string | null;
+  conflictIntensity: number;
+  cumulativeConflictMonths: number;
+  monthlyConflictCasualties: number;
+  cumulativeConflictCasualties: number;
+  cumulativeWarCost: number;
+  civilianInvestmentOpportunityCost: number;
+  wartimeExternalDebtExposure: number;
+}
+
 export interface ModifierState {
   id: string;
   sourceId: string;
@@ -741,6 +770,7 @@ export interface NationState {
   financialSystem: FinancialSystemState;
   regionalEconomy: RegionalEconomyState;
   diplomacy: DiplomacyState;
+  securityDefense: SecurityDefenseState;
   policies: string[];
   policyProgress: Record<string, number>;
   projects: ProjectState[];

@@ -50,6 +50,10 @@ export interface MonthlySnapshot {
   exportConcentrationIndex: number;
   tradeSanctionExposure: number;
   renminbiSettlementShare: number;
+  defenseCapitalStock: number;
+  defenseReadinessIndex: number;
+  activeConflictIntensity: number;
+  cumulativeConflictCasualties: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

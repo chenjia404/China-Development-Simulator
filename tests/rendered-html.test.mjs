@@ -376,3 +376,16 @@ test("客户端展示世界贸易伙伴与国际金融网络", async () => {
   assert.match(source, /人民币结算/);
   assert.match(source, /制裁暴露/);
 });
+
+test("客户端展示国防预算、战争成本与国家安全", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /国防战争与国家安全/);
+  assert.match(source, /国防资本存量/);
+  assert.match(source, /军品进口保障/);
+  assert.match(source, /累计战争成本/);
+  assert.match(source, /民用投资机会成本/);
+});

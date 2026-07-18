@@ -202,6 +202,15 @@ export function validateGameState(state: GameState): void {
     tradeNetwork.renminbiSettlementShare < 0 ||
     tradeNetwork.renminbiSettlementShare > 1
   ) throw new Error("世界贸易与国际金融网络未守恒");
+  const defense = nation.securityDefense;
+  if (
+    defense.annualDefenseBudget < 0 ||
+    defense.defenseCapitalStock < 0 ||
+    defense.readinessIndex < 0 || defense.readinessIndex > 100 ||
+    defense.cumulativeConflictMonths < 0 ||
+    defense.cumulativeConflictCasualties < 0 ||
+    defense.cumulativeWarCost < 0
+  ) throw new Error("国防战争安全账户出现无效库存或比例");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||
