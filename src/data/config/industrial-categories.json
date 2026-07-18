@@ -7,7 +7,11 @@
     ]
   },
   "shareAdjustmentSpeed": 0.018,
-  "baselineComplexityIndex": 64,
+  "baselineComplexityIndex": 58,
+  "complexityPenaltySensitivity": 0.001,
+  "complexityOutputSensitivity": 0.011,
+  "minimumOutputMultiplier": 0.94,
+  "maximumOutputMultiplier": 1.45,
   "categories": [
     {
       "id": "mining_energy",
@@ -20,7 +24,7 @@
       "exportPropensity": 0.12,
       "requiredEducationIndex": 10,
       "requiredTechnologyIndex": 6,
-      "requiredTechnologyIds": []
+      "requiredTechnologyIds": ["coal_mining_engineering", "petrochemical_refining"]
     },
     {
       "id": "basic_materials",
@@ -33,7 +37,7 @@
       "exportPropensity": 0.24,
       "requiredEducationIndex": 15,
       "requiredTechnologyIndex": 10,
-      "requiredTechnologyIds": ["grid_electrification", "chemical_materials"]
+      "requiredTechnologyIds": ["steel_metallurgy", "cement_construction_engineering", "advanced_materials"]
     },
     {
       "id": "consumer_goods",
@@ -46,7 +50,7 @@
       "exportPropensity": 0.3,
       "requiredEducationIndex": 12,
       "requiredTechnologyIndex": 7,
-      "requiredTechnologyIds": ["basic_machine_tools"]
+      "requiredTechnologyIds": ["textile_mass_production", "modern_agronomy"]
     },
     {
       "id": "construction",
@@ -59,7 +63,7 @@
       "exportPropensity": 0.04,
       "requiredEducationIndex": 14,
       "requiredTechnologyIndex": 8,
-      "requiredTechnologyIds": ["basic_machine_tools"]
+      "requiredTechnologyIds": ["cement_construction_engineering", "basic_machine_tools"]
     },
     {
       "id": "general_machinery",
@@ -72,7 +76,7 @@
       "exportPropensity": 0.48,
       "requiredEducationIndex": 28,
       "requiredTechnologyIndex": 22,
-      "requiredTechnologyIds": ["precision_manufacturing"]
+      "requiredTechnologyIds": ["precision_manufacturing", "industrial_automation", "industrial_robots"]
     },
     {
       "id": "transport_equipment",
@@ -85,7 +89,7 @@
       "exportPropensity": 0.56,
       "requiredEducationIndex": 34,
       "requiredTechnologyIndex": 30,
-      "requiredTechnologyIds": ["precision_manufacturing", "grid_electrification"]
+      "requiredTechnologyIds": ["railway_shipbuilding", "automotive_mass_production", "aviation_engineering"]
     },
     {
       "id": "chemicals_pharmaceuticals",
@@ -98,7 +102,7 @@
       "exportPropensity": 0.44,
       "requiredEducationIndex": 32,
       "requiredTechnologyIndex": 28,
-      "requiredTechnologyIds": ["chemical_materials"]
+      "requiredTechnologyIds": ["petrochemical_refining", "pharmaceutical_synthesis", "chemical_materials"]
     },
     {
       "id": "electrical_equipment",
@@ -111,7 +115,7 @@
       "exportPropensity": 0.6,
       "requiredEducationIndex": 38,
       "requiredTechnologyIndex": 36,
-      "requiredTechnologyIds": ["grid_electrification", "electronics_engineering"]
+      "requiredTechnologyIds": ["electric_motors", "power_equipment", "renewable_energy_equipment"]
     },
     {
       "id": "electronics_communications",
@@ -124,7 +128,7 @@
       "exportPropensity": 0.82,
       "requiredEducationIndex": 48,
       "requiredTechnologyIndex": 50,
-      "requiredTechnologyIds": ["electronics_engineering", "semiconductor_manufacturing"]
+      "requiredTechnologyIds": ["electronics_engineering", "telecommunications", "semiconductor_manufacturing", "computer_architecture", "digital_networks"]
     },
     {
       "id": "precision_medical",
@@ -137,7 +141,7 @@
       "exportPropensity": 0.74,
       "requiredEducationIndex": 55,
       "requiredTechnologyIndex": 58,
-      "requiredTechnologyIds": ["precision_manufacturing", "electronics_engineering"]
+      "requiredTechnologyIds": ["instrumentation", "medical_devices", "integrated_circuit_equipment"]
     },
     {
       "id": "aerospace_advanced",
@@ -150,7 +154,7 @@
       "exportPropensity": 0.5,
       "requiredEducationIndex": 62,
       "requiredTechnologyIndex": 68,
-      "requiredTechnologyIds": ["precision_manufacturing", "electronics_engineering", "advanced_energy_systems"]
+      "requiredTechnologyIds": ["aviation_engineering", "aerospace_systems", "advanced_energy_systems"]
     }
   ]
 }

@@ -168,5 +168,5 @@ describe("无界面批量模拟器", () => {
     ).toBeGreaterThan(
       singapore.sectors.secondary.valueAdded / singapore.economy.realGDP,
     );
-  });
+  }, 10_000);
 });

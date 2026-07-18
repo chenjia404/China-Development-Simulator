@@ -1,10 +1,25 @@
 import technologyTreeConfig from "../../data/config/technology-tree.json";
 import { clamp } from "../core/math";
-import type { NationState } from "../state/game-state";
+import type { IndustrialCategoryId, NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import type { AnnualSnapshot } from "../state/history-state";
 
-export type TechnologyCategory = "农业" | "工业" | "能源" | "信息";
+export type TechnologyCategory =
+  | "农业"
+  | "资源材料"
+  | "机械交通"
+  | "化工医药"
+  | "电气能源"
+  | "电子信息"
+  | "精密制造"
+  | "航空航天"
+  | "智能制造";
+
+export interface TechnologyIndustrialEffect {
+  industryId: IndustrialCategoryId;
+  productivityMultiplier: number;
+  exportMultiplier: number;
+}
 
 export interface TechnologyNodeDefinition {
   id: string;
@@ -17,12 +32,14 @@ export interface TechnologyNodeDefinition {
   prerequisiteIds: string[];
   industryTier: number;
   effects: string[];
+  industrialEffects: TechnologyIndustrialEffect[];
 }
 
 export interface TechnologyTreeMetrics {
   completedCount: number;
   totalCount: number;
   industryTier: number;
+  industryTierCount: number;
   industrialCapabilityCeiling: number;
   industrialUpgradeReadiness: number;
   effectiveIndustrialTechnology: number;
@@ -32,10 +49,31 @@ export const technologyTreeDefinitions =
   technologyTreeConfig.definitions as TechnologyNodeDefinition[];
 
 export function validateTechnologyTreeDefinitions(): void {
+  if (technologyTreeConfig.parallelResearchThreshold < 0) {
+    throw new Error("科技树并行研究门槛不得为负数");
+  }
+  if (
+    technologyTreeConfig.parallelResearchScale < 0 ||
+    technologyTreeConfig.maximumResearchCapacityMultiplier < 1
+  ) {
+    throw new Error("科技树并行研究参数无效");
+  }
   const ids = new Set<string>();
   for (const node of technologyTreeDefinitions) {
     if (ids.has(node.id)) throw new Error(`科技树节点重复：${node.id}`);
     if (node.researchCost <= 0) throw new Error(`${node.name}科研成本必须为正数`);
+    for (const effect of node.industrialEffects) {
+      if (
+        !Number.isFinite(effect.productivityMultiplier) ||
+        !Number.isFinite(effect.exportMultiplier) ||
+        effect.productivityMultiplier < 0.8 ||
+        effect.productivityMultiplier > 1.5 ||
+        effect.exportMultiplier < 0.8 ||
+        effect.exportMultiplier > 1.5
+      ) {
+        throw new Error(`${node.name}的工业效果超出合理范围`);
+      }
+    }
     ids.add(node.id);
   }
   for (const node of technologyTreeDefinitions) {
@@ -212,7 +250,15 @@ export function updateTechnologyTree(
         monthlyResearchOutput,
       ),
     ) *
-    technologyTreeConfig.researchAllocationRate;
+    technologyTreeConfig.researchAllocationRate *
+    clamp(
+      1 + Math.max(
+        0,
+        monthlyResearchOutput - technologyTreeConfig.parallelResearchThreshold,
+      ) * technologyTreeConfig.parallelResearchScale,
+      1,
+      technologyTreeConfig.maximumResearchCapacityMultiplier,
+    );
   if (nation.technology.activeResearchProgress >= active.researchCost) {
     nation.technology.completedTechnologyIds.push(active.id);
     nation.technology.activeResearchId = null;
@@ -254,6 +300,7 @@ export function calculateTechnologyTreeMetrics(
     completedCount: completed.length,
     totalCount: technologyTreeDefinitions.length,
     industryTier,
+    industryTierCount: technologyTreeConfig.industryTierCount,
     industrialCapabilityCeiling,
     industrialUpgradeReadiness: industryTier === 0
       ? 0

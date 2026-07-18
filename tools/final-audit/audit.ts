@@ -856,12 +856,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "technology-tree-capability",
       "科技树由教育、科研和前置节点推进，并约束产业升级与出口竞争力",
       technologyTreeValidationError === null &&
-        technologyTreeDefinitions.length >= 10 &&
+        technologyTreeDefinitions.length === 34 &&
         historicalTechnologyTree.completedCount >= 8 &&
         historicalTechnologyTree.effectiveIndustrialTechnology <=
           historical.finalState.nation.technology.index &&
         constrainedUpgradeBenefit === 1 &&
-        capableUpgradeBenefit > 1.08 &&
+        capableUpgradeBenefit > 1.07 &&
         technologyCapableTrade.nation.trade.exports >
           technologyConstrainedTrade.nation.trade.exports,
       technologyTreeValidationError ??

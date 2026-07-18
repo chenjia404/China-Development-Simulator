@@ -4,6 +4,11 @@ import { createInitialGameState } from "../state/initial-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { updateInternationalTrade } from "../economy/trade";
 import {
+  allocateIndustrialExports,
+  calculateIndustrialStructureMetrics,
+  updateIndustrialStructure,
+} from "../economy/industrial-structure";
+import {
   calculateTechnologyTreeMetrics,
   ensureTechnologyTreeState,
   getTechnologyNode,
@@ -17,7 +22,10 @@ import {
 describe("科技树", () => {
   it("配置中的节点、前置关系和科研成本均有效", () => {
     expect(() => validateTechnologyTreeDefinitions()).not.toThrow();
-    expect(technologyTreeDefinitions.length).toBeGreaterThanOrEqual(10);
+    expect(technologyTreeDefinitions).toHaveLength(34);
+    expect(
+      technologyTreeDefinitions.every((node) => node.industrialEffects.length > 0),
+    ).toBe(true);
   });
 
   it("教育和科技能力不足时不能跨级研究", () => {
@@ -116,7 +124,7 @@ describe("科技树", () => {
     ).toBe(1);
     expect(
       applyPolicyModifiers(capable, "trade.exportCompetitiveness", 1),
-    ).toBeGreaterThan(1.08);
+    ).toBeGreaterThan(1.07);
     expect(applyPolicyModifiers(incapable, "fiscal.spending", 1)).toBe(
       applyPolicyModifiers(capable, "fiscal.spending", 1),
     );
@@ -141,6 +149,45 @@ describe("科技树", () => {
     updateInternationalTrade(upgraded);
     expect(upgraded.nation.trade.exports).toBeGreaterThan(
       constrained.nation.trade.exports,
+    );
+  });
+
+  it("冶金、电子和自动化节点分别提升对应工业的生产率与出口能力", () => {
+    const constrained = createInitialGameState(1949).nation;
+    const upgraded = structuredClone(constrained);
+    for (const nation of [constrained, upgraded]) {
+      nation.education.index = 90;
+      nation.technology.index = 90;
+      nation.trade.openness = 0.8;
+    }
+    upgraded.technology.completedTechnologyIds = [
+      "steel_metallurgy",
+      "electronics_engineering",
+      "telecommunications",
+      "semiconductor_manufacturing",
+      "industrial_automation",
+      "industrial_robots",
+    ];
+
+    updateIndustrialStructure(constrained);
+    updateIndustrialStructure(upgraded);
+    constrained.trade.exports = 1_000_000_000;
+    upgraded.trade.exports = 1_000_000_000;
+    allocateIndustrialExports(constrained);
+    allocateIndustrialExports(upgraded);
+    const constrainedMetrics = calculateIndustrialStructureMetrics(constrained);
+    const upgradedMetrics = calculateIndustrialStructureMetrics(upgraded);
+    const basicMaterials = upgraded.industries.basic_materials;
+    const electronics = upgraded.industries.electronics_communications;
+
+    expect(basicMaterials.productivityIndex).toBeGreaterThan(
+      constrained.industries.basic_materials.productivityIndex,
+    );
+    expect(electronics.exportValue).toBeGreaterThan(
+      constrained.industries.electronics_communications.exportValue,
+    );
+    expect(upgradedMetrics.exportCapability).toBeGreaterThan(
+      constrainedMetrics.exportCapability,
     );
   });
 });

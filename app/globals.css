@@ -255,6 +255,9 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .industry-category-track { height: 5px; margin-top: 14px; overflow: hidden; background: var(--surface); border-radius: 10px; }
 .industry-category-track i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: inherit; }
 .industry-category-requirements { margin-top: 10px; color: var(--muted); font-size: 11px; }
+.technology-industry-effects { display: grid; gap: 5px; margin-top: 10px; }
+.technology-industry-effects strong { color: var(--text-secondary); font-size: 0.78rem; letter-spacing: 0.04em; }
+.technology-industry-effects span { padding: 6px 8px; color: var(--gold); background: color-mix(in srgb, var(--gold) 6%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 20%, var(--line)); border-radius: 6px; font-size: 11px; }
 
 .diplomacy-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
 .diplomatic-strategy-panel { margin-bottom: 15px; padding: 18px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }

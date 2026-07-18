@@ -450,7 +450,7 @@ function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
       </div>
       <div className="technology-summary">
         <MetricCard label="科技能力" value={technology.index.toFixed(1)} detail={`教育指数 ${nation.education.index.toFixed(1)} · 采用率 ${formatPercent(technology.adoptionRate)}`} tone="blue" />
-        <MetricCard label="已掌握节点" value={`${metrics.completedCount} / ${metrics.totalCount}`} detail={`产业科技第 ${metrics.industryTier} / 5 层`} tone="green" />
+        <MetricCard label="已掌握节点" value={`${metrics.completedCount} / ${metrics.totalCount}`} detail={`产业科技第 ${metrics.industryTier} / ${metrics.industryTierCount} 层`} tone="green" />
         <MetricCard label="产业升级准备度" value={formatPercent(metrics.industrialUpgradeReadiness)} detail={`有效产业科技 ${metrics.effectiveIndustrialTechnology.toFixed(1)} / ${technology.index.toFixed(1)}`} tone={metrics.industrialUpgradeReadiness >= 0.6 ? "green" : "red"} />
         <MetricCard label="当前研究" value={activeNode?.name ?? "等待能力条件"} detail={activeNode ? `${technology.activeResearchProgress.toFixed(1)} / ${activeNode.researchCost} · 本月 ${technology.monthlyResearchOutput.toFixed(2)}` : "无可研究节点时科研仍积累为知识存量"} tone="gold" />
       </div>
@@ -473,6 +473,15 @@ function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
               </div>
               <div className="technology-prerequisites">前置：{node.prerequisiteIds.length > 0 ? node.prerequisiteIds.map((id) => getTechnologyNode(id)?.name ?? id).join("、") : "无"}</div>
               <div className="technology-effects">{node.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+              <div className="technology-industry-effects">
+                <strong>工业影响</strong>
+                {node.industrialEffects.map((effect) => {
+                  const industryName = industrialCategoryDefinitions.find(
+                    (industry) => industry.id === effect.industryId,
+                  )?.name ?? effect.industryId;
+                  return <span key={effect.industryId}>{industryName} · 产能 +{((effect.productivityMultiplier - 1) * 100).toFixed(0)}% · 出口 +{((effect.exportMultiplier - 1) * 100).toFixed(0)}%</span>;
+                })}
+              </div>
               {!completed && requirements.length > 0 ? <p className="technology-blockers">{requirements.join("；")}</p> : null}
               <button disabled={busy || completed || active || !available} onClick={() => void selectTechnologyResearch(node.id)}>{completed ? "已掌握" : active ? "研究中" : available ? "设为研究目标" : "能力不足"}</button>
             </article>

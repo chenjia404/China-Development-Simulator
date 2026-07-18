@@ -1,158 +1,557 @@
 {
   "metadata": {
-    "description": "数据驱动的科技树。科研产出逐月推进当前节点，教育和科技能力决定能否开始研究；节点本身不直接修改 GDP。",
+    "description": "多分支产业科技树。科研产出逐月推进节点，教育、科技能力和前置工程知识共同决定可研究性；节点通过工业类别生产率和出口能力影响经济。",
     "sources": [
-      "https://data.worldbank.org/indicator/GB.XPD.RSDV.GD.ZS?locations=CN",
-      "https://data.worldbank.org/indicator/SE.TER.ENRR?locations=CN",
+      "https://www.stats.gov.cn/zs/tjws/tjbz/202301/t20230101_1903766.html",
+      "https://www.stats.gov.cn/sj/zxfb/202412/t20241226_1957891.html",
       "https://www.nber.org/papers/w27107"
     ]
   },
   "researchAllocationRate": 0.8,
-  "industryTierCount": 5,
+  "parallelResearchThreshold": 0.75,
+  "parallelResearchScale": 0.7,
+  "maximumResearchCapacityMultiplier": 3,
+  "industryTierCount": 7,
   "definitions": [
     {
       "id": "mechanized_agriculture",
       "name": "农业机械化",
       "category": "农业",
-      "description": "建立农机制造、维修和基层推广能力，为现代农业技术奠定基础。",
+      "description": "建立农机制造、维修和基层推广能力，为现代农业技术及食品工业奠定基础。",
       "researchCost": 5,
       "requiredEducationIndex": 12,
       "requiredTechnologyIndex": 6,
       "prerequisiteIds": [],
       "industryTier": 0,
-      "effects": ["解锁现代农学研究", "建立农业技术支线基础"]
+      "effects": ["解锁现代农学", "改善农产品加工原料供给"],
+      "industrialEffects": [
+        { "industryId": "consumer_goods", "productivityMultiplier": 1.015, "exportMultiplier": 1.01 }
+      ]
     },
     {
       "id": "basic_machine_tools",
       "name": "基础机床与标准化",
-      "category": "工业",
-      "description": "掌握通用机床、量具和零部件标准化，形成基础工业复制能力。",
+      "category": "机械交通",
+      "description": "掌握通用机床、量具和零部件标准化，形成工业设备复制与维修能力。",
       "researchCost": 8,
       "requiredEducationIndex": 13,
       "requiredTechnologyIndex": 7,
       "prerequisiteIds": [],
       "industryTier": 1,
-      "effects": ["解锁第一阶段产业升级", "改善基础工业品质量"]
+      "effects": ["建立机械工业母机基础", "改善零部件互换性"],
+      "industrialEffects": [
+        { "industryId": "general_machinery", "productivityMultiplier": 1.04, "exportMultiplier": 1.02 },
+        { "industryId": "construction", "productivityMultiplier": 1.015, "exportMultiplier": 1 }
+      ]
+    },
+    {
+      "id": "coal_mining_engineering",
+      "name": "矿山工程与机械化开采",
+      "category": "资源材料",
+      "description": "发展矿井勘探、通风、运输和机械化采掘，提高能源与矿石供给的可靠性。",
+      "researchCost": 12,
+      "requiredEducationIndex": 15,
+      "requiredTechnologyIndex": 8,
+      "prerequisiteIds": ["basic_machine_tools"],
+      "industryTier": 1,
+      "effects": ["提高资源开采效率", "降低基础工业原料约束"],
+      "industrialEffects": [
+        { "industryId": "mining_energy", "productivityMultiplier": 1.05, "exportMultiplier": 1.025 }
+      ]
+    },
+    {
+      "id": "textile_mass_production",
+      "name": "纺织与轻工规模化",
+      "category": "机械交通",
+      "description": "发展纺纱织造、食品加工和轻工流水线，形成大规模就业与早期制成品出口。",
+      "researchCost": 14,
+      "requiredEducationIndex": 16,
+      "requiredTechnologyIndex": 9,
+      "prerequisiteIds": ["basic_machine_tools"],
+      "industryTier": 1,
+      "effects": ["扩大轻工业产能", "建立劳动密集型出口能力"],
+      "industrialEffects": [
+        { "industryId": "consumer_goods", "productivityMultiplier": 1.05, "exportMultiplier": 1.06 }
+      ]
     },
     {
       "id": "grid_electrification",
       "name": "电网与工业电气化",
-      "category": "能源",
-      "description": "扩展稳定电网、工业电机和电气控制，使连续化生产成为可能。",
-      "researchCost": 15,
+      "category": "电气能源",
+      "description": "扩展稳定电网、工业电机和电气控制，使连续化与规模化生产成为可能。",
+      "researchCost": 18,
       "requiredEducationIndex": 18,
       "requiredTechnologyIndex": 10,
       "prerequisiteIds": ["basic_machine_tools"],
       "industryTier": 1,
-      "effects": ["解锁化工和精密制造", "提供先进能源系统前置条件"]
+      "effects": ["解锁材料、化工与电气工业", "提高工业连续生产能力"],
+      "industrialEffects": [
+        { "industryId": "basic_materials", "productivityMultiplier": 1.025, "exportMultiplier": 1.01 },
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.035, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "steel_metallurgy",
+      "name": "现代钢铁冶金",
+      "category": "资源材料",
+      "description": "掌握高炉、炼钢、轧制、合金和质量检测，为机械、交通和建筑提供标准材料。",
+      "researchCost": 24,
+      "requiredEducationIndex": 22,
+      "requiredTechnologyIndex": 15,
+      "prerequisiteIds": ["coal_mining_engineering", "grid_electrification"],
+      "industryTier": 2,
+      "effects": ["改善钢材质量和供给", "解锁交通与电力装备"],
+      "industrialEffects": [
+        { "industryId": "basic_materials", "productivityMultiplier": 1.055, "exportMultiplier": 1.035 },
+        { "industryId": "general_machinery", "productivityMultiplier": 1.02, "exportMultiplier": 1.01 }
+      ]
+    },
+    {
+      "id": "chemical_materials",
+      "name": "化工与基础材料",
+      "category": "化工医药",
+      "description": "发展化肥、基础化学品、冶金助剂和合成材料，扩展工业投入品谱系。",
+      "researchCost": 26,
+      "requiredEducationIndex": 25,
+      "requiredTechnologyIndex": 16,
+      "prerequisiteIds": ["grid_electrification"],
+      "industryTier": 2,
+      "effects": ["改善中间品供给", "解锁石化、医药和先进材料"],
+      "industrialEffects": [
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.05, "exportMultiplier": 1.025 },
+        { "industryId": "basic_materials", "productivityMultiplier": 1.02, "exportMultiplier": 1.01 }
+      ]
+    },
+    {
+      "id": "cement_construction_engineering",
+      "name": "水泥建材与现代施工",
+      "category": "资源材料",
+      "description": "发展水泥、预制构件、工程测量和机械化施工，提高基础设施建设效率。",
+      "researchCost": 28,
+      "requiredEducationIndex": 24,
+      "requiredTechnologyIndex": 18,
+      "prerequisiteIds": ["chemical_materials", "basic_machine_tools"],
+      "industryTier": 2,
+      "effects": ["提高工程建设效率", "降低基建材料瓶颈"],
+      "industrialEffects": [
+        { "industryId": "construction", "productivityMultiplier": 1.055, "exportMultiplier": 1.015 },
+        { "industryId": "basic_materials", "productivityMultiplier": 1.02, "exportMultiplier": 1.01 }
+      ]
     },
     {
       "id": "modern_agronomy",
       "name": "现代农学与育种",
       "category": "农业",
-      "description": "把农机、育种、土壤和植保知识结合为可推广的农业技术体系。",
+      "description": "把农机、育种、土壤、植保和食品科学结合为可推广的农业技术体系。",
       "researchCost": 30,
       "requiredEducationIndex": 30,
       "requiredTechnologyIndex": 24,
-      "prerequisiteIds": ["mechanized_agriculture"],
+      "prerequisiteIds": ["mechanized_agriculture", "chemical_materials"],
       "industryTier": 0,
-      "effects": ["完成现代农业技术支线", "形成农业科研知识节点"]
-    },
-    {
-      "id": "chemical_materials",
-      "name": "化工与基础材料",
-      "category": "工业",
-      "description": "发展化肥、基础化学品、冶金和合成材料，扩展工业投入品谱系。",
-      "researchCost": 25,
-      "requiredEducationIndex": 25,
-      "requiredTechnologyIndex": 16,
-      "prerequisiteIds": ["grid_electrification"],
-      "industryTier": 2,
-      "effects": ["解锁第二阶段产业升级", "改善中间品供给"]
+      "effects": ["完成现代农业技术支线", "支持食品与生物技术"],
+      "industrialEffects": [
+        { "industryId": "consumer_goods", "productivityMultiplier": 1.025, "exportMultiplier": 1.025 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.01, "exportMultiplier": 1.01 }
+      ]
     },
     {
       "id": "precision_manufacturing",
-      "name": "精密制造",
-      "category": "工业",
-      "description": "形成精密加工、质量控制和工程设计体系，进入更高附加值制造。",
-      "researchCost": 35,
+      "name": "精密加工与质量控制",
+      "category": "精密制造",
+      "description": "形成精密加工、工程设计、计量和质量控制体系，进入更高附加值制造。",
+      "researchCost": 38,
       "requiredEducationIndex": 34,
       "requiredTechnologyIndex": 26,
       "prerequisiteIds": ["basic_machine_tools", "grid_electrification"],
       "industryTier": 2,
-      "effects": ["提高工业升级准备度", "增强机械产品出口能力"]
+      "effects": ["提高装备一致性与可靠性", "解锁发动机、电子和仪器"],
+      "industrialEffects": [
+        { "industryId": "general_machinery", "productivityMultiplier": 1.055, "exportMultiplier": 1.055 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.035, "exportMultiplier": 1.03 }
+      ]
+    },
+    {
+      "id": "electric_motors",
+      "name": "电机与工业驱动",
+      "category": "电气能源",
+      "description": "掌握高效电机、变压器、驱动与基础电控，为机械和电力设备提供核心部件。",
+      "researchCost": 40,
+      "requiredEducationIndex": 35,
+      "requiredTechnologyIndex": 30,
+      "prerequisiteIds": ["grid_electrification", "precision_manufacturing"],
+      "industryTier": 2,
+      "effects": ["改善机械动力系统", "解锁大型电力装备"],
+      "industrialEffects": [
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.055, "exportMultiplier": 1.05 },
+        { "industryId": "general_machinery", "productivityMultiplier": 1.025, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "internal_combustion_engines",
+      "name": "内燃机与动力总成",
+      "category": "机械交通",
+      "description": "发展燃烧、材料、传动和批量加工技术，为车辆、船舶和工程机械提供动力。",
+      "researchCost": 46,
+      "requiredEducationIndex": 38,
+      "requiredTechnologyIndex": 34,
+      "prerequisiteIds": ["precision_manufacturing", "chemical_materials"],
+      "industryTier": 3,
+      "effects": ["建立交通动力系统", "提高工程机械能力"],
+      "industrialEffects": [
+        { "industryId": "transport_equipment", "productivityMultiplier": 1.06, "exportMultiplier": 1.045 },
+        { "industryId": "general_machinery", "productivityMultiplier": 1.025, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "railway_shipbuilding",
+      "name": "铁路车辆与现代造船",
+      "category": "机械交通",
+      "description": "整合钢铁、焊接、动力、结构设计和成套管理，形成大型交通装备产业链。",
+      "researchCost": 52,
+      "requiredEducationIndex": 40,
+      "requiredTechnologyIndex": 38,
+      "prerequisiteIds": ["steel_metallurgy", "precision_manufacturing"],
+      "industryTier": 3,
+      "effects": ["提高大型装备生产能力", "扩大交通设备出口"],
+      "industrialEffects": [
+        { "industryId": "transport_equipment", "productivityMultiplier": 1.055, "exportMultiplier": 1.065 }
+      ]
+    },
+    {
+      "id": "petrochemical_refining",
+      "name": "炼油与石油化工",
+      "category": "化工医药",
+      "description": "发展炼油、裂解、聚合和连续流程控制，提高燃料与高分子材料供给。",
+      "researchCost": 54,
+      "requiredEducationIndex": 42,
+      "requiredTechnologyIndex": 40,
+      "prerequisiteIds": ["chemical_materials", "grid_electrification"],
+      "industryTier": 3,
+      "effects": ["扩展合成材料供给", "提高能源加工附加值"],
+      "industrialEffects": [
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.06, "exportMultiplier": 1.055 },
+        { "industryId": "mining_energy", "productivityMultiplier": 1.02, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "pharmaceutical_synthesis",
+      "name": "现代制药与生物工艺",
+      "category": "化工医药",
+      "description": "发展药物合成、发酵、制剂、临床验证和质量规范，建立现代医药制造体系。",
+      "researchCost": 58,
+      "requiredEducationIndex": 45,
+      "requiredTechnologyIndex": 42,
+      "prerequisiteIds": ["chemical_materials", "modern_agronomy"],
+      "industryTier": 3,
+      "effects": ["提高医药制造技术密度", "解锁医疗设备协同"],
+      "industrialEffects": [
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.065, "exportMultiplier": 1.065 }
+      ]
     },
     {
       "id": "electronics_engineering",
-      "name": "电子工程",
-      "category": "信息",
-      "description": "建立电子元器件、通信设备和工业电子的研发生产能力。",
-      "researchCost": 55,
-      "requiredEducationIndex": 43,
-      "requiredTechnologyIndex": 42,
-      "prerequisiteIds": ["precision_manufacturing"],
+      "name": "电子元器件工程",
+      "category": "电子信息",
+      "description": "建立电子元器件、无线电、通信设备和工业电子的研发生产能力。",
+      "researchCost": 62,
+      "requiredEducationIndex": 45,
+      "requiredTechnologyIndex": 44,
+      "prerequisiteIds": ["precision_manufacturing", "electric_motors"],
       "industryTier": 3,
-      "effects": ["解锁第三阶段产业升级", "扩大技术密集型出口范围"]
+      "effects": ["建立电子工业基础", "解锁通信、自动化与半导体"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.07, "exportMultiplier": 1.065 },
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.025, "exportMultiplier": 1.025 }
+      ]
     },
     {
       "id": "industrial_automation",
-      "name": "工业自动化",
-      "category": "工业",
-      "description": "把控制系统、自动化设备和现代管理引入规模化制造。",
-      "researchCost": 75,
+      "name": "工业自动化与过程控制",
+      "category": "智能制造",
+      "description": "把传感、控制系统、自动化设备和现代管理引入规模化制造。",
+      "researchCost": 68,
       "requiredEducationIndex": 50,
+      "requiredTechnologyIndex": 55,
+      "prerequisiteIds": ["electronics_engineering", "precision_manufacturing"],
+      "industryTier": 3,
+      "effects": ["提高制造一致性", "解锁汽车、机器人和先进能源"],
+      "industrialEffects": [
+        { "industryId": "general_machinery", "productivityMultiplier": 1.05, "exportMultiplier": 1.04 },
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.035, "exportMultiplier": 1.03 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.025, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "automotive_mass_production",
+      "name": "汽车规模化制造",
+      "category": "机械交通",
+      "description": "整合动力总成、冲压焊装、供应链和质量管理，形成大规模汽车产业。",
+      "researchCost": 76,
+      "requiredEducationIndex": 52,
       "requiredTechnologyIndex": 58,
+      "prerequisiteIds": ["internal_combustion_engines", "industrial_automation"],
+      "industryTier": 4,
+      "effects": ["扩大耐用设备国内市场", "提高汽车与零部件出口"],
+      "industrialEffects": [
+        { "industryId": "transport_equipment", "productivityMultiplier": 1.075, "exportMultiplier": 1.08 }
+      ]
+    },
+    {
+      "id": "power_equipment",
+      "name": "大型发电与输变电装备",
+      "category": "电气能源",
+      "description": "发展大型发电机组、输变电、开关和电网保护设备，支撑全国能源系统。",
+      "researchCost": 80,
+      "requiredEducationIndex": 52,
+      "requiredTechnologyIndex": 58,
+      "prerequisiteIds": ["electric_motors", "steel_metallurgy"],
+      "industryTier": 4,
+      "effects": ["提高电力装备成套能力", "扩大基础设施设备出口"],
+      "industrialEffects": [
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.07, "exportMultiplier": 1.075 }
+      ]
+    },
+    {
+      "id": "telecommunications",
+      "name": "现代通信系统",
+      "category": "电子信息",
+      "description": "发展交换、传输、无线通信和网络设备，形成现代信息基础设施。",
+      "researchCost": 84,
+      "requiredEducationIndex": 54,
+      "requiredTechnologyIndex": 60,
       "prerequisiteIds": ["electronics_engineering"],
       "industryTier": 4,
-      "effects": ["解锁第四阶段产业升级", "提高复杂制造的一致性"]
+      "effects": ["提高通信设备产能", "解锁数字网络"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.065, "exportMultiplier": 1.08 }
+      ]
+    },
+    {
+      "id": "advanced_materials",
+      "name": "先进合金与功能材料",
+      "category": "资源材料",
+      "description": "发展高温合金、工程塑料、复合材料、电子材料和高纯材料。",
+      "researchCost": 88,
+      "requiredEducationIndex": 55,
+      "requiredTechnologyIndex": 62,
+      "prerequisiteIds": ["chemical_materials", "precision_manufacturing"],
+      "industryTier": 4,
+      "effects": ["提高材料附加值", "支撑芯片、航空和医疗设备"],
+      "industrialEffects": [
+        { "industryId": "basic_materials", "productivityMultiplier": 1.06, "exportMultiplier": 1.06 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.025, "exportMultiplier": 1.02 },
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.025, "exportMultiplier": 1.015 }
+      ]
+    },
+    {
+      "id": "instrumentation",
+      "name": "精密仪器与工业传感",
+      "category": "精密制造",
+      "description": "发展计量、光学、分析仪器和工业传感器，使复杂制造具备可测量、可控制能力。",
+      "researchCost": 92,
+      "requiredEducationIndex": 58,
+      "requiredTechnologyIndex": 64,
+      "prerequisiteIds": ["electronics_engineering", "precision_manufacturing"],
+      "industryTier": 4,
+      "effects": ["提高精密测量能力", "解锁医疗器械与机器人"],
+      "industrialEffects": [
+        { "industryId": "precision_medical", "productivityMultiplier": 1.075, "exportMultiplier": 1.075 },
+        { "industryId": "general_machinery", "productivityMultiplier": 1.02, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "aviation_engineering",
+      "name": "航空结构与发动机工程",
+      "category": "航空航天",
+      "description": "整合空气动力、发动机、材料、精密加工和安全验证，建立航空工业体系。",
+      "researchCost": 100,
+      "requiredEducationIndex": 60,
+      "requiredTechnologyIndex": 66,
+      "prerequisiteIds": ["internal_combustion_engines", "precision_manufacturing", "advanced_materials"],
+      "industryTier": 4,
+      "effects": ["建立航空装备能力", "支撑航天系统工程"],
+      "industrialEffects": [
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.08, "exportMultiplier": 1.04 },
+        { "industryId": "transport_equipment", "productivityMultiplier": 1.02, "exportMultiplier": 1.02 }
+      ]
     },
     {
       "id": "semiconductor_manufacturing",
-      "name": "半导体制造",
-      "category": "信息",
-      "description": "掌握集成电路设计、工艺、材料和设备协同所需的产业知识。",
-      "researchCost": 90,
-      "requiredEducationIndex": 56,
-      "requiredTechnologyIndex": 68,
-      "prerequisiteIds": ["electronics_engineering", "precision_manufacturing"],
-      "industryTier": 4,
-      "effects": ["增强高技术制造出口", "支撑数字网络和智能化"]
+      "name": "半导体设计与制造",
+      "category": "电子信息",
+      "description": "掌握集成电路设计、晶圆工艺、封装测试、材料和设备协同。",
+      "researchCost": 112,
+      "requiredEducationIndex": 62,
+      "requiredTechnologyIndex": 72,
+      "prerequisiteIds": ["electronics_engineering", "advanced_materials"],
+      "industryTier": 5,
+      "effects": ["提高电子核心部件自主能力", "解锁计算机和芯片设备"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.085, "exportMultiplier": 1.09 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.02, "exportMultiplier": 1.02 }
+      ]
     },
     {
-      "id": "digital_networks",
-      "name": "数字网络",
-      "category": "信息",
-      "description": "建设计算机、软件、通信网络和数字化组织能力。",
-      "researchCost": 110,
-      "requiredEducationIndex": 62,
-      "requiredTechnologyIndex": 80,
-      "prerequisiteIds": ["semiconductor_manufacturing"],
+      "id": "computer_architecture",
+      "name": "计算机体系结构与软件工程",
+      "category": "电子信息",
+      "description": "发展计算机系统、操作系统、数据库和软件工程，形成通用数字化工具。",
+      "researchCost": 120,
+      "requiredEducationIndex": 64,
+      "requiredTechnologyIndex": 76,
+      "prerequisiteIds": ["semiconductor_manufacturing", "telecommunications"],
       "industryTier": 5,
-      "effects": ["解锁第五阶段产业升级", "提高数字产品和服务出口能力"]
+      "effects": ["扩大计算设备与软件能力", "解锁数字网络和智能控制"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.075, "exportMultiplier": 1.085 },
+        { "industryId": "general_machinery", "productivityMultiplier": 1.015, "exportMultiplier": 1.015 }
+      ]
+    },
+    {
+      "id": "medical_devices",
+      "name": "现代医疗器械",
+      "category": "精密制造",
+      "description": "整合仪器、电子、材料、临床与质量规范，发展诊断、治疗和生命支持设备。",
+      "researchCost": 126,
+      "requiredEducationIndex": 66,
+      "requiredTechnologyIndex": 74,
+      "prerequisiteIds": ["instrumentation", "pharmaceutical_synthesis", "electronics_engineering"],
+      "industryTier": 5,
+      "effects": ["提高医疗设备附加值", "形成精密制造出口支线"],
+      "industrialEffects": [
+        { "industryId": "precision_medical", "productivityMultiplier": 1.085, "exportMultiplier": 1.095 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.015, "exportMultiplier": 1.02 }
+      ]
     },
     {
       "id": "advanced_energy_systems",
-      "name": "先进能源系统",
-      "category": "能源",
-      "description": "发展高效电力系统、先进电源和工业节能技术。",
-      "researchCost": 100,
-      "requiredEducationIndex": 60,
-      "requiredTechnologyIndex": 75,
-      "prerequisiteIds": ["industrial_automation", "grid_electrification"],
-      "industryTier": 4,
-      "effects": ["完成先进能源技术支线", "形成能源系统知识节点"]
+      "name": "先进能源与电力系统",
+      "category": "电气能源",
+      "description": "发展高效电源、电网调度、先进储能、核能工程和工业节能技术。",
+      "researchCost": 136,
+      "requiredEducationIndex": 66,
+      "requiredTechnologyIndex": 76,
+      "prerequisiteIds": ["power_equipment", "advanced_materials", "industrial_automation"],
+      "industryTier": 5,
+      "effects": ["提高能源系统效率", "解锁新能源装备与航天系统"],
+      "industrialEffects": [
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.075, "exportMultiplier": 1.08 },
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.02, "exportMultiplier": 1.015 }
+      ]
+    },
+    {
+      "id": "aerospace_systems",
+      "name": "航天器与系统工程",
+      "category": "航空航天",
+      "description": "整合运载、卫星、导航、遥感、材料和大型项目管理，形成复杂系统工程能力。",
+      "researchCost": 150,
+      "requiredEducationIndex": 68,
+      "requiredTechnologyIndex": 80,
+      "prerequisiteIds": ["aviation_engineering", "electronics_engineering", "advanced_energy_systems"],
+      "industryTier": 5,
+      "effects": ["提高复杂系统集成能力", "形成高端装备知识外溢"],
+      "industrialEffects": [
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.095, "exportMultiplier": 1.055 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.015, "exportMultiplier": 1.015 }
+      ]
+    },
+    {
+      "id": "digital_networks",
+      "name": "数字网络与互联网基础",
+      "category": "电子信息",
+      "description": "建设计算机网络、通信协议、数据中心和数字化组织能力。",
+      "researchCost": 164,
+      "requiredEducationIndex": 70,
+      "requiredTechnologyIndex": 84,
+      "prerequisiteIds": ["computer_architecture", "telecommunications", "semiconductor_manufacturing"],
+      "industryTier": 6,
+      "effects": ["提高数字产品和服务连接能力", "解锁人工智能"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.085, "exportMultiplier": 1.1 }
+      ]
+    },
+    {
+      "id": "industrial_robots",
+      "name": "工业机器人与数控系统",
+      "category": "智能制造",
+      "description": "整合自动化、计算机、伺服、传感和精密机械，发展柔性生产与无人化工序。",
+      "researchCost": 176,
+      "requiredEducationIndex": 72,
+      "requiredTechnologyIndex": 84,
+      "prerequisiteIds": ["industrial_automation", "computer_architecture", "instrumentation"],
+      "industryTier": 6,
+      "effects": ["提高复杂制造柔性", "解锁智能制造"],
+      "industrialEffects": [
+        { "industryId": "general_machinery", "productivityMultiplier": 1.085, "exportMultiplier": 1.085 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.035, "exportMultiplier": 1.035 },
+        { "industryId": "transport_equipment", "productivityMultiplier": 1.03, "exportMultiplier": 1.03 }
+      ]
+    },
+    {
+      "id": "integrated_circuit_equipment",
+      "name": "集成电路工艺装备",
+      "category": "精密制造",
+      "description": "发展光刻、薄膜、刻蚀、检测和超纯制造装备，建立芯片制造的设备基础。",
+      "researchCost": 190,
+      "requiredEducationIndex": 74,
+      "requiredTechnologyIndex": 88,
+      "prerequisiteIds": ["semiconductor_manufacturing", "precision_manufacturing", "advanced_materials"],
+      "industryTier": 6,
+      "effects": ["提高芯片设备自主能力", "增强超精密制造外溢"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.08, "exportMultiplier": 1.09 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.06, "exportMultiplier": 1.065 }
+      ]
+    },
+    {
+      "id": "renewable_energy_equipment",
+      "name": "新能源与储能装备",
+      "category": "电气能源",
+      "description": "发展风光发电、高性能电池、功率电子与储能系统的规模化制造。",
+      "researchCost": 198,
+      "requiredEducationIndex": 72,
+      "requiredTechnologyIndex": 86,
+      "prerequisiteIds": ["power_equipment", "advanced_energy_systems", "advanced_materials"],
+      "industryTier": 6,
+      "effects": ["提高新能源设备产能", "扩大绿色装备出口"],
+      "industrialEffects": [
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.09, "exportMultiplier": 1.1 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.02, "exportMultiplier": 1.02 }
+      ]
     },
     {
       "id": "artificial_intelligence",
-      "name": "人工智能与智能制造",
-      "category": "信息",
-      "description": "在数字网络、自动化和高等教育基础上发展算法、算力与智能制造。",
-      "researchCost": 140,
-      "requiredEducationIndex": 72,
-      "requiredTechnologyIndex": 92,
-      "prerequisiteIds": ["digital_networks", "industrial_automation"],
-      "industryTier": 5,
-      "effects": ["提高知识密集型产业上限", "增强复杂产品出口能力"]
+      "name": "人工智能与机器学习",
+      "category": "智能制造",
+      "description": "在数字网络、计算机和高等教育基础上发展算法、数据与通用智能系统。",
+      "researchCost": 240,
+      "requiredEducationIndex": 78,
+      "requiredTechnologyIndex": 94,
+      "prerequisiteIds": ["digital_networks", "computer_architecture"],
+      "industryTier": 7,
+      "effects": ["提高知识密集型产业上限", "解锁智能制造系统"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.08, "exportMultiplier": 1.09 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.035, "exportMultiplier": 1.04 }
+      ]
+    },
+    {
+      "id": "intelligent_manufacturing",
+      "name": "智能工厂与自主制造",
+      "category": "智能制造",
+      "description": "把人工智能、机器人、芯片设备、数字孪生和供应链协同整合为自主制造体系。",
+      "researchCost": 300,
+      "requiredEducationIndex": 82,
+      "requiredTechnologyIndex": 98,
+      "prerequisiteIds": ["artificial_intelligence", "industrial_robots", "integrated_circuit_equipment"],
+      "industryTier": 7,
+      "effects": ["形成最高层级工业能力", "全面提高复杂产品质量与出口"],
+      "industrialEffects": [
+        { "industryId": "general_machinery", "productivityMultiplier": 1.09, "exportMultiplier": 1.09 },
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.08, "exportMultiplier": 1.09 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.06, "exportMultiplier": 1.07 },
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.055, "exportMultiplier": 1.05 }
+      ]
     }
   ]
 }

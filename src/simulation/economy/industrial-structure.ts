@@ -5,6 +5,7 @@ import type {
   IndustrialCategoryState,
   NationState,
 } from "../state/game-state";
+import { technologyTreeDefinitions } from "../technology/technology-tree";
 
 export interface IndustrialCategoryDefinition {
   id: IndustrialCategoryId;
@@ -73,6 +74,14 @@ export function validateIndustrialCategoryDefinitions(): void {
   );
   if (Math.abs(baselineShare - 1) > 1e-9) {
     throw new Error(`工业类别基准份额之和必须为1，当前为${baselineShare}`);
+  }
+  if (
+    industrialCategoryConfig.complexityPenaltySensitivity <= 0 ||
+    industrialCategoryConfig.complexityOutputSensitivity <= 0 ||
+    industrialCategoryConfig.minimumOutputMultiplier <= 0 ||
+    industrialCategoryConfig.maximumOutputMultiplier <= 1
+  ) {
+    throw new Error("工业复杂度产出传导参数无效");
   }
 }
 
@@ -209,6 +218,27 @@ function technologyReadiness(
   return clamp(nodeCoverage * 0.68 + capabilityGate * 0.32, 0, 1);
 }
 
+function completedTechnologyEffects(
+  nation: NationState,
+  industryId: IndustrialCategoryId,
+): { productivityMultiplier: number; exportMultiplier: number } {
+  const completed = new Set(nation.technology.completedTechnologyIds);
+  let productivityMultiplier = 1;
+  let exportMultiplier = 1;
+  for (const node of technologyTreeDefinitions) {
+    if (!completed.has(node.id)) continue;
+    for (const effect of node.industrialEffects) {
+      if (effect.industryId !== industryId) continue;
+      productivityMultiplier *= effect.productivityMultiplier;
+      exportMultiplier *= effect.exportMultiplier;
+    }
+  }
+  return {
+    productivityMultiplier: clamp(productivityMultiplier, 0.8, 1.8),
+    exportMultiplier: clamp(exportMultiplier, 0.8, 2),
+  };
+}
+
 function demandFactor(
   nation: NationState,
   definition: IndustrialCategoryDefinition,
@@ -241,6 +271,10 @@ export function updateIndustrialStructure(nation: NationState): void {
   for (const definition of industrialCategoryDefinitions) {
     const category = nation.industries[definition.id];
     const readiness = technologyReadiness(nation, definition);
+    const technologyEffects = completedTechnologyEffects(
+      nation,
+      definition.id,
+    );
     const skillFactor = clamp(
       1 - definition.skillIntensity * (1 - nation.education.index / 100) * 0.55,
       0.45,
@@ -251,10 +285,15 @@ export function updateIndustrialStructure(nation: NationState): void {
       0.35,
       1.04,
     );
+    const highTechnologyExpansionFactor = HIGH_TECHNOLOGY_IDS.has(definition.id)
+      ? 0.75 + readiness * 0.65
+      : 1;
     const weight = definition.baselineShare *
       (0.66 + readiness * 0.72) *
       skillFactor *
       energyFactor *
+      technologyEffects.productivityMultiplier ** 0.35 *
+      highTechnologyExpansionFactor *
       demandFactor(nation, definition);
     targetWeights.set(definition.id, weight);
     totalWeight += weight;
@@ -262,7 +301,8 @@ export function updateIndustrialStructure(nation: NationState): void {
     category.productivityIndex = definition.productivityPotential *
       (62 + readiness * 38) *
       skillFactor *
-      energyFactor;
+      energyFactor *
+      technologyEffects.productivityMultiplier;
   }
   for (const id of INDUSTRIAL_CATEGORY_IDS) {
     nation.industries[id].outputShare = approach(
@@ -286,8 +326,10 @@ export function calculateIndustrialStructureMetrics(
     INDUSTRIAL_CATEGORY_IDS.reduce((sum, id) => {
       const definition = definitionFor(id);
       const category = nation.industries[id];
+      const technologyEffects = completedTechnologyEffects(nation, id);
       return sum + category.outputShare * definition.exportPropensity *
-        (0.35 + category.technologyReadiness * 0.65);
+        (0.35 + category.technologyReadiness * 0.65) *
+        technologyEffects.exportMultiplier;
     }, 0),
     0,
     1,
@@ -302,12 +344,26 @@ export function calculateIndustrialStructureMetrics(
     nation.sectors.secondary.valueAdded,
     nation.economy.realGDP,
   );
+  const complexityDifference =
+    complexityIndex - industrialCategoryConfig.baselineComplexityIndex;
+  // 技术复杂度只有在开放市场、产业升级组织能力和配套投资到位时才能充分
+  // 商业化；这样高科技节点仍有显著回报，但不会让史实路线凭节点自动暴涨。
+  const commercializationFactor = clamp(
+    0.25 + nation.trade.openness * 0.35 +
+      (nation.policyProgress.industrial_upgrading ?? 0) * 0.45,
+    0.25,
+    1.05,
+  );
   return {
     complexityIndex,
     outputMultiplier: clamp(
-      1 + (complexityIndex - industrialCategoryConfig.baselineComplexityIndex) * 0.0018,
-      0.94,
-      1.16,
+      1 + complexityDifference *
+        (complexityDifference < 0
+          ? industrialCategoryConfig.complexityPenaltySensitivity
+          : industrialCategoryConfig.complexityOutputSensitivity *
+            commercializationFactor),
+      industrialCategoryConfig.minimumOutputMultiplier,
+      industrialCategoryConfig.maximumOutputMultiplier,
     ),
     exportCapability,
     industrialExportShare: clamp(
@@ -339,8 +395,10 @@ export function allocateIndustrialExports(nation: NationState): void {
   for (const id of INDUSTRIAL_CATEGORY_IDS) {
     const definition = definitionFor(id);
     const category = nation.industries[id];
+    const technologyEffects = completedTechnologyEffects(nation, id);
     const weight = category.output * definition.exportPropensity *
-      (0.3 + category.technologyReadiness * 0.7);
+      (0.3 + category.technologyReadiness * 0.7) *
+      technologyEffects.exportMultiplier;
     weights.set(id, weight);
     totalWeight += weight;
   }
