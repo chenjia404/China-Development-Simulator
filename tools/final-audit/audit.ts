@@ -1,7 +1,9 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  calculateTradeAccess,
   createSimulationEngine,
+  createInitialGameState,
   deserializeGameState,
   serializeGameState,
 } from "../../src/simulation/index";
@@ -125,6 +127,32 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const distinctRanks = new Set(historical.annual.map((snapshot) => snapshot.gdpRank));
   const distinctGDP = new Set(summaries.map((item) => Math.round(item.finalGDP / 1_000_000_000)));
 
+  const policyEngine = createSimulationEngine(createInitialGameState(seed));
+  policyEngine.dispatch({ type: "SET_POLICIES", policyIds: ["technology_priority"] });
+  policyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+  const initialPolicyProgress =
+    policyEngine.getState().nation.policyProgress.technology_priority;
+  policyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 59 });
+  const maturePolicyProgress =
+    policyEngine.getState().nation.policyProgress.technology_priority;
+
+  const neutralTrade = createInitialGameState(seed);
+  const agreementTrade = structuredClone(neutralTrade);
+  const sanctionedTrade = structuredClone(neutralTrade);
+  const neutralCountry = neutralTrade.world.countries.find((country) => country.id === "usa")!;
+  const agreementCountry = agreementTrade.world.countries.find((country) => country.id === "usa")!;
+  const sanctionedCountry = sanctionedTrade.world.countries.find((country) => country.id === "usa")!;
+  neutralCountry.relationWithChina = 40;
+  agreementCountry.relationWithChina = 40;
+  sanctionedCountry.relationWithChina = 40;
+  agreementCountry.tradeAgreement = true;
+  agreementCountry.diplomaticStatus = "partner";
+  sanctionedCountry.sanctionLevel = 0.8;
+  sanctionedCountry.diplomaticStatus = "sanctioned";
+  const neutralAccess = calculateTradeAccess(neutralTrade).marketAccessMultiplier;
+  const agreementAccess = calculateTradeAccess(agreementTrade).marketAccessMultiplier;
+  const sanctionedAccess = calculateTradeAccess(sanctionedTrade).marketAccessMultiplier;
+
   const checks: AuditCheck[] = [
     makeCheck(
       "continuous-run",
@@ -157,6 +185,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "不同政策路线产生明显不同结果",
       distinctGDP.size === strategyIds.length,
       `六条路线产生 ${distinctGDP.size} 个不同的最终 GDP 数量级结果`,
+    ),
+    makeCheck(
+      "policy-transition",
+      "重要国策按过渡期渐进生效",
+      initialPolicyProgress > 0 &&
+        initialPolicyProgress < 1 &&
+        Math.abs(maturePolicyProgress - 1) < 1e-9,
+      `科技强国首月生效 ${(initialPolicyProgress * 100).toFixed(1)}%，60 个月后 ${(maturePolicyProgress * 100).toFixed(0)}%`,
+    ),
+    makeCheck(
+      "diplomacy-trade-link",
+      "协定和制裁对国际贸易形成双向反馈",
+      agreementAccess > neutralAccess && sanctionedAccess < neutralAccess,
+      `中性 ${neutralAccess.toFixed(3)}，贸易协定 ${agreementAccess.toFixed(3)}，制裁 ${sanctionedAccess.toFixed(3)}`,
     ),
     makeCheck(
       "industrial-tradeoff",

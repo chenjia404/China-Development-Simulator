@@ -5,6 +5,7 @@ import {
   deserializeGameState,
   serializeGameState,
   type FiscalBudget,
+  type DiplomaticActionId,
   type GameState,
   type SimulationCommand,
 } from "../simulation";
@@ -21,6 +22,8 @@ export type SectionId =
   | "agriculture"
   | "industry"
   | "infrastructure"
+  | "policies"
+  | "diplomacy"
   | "international"
   | "statistics"
   | "settings";
@@ -38,6 +41,9 @@ interface SimulationStore {
   advanceYear(): Promise<void>;
   runToCurrentYear(): Promise<void>;
   updateBudget(key: keyof FiscalBudget, value: number): Promise<void>;
+  setPolicies(policyIds: string[]): Promise<void>;
+  diplomaticAction(actionId: DiplomaticActionId, countryId: string): Promise<void>;
+  joinOrganization(organizationId: string): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
@@ -118,6 +124,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       type: "UPDATE_BUDGET",
       budget: { [key]: value },
     });
+  },
+
+  async setPolicies(policyIds) {
+    await get().dispatch({ type: "SET_POLICIES", policyIds });
+  },
+
+  async diplomaticAction(actionId, countryId) {
+    await get().dispatch({ type: "DIPLOMATIC_ACTION", actionId, countryId });
+  },
+
+  async joinOrganization(organizationId) {
+    await get().dispatch({ type: "JOIN_ORGANIZATION", organizationId });
   },
 
   async newGame(seed = 1949) {

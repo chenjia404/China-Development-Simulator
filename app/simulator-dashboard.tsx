@@ -4,8 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ECharts } from "echarts/core";
 import type {
   AnnualSnapshot,
+  DiplomaticActionId,
   FiscalBudget,
   GameState,
+} from "@/src/simulation";
+import {
+  averageInternationalRelation,
+  diplomaticActionDefinitions,
+  internationalOrganizations,
+  maximumActivePolicies,
+  nationalPolicyDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -22,6 +30,8 @@ const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "agriculture", label: "农业", mark: "农" },
   { id: "industry", label: "工业", mark: "工" },
   { id: "infrastructure", label: "基础设施", mark: "基" },
+  { id: "policies", label: "国策中心", mark: "策" },
+  { id: "diplomacy", label: "外交事务", mark: "外" },
   { id: "international", label: "国际", mark: "世" },
   { id: "statistics", label: "统计", mark: "统" },
   { id: "settings", label: "设置", mark: "设" },
@@ -207,7 +217,7 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
 
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
-  const data: Record<Exclude<SectionId, "nation" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
+  const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
     fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)}`]],
@@ -220,6 +230,183 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
   return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
+}
+
+function policyUnavailableReason(game: GameState, policyId: string): string | null {
+  if (game.nation.policies.includes(policyId)) return null;
+  if (game.nation.policies.length >= maximumActivePolicies) {
+    return `同时最多实施 ${maximumActivePolicies} 项国策`;
+  }
+  const policy = nationalPolicyDefinitions.find((item) => item.id === policyId);
+  const conflict = nationalPolicyDefinitions.find(
+    (selected) =>
+      game.nation.policies.includes(selected.id) &&
+      (policy?.conflictsWith.includes(selected.id) ||
+        selected.conflictsWith.includes(policyId)),
+  );
+  return conflict ? `与正在实施的“${conflict.name}”冲突` : null;
+}
+
+function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
+  const setPolicies = useSimulationStore((store) => store.setPolicies);
+  const togglePolicy = (policyId: string) => {
+    const selected = game.nation.policies.includes(policyId);
+    const next = selected
+      ? game.nation.policies.filter((id) => id !== policyId)
+      : [...game.nation.policies, policyId];
+    void setPolicies(next);
+  };
+
+  return (
+    <section className="panel detail-page policy-page">
+      <div className="detail-hero policy-hero">
+        <span className="eyebrow">国家发展路线</span>
+        <h2>重要国策</h2>
+        <p>国策不直接增加 GDP，而是通过资本配置、人口、公共服务、科研、贸易和财政逐月传导。取消后也会经历退出期。</p>
+        <div className="selection-count"><strong>{game.nation.policies.length}</strong> / {maximumActivePolicies} 项正在实施</div>
+      </div>
+      <div className="policy-grid">
+        {nationalPolicyDefinitions.map((policy) => {
+          const selected = game.nation.policies.includes(policy.id);
+          const progress = game.nation.policyProgress[policy.id] ?? 0;
+          const reason = policyUnavailableReason(game, policy.id);
+          const conflicts = policy.conflictsWith
+            .map((id) => nationalPolicyDefinitions.find((item) => item.id === id)?.name)
+            .filter(Boolean)
+            .join("、");
+          return (
+            <article className={selected ? "policy-card is-selected" : "policy-card"} key={policy.id}>
+              <div className="policy-card-head"><span>{policy.category}</span><small>{policy.transitionMonths} 个月过渡</small></div>
+              <h3>{policy.name}</h3>
+              <p>{policy.description}</p>
+              <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
+              <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
+              <button
+                className={selected ? "policy-toggle remove" : "policy-toggle"}
+                disabled={busy || (!selected && reason !== null)}
+                title={reason ?? undefined}
+                onClick={() => togglePolicy(policy.id)}
+              >
+                {selected ? "停止实施" : reason ?? "开始实施"}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function organizationUnavailableReason(
+  game: GameState,
+  organization: typeof internationalOrganizations[number],
+): string | null {
+  const diplomacy = game.nation.diplomacy;
+  if (diplomacy.organizationIds.includes(organization.id)) return "已经加入";
+  if (game.nation.date.year < organization.availableYear) return `${organization.availableYear} 年开放`;
+  if (game.nation.internationalInfluence < organization.minimumInfluence) return `需要影响力 ${organization.minimumInfluence}`;
+  if (game.nation.trade.openness < organization.minimumOpenness) return `需要开放度 ${formatPercent(organization.minimumOpenness, 0)}`;
+  if (averageInternationalRelation(game) < organization.minimumAverageRelation) return `需要平均关系 ${organization.minimumAverageRelation}`;
+  const partners = game.world.countries.filter((country) => country.diplomaticStatus === "strategic_partner").length;
+  if (partners < organization.minimumStrategicPartners) return `需要 ${organization.minimumStrategicPartners} 个战略伙伴`;
+  if (diplomacy.diplomaticPoints < organization.cost) return `需要 ${organization.cost} 点外交点数`;
+  return null;
+}
+
+function diplomaticActionUnavailableReason(
+  game: GameState,
+  country: GameState["world"]["countries"][number],
+  actionId: DiplomaticActionId,
+): string | null {
+  const action = diplomaticActionDefinitions[actionId];
+  if (country.lastDiplomaticActionMonth !== null) {
+    const remaining = action.cooldownMonths -
+      (game.nation.date.elapsedMonths - country.lastDiplomaticActionMonth);
+    if (remaining > 0) return `冷却 ${remaining} 个月`;
+  }
+  if (game.nation.diplomacy.diplomaticPoints < action.cost) return `需要 ${action.cost} 点`;
+  if (country.relationWithChina < action.minimumRelation) return `关系需达到 ${action.minimumRelation}`;
+  if (actionId === "sign_trade_agreement" && country.tradeAgreement) return "已签署协定";
+  if (actionId === "strategic_partnership" && !country.tradeAgreement) return "需先签署贸易协定";
+  if (actionId === "strategic_partnership" && country.diplomaticStatus === "strategic_partner") return "已是战略伙伴";
+  if (actionId === "impose_sanctions" && country.diplomaticStatus === "sanctioned") return "制裁已生效";
+  if (actionId === "lift_sanctions" && country.diplomaticStatus !== "sanctioned") return "当前没有制裁";
+  if (country.diplomaticStatus === "sanctioned" && (actionId === "sign_trade_agreement" || actionId === "strategic_partnership")) return "制裁期间不可执行";
+  return null;
+}
+
+const diplomaticStatusLabels = {
+  neutral: "一般关系",
+  partner: "贸易伙伴",
+  strategic_partner: "战略伙伴",
+  sanctioned: "制裁中",
+} as const;
+
+function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
+  const diplomaticAction = useSimulationStore((store) => store.diplomaticAction);
+  const joinOrganization = useSimulationStore((store) => store.joinOrganization);
+  const countries = [...game.world.countries].sort((first, second) =>
+    second.nominalGDP - first.nominalGDP,
+  );
+
+  return (
+    <section className="panel detail-page diplomacy-page">
+      <div className="detail-hero">
+        <span className="eyebrow">国际战略与合作</span>
+        <h2>外交事务</h2>
+        <p>改善关系有时间成本；协定与伙伴关系扩大市场准入，制裁则同时损害贸易和国际声誉。</p>
+      </div>
+      <div className="diplomacy-metrics">
+        <MetricCard label="外交点数" value={game.nation.diplomacy.diplomaticPoints.toFixed(1)} detail={`每月 +${game.nation.diplomacy.monthlyPointGain.toFixed(2)}`} />
+        <MetricCard label="国际声誉" value={game.nation.diplomacy.globalReputation.toFixed(1)} detail={`平均关系 ${averageInternationalRelation(game).toFixed(1)}`} tone="green" />
+        <MetricCard label="国家安全" value={game.nation.diplomacy.securityIndex.toFixed(1)} detail={`国防预算 ${formatPercent(game.nation.fiscal.budget.defense)}`} tone="gold" />
+        <MetricCard label="对外贸易" value={formatLarge(game.nation.trade.exports + game.nation.trade.imports)} detail={`顺差 ${formatLarge(game.nation.trade.balance)}`} tone={game.nation.trade.balance >= 0 ? "green" : "red"} />
+      </div>
+      <div className="diplomacy-layout">
+        <section className="diplomacy-block">
+          <div className="panel-heading"><div><span className="eyebrow">多边机制</span><h2>国际组织</h2></div></div>
+          <div className="organization-list">
+            {internationalOrganizations.map((organization) => {
+              const reason = organizationUnavailableReason(game, organization);
+              const joined = game.nation.diplomacy.organizationIds.includes(organization.id);
+              return (
+                <article className={joined ? "organization-card is-joined" : "organization-card"} key={organization.id}>
+                  <div><h3>{organization.name}</h3><p>{organization.description}</p><small>{organization.availableYear} 年 · 消耗 {organization.cost} 点 · 贸易 ×{organization.tradeMultiplier.toFixed(2)}</small></div>
+                  <button disabled={busy || reason !== null} title={reason ?? undefined} onClick={() => void joinOrganization(organization.id)}>{joined ? "已加入" : reason ?? "申请加入"}</button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+        <section className="diplomacy-block country-relations">
+          <div className="panel-heading"><div><span className="eyebrow">双边往来</span><h2>国家关系</h2></div><span className="history-count">{countries.length} 个国家</span></div>
+          <div className="relation-list">
+            {countries.map((country) => {
+              const nextAction: DiplomaticActionId = country.diplomaticStatus === "sanctioned"
+                ? "lift_sanctions"
+                : !country.tradeAgreement
+                  ? "sign_trade_agreement"
+                  : "strategic_partnership";
+              const improveReason = diplomaticActionUnavailableReason(game, country, "improve_relations");
+              const nextReason = diplomaticActionUnavailableReason(game, country, nextAction);
+              const sanctionReason = diplomaticActionUnavailableReason(game, country, "impose_sanctions");
+              return (
+                <article className="relation-row" key={country.id}>
+                  <div className="relation-country"><strong>{country.name}</strong><span>{diplomaticStatusLabels[country.diplomaticStatus]}</span></div>
+                  <div className={country.relationWithChina >= 35 ? "relation-score positive" : country.relationWithChina < 0 ? "relation-score negative" : "relation-score"}><strong>{country.relationWithChina.toFixed(1)}</strong><span>双边关系</span></div>
+                  <div className="relation-actions">
+                    <button disabled={busy || improveReason !== null} title={improveReason ?? undefined} onClick={() => void diplomaticAction("improve_relations", country.id)}>改善 · {diplomaticActionDefinitions.improve_relations.cost}</button>
+                    <button disabled={busy || nextReason !== null} title={nextReason ?? undefined} onClick={() => void diplomaticAction(nextAction, country.id)}>{diplomaticActionDefinitions[nextAction].name} · {diplomaticActionDefinitions[nextAction].cost}</button>
+                    {country.diplomaticStatus !== "sanctioned" ? <button className="danger-action" disabled={busy || sanctionReason !== null} title={sanctionReason ?? undefined} onClick={() => void diplomaticAction("impose_sanctions", country.id)}>制裁 · {diplomaticActionDefinitions.impose_sanctions.cost}</button> : null}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    </section>
+  );
 }
 
 function InternationalSection({ game }: { game: GameState }) {
@@ -297,10 +484,12 @@ export function SimulatorDashboard() {
         <div className="workspace">
           <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div><button disabled={busy || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
+          {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
+          {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
           {activeSection === "international" ? <InternationalSection game={game} /> : null}
           {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
           {activeSection === "settings" ? <SettingsSection /> : null}
-          {!(["nation", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+          {!(["nation", "policies", "diplomacy", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
     </main>
