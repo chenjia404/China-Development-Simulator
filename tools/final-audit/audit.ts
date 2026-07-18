@@ -1449,6 +1449,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年国防资本 ${historical.finalState.nation.securityDefense.defenseCapitalStock.toFixed(0)}、战备 ${historical.finalState.nation.securityDefense.readinessIndex.toFixed(1)}、朝鲜战争累计月数 ${historical.finalState.nation.securityDefense.cumulativeConflictMonths}、账户伤亡 ${historical.finalState.nation.securityDefense.cumulativeConflictCasualties.toFixed(0)}`,
     ),
     makeCheck(
+      "institution-causality-graph",
+      "制度执行库存与六类内生风险信号可解释、有限且不直接改写宏观总量",
+      historical.finalState.nation.institutions.stateCapacity >= 0 &&
+        historical.finalState.nation.institutions.stateCapacity <= 1 &&
+        historical.finalState.nation.institutions.effectivePolicyExecutionRate >= 0 &&
+        historical.finalState.nation.institutions.effectivePolicyExecutionRate <= 1 &&
+        Object.values(historical.finalState.nation.institutions.risks).every((risk) =>
+          risk.pressure >= 0 && risk.pressure <= 1
+        ),
+      `2026 年国家能力 ${(historical.finalState.nation.institutions.stateCapacity * 100).toFixed(1)}%、政策有效执行 ${(historical.finalState.nation.institutions.effectivePolicyExecutionRate * 100).toFixed(1)}%、最高风险 ${historical.finalState.nation.institutions.highestRiskId} ${(historical.finalState.nation.institutions.highestRiskPressure * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

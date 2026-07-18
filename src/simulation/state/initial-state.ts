@@ -58,6 +58,10 @@ import {
   createEmptySecurityDefenseState,
   updateSecurityDefense,
 } from "../security/defense-security";
+import {
+  createEmptyInstitutionCausalityState,
+  updateInstitutionCausality,
+} from "../institutions/institution-causality";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -336,6 +340,7 @@ export function createInitialGameState(
         sinoUSNormalizationDelayMonths: 0,
       },
       securityDefense: createEmptySecurityDefenseState(),
+      institutions: createEmptyInstitutionCausalityState(),
       policies: [],
       policyProgress: {},
       projects: [],
@@ -359,5 +364,6 @@ export function createInitialGameState(
   calculateWorldRankings(state);
   updateWorldTradeNetwork(state);
   updateSecurityDefense(state.nation, true);
+  updateInstitutionCausality(state.nation, true);
   return state;
 }

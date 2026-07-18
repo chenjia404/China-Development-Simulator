@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "description": "制度执行能力与六类内生风险的可解释因果图参数。",
+    "sources": [
+      "https://www.worldbank.org/en/publication/worldwide-governance-indicators",
+      "https://www.imf.org/external/pubs/ft/fsi/guide/2006/index.htm"
+    ]
+  },
+  "riskThresholds": {
+    "food_crisis": 0.58,
+    "financial_crisis": 0.62,
+    "fiscal_crisis": 0.65,
+    "environmental_health_crisis": 0.62,
+    "social_unrest": 0.6,
+    "external_isolation": 0.58
+  },
+  "policyCapacity": 5,
+  "monthlyInstitutionAdjustmentSpeed": 0.018
+}

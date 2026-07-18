@@ -54,6 +54,10 @@ export interface MonthlySnapshot {
   defenseReadinessIndex: number;
   activeConflictIntensity: number;
   cumulativeConflictCasualties: number;
+  stateCapacity: number;
+  effectivePolicyExecutionRate: number;
+  highestEndogenousRiskPressure: number;
+  activeEndogenousRiskCount: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

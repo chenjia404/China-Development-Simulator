@@ -59,6 +59,7 @@ import {
   AGE_BAND_IDS,
   enterpriseOwnershipDefinitions,
   economicRegionDefinitions,
+  endogenousRiskDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -608,6 +609,18 @@ function SecurityDefensePanel({ game }: { game: GameState }) {
   </section>;
 }
 
+function InstitutionCausalityPanel({ game }: { game: GameState }) {
+  const state = game.nation.institutions;
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading"><div><span className="eyebrow">执行能力 · 政策负荷 · 因果预警</span><h2>制度执行与内生风险图</h2></div><span>有效执行 {formatPercent(state.effectivePolicyExecutionRate)}</span></div>
+    <div className="account-flow-grid"><div><span>国家能力</span><strong>{formatPercent(state.stateCapacity)}</strong></div><div><span>地方执行</span><strong>{formatPercent(state.localImplementationCapacity)}</strong></div><div><span>法治可预期性</span><strong>{formatPercent(state.legalPredictability)}</strong></div><div><span>统计数据质量</span><strong>{formatPercent(state.statisticalDataQuality)}</strong></div><div><span>政策负荷</span><strong>{formatPercent(state.policyOverload)}</strong></div><div><span>改革疲劳</span><strong>{formatPercent(state.reformFatigue)}</strong></div></div>
+    <div className="enterprise-ownership-grid">{endogenousRiskDefinitions.map((definition) => {
+      const risk = state.risks[definition.id];
+      return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(risk.pressure)}</span></div><p>{risk.primaryDriver}</p><small>{risk.secondaryDriver} · 门槛 {formatPercent(risk.threshold)} · {risk.active ? `连续 ${risk.consecutiveMonths} 月预警` : "未触发"}</small></article>;
+    })}</div>
+  </section>;
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -622,7 +635,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <><BudgetPanel game={game} busy={false} /><SecurityDefensePanel game={game} /></> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <><BudgetPanel game={game} busy={false} /><SecurityDefensePanel game={game} /><InstitutionCausalityPanel game={game} /></> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

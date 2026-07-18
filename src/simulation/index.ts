@@ -40,6 +40,7 @@ export * from "./society/housing-urbanization";
 export * from "./economy/regional-economy";
 export * from "./economy/international-network";
 export * from "./security/defense-security";
+export * from "./institutions/institution-causality";
 export * from "./world/countries";
 export * from "./world/rankings";
 export * from "./world/world-simulation";

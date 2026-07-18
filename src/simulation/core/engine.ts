@@ -43,6 +43,7 @@ import { ensureUrbanHousingState } from "../society/housing-urbanization";
 import { ensureRegionalEconomyState } from "../economy/regional-economy";
 import { ensureWorldTradeNetworkState } from "../economy/international-network";
 import { ensureSecurityDefenseState } from "../security/defense-security";
+import { ensureInstitutionCausalityState } from "../institutions/institution-causality";
 
 export interface SimulationResult {
   state: GameState;
@@ -95,6 +96,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureRegionalEconomyState(this.state.nation);
     ensureWorldTradeNetworkState(this.state);
     ensureSecurityDefenseState(this.state.nation);
+    ensureInstitutionCausalityState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -142,6 +144,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureRegionalEconomyState(this.state.nation);
         ensureWorldTradeNetworkState(this.state);
         ensureSecurityDefenseState(this.state.nation);
+        ensureInstitutionCausalityState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

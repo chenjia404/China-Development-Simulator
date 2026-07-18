@@ -724,6 +724,36 @@ export interface SecurityDefenseState {
   wartimeExternalDebtExposure: number;
 }
 
+export type EndogenousRiskId =
+  | "food_crisis" | "financial_crisis" | "fiscal_crisis"
+  | "environmental_health_crisis" | "social_unrest" | "external_isolation";
+export interface EndogenousRiskSignal {
+  id: EndogenousRiskId;
+  pressure: number;
+  threshold: number;
+  active: boolean;
+  consecutiveMonths: number;
+  primaryDriver: string;
+  secondaryDriver: string;
+}
+/** 制度执行能力及六类内生风险因果信号。 */
+export interface InstitutionCausalityState {
+  stateCapacity: number;
+  localImplementationCapacity: number;
+  administrativeCapacity: number;
+  legalPredictability: number;
+  statisticalDataQuality: number;
+  policyCredibility: number;
+  corruptionRisk: number;
+  reformFatigue: number;
+  policyOverload: number;
+  effectivePolicyExecutionRate: number;
+  risks: Record<EndogenousRiskId, EndogenousRiskSignal>;
+  activeRiskIds: EndogenousRiskId[];
+  highestRiskId: EndogenousRiskId;
+  highestRiskPressure: number;
+}
+
 export interface ModifierState {
   id: string;
   sourceId: string;
@@ -771,6 +801,7 @@ export interface NationState {
   regionalEconomy: RegionalEconomyState;
   diplomacy: DiplomacyState;
   securityDefense: SecurityDefenseState;
+  institutions: InstitutionCausalityState;
   policies: string[];
   policyProgress: Record<string, number>;
   projects: ProjectState[];

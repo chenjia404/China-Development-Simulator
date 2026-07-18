@@ -211,6 +211,16 @@ export function validateGameState(state: GameState): void {
     defense.cumulativeConflictCasualties < 0 ||
     defense.cumulativeWarCost < 0
   ) throw new Error("国防战争安全账户出现无效库存或比例");
+  const institutions = nation.institutions;
+  if (
+    institutions.stateCapacity < 0 || institutions.stateCapacity > 1 ||
+    institutions.effectivePolicyExecutionRate < 0 ||
+    institutions.effectivePolicyExecutionRate > 1 ||
+    institutions.activeRiskIds.some((id) => !institutions.risks[id]?.active) ||
+    Object.values(institutions.risks).some((risk) =>
+      risk.pressure < 0 || risk.pressure > 1 || risk.consecutiveMonths < 0
+    )
+  ) throw new Error("制度执行或内生风险因果图出现无效状态");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

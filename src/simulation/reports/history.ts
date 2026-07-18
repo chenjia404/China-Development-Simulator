@@ -122,6 +122,12 @@ export function recordHistory(state: GameState): void {
     activeConflictIntensity: nation.securityDefense.conflictIntensity,
     cumulativeConflictCasualties:
       nation.securityDefense.cumulativeConflictCasualties,
+    stateCapacity: nation.institutions.stateCapacity,
+    effectivePolicyExecutionRate:
+      nation.institutions.effectivePolicyExecutionRate,
+    highestEndogenousRiskPressure:
+      nation.institutions.highestRiskPressure,
+    activeEndogenousRiskCount: nation.institutions.activeRiskIds.length,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

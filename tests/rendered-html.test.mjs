@@ -389,3 +389,16 @@ test("客户端展示国防预算、战争成本与国家安全", async () => {
   assert.match(source, /累计战争成本/);
   assert.match(source, /民用投资机会成本/);
 });
+
+test("客户端展示制度执行能力与内生风险因果图", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /制度执行与内生风险图/);
+  assert.match(source, /法治可预期性/);
+  assert.match(source, /统计数据质量/);
+  assert.match(source, /金融危机/);
+  assert.match(source, /外部孤立/);
+});
