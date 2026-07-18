@@ -14,6 +14,7 @@ import {
   diplomaticStrategyEffects,
   serializeGameState,
   updateForeignExchange,
+  type GameState,
 } from "../../src/simulation/index";
 import { compareWithTargets, summarizeCalibration } from "../baseline-calibration/calibration";
 import { runSimulation, type SimulationRunResult } from "../baseline-calibration/runner";
@@ -352,6 +353,22 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const preventedWarEngine = prepareKoreanWarChoice("oppose_korean_war");
   preventedWarEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
   const preventedWarState = preventedWarEngine.getState();
+  const koreanWarDiplomacyEngine = prepareKoreanWarChoice("historical_path");
+  koreanWarDiplomacyEngine.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  koreanWarDiplomacyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 84 });
+  const koreanWarDiplomacyState = koreanWarDiplomacyEngine.getState();
+  const preventedWarDiplomacyEngine = prepareKoreanWarChoice(
+    "oppose_korean_war",
+  );
+  preventedWarDiplomacyEngine.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  preventedWarDiplomacyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 84 });
+  const preventedWarDiplomacyState = preventedWarDiplomacyEngine.getState();
   const preventedWarContinuation = prepareKoreanWarChoice(
     "oppose_korean_war",
   );
@@ -381,6 +398,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const preventedWarSouthKoreaRelation = preventedWarState.world.countries.find(
     (country) => country.id === "south_korea",
   )?.relationWithChina ?? 0;
+  const koreanWarWesternCountryIds = [
+    "usa",
+    "united_kingdom",
+    "france",
+    "canada",
+    "australia",
+    "japan",
+  ];
+  const relationFor = (state: GameState, countryId: string) =>
+    state.world.countries.find((country) => country.id === countryId)
+      ?.relationWithChina ?? 0;
+  const koreanWarWesternAverage = koreanWarWesternCountryIds.reduce(
+    (sum, countryId) => sum + relationFor(koreanWarDiplomacyState, countryId),
+    0,
+  ) / koreanWarWesternCountryIds.length;
+  const preventedWarWesternAverage = koreanWarWesternCountryIds.reduce(
+    (sum, countryId) =>
+      sum + relationFor(preventedWarDiplomacyState, countryId),
+    0,
+  ) / koreanWarWesternCountryIds.length;
 
   const runThirdFrontChoice = (choiceId: string) => {
     const state = createInitialGameState(seed, 1964, "interactive");
@@ -770,10 +807,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         koreanWarSouthKoreaRelation < -30 &&
         preventedWarSouthKoreaRelation > -30 &&
         preventedWarSouthKoreaRelation > koreanWarSouthKoreaRelation &&
+        koreanWarWesternCountryIds.every(
+          (countryId) =>
+            relationFor(preventedWarDiplomacyState, countryId) >
+            relationFor(koreanWarDiplomacyState, countryId),
+        ) &&
         preventedWarRecord?.outcome === "prevented" &&
         preventedWarFinalState.nation.date.year === 2027 &&
         preventedWarFinalState.nation.history.reports.length === 77,
-      `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
+      `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，七年后美英法加澳日平均关系 ${koreanWarWesternAverage.toFixed(2)}/${preventedWarWesternAverage.toFixed(2)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
     ),
     makeCheck(
       "third-front-branching",

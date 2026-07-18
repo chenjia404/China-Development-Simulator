@@ -36,16 +36,21 @@
       {
         "id": "oppose_korean_war",
         "name": "反对朝鲜战争并阻止冲突",
-        "description": "明确反对以武力改变半岛现状，通过对朝施压、与苏联协调并推动国际斡旋阻止战争爆发；避免人员伤亡和战时动员，但会承受对苏关系降温的外交代价。",
-        "effects": ["朝鲜战争不会爆发", "避免战争伤亡与国防财政冲击", "对美关系改善", "对韩关系目标提高并逐月改善", "对苏关系短期降温", "贸易封锁风险下降"],
+        "description": "明确反对以武力改变半岛现状，通过对朝施压、与苏联协调并推动国际斡旋阻止战争爆发；避免人员伤亡和战时动员，并显著改善与韩国、美国及主要西方国家的关系，但会承受对苏关系降温的外交代价。",
+        "effects": ["朝鲜战争不会爆发", "避免战争伤亡与国防财政冲击", "对韩、对美关系显著改善", "英国、法国、加拿大、澳大利亚和日本关系逐步改善", "对苏关系中期降温", "贸易封锁风险下降"],
         "durationMonths": 24,
         "modifiers": [
           { "target": "fiscal.spending", "operation": "multiply", "value": 0.99 },
           { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.02 },
-          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 4 },
-          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 30 },
-          { "target": "diplomacy.relationTarget.south_korea", "operation": "add", "value": 25 },
-          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -15 }
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 5, "durationMonths": 60 },
+          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 50, "durationMonths": 120 },
+          { "target": "diplomacy.relationTarget.south_korea", "operation": "add", "value": 60, "durationMonths": 120 },
+          { "target": "diplomacy.relationTarget.united_kingdom", "operation": "add", "value": 30, "durationMonths": 84 },
+          { "target": "diplomacy.relationTarget.france", "operation": "add", "value": 22, "durationMonths": 84 },
+          { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 28, "durationMonths": 84 },
+          { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 28, "durationMonths": 84 },
+          { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": 25, "durationMonths": 120 },
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -20, "durationMonths": 60 }
         ],
         "outcome": "prevented"
       },

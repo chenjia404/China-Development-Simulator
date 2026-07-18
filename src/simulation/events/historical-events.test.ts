@@ -177,6 +177,28 @@ describe("确定性历史事件", () => {
 
     const war = runChoice("historical_path");
     const prevented = runChoice("oppose_korean_war");
+    const preventedChoice = choices.find(
+      (choice) => choice.id === "oppose_korean_war",
+    );
+    const westernRelationTargets = [
+      "diplomacy.relationTarget.usa",
+      "diplomacy.relationTarget.united_kingdom",
+      "diplomacy.relationTarget.france",
+      "diplomacy.relationTarget.canada",
+      "diplomacy.relationTarget.australia",
+      "diplomacy.relationTarget.japan",
+    ];
+    expect(
+      preventedChoice?.modifiers
+        .filter((modifier) => westernRelationTargets.includes(modifier.target))
+        .map((modifier) => modifier.target),
+    ).toEqual(westernRelationTargets);
+    expect(
+      preventedChoice?.modifiers.find(
+        (modifier) =>
+          modifier.target === "diplomacy.relationTarget.south_korea",
+      ),
+    ).toMatchObject({ value: 60, durationMonths: 120 });
     const warRecord = war.nation.history.historicalEvents.find(
       (event) => event.id === "korean_war_1950",
     );
@@ -222,6 +244,23 @@ describe("确定性历史事件", () => {
     expect(preventedSouthKoreaRelation).toBeGreaterThan(
       warSouthKoreaRelation ?? Number.POSITIVE_INFINITY,
     );
+    for (const countryId of [
+      "united_kingdom",
+      "france",
+      "canada",
+      "australia",
+      "japan",
+    ]) {
+      const warRelation = war.world.countries.find(
+        (country) => country.id === countryId,
+      )?.relationWithChina;
+      const preventedRelation = prevented.world.countries.find(
+        (country) => country.id === countryId,
+      )?.relationWithChina;
+      expect(preventedRelation).toBeGreaterThan(
+        warRelation ?? Number.POSITIVE_INFINITY,
+      );
+    }
   });
 
   it("三线建设可选，史实、集中建设和取消路线形成完整收益代价", () => {
