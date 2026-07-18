@@ -79,11 +79,11 @@
     "month": 12,
     "category": "对外经济",
     "impact": "mixed",
-    "description": "旧有海关与外贸特权被取消，部分敌对国家资产被管制或接管，合法经营外资则按不同情况逐步清理、征用、代管或对价转让。国家经济主权增强，但西方资本与贸易渠道明显收缩。",
-    "effects": ["经济主权增强", "外资信心下降", "对西方贸易收缩"],
+    "description": "旧有海关与外贸特权被取消，部分敌对国家资产被管制或接管，合法经营外资则按不同情况逐步清理、征用、代管或对价转让。史实清理期内新增外资流入完全停止，国家经济主权增强，但西方资本与贸易渠道显著收缩。",
+    "effects": ["经济主权增强", "新增外资流入完全停止", "对西方贸易收缩"],
     "durationMonths": 60,
     "modifiers": [
-      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 0.3 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 0 },
       { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.94 },
       { "target": "diplomacy.reputationTarget", "operation": "add", "value": -2 }
     ]

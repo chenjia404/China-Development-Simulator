@@ -227,6 +227,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const decisionChoices = pendingDecisionId
     ? getHistoricalEventChoices(pendingDecisionId)
     : [];
+  const foreignAssetChoices = getHistoricalEventChoices(
+    "foreign_assets_reorganization",
+  );
+  const foreignInvestmentMultipliers = foreignAssetChoices.map(
+    (choice) => choice.modifiers.find(
+      (modifier) => modifier.target === "trade.foreignInvestment",
+    )?.value ?? Number.NaN,
+  );
   if (pendingDecisionId) {
     decisionEngine.dispatch({
       type: "RESOLVE_HISTORICAL_EVENT",
@@ -874,8 +882,11 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       pendingDecisionId === "industry_wide_joint_ownership_1956" &&
         decisionChoices.length === 3 &&
         decisionRecord?.choiceId === "preserve_mixed_ownership" &&
-        decisionEngine.getState().nation.date.month === 1,
-      `待决策事件 ${pendingDecisionId ?? "无"}，可选 ${decisionChoices.length} 个方案，记录方案 ${decisionRecord?.choiceName ?? "无"}`,
+        decisionEngine.getState().nation.date.month === 1 &&
+        foreignInvestmentMultipliers[0] === 0 &&
+        foreignInvestmentMultipliers[1] === 0.65 &&
+        foreignInvestmentMultipliers[2] === 0.9,
+      `待决策事件 ${pendingDecisionId ?? "无"}，可选 ${decisionChoices.length} 个方案，记录方案 ${decisionRecord?.choiceName ?? "无"}；外资清理史实/渐进/监管保留比例 ${(foreignInvestmentMultipliers[0] * 100).toFixed(0)}%/${(foreignInvestmentMultipliers[1] * 100).toFixed(0)}%/${(foreignInvestmentMultipliers[2] * 100).toFixed(0)}%`,
     ),
     makeCheck(
       "historical-economic-milestones",

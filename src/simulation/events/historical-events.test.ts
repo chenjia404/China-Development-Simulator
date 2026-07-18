@@ -35,7 +35,24 @@ describe("确定性历史事件", () => {
     expect(triggered[0].description).toContain("对价转让");
     expect(
       applyModifiers(state.nation, "trade.foreignInvestment", 100),
-    ).toBe(30);
+    ).toBe(0);
+
+    const choices = getHistoricalEventChoices(
+      "foreign_assets_reorganization",
+      state.nation,
+    );
+    expect(
+      choices.map((choice) => ({
+        id: choice.id,
+        multiplier: choice.modifiers.find(
+          (modifier) => modifier.target === "trade.foreignInvestment",
+        )?.value,
+      })),
+    ).toEqual([
+      { id: "historical_path", multiplier: 0 },
+      { id: "compensated_transition", multiplier: 0.65 },
+      { id: "regulated_foreign_business", multiplier: 0.9 },
+    ]);
   });
 
   it("全行业公私合营在指定月份触发且只触发一次", () => {
