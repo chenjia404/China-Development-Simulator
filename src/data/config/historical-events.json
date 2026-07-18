@@ -309,6 +309,20 @@
     ]
   },
   {
+    "id": "gatt_observer_1982",
+    "name": "取得关贸总协定观察员地位",
+    "year": 1982,
+    "month": 11,
+    "category": "对外经济",
+    "impact": "positive",
+    "description": "中国取得关税与贸易总协定观察员地位，开始更系统地参与多边贸易规则讨论，并为恢复缔约方地位积累制度与外交经验。",
+    "effects": ["多边贸易信息渠道扩大", "国际经贸声誉提高", "复关准备开始积累"],
+    "durationMonths": 48,
+    "modifiers": [
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1.5 }
+    ]
+  },
+  {
     "id": "urban_economic_reform_1984",
     "name": "城市经济体制改革全面展开",
     "year": 1984,
@@ -322,6 +336,21 @@
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.05 },
       { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.025 },
       { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "gatt_accession_application_1986",
+    "name": "提交恢复关贸总协定缔约方地位申请",
+    "year": 1986,
+    "month": 7,
+    "category": "对外经济",
+    "impact": "mixed",
+    "description": "中国正式向关贸总协定提出恢复缔约方地位的申请，随后进入外贸体制审议、关税谈判和国内规则调整的长期复关与入世进程。",
+    "effects": ["多边贸易谈判正式启动", "外贸体制透明度要求提高", "规则调整产生短期行政成本"],
+    "durationMonths": 180,
+    "modifiers": [
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 0.999 }
     ]
   },
   {

@@ -14,12 +14,14 @@ import {
 
 export interface HistoricalInitiativeRequirements {
   historicalEventIds: string[];
-  minimumMonthsSinceEvents: Record<string, number>;
+  minimumMonthsSinceEvents: Partial<Record<string, number>>;
   minimumInstitutionalEfficiency: number;
   minimumStability: number;
   minimumOpenness: number;
   minimumReputation: number;
   minimumAverageRelation: number;
+  supportRelationThreshold?: number;
+  minimumSupportingCountries?: number;
   minimumTradeAgreements: number;
   minimumInternationalInfluence: number;
 }
@@ -129,6 +131,17 @@ export function getHistoricalInitiativeStatus(
   }
   if (averageInternationalRelation(state) < requirements.minimumAverageRelation) {
     blockers.push(`总体国际关系需达到 ${requirements.minimumAverageRelation.toFixed(0)}`);
+  }
+  const supportRelationThreshold = requirements.supportRelationThreshold ?? 0;
+  const supportingCountries = state.world.countries.filter(
+    (country) =>
+      country.diplomaticStatus !== "sanctioned" &&
+      country.relationWithChina >= supportRelationThreshold,
+  ).length;
+  if (supportingCountries < (requirements.minimumSupportingCountries ?? 0)) {
+    blockers.push(
+      `需至少 ${requirements.minimumSupportingCountries} 个国家关系达到 ${supportRelationThreshold}`,
+    );
   }
   const tradeAgreements = state.world.countries.filter(
     (country) => country.tradeAgreement,

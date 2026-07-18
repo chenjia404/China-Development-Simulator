@@ -3,6 +3,7 @@ import { approach, clamp } from "../core/math";
 import type { GameState } from "../state/game-state";
 import type { WorldCountryState } from "../state/world-state";
 import { applyModifiers } from "../events/modifiers";
+import { getHistoricalEvent } from "../events/historical-event-engine";
 import {
   diplomaticRelationTargetAdjustment,
   diplomaticStrategyEffects,
@@ -24,6 +25,8 @@ export interface InternationalOrganizationDefinition {
   supportRelationThreshold: number;
   minimumSupportingCountries: number;
   minimumTradeAgreements: number;
+  requiredHistoricalEventIds?: string[];
+  minimumMonthsSinceEvents?: Record<string, number>;
   historicalEventId?: string;
   tradeMultiplier: number;
   monthlyPointGain: number;
@@ -217,6 +220,24 @@ export function getInternationalOrganizationStatus(
   const blockers: string[] = [];
   if (state.nation.date.year < organization.availableYear) {
     blockers.push(`最早可在 ${organization.availableYear} 年申请`);
+  }
+  for (const requiredEventId of organization.requiredHistoricalEventIds ?? []) {
+    const requiredEvent = getHistoricalEvent(requiredEventId);
+    const requiredRecord = state.nation.history.historicalEvents.find(
+      (record) => record.id === requiredEventId,
+    );
+    if (!requiredRecord) {
+      blockers.push(`需先完成${requiredEvent?.name ?? requiredEventId}`);
+      continue;
+    }
+    const minimumMonths = organization.minimumMonthsSinceEvents?.[requiredEventId] ?? 0;
+    const elapsedMonths = (state.nation.date.year - requiredRecord.year) * 12 +
+      state.nation.date.month - requiredRecord.month;
+    if (elapsedMonths < minimumMonths) {
+      blockers.push(
+        `${requiredRecord.name}需推进满 ${minimumMonths} 个月（还需 ${minimumMonths - elapsedMonths} 个月）`,
+      );
+    }
   }
   if (state.nation.internationalInfluence < organization.minimumInfluence) {
     blockers.push(`国际影响力需达到 ${organization.minimumInfluence}`);

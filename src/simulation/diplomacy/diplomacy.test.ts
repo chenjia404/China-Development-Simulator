@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { calculateTradeAccess, updateInternationalTrade } from "../economy/trade";
 import { createInitialGameState } from "../state/initial-state";
+import { enactHistoricalEventEarly } from "../events/historical-event-engine";
 import { updateDiplomacy } from "./diplomacy";
 import { updateTechnology } from "../technology/research";
 import {
@@ -207,7 +208,7 @@ describe("外交与国际贸易", () => {
     );
   });
 
-  it("世界贸易组织在成立后由国际支持、开放和贸易协定共同解锁", () => {
+  it("世界贸易组织在成立后由复关进程、国际支持、开放和贸易协定共同解锁", () => {
     const tooEarly = createSimulationEngine(createInitialGameState(1949));
     expect(() =>
       tooEarly.dispatch({
@@ -216,7 +217,32 @@ describe("外交与国际贸易", () => {
       }),
     ).toThrow("1995 年");
 
-    const eligible = createInitialGameState(1995, 1995);
+    const missingApplication = createInitialGameState(1995, 1995);
+    missingApplication.nation.internationalInfluence = 50;
+    missingApplication.nation.trade.openness = 0.5;
+    missingApplication.nation.diplomacy.diplomaticPoints = 100;
+    for (const country of missingApplication.world.countries) {
+      country.relationWithChina = 30;
+      country.tradeAgreement = true;
+    }
+    expect(() =>
+      createSimulationEngine(missingApplication).dispatch({
+        type: "JOIN_ORGANIZATION",
+        organizationId: "world_trade_organization",
+      }),
+    ).toThrow("需先完成提交恢复关贸总协定缔约方地位申请");
+
+    const eligible = createInitialGameState(1986, 1986);
+    enactHistoricalEventEarly(
+      eligible.nation,
+      "gatt_accession_application_1986",
+      "test:gatt-application",
+      "测试复关进程前置条件",
+      [],
+    );
+    eligible.nation.date.year = 1995;
+    eligible.nation.date.month = 1;
+    eligible.nation.date.elapsedMonths = (1995 - 1949) * 12;
     eligible.nation.internationalInfluence = 50;
     eligible.nation.trade.openness = 0.5;
     eligible.nation.diplomacy.diplomaticPoints = 100;

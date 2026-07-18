@@ -48,27 +48,90 @@
     ]
   },
   {
+    "id": "early_gatt_observer",
+    "eventId": "gatt_observer_1982",
+    "name": "提前取得关贸总协定观察员地位",
+    "description": "在改革和涉外经济法律框架初步建立后，通过区域贸易合作与多边外交接触，争取提前参与关贸总协定规则讨论。",
+    "availableFromYear": 1979,
+    "diplomaticPointCost": 12,
+    "transitionDurationMonths": 24,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979"],
+      "minimumMonthsSinceEvents": {
+        "reform_and_opening_1978": 12,
+        "joint_venture_law_1979": 6
+      },
+      "minimumInstitutionalEfficiency": 0.4,
+      "minimumStability": 50,
+      "minimumOpenness": 0.12,
+      "minimumReputation": 45,
+      "minimumAverageRelation": 0,
+      "supportRelationThreshold": 10,
+      "minimumSupportingCountries": 3,
+      "minimumTradeAgreements": 1,
+      "minimumInternationalInfluence": 10
+    },
+    "transitionEffects": ["开始积累多边贸易规则经验", "需要维持区域贸易合作与外交沟通", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.005 }
+    ]
+  },
+  {
+    "id": "early_gatt_accession_application",
+    "eventId": "gatt_accession_application_1986",
+    "name": "提前启动关贸总协定复关申请",
+    "description": "在取得观察员地位并完成初步规则准备后，正式提交恢复关贸总协定缔约方地位申请，进入外贸体制审议和关税谈判。",
+    "availableFromYear": 1982,
+    "diplomaticPointCost": 18,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979", "gatt_observer_1982"],
+      "minimumMonthsSinceEvents": {
+        "reform_and_opening_1978": 36,
+        "joint_venture_law_1979": 24,
+        "gatt_observer_1982": 12
+      },
+      "minimumInstitutionalEfficiency": 0.44,
+      "minimumStability": 52,
+      "minimumOpenness": 0.18,
+      "minimumReputation": 48,
+      "minimumAverageRelation": 3,
+      "supportRelationThreshold": 15,
+      "minimumSupportingCountries": 5,
+      "minimumTradeAgreements": 2,
+      "minimumInternationalInfluence": 15
+    },
+    "transitionEffects": ["外贸体制审议和关税谈判正式启动", "规则透明度改造带来行政成本", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 0.995 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+    ]
+  },
+  {
     "id": "early_wto_accession",
     "eventId": "wto_accession_2001",
-    "name": "提前加入世界贸易组织",
-    "description": "以更早完成关税、市场准入和国内规则谈判为目标，主动争取在史实节点前加入多边贸易体系。",
-    "availableFromYear": 1986,
+    "name": "提前完成入世谈判并加入世界贸易组织",
+    "description": "在世界贸易组织成立后，以已经持续多年的复关和入世谈判为基础，提前完成关税、市场准入及国内规则谈判并取得正式成员资格。",
+    "availableFromYear": 1995,
     "diplomaticPointCost": 25,
     "transitionDurationMonths": 36,
     "organizationId": "world_trade_organization",
     "requirements": {
-      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979"],
+      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979", "gatt_accession_application_1986"],
       "minimumMonthsSinceEvents": {
-        "reform_and_opening_1978": 60,
-        "joint_venture_law_1979": 36
+        "reform_and_opening_1978": 120,
+        "joint_venture_law_1979": 96,
+        "gatt_accession_application_1986": 60
       },
-      "minimumInstitutionalEfficiency": 0.48,
+      "minimumInstitutionalEfficiency": 0.55,
       "minimumStability": 55,
-      "minimumOpenness": 0.25,
-      "minimumReputation": 52,
-      "minimumAverageRelation": 5,
-      "minimumTradeAgreements": 2,
-      "minimumInternationalInfluence": 20
+      "minimumOpenness": 0.35,
+      "minimumReputation": 55,
+      "minimumAverageRelation": 12,
+      "supportRelationThreshold": 25,
+      "minimumSupportingCountries": 10,
+      "minimumTradeAgreements": 3,
+      "minimumInternationalInfluence": 25
     },
     "transitionEffects": ["关税和国内规则调整带来短期财政成本", "正式取得世界贸易组织成员资格", "原史实节点不再重复触发"],
     "transitionModifiers": [

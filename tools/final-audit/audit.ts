@@ -7,6 +7,7 @@ import {
   createInitialGameState,
   historicalEventDefinitions,
   historicalInitiativeDefinitions,
+  enactHistoricalEventEarly,
   getHistoricalEventChoices,
   remittanceDirectedInvestment,
   deserializeGameState,
@@ -324,19 +325,41 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_joint_venture_law",
   });
-  const wtoState = legalFrameworkEngine.exportState();
-  wtoState.nation.date.year = 1986;
+  const observerState = legalFrameworkEngine.exportState();
+  observerState.nation.date.year = 1979;
+  observerState.nation.date.month = 1;
+  observerState.nation.date.elapsedMonths = (1979 - 1949) * 12;
+  observerState.nation.economy.institutionalEfficiency = 0.5;
+  observerState.nation.society.stabilityIndex = 60;
+  observerState.nation.trade.openness = 0.22;
+  observerState.nation.diplomacy.globalReputation = 60;
+  observerState.nation.diplomacy.diplomaticPoints = 100;
+  observerState.nation.internationalInfluence = 30;
+  for (const country of observerState.world.countries) country.relationWithChina = 15;
+  observerState.world.countries[0].tradeAgreement = true;
+  const observerEngine = createSimulationEngine(observerState);
+  observerEngine.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_gatt_observer",
+  });
+  const applicationState = observerEngine.exportState();
+  applicationState.nation.date.year = 1982;
+  applicationState.nation.date.month = 1;
+  applicationState.nation.date.elapsedMonths = (1982 - 1949) * 12;
+  applicationState.world.countries[1].tradeAgreement = true;
+  const applicationEngine = createSimulationEngine(applicationState);
+  applicationEngine.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_gatt_accession_application",
+  });
+  const wtoState = applicationEngine.exportState();
+  wtoState.nation.date.year = 1995;
   wtoState.nation.date.month = 1;
-  wtoState.nation.date.elapsedMonths = (1986 - 1949) * 12;
-  wtoState.nation.economy.institutionalEfficiency = 0.55;
-  wtoState.nation.society.stabilityIndex = 60;
-  wtoState.nation.trade.openness = 0.3;
-  wtoState.nation.diplomacy.globalReputation = 60;
-  wtoState.nation.diplomacy.diplomaticPoints = 100;
-  wtoState.nation.internationalInfluence = 25;
-  for (const country of wtoState.world.countries) country.relationWithChina = 10;
-  wtoState.world.countries[0].tradeAgreement = true;
-  wtoState.world.countries[1].tradeAgreement = true;
+  wtoState.nation.date.elapsedMonths = (1995 - 1949) * 12;
+  wtoState.nation.economy.institutionalEfficiency = 0.6;
+  wtoState.nation.trade.openness = 0.45;
+  for (const country of wtoState.world.countries) country.relationWithChina = 30;
+  wtoState.world.countries[2].tradeAgreement = true;
   const initiativeEngine = createSimulationEngine(wtoState);
   initiativeEngine.dispatch({
     type: "ENACT_HISTORICAL_INITIATIVE",
@@ -355,7 +378,17 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "JOIN_ORGANIZATION",
     organizationId: "united_nations",
   });
-  const wtoSupportState = createInitialGameState(seed, 1995);
+  const wtoSupportState = createInitialGameState(seed, 1986);
+  enactHistoricalEventEarly(
+    wtoSupportState.nation,
+    "gatt_accession_application_1986",
+    "audit:gatt-application",
+    "审计复关进程前置条件",
+    [],
+  );
+  wtoSupportState.nation.date.year = 1995;
+  wtoSupportState.nation.date.month = 1;
+  wtoSupportState.nation.date.elapsedMonths = (1995 - 1949) * 12;
   wtoSupportState.nation.internationalInfluence = 50;
   wtoSupportState.nation.trade.openness = 0.5;
   wtoSupportState.nation.diplomacy.diplomaticPoints = 100;
@@ -629,7 +662,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "relationship-triggered-organizations",
-      "联合国席位和世界贸易组织可由足够的国际关系支持提前触发",
+      "联合国席位和世界贸易组织可由历史进程与足够的国际关系支持提前触发",
       unSupportEngine.getState().nation.diplomacy.organizationIds.includes(
         "united_nations",
       ) &&

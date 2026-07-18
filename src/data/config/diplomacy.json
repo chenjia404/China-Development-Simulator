@@ -81,6 +81,10 @@
       "supportRelationThreshold": 25,
       "minimumSupportingCountries": 10,
       "minimumTradeAgreements": 3,
+      "requiredHistoricalEventIds": ["gatt_accession_application_1986"],
+      "minimumMonthsSinceEvents": {
+        "gatt_accession_application_1986": 60
+      },
       "historicalEventId": "wto_accession_2001",
       "tradeMultiplier": 1.1,
       "monthlyPointGain": 0.05,
