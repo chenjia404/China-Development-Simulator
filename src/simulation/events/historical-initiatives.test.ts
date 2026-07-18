@@ -26,8 +26,8 @@ describe("历史转折国策", () => {
     ).toEqual([1949, 1949, 1979, 1982, 1995]);
   });
 
-  it("改革开放可在开局治理门槛达标后立即发动", () => {
-    const engine = createSimulationEngine(prepareReformConditions(1949));
+  it("改革开放可按1949年初始状态立即发动", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
     expect(
       getHistoricalInitiativeStatus(engine.exportState(), "early_reform_and_opening")
         .available,
@@ -56,8 +56,8 @@ describe("历史转折国策", () => {
     ).toBe(true);
   });
 
-  it("合资企业法开局可见，但最早需在改革开放运行满一年后发动", () => {
-    const engine = createSimulationEngine(prepareReformConditions(1949));
+  it("合资企业法在改革开放启动后可于1949年同月发动", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
     expect(
       getHistoricalInitiativeStatus(
         engine.exportState(),
@@ -73,22 +73,16 @@ describe("历史转折国策", () => {
       getHistoricalInitiativeStatus(
         engine.exportState(),
         "early_joint_venture_law",
-      ).blockers,
-    ).toContain("改革开放启动需实施满 12 个月（还需 12 个月）");
-
-    const maturedState = engine.exportState();
-    maturedState.nation.date.year = 1950;
-    maturedState.nation.date.month = 1;
-    maturedState.nation.date.elapsedMonths += 12;
-    const maturedEngine = createSimulationEngine(maturedState);
-    maturedEngine.dispatch({
+      ).available,
+    ).toBe(true);
+    engine.dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_joint_venture_law",
     });
 
-    expect(maturedEngine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+    expect(engine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
       id: "joint_venture_law_1979",
-      year: 1950,
+      year: 1949,
       scheduledYear: 1979,
       outcome: "enacted_early",
     });

@@ -333,25 +333,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     .historicalEvents.find((event) => event.id === "third_front_construction_1964");
 
   const initiativeState = createInitialGameState(seed, 1949);
-  initiativeState.nation.economy.institutionalEfficiency = 0.4;
-  initiativeState.nation.society.stabilityIndex = 55;
-  initiativeState.nation.trade.openness = 0.1;
-  initiativeState.nation.diplomacy.globalReputation = 48;
   const initiativePreparation = createSimulationEngine(initiativeState);
   initiativePreparation.dispatch({
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_reform_and_opening",
   });
-  const legalFrameworkState = initiativePreparation.exportState();
-  legalFrameworkState.nation.date.year = 1950;
-  legalFrameworkState.nation.date.month = 1;
-  legalFrameworkState.nation.date.elapsedMonths += 12;
-  const legalFrameworkEngine = createSimulationEngine(legalFrameworkState);
-  legalFrameworkEngine.dispatch({
+  initiativePreparation.dispatch({
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_joint_venture_law",
   });
-  const observerState = legalFrameworkEngine.exportState();
+  const observerState = initiativePreparation.exportState();
   observerState.nation.date.year = 1979;
   observerState.nation.date.month = 1;
   observerState.nation.date.elapsedMonths = (1979 - 1949) * 12;
