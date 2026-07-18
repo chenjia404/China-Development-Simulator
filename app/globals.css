@@ -291,6 +291,18 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .diplomatic-strategy-panel { margin-bottom: 15px; padding: 18px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
 .doctrine-panel { background: color-mix(in srgb, var(--blue-soft) 24%, var(--surface-soft)); }
 .foreign-aid-panel { background: color-mix(in srgb, var(--gold) 3%, var(--surface-soft)); }
+.normalization-panel { background: color-mix(in srgb, var(--blue) 4%, var(--surface-soft)); }
+.normalization-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 16px 0 13px; }
+.normalization-metrics div { min-width: 0; padding: 11px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.normalization-metrics span, .normalization-metrics strong, .normalization-metrics small { display: block; }
+.normalization-metrics span, .normalization-metrics small { color: var(--muted); font-size: 11px; }
+.normalization-metrics strong { margin: 6px 0 4px; color: var(--blue); font-size: 15px; }
+.normalization-policy-action { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; }
+.normalization-policy-action strong { font-size: 13px; }
+.normalization-policy-action p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.normalization-policy-action button { min-width: 150px; padding: 9px 12px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 7px; cursor: pointer; font-size: 11px; font-weight: 700; }
+.normalization-policy-action button:disabled { color: var(--muted); background: var(--surface-soft); border-color: var(--line); }
+.normalization-policy-action .normalization-blockers { color: var(--red); }
 .foreign-aid-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 16px 0 13px; }
 .foreign-aid-metrics div { min-width: 0; padding: 11px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
 .foreign-aid-metrics span, .foreign-aid-metrics strong, .foreign-aid-metrics small { display: block; }
@@ -591,6 +603,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .doctrine-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .foreign-aid-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .foreign-aid-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .normalization-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .history-events-hero { padding-right: 4px; }
   .history-event-summary { position: static; width: fit-content; margin-top: 15px; }
   .historical-choice-grid { grid-template-columns: 1fr; }
@@ -639,6 +652,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .strategy-panel-heading { display: block; }
   .strategy-current { width: fit-content; margin-top: 12px; text-align: left; }
   .foreign-aid-grid { grid-template-columns: 1fr; }
+  .normalization-policy-action { grid-template-columns: 1fr; }
+  .normalization-policy-action button { width: 100%; }
   .policy-hero { padding-right: 4px; }
   .selection-count { position: static; display: inline-block; margin-top: 14px; }
   .relation-row { grid-template-columns: 1fr 64px; }
@@ -669,6 +684,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .panel { padding: 14px; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: 1fr; }
   .foreign-aid-metrics { grid-template-columns: 1fr; }
+  .normalization-metrics { grid-template-columns: 1fr; }
   .route-blueprint-grid { grid-template-columns: 1fr; }
   .initiative-heading { display: block; }
   .initiative-heading > span { display: inline-flex; margin-top: 12px; }

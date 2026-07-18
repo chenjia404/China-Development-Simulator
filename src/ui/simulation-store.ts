@@ -52,6 +52,7 @@ interface SimulationStore {
   setDiplomaticStrategy(strategyId: DiplomaticStrategyId): Promise<void>;
   setForeignPolicyDoctrine(doctrineId: ForeignPolicyDoctrineId): Promise<void>;
   setForeignAidProgram(programId: ForeignAidProgramId): Promise<void>;
+  startSinoUSNormalization(): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
@@ -177,6 +178,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   async setForeignAidProgram(programId) {
     await get().dispatch({ type: "SET_FOREIGN_AID_PROGRAM", programId });
+  },
+
+  async startSinoUSNormalization() {
+    await get().dispatch({ type: "START_SINO_US_NORMALIZATION" });
   },
 
   async resolveHistoricalEvent(eventId, choiceId) {

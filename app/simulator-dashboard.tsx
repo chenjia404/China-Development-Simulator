@@ -47,6 +47,9 @@ import {
   foreignAidProgramEffects,
   getForeignAidProgram,
   historicalForeignAidTotalsThrough1980,
+  getSinoUSNormalizationStatus,
+  sinoUSNormalizationDefinition,
+  sinoUSNormalizationEffects,
   getTechnologyIndustryPath,
   technologyIndustryEffect,
   technologyIndustryEnergyDemandMultiplier,
@@ -833,6 +836,9 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   const setForeignAidProgram = useSimulationStore(
     (store) => store.setForeignAidProgram,
   );
+  const startSinoUSNormalization = useSimulationStore(
+    (store) => store.startSinoUSNormalization,
+  );
   const countries = [...game.world.countries].sort((first, second) =>
     second.nominalGDP - first.nominalGDP,
   );
@@ -854,6 +860,16 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   const aidCooldown = foreignAidProgramCooldownRemaining(game.nation);
   const aidProgress = game.nation.diplomacy.foreignAidProgramProgress;
   const historicalAidTotals = historicalForeignAidTotalsThrough1980();
+  const normalizationStatus = getSinoUSNormalizationStatus(game);
+  const normalizationEffects = sinoUSNormalizationEffects(game.nation);
+  const normalizationState = game.nation.diplomacy.sinoUSNormalizationStatus;
+  const normalizationStarted = game.nation.diplomacy.sinoUSNormalizationStartedYear === null
+    ? "尚未启动"
+    : `${game.nation.diplomacy.sinoUSNormalizationStartedYear}年${game.nation.diplomacy.sinoUSNormalizationStartedMonth}月`;
+  const normalizationEstablished =
+    game.nation.diplomacy.sinoUSNormalizationEstablishedYear === null
+      ? "尚未建交"
+      : `${game.nation.diplomacy.sinoUSNormalizationEstablishedYear}年${game.nation.diplomacy.sinoUSNormalizationEstablishedMonth}月`;
   const alignment = game.nation.diplomacy.strategyAlignment;
   const alignmentLabel = Math.abs(alignment) < 0.01
     ? "平衡"
@@ -883,6 +899,12 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
       `确定采用“${name}”吗？援外承诺将在 12 个月内调整到位，并在 24 个月内不能再次改变；财政、设备、科研、外汇和受援国关系都会随之变化。`,
     );
     if (confirmed) void setForeignAidProgram(programId);
+  };
+  const beginSinoUSNormalization = () => {
+    const confirmed = window.confirm(
+      `确定发动“推动中美建交”吗？将消耗 ${sinoUSNormalizationDefinition.activationCost} 点外交点数，并进入约 ${normalizationStatus.estimatedNegotiationMonths} 个月的谈判；建交会改善对美合作和西方市场渠道，也会调整对苏联、朝鲜的关系目标。`,
+    );
+    if (confirmed) void startSinoUSNormalization();
   };
 
   return (
@@ -1009,6 +1031,50 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
             );
           })}
         </div>
+      </section>
+      <section className="diplomatic-strategy-panel normalization-panel">
+        <div className="strategy-panel-heading">
+          <div>
+            <span className="eyebrow">一次性外交国策 · 可提前或延迟</span>
+            <h2>中美建交进程</h2>
+            <p>史实节点为1979年1月。玩家可以在关系和国家能力达标后提前发动，也可以继续延迟；提前形成的留学生、科研、技术设备、出口客户和外资渠道会逐月积累，延迟造成的是无法事后一次补回的存量差距。</p>
+          </div>
+          <div className="strategy-current">
+            <span>当前状态</span>
+            <strong>{normalizationState === "established" ? "已经建交" : normalizationState === "negotiating" ? "谈判进行中" : "尚未启动"}</strong>
+            <small>{normalizationState === "negotiating" ? `谈判进度 ${(game.nation.diplomacy.sinoUSNormalizationNegotiationProgress * 100).toFixed(0)}%` : normalizationEstablished}</small>
+          </div>
+        </div>
+        <div className="normalization-metrics">
+          <div><span>对美关系</span><strong>{normalizationStatus.usRelation.toFixed(1)}</strong><small>发动门槛 {sinoUSNormalizationDefinition.minimumUSRelation}</small></div>
+          <div><span>谈判启动</span><strong>{normalizationStarted}</strong><small>预计谈判 {normalizationStatus.estimatedNegotiationMonths} 个月</small></div>
+          <div><span>合作成熟度</span><strong>{formatPercent(normalizationEffects.cooperationProgress, 0)}</strong><small>约用五年形成完整渠道</small></div>
+          <div><span>相对史实延迟</span><strong>{game.nation.diplomacy.sinoUSNormalizationDelayMonths} 个月</strong><small>{normalizationStatus.historicalDatePassed ? "正在累积机会成本" : "1979年1月前不计延迟"}</small></div>
+        </div>
+        <div className="strategy-live-effects">
+          <span>市场准入 ×{normalizationEffects.marketAccessMultiplier.toFixed(3)}</span>
+          <span>外资信心 ×{normalizationEffects.foreignInvestmentMultiplier.toFixed(3)}</span>
+          <span>技术扩散 ×{normalizationEffects.technologyDiffusionMultiplier.toFixed(3)}</span>
+          <span>科研产出 ×{normalizationEffects.researchOutputMultiplier.toFixed(3)}</span>
+          <span>教育交流 ×{normalizationEffects.educationExchangeMultiplier.toFixed(3)}</span>
+          <span>出口竞争力 ×{normalizationEffects.exportCompetitivenessMultiplier.toFixed(3)}</span>
+          <span>吸收能力 {formatPercent(normalizationEffects.absorptionReadiness, 0)}</span>
+        </div>
+        <div className="normalization-policy-action">
+          <div>
+            <strong>贸易、科技与教育传导</strong>
+            <p>1979年建交后，双边贸易由1978年的约11亿美元增至1979年的23亿美元，1980年约40亿美元；同年签署科技、文化及留学生交流安排。模型把这些变化拆入双边关系、贸易协定、大学与科研人才、技术扩散、外资和出口，不直接给 GDP 加固定值。</p>
+            {normalizationState === "not_started" && normalizationStatus.blockers.length > 0 ? <p className="normalization-blockers">尚需：{normalizationStatus.blockers.join("；")}</p> : null}
+          </div>
+          <button
+            disabled={busy || !normalizationStatus.available}
+            title={normalizationStatus.blockers.join("；") || undefined}
+            onClick={beginSinoUSNormalization}
+          >
+            {normalizationState === "established" ? "中美已经建交" : normalizationState === "negotiating" ? "建交谈判进行中" : normalizationStatus.available ? `发动国策 · ${sinoUSNormalizationDefinition.activationCost} 点` : "条件尚未满足"}
+          </button>
+        </div>
+        <p className="panel-note">史实时间的经济倍率是校准中性基线；提前路线获得更早的积累，延迟路线在未建交期间低于史实合作进度。正式建交约一年后会形成对美贸易协定渠道，同时改善美国、日本、韩国关系目标，并使苏联、朝鲜关系目标承受有限调整。</p>
       </section>
       <section className="diplomatic-strategy-panel foreign-aid-panel">
         <div className="strategy-panel-heading">

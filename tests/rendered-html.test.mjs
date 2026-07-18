@@ -180,6 +180,14 @@ test("客户端提供可组合的外交取向与多条外交学说", async () =>
   assert.match(source, /重点受援国/);
   assert.match(source, /国内投资/);
   assert.match(source, /援外用汇/);
+  assert.match(source, /中美建交进程/);
+  assert.match(source, /一次性外交国策/);
+  assert.match(source, /1979年1月/);
+  assert.match(source, /相对史实延迟/);
+  assert.match(source, /教育交流/);
+  assert.match(source, /技术扩散/);
+  assert.match(source, /双边贸易由1978年的约11亿美元增至1979年的23亿美元/);
+  assert.match(source, /无法事后一次补回的存量差距/);
 });
 
 test("客户端展示出口、内需和社会保障的经济传导指标", async () => {
