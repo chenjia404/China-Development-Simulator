@@ -121,6 +121,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   async newGame(seed = 1949) {
+    set({ autoRunning: false });
     await clearAutoSave().catch(() => undefined);
     await get().dispatch({ type: "CREATE_GAME", seed, startYear: 1949 });
   },

@@ -267,6 +267,13 @@ export function SimulatorDashboard() {
   const sectionTitle = useMemo(() => menuItems.find((item) => item.id === activeSection)?.label ?? "国家总览", [activeSection]);
   if (!game) return <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>;
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
+  const handleRestart = async () => {
+    const confirmed = window.confirm(
+      "确定重新开始吗？当前进度将被清除，并使用相同随机种子回到 1949 年。",
+    );
+    if (!confirmed) return;
+    await store.newGame(game.seed);
+  };
 
   return (
     <main className="app-shell">
@@ -279,6 +286,7 @@ export function SimulatorDashboard() {
         <header className="topbar">
           <div className="page-title"><span>{sectionTitle}</span><h1>{displayYear} 年 · 中华人民共和国</h1></div>
           <div className="top-actions">
+            <button className="restart-button" disabled={busy} onClick={() => void handleRestart()}>重新开始</button>
             <button className="theme-button" onClick={() => store.setDarkMode(!darkMode)} aria-label="切换深色模式">{darkMode ? "日" : "夜"}</button>
             <div className="speed-control">{([1, 5, 10] as const).map((value) => <button className={speed === value ? "active" : ""} key={value} onClick={() => store.setSpeed(value)}>{value}×</button>)}</div>
             <button className={autoRunning ? "control-button stop" : "control-button"} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>

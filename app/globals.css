@@ -70,6 +70,8 @@ button { color: inherit; }
 .speed-control button { border: 0; border-radius: 0; padding: 7px 8px; color: var(--muted); }
 .speed-control button.active { background: var(--blue-soft); color: var(--blue); font-weight: 700; }
 .control-button.stop { color: var(--red); }
+.restart-button { color: var(--red); border-color: color-mix(in srgb, var(--red) 32%, var(--line)) !important; }
+.restart-button:hover { background: color-mix(in srgb, var(--red) 8%, var(--surface)) !important; border-color: var(--red) !important; }
 .primary-button { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; font-weight: 700; box-shadow: 0 6px 14px color-mix(in srgb, var(--blue) 24%, transparent); }
 button:disabled { cursor: not-allowed; opacity: .55; transform: none !important; }
 
