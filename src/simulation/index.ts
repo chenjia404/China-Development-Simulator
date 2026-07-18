@@ -21,6 +21,7 @@ export * from "./society/health";
 export * from "./society/wellbeing";
 export * from "./technology/research";
 export * from "./technology/technology-tree";
+export * from "./technology/technology-industry-path";
 export * from "./economy/industrial-structure";
 export * from "./economy/domestic-demand";
 export * from "./economy/private-economy";

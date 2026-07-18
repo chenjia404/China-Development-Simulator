@@ -1,0 +1,129 @@
+{
+  "transitionMonths": 48,
+  "cooldownMonths": 36,
+  "researchReorientationLossRate": 0.35,
+  "definitions": [
+    {
+      "id": "balanced_foundation",
+      "name": "综合基础体系",
+      "shortName": "综合发展",
+      "description": "按基础工业到高技术产业的通用顺序推进，不额外倾斜特定部门，便于维持完整产业链。",
+      "effects": ["研究顺序保持均衡", "产业结构不额外倾斜", "没有专项加速也没有专项代价"],
+      "preferredTechnologyIds": [],
+      "preferredCategories": [],
+      "focusedResearchMultiplier": 1,
+      "unfocusedResearchMultiplier": 1,
+      "energyDemandMultiplier": 1,
+      "industryEffects": {}
+    },
+    {
+      "id": "light_industry_exports",
+      "name": "轻工业与大众消费",
+      "shortName": "轻工出口",
+      "description": "优先农业加工、纺织轻工和大众消费品，以就业、国内消费和早期制成品出口积累资本。",
+      "effects": ["消费品工业扩张", "早期出口与就业较强", "高技术和重装备研究相对放缓"],
+      "preferredTechnologyIds": ["mechanized_agriculture", "textile_mass_production", "modern_agronomy", "automotive_mass_production"],
+      "preferredCategories": ["农业", "机械交通"],
+      "focusedResearchMultiplier": 1.16,
+      "unfocusedResearchMultiplier": 0.93,
+      "energyDemandMultiplier": 0.96,
+      "industryEffects": {
+        "consumer_goods": { "outputWeightMultiplier": 1.34, "productivityMultiplier": 1.06, "exportMultiplier": 1.1 },
+        "transport_equipment": { "outputWeightMultiplier": 1.08, "productivityMultiplier": 1.02, "exportMultiplier": 1.03 },
+        "basic_materials": { "outputWeightMultiplier": 0.92, "productivityMultiplier": 0.99, "exportMultiplier": 0.97 },
+        "aerospace_advanced": { "outputWeightMultiplier": 0.82, "productivityMultiplier": 0.96, "exportMultiplier": 0.94 }
+      }
+    },
+    {
+      "id": "heavy_equipment",
+      "name": "重工业与成套装备",
+      "shortName": "重工装备",
+      "description": "优先材料、机床、电力和交通装备，形成资本品自主供给与大型工程出口能力。",
+      "effects": ["材料与机械产能较强", "设备进口依赖下降", "能源消耗和消费品机会成本上升"],
+      "preferredTechnologyIds": ["basic_machine_tools", "steel_metallurgy", "precision_manufacturing", "railway_shipbuilding", "power_equipment", "industrial_automation"],
+      "preferredCategories": ["资源材料", "机械交通", "电气能源"],
+      "focusedResearchMultiplier": 1.14,
+      "unfocusedResearchMultiplier": 0.92,
+      "energyDemandMultiplier": 1.12,
+      "industryEffects": {
+        "basic_materials": { "outputWeightMultiplier": 1.22, "productivityMultiplier": 1.05, "exportMultiplier": 1.04 },
+        "general_machinery": { "outputWeightMultiplier": 1.34, "productivityMultiplier": 1.07, "exportMultiplier": 1.1 },
+        "transport_equipment": { "outputWeightMultiplier": 1.16, "productivityMultiplier": 1.04, "exportMultiplier": 1.07 },
+        "electrical_equipment": { "outputWeightMultiplier": 1.14, "productivityMultiplier": 1.04, "exportMultiplier": 1.06 },
+        "consumer_goods": { "outputWeightMultiplier": 0.86, "productivityMultiplier": 0.98, "exportMultiplier": 0.96 }
+      }
+    },
+    {
+      "id": "electronics_information",
+      "name": "电子信息与数字产业",
+      "shortName": "电子信息",
+      "description": "集中发展电子元器件、通信、半导体、计算机和数字网络，追求高附加值制造与出口。",
+      "effects": ["电子与通信出口上限提高", "科研和教育门槛很高", "基础产业投入相对减少"],
+      "preferredTechnologyIds": ["electronics_engineering", "telecommunications", "semiconductor_manufacturing", "computer_architecture", "digital_networks", "integrated_circuit_equipment"],
+      "preferredCategories": ["电子信息", "精密制造"],
+      "focusedResearchMultiplier": 1.2,
+      "unfocusedResearchMultiplier": 0.9,
+      "energyDemandMultiplier": 1.04,
+      "industryEffects": {
+        "electronics_communications": { "outputWeightMultiplier": 1.48, "productivityMultiplier": 1.09, "exportMultiplier": 1.14 },
+        "precision_medical": { "outputWeightMultiplier": 1.16, "productivityMultiplier": 1.04, "exportMultiplier": 1.07 },
+        "electrical_equipment": { "outputWeightMultiplier": 1.08, "productivityMultiplier": 1.02, "exportMultiplier": 1.04 },
+        "mining_energy": { "outputWeightMultiplier": 0.88, "productivityMultiplier": 0.98, "exportMultiplier": 0.96 }
+      }
+    },
+    {
+      "id": "chemicals_health",
+      "name": "化工医药与生命健康",
+      "shortName": "医药化工",
+      "description": "围绕化学材料、制药、生物工艺、精密仪器和医疗设备形成科研密集型产业链。",
+      "effects": ["医药化工和医疗设备扩张", "高技能科研协同增强", "机械与消费品扩张相对放缓"],
+      "preferredTechnologyIds": ["chemical_materials", "modern_agronomy", "pharmaceutical_synthesis", "instrumentation", "medical_devices"],
+      "preferredCategories": ["化工医药", "精密制造", "农业"],
+      "focusedResearchMultiplier": 1.18,
+      "unfocusedResearchMultiplier": 0.91,
+      "energyDemandMultiplier": 1.03,
+      "industryEffects": {
+        "chemicals_pharmaceuticals": { "outputWeightMultiplier": 1.42, "productivityMultiplier": 1.08, "exportMultiplier": 1.11 },
+        "precision_medical": { "outputWeightMultiplier": 1.32, "productivityMultiplier": 1.07, "exportMultiplier": 1.1 },
+        "consumer_goods": { "outputWeightMultiplier": 1.04, "productivityMultiplier": 1.01, "exportMultiplier": 1.02 },
+        "general_machinery": { "outputWeightMultiplier": 0.9, "productivityMultiplier": 0.98, "exportMultiplier": 0.97 }
+      }
+    },
+    {
+      "id": "green_electrification",
+      "name": "能源电气化与绿色装备",
+      "shortName": "绿色电气",
+      "description": "优先电网、电力装备、先进能源和可再生能源设备，以能源效率和绿色资本品出口支撑发展。",
+      "effects": ["电气设备与能源技术扩张", "成熟后降低能源需求", "消费和数字产业研究相对放缓"],
+      "preferredTechnologyIds": ["grid_electrification", "electric_motors", "power_equipment", "advanced_energy_systems", "renewable_energy_equipment"],
+      "preferredCategories": ["电气能源", "资源材料"],
+      "focusedResearchMultiplier": 1.17,
+      "unfocusedResearchMultiplier": 0.92,
+      "energyDemandMultiplier": 0.93,
+      "industryEffects": {
+        "electrical_equipment": { "outputWeightMultiplier": 1.44, "productivityMultiplier": 1.08, "exportMultiplier": 1.12 },
+        "basic_materials": { "outputWeightMultiplier": 1.08, "productivityMultiplier": 1.02, "exportMultiplier": 1.03 },
+        "mining_energy": { "outputWeightMultiplier": 0.86, "productivityMultiplier": 1.02, "exportMultiplier": 0.94 },
+        "electronics_communications": { "outputWeightMultiplier": 0.94, "productivityMultiplier": 0.99, "exportMultiplier": 0.98 }
+      }
+    },
+    {
+      "id": "aerospace_advanced",
+      "name": "航空航天与先进制造",
+      "shortName": "高端装备",
+      "description": "集中精密加工、先进材料、航空航天、机器人和智能制造，换取最高技术密度与复杂装备能力。",
+      "effects": ["高端装备生产率显著提高", "研发周期长且教育门槛最高", "能源和基础工业配套成本较高"],
+      "preferredTechnologyIds": ["precision_manufacturing", "advanced_materials", "aviation_engineering", "aerospace_systems", "industrial_robots", "artificial_intelligence", "intelligent_manufacturing"],
+      "preferredCategories": ["航空航天", "精密制造", "智能制造"],
+      "focusedResearchMultiplier": 1.2,
+      "unfocusedResearchMultiplier": 0.88,
+      "energyDemandMultiplier": 1.1,
+      "industryEffects": {
+        "aerospace_advanced": { "outputWeightMultiplier": 1.58, "productivityMultiplier": 1.11, "exportMultiplier": 1.14 },
+        "general_machinery": { "outputWeightMultiplier": 1.18, "productivityMultiplier": 1.05, "exportMultiplier": 1.07 },
+        "precision_medical": { "outputWeightMultiplier": 1.2, "productivityMultiplier": 1.05, "exportMultiplier": 1.07 },
+        "consumer_goods": { "outputWeightMultiplier": 0.82, "productivityMultiplier": 0.96, "exportMultiplier": 0.94 }
+      }
+    }
+  ]
+}

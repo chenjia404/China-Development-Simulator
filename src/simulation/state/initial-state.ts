@@ -170,6 +170,10 @@ export function createInitialGameState(
         completedTechnologyIds: [],
         activeResearchId: null,
         activeResearchProgress: 0,
+        developmentPathId: "balanced_foundation",
+        previousDevelopmentPathId: null,
+        developmentPathProgress: 1,
+        lastDevelopmentPathChangeMonth: null,
       },
       resources: {
         foodProduction: 113_000_000,

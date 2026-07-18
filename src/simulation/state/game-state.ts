@@ -170,6 +170,17 @@ export interface TechnologyState {
   completedTechnologyIds: string[];
   activeResearchId: string | null;
   activeResearchProgress: number;
+  developmentPathId:
+    | "balanced_foundation"
+    | "light_industry_exports"
+    | "heavy_equipment"
+    | "electronics_information"
+    | "chemicals_health"
+    | "green_electrification"
+    | "aerospace_advanced";
+  previousDevelopmentPathId: TechnologyState["developmentPathId"] | null;
+  developmentPathProgress: number;
+  lastDevelopmentPathChangeMonth: number | null;
 }
 
 export interface ResourceState {

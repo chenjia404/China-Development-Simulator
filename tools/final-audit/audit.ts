@@ -28,6 +28,10 @@ import {
   updateDemandDrivenCapacityUtilization,
   applyPolicyModifiers,
   technologyTreeDefinitions,
+  technologyIndustryPathDefinitions,
+  technologyIndustryEffect,
+  technologyIndustryEnergyDemandMultiplier,
+  setTechnologyIndustryPath,
   industrialCategoryDefinitions,
   updateIndustrialStructure,
   validateIndustrialCategoryDefinitions,
@@ -840,6 +844,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const allFinalTradeStates = [...runs.values()].map(
     (run) => run.finalState.nation.trade,
   );
+  const lightIndustryPath = createInitialGameState(seed).nation;
+  const electronicsPath = structuredClone(lightIndustryPath);
+  const heavyEquipmentPath = structuredClone(lightIndustryPath);
+  const greenElectrificationPath = structuredClone(lightIndustryPath);
+  setTechnologyIndustryPath(lightIndustryPath, "light_industry_exports");
+  setTechnologyIndustryPath(electronicsPath, "electronics_information");
+  setTechnologyIndustryPath(heavyEquipmentPath, "heavy_equipment");
+  setTechnologyIndustryPath(greenElectrificationPath, "green_electrification");
+  for (const nation of [
+    lightIndustryPath,
+    electronicsPath,
+    heavyEquipmentPath,
+    greenElectrificationPath,
+  ]) {
+    nation.technology.previousDevelopmentPathId = null;
+    nation.technology.developmentPathProgress = 1;
+  }
   const weakSocialProtection = createInitialGameState(seed).nation;
   const strongSocialProtection = structuredClone(weakSocialProtection);
   weakSocialProtection.fiscal.budget.welfare = 0.01;
@@ -932,6 +953,30 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         initialPolicyProgress < 1 &&
         Math.abs(maturePolicyProgress - 1) < 1e-9,
       `科技强国首月生效 ${(initialPolicyProgress * 100).toFixed(1)}%，60 个月后 ${(maturePolicyProgress * 100).toFixed(0)}%`,
+    ),
+    makeCheck(
+      "technology-industry-paths",
+      "七条科技工业路线形成不同研究、产业、出口与能源取舍",
+      technologyIndustryPathDefinitions.length === 7 &&
+        technologyIndustryEffect(
+          lightIndustryPath,
+          "consumer_goods",
+        ).outputWeightMultiplier >
+          technologyIndustryEffect(
+            electronicsPath,
+            "consumer_goods",
+          ).outputWeightMultiplier &&
+        technologyIndustryEffect(
+          electronicsPath,
+          "electronics_communications",
+        ).exportMultiplier >
+          technologyIndustryEffect(
+            lightIndustryPath,
+            "electronics_communications",
+          ).exportMultiplier &&
+        technologyIndustryEnergyDemandMultiplier(heavyEquipmentPath) >
+          technologyIndustryEnergyDemandMultiplier(greenElectrificationPath),
+      `轻工/电子路线消费品权重 ${technologyIndustryEffect(lightIndustryPath, "consumer_goods").outputWeightMultiplier.toFixed(2)}/${technologyIndustryEffect(electronicsPath, "consumer_goods").outputWeightMultiplier.toFixed(2)}；电子出口倍率 ${technologyIndustryEffect(electronicsPath, "electronics_communications").exportMultiplier.toFixed(2)}；重工/绿色能源需求倍率 ${technologyIndustryEnergyDemandMultiplier(heavyEquipmentPath).toFixed(2)}/${technologyIndustryEnergyDemandMultiplier(greenElectrificationPath).toFixed(2)}`,
     ),
     makeCheck(
       "technology-tree-capability",

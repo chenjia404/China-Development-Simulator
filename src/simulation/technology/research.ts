@@ -7,8 +7,10 @@ import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
 import { updateTechnologyTree } from "./technology-tree";
 import { calculatePrivateEconomyMultipliers } from "../economy/private-economy";
 import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
+import { updateTechnologyIndustryPath } from "./technology-industry-path";
 
 export function updateTechnology(nation: NationState): void {
+  updateTechnologyIndustryPath(nation);
   const { technology, education, fiscal, economy, sectors, trade } = nation;
   const strategyEffects = diplomaticStrategyEffects(nation);
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);

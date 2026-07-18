@@ -26,6 +26,7 @@ import {
 } from "../technology/technology-tree";
 import { ensurePrivateEconomyState } from "../economy/private-economy";
 import { setForeignPolicyDoctrine } from "../diplomacy/foreign-policy-doctrine";
+import { setTechnologyIndustryPath } from "../technology/technology-industry-path";
 import { ensureDomesticDemandState } from "../economy/domestic-demand";
 
 export interface SimulationResult {
@@ -127,6 +128,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "SELECT_TECH_RESEARCH":
         selectTechnologyResearch(this.state.nation, command.technologyId);
+        break;
+      case "SET_TECHNOLOGY_INDUSTRY_PATH":
+        setTechnologyIndustryPath(this.state.nation, command.pathId);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

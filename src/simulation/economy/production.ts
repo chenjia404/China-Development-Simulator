@@ -14,6 +14,7 @@ import {
   calculateIndustrialStructureMetrics,
   updateIndustrialStructure,
 } from "./industrial-structure";
+import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
 
 export interface ProductionInput {
   productivity: number;
@@ -187,7 +188,8 @@ export function updateResourceSupply(nation: NationState): void {
     applyPolicyModifiers(
       nation,
       "resources.energyDemand",
-      8 + nation.sectors.secondary.output / 2_000_000_000,
+      (8 + nation.sectors.secondary.output / 2_000_000_000) *
+        technologyIndustryEnergyDemandMultiplier(nation),
     ),
   );
   nation.resources.energySupplyRatio = clamp(

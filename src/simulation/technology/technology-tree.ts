@@ -3,6 +3,11 @@ import { clamp } from "../core/math";
 import type { IndustrialCategoryId, NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import type { AnnualSnapshot } from "../state/history-state";
+import {
+  getTechnologyIndustryPath,
+  technologyIndustryAutomaticPriority,
+  technologyIndustryResearchMultiplier,
+} from "./technology-industry-path";
 
 export type TechnologyCategory =
   | "农业"
@@ -160,6 +165,22 @@ export function ensureTechnologyTreeState(nation: NationState): void {
   if (!nation.technology.activeResearchId) {
     nation.technology.activeResearchProgress = 0;
   }
+  nation.technology.developmentPathId = getTechnologyIndustryPath(
+    nation.technology.developmentPathId,
+  )?.id ?? "balanced_foundation";
+  nation.technology.previousDevelopmentPathId = getTechnologyIndustryPath(
+    nation.technology.previousDevelopmentPathId ?? "",
+  )?.id ?? null;
+  nation.technology.developmentPathProgress = Number.isFinite(
+    nation.technology.developmentPathProgress,
+  )
+    ? clamp(nation.technology.developmentPathProgress, 0, 1)
+    : 1;
+  nation.technology.lastDevelopmentPathChangeMonth = Number.isFinite(
+    nation.technology.lastDevelopmentPathChangeMonth,
+  )
+    ? nation.technology.lastDevelopmentPathChangeMonth
+    : null;
   for (const snapshot of nation.history.annual as Array<
     Partial<AnnualSnapshot>
   >) {
@@ -219,9 +240,19 @@ export function selectTechnologyResearch(
 }
 
 function selectAutomaticResearch(nation: NationState): void {
-  const next = technologyTreeDefinitions.find((node) =>
+  const candidates = technologyTreeDefinitions.filter((node) =>
     !nation.technology.completedTechnologyIds.includes(node.id) &&
     technologyResearchRequirements(nation, node).length === 0
+  );
+  const next = candidates.reduce<TechnologyNodeDefinition | undefined>(
+    (selected, node) => {
+      if (!selected) return node;
+      return technologyIndustryAutomaticPriority(nation, node) >
+          technologyIndustryAutomaticPriority(nation, selected)
+        ? node
+        : selected;
+    },
+    undefined,
   );
   if (next) {
     nation.technology.activeResearchId = next.id;
@@ -251,6 +282,7 @@ export function updateTechnologyTree(
       ),
     ) *
     technologyTreeConfig.researchAllocationRate *
+    technologyIndustryResearchMultiplier(nation, active) *
     clamp(
       1 + Math.max(
         0,
