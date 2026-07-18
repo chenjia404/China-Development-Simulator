@@ -1,5 +1,6 @@
 import historicalEventData from "../../data/config/historical-events.json";
 import historicalDecisionData from "../../data/config/historical-event-decisions.json";
+import historicalDependencyData from "../../data/config/historical-event-dependencies.json";
 import type { ModifierState, NationState } from "../state/game-state";
 import type { HistoricalEventRecord } from "../state/history-state";
 import { addModifier } from "./modifiers";
@@ -21,6 +22,7 @@ export type HistoricalEventCategory =
 
 export type HistoricalEventImpact = "positive" | "negative" | "mixed";
 export type HistoricalEventDecisionMode = "automatic" | "interactive";
+export type HistoricalEventOutcome = "occurred" | "prevented" | "enacted_early";
 
 export interface HistoricalEventModifierDefinition {
   target: string;
@@ -49,6 +51,7 @@ export interface HistoricalEventChoice {
   durationMonths: number;
   modifiers: HistoricalEventModifierDefinition[];
   isHistoricalPath: boolean;
+  outcome?: HistoricalEventOutcome;
 }
 
 interface HistoricalEventDecisionDefinition {
@@ -56,11 +59,22 @@ interface HistoricalEventDecisionDefinition {
   choices: Array<Omit<HistoricalEventChoice, "isHistoricalPath">>;
 }
 
+interface HistoricalEventDependencyDefinition {
+  eventId: string;
+  sourceEventId: string;
+  sourceChoiceIds: string[];
+  modifierScale: number;
+  durationMultiplier: number;
+  contextEffect: string;
+}
+
 export const historicalEventDefinitions =
   historicalEventData as HistoricalEventDefinition[];
 
 const historicalDecisionDefinitions =
   historicalDecisionData as HistoricalEventDecisionDefinition[];
+const historicalDependencyDefinitions =
+  historicalDependencyData as HistoricalEventDependencyDefinition[];
 
 export function getHistoricalEvent(
   eventId: string,
@@ -163,11 +177,56 @@ function genericChoices(event: HistoricalEventDefinition): HistoricalEventChoice
   ];
 }
 
+function contextualizeHistoricalEvent(
+  event: HistoricalEventDefinition,
+  nation?: NationState,
+): HistoricalEventDefinition {
+  if (!nation) return event;
+  const dependencies = historicalDependencyDefinitions.filter((dependency) => {
+    if (dependency.eventId !== event.id) return false;
+    const sourceRecord = nation.history.historicalEvents.find(
+      (record) => record.id === dependency.sourceEventId,
+    );
+    return sourceRecord
+      ? dependency.sourceChoiceIds.includes(sourceRecord.choiceId)
+      : false;
+  });
+  if (dependencies.length === 0) return event;
+
+  const modifierScale = dependencies.reduce(
+    (scale, dependency) => scale * dependency.modifierScale,
+    1,
+  );
+  const durationMultiplier = dependencies.reduce(
+    (scale, dependency) => scale * dependency.durationMultiplier,
+    1,
+  );
+  return {
+    ...event,
+    description: `${event.description} 此前的玩家决策改变了危机成因，政策性冲击将相应减弱。`,
+    effects: [
+      ...event.effects,
+      ...dependencies.map((dependency) => dependency.contextEffect),
+    ],
+    durationMonths: Math.max(
+      1,
+      Math.round(event.durationMonths * durationMultiplier),
+    ),
+    modifiers: event.modifiers.map((modifier) =>
+      scaleModifier(modifier, modifierScale)
+    ),
+  };
+}
+
 export function getHistoricalEventChoices(
   eventOrId: HistoricalEventDefinition | string,
+  nation?: NationState,
 ): HistoricalEventChoice[] {
-  const event = typeof eventOrId === "string" ? getHistoricalEvent(eventOrId) : eventOrId;
-  if (!event) return [];
+  const baseEvent = typeof eventOrId === "string"
+    ? getHistoricalEvent(eventOrId)
+    : eventOrId;
+  if (!baseEvent) return [];
+  const event = contextualizeHistoricalEvent(baseEvent, nation);
   const historicalChoice: HistoricalEventChoice = {
     id: "historical_path",
     name: "遵循历史路径",
@@ -176,6 +235,7 @@ export function getHistoricalEventChoices(
     durationMonths: event.durationMonths,
     modifiers: event.modifiers.map((modifier) => ({ ...modifier })),
     isHistoricalPath: true,
+    outcome: "occurred",
   };
   const bespoke = historicalDecisionDefinitions.find(
     (definition) => definition.eventId === event.id,
@@ -194,6 +254,7 @@ export function ensureHistoricalEventState(nation: NationState): void {
     record.choiceId ??= "historical_path";
     record.choiceName ??= "遵循历史路径";
     record.choiceDescription ??= "由旧版本存档迁移，按历史方案记录。";
+    record.outcome ??= "occurred";
   }
   if (
     nation.pendingHistoricalEventId &&
@@ -238,6 +299,7 @@ function applyChoice(
     choiceId: choice.id,
     choiceName: choice.name,
     choiceDescription: choice.description,
+    outcome: choice.outcome ?? "occurred",
   };
   nation.history.historicalEvents.push(record);
   nation.pendingHistoricalEventId = null;
@@ -258,7 +320,7 @@ export function resolveHistoricalEvent(
   if (event.year !== nation.date.year || event.month !== nation.date.month) {
     throw new Error("历史事件决策日期与当前模拟时间不一致");
   }
-  const choice = getHistoricalEventChoices(event).find(
+  const choice = getHistoricalEventChoices(event, nation).find(
     (candidate) => candidate.id === choiceId,
   );
   if (!choice) throw new Error(`未知历史事件方案：${choiceId}`);

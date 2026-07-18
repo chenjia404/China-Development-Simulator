@@ -164,6 +164,70 @@ describe("确定性历史事件", () => {
     );
   });
 
+  it("可以阻止大跃进，且不会施加大跃进修正", () => {
+    const state = createInitialGameState(1958, 1958, "interactive");
+    state.nation.date.month = 5;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "great_leap_forward_1958",
+      choiceId: "avoid_great_leap",
+    });
+
+    expect(engine.getState().nation.history.historicalEvents[0]).toMatchObject({
+      id: "great_leap_forward_1958",
+      choiceId: "avoid_great_leap",
+      outcome: "prevented",
+    });
+    expect(
+      engine.getState().nation.modifiers.some(
+        (modifier) => modifier.sourceId === "great_leap_forward_1958",
+      ),
+    ).toBe(false);
+  });
+
+  it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {
+    const state = createInitialGameState(1958, 1958, "interactive");
+    state.nation.date.month = 5;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "great_leap_forward_1958",
+      choiceId: "avoid_great_leap",
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
+    expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+      "peoples_communes_1958",
+    );
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "peoples_communes_1958",
+      choiceId: "avoid_communes",
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 5 });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+
+    const choices = getHistoricalEventChoices(
+      "three_year_difficulties_1959",
+      engine.getState().nation,
+    );
+    const historicalPath = choices[0];
+    expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+      "three_year_difficulties_1959",
+    );
+    expect(historicalPath.durationMonths).toBe(24);
+    expect(historicalPath.effects).toContain(
+      "未发动大跃进，政策性资源错配与农业冲击明显减轻",
+    );
+    expect(
+      historicalPath.modifiers.find(
+        (modifier) => modifier.target === "resources.foodSupply",
+      )?.value,
+    ).toBeCloseTo(0.9688, 6);
+  });
+
   it("旧存档缺少历史事件记录时自动迁移", () => {
     const state = createInitialGameState(1949);
     delete (

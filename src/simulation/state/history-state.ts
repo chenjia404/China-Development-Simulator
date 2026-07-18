@@ -50,6 +50,7 @@ export interface HistoricalEventRecord {
   choiceId: string;
   choiceName: string;
   choiceDescription: string;
+  outcome: "occurred" | "prevented" | "enacted_early";
 }
 
 export interface NationHistory {

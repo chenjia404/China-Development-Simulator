@@ -1,0 +1,18 @@
+[
+  {
+    "eventId": "three_year_difficulties_1959",
+    "sourceEventId": "great_leap_forward_1958",
+    "sourceChoiceIds": ["avoid_great_leap", "balanced_industrialization"],
+    "modifierScale": 0.65,
+    "durationMultiplier": 0.85,
+    "contextEffect": "未发动大跃进，政策性资源错配与农业冲击明显减轻"
+  },
+  {
+    "eventId": "three_year_difficulties_1959",
+    "sourceEventId": "peoples_communes_1958",
+    "sourceChoiceIds": ["avoid_communes", "household_incentives"],
+    "modifierScale": 0.6,
+    "durationMultiplier": 0.8,
+    "contextEffect": "未实施人民公社化，基层生产激励和粮食信息得到保留"
+  }
+]

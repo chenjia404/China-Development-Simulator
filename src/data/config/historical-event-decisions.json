@@ -66,17 +66,13 @@
     "eventId": "great_leap_forward_1958",
     "choices": [
       {
-        "id": "realistic_planning",
-        "name": "下调指标、尊重规律",
-        "description": "依据能源、原料和劳动力约束修订工业指标，停止低效率项目并保护农业生产秩序。",
-        "effects": ["工业扩张更稳健", "农业损失显著降低", "短期工业增速较低"],
-        "durationMonths": 30,
-        "modifiers": [
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 0.995 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.005 }
-        ]
+        "id": "avoid_great_leap",
+        "name": "不发动大跃进",
+        "description": "否决脱离资源约束的高指标运动，保持正常计划、统计和农业生产秩序。大跃进本身不会发生，并将降低后续三年经济困难的政策性冲击。",
+        "effects": ["避免高指标运动", "保护农业和投资效率", "后续粮食危机风险下降"],
+        "durationMonths": 1,
+        "modifiers": [],
+        "outcome": "prevented"
       },
       {
         "id": "balanced_industrialization",
@@ -89,7 +85,35 @@
           { "target": "sector.primary.output", "operation": "multiply", "value": 1.015 },
           { "target": "resources.foodSupply", "operation": "multiply", "value": 1.01 },
           { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 }
-        ]
+        ],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
+    "eventId": "peoples_communes_1958",
+    "choices": [
+      {
+        "id": "avoid_communes",
+        "name": "不推动人民公社化",
+        "description": "保留农业合作组织但不实行高度集中的生产与分配制度，维持基层统计、家庭生活和劳动激励。",
+        "effects": ["人民公社化不会发生", "农业激励得到保留", "后续粮食危机风险下降"],
+        "durationMonths": 1,
+        "modifiers": [],
+        "outcome": "prevented"
+      },
+      {
+        "id": "household_incentives",
+        "name": "保留家庭经营激励",
+        "description": "不建立人民公社，采用规模较小的合作组织并允许家庭保留经营、分配和生产决策空间。",
+        "effects": ["农业组织保持合作", "家庭生产积极性提高", "基层协调成本增加"],
+        "durationMonths": 36,
+        "modifiers": [
+          { "target": "sector.primary.output", "operation": "multiply", "value": 1.015 },
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.01 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.005 }
+        ],
+        "outcome": "prevented"
       }
     ]
   },
@@ -121,7 +145,8 @@
           { "target": "technology.researchOutput", "operation": "multiply", "value": 1.01 },
           { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.005 },
           { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
-        ]
+        ],
+        "outcome": "prevented"
       }
     ]
   },

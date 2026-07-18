@@ -158,6 +158,29 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const decisionRecord =
     decisionEngine.getState().nation.history.historicalEvents.at(-1);
 
+  const causalState = createInitialGameState(seed, 1958, "interactive");
+  causalState.nation.date.month = 5;
+  const causalEngine = createSimulationEngine(causalState);
+  causalEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+  causalEngine.dispatch({
+    type: "RESOLVE_HISTORICAL_EVENT",
+    eventId: "great_leap_forward_1958",
+    choiceId: "avoid_great_leap",
+  });
+  causalEngine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
+  causalEngine.dispatch({
+    type: "RESOLVE_HISTORICAL_EVENT",
+    eventId: "peoples_communes_1958",
+    choiceId: "avoid_communes",
+  });
+  causalEngine.dispatch({ type: "ADVANCE_MONTHS", months: 6 });
+  const causalChoices = getHistoricalEventChoices(
+    "three_year_difficulties_1959",
+    causalEngine.getState().nation,
+  );
+  const preventedEvents = causalEngine.getState().nation.history.historicalEvents
+    .filter((event) => event.outcome === "prevented");
+
   const policyEngine = createSimulationEngine(createInitialGameState(seed));
   policyEngine.dispatch({ type: "SET_POLICIES", policyIds: ["technology_priority"] });
   policyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
@@ -265,6 +288,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       historicalMilestones.map((snapshot) =>
         `${snapshot.year} 年 ${snapshot.currentPriceGDPPerCapita.toFixed(0)} 元、第 ${snapshot.gdpRank} 名`
       ).join("；"),
+    ),
+    makeCheck(
+      "historical-causality",
+      "可阻止历史事件且前置决策会改变后续危机",
+      preventedEvents.length === 2 &&
+        causalEngine.getState().nation.pendingHistoricalEventId ===
+          "three_year_difficulties_1959" &&
+        causalChoices[0]?.durationMonths === 24 &&
+        !causalEngine.getState().nation.modifiers.some(
+          (modifier) => modifier.sourceId === "great_leap_forward_1958",
+        ),
+      `已避免 ${preventedEvents.map((event) => event.name).join("、")}，三年经济困难由 36 个月降至 ${causalChoices[0]?.durationMonths ?? "未知"} 个月`,
     ),
     makeCheck(
       "industrial-tradeoff",

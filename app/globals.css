@@ -207,7 +207,9 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .event-status.occurred { color: var(--green); border-color: color-mix(in srgb, var(--green) 30%, var(--line)); }
 .event-status.active { color: white; background: var(--blue); border-color: var(--blue); }
 .event-status.pending { color: white; background: var(--gold); border-color: var(--gold); }
+.event-status.prevented { color: white; background: var(--green); border-color: var(--green); }
 .historical-event.is-pending .historical-event-card { opacity: 1; border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); border-left-color: var(--gold); box-shadow: 0 8px 24px color-mix(in srgb, var(--gold) 10%, transparent); }
+.historical-event.is-prevented .historical-event-card { opacity: 1; border-left-color: var(--green); }
 .historical-event-card h3 { margin: 12px 0 7px; font-size: 15px; }
 .historical-event-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
 .event-choice-result { margin-top: 12px; padding: 10px 11px; background: color-mix(in srgb, var(--green) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--green) 25%, var(--line)); border-radius: 8px; }
@@ -231,6 +233,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .historical-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin-top: 18px; }
 .historical-choice { display: flex; flex-direction: column; min-width: 0; padding: 17px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
 .historical-choice.is-historical { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); background: color-mix(in srgb, var(--gold) 5%, var(--surface)); }
+.historical-choice.prevents-event { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); background: color-mix(in srgb, var(--green) 5%, var(--surface)); }
 .historical-choice-head { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 8px; }
 .historical-choice-head span { color: var(--blue); font-weight: 700; }
 .historical-choice.is-historical .historical-choice-head span { color: var(--gold); }

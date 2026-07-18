@@ -470,7 +470,7 @@ function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolea
   );
   const pendingId = game.nation.pendingHistoricalEventId;
   const event = pendingId ? getHistoricalEvent(pendingId) : undefined;
-  const choices = event ? getHistoricalEventChoices(event) : [];
+  const choices = event ? getHistoricalEventChoices(event, game.nation) : [];
   if (!event) return null;
 
   return (
@@ -494,11 +494,11 @@ function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolea
         <div className="historical-choice-grid">
           {choices.map((choice) => (
             <article
-              className={choice.isHistoricalPath ? "historical-choice is-historical" : "historical-choice"}
+              className={`${choice.isHistoricalPath ? "historical-choice is-historical" : "historical-choice"} ${choice.outcome === "prevented" ? "prevents-event" : ""}`}
               key={choice.id}
             >
               <div className="historical-choice-head">
-                <span>{choice.isHistoricalPath ? "史实方案" : "可选路线"}</span>
+                <span>{choice.outcome === "prevented" ? "阻止事件" : choice.isHistoricalPath ? "史实方案" : "可选路线"}</span>
                 <small>持续 {formatEventDuration(choice.durationMonths)}</small>
               </div>
               <h3>{choice.name}</h3>
@@ -578,7 +578,7 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
         {visibleEvents.map((event) => {
           const record = recordsById.get(event.id);
           const selectedChoice = record
-            ? getHistoricalEventChoices(event).find(
+            ? getHistoricalEventChoices(event, game.nation).find(
                 (choice) => choice.id === record.choiceId,
               )
             : undefined;
@@ -586,18 +586,19 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
           const active = activeIds.has(event.id);
           const pending = game.nation.pendingHistoricalEventId === event.id;
           const isPast = event.year * 12 + event.month < currentSerial;
-          const status = pending ? "待决策" : active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
+          const prevented = record?.outcome === "prevented";
+          const status = pending ? "待决策" : prevented ? "已避免" : active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
           return (
-            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""} ${pending ? "is-pending" : ""}`} key={event.id}>
+            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""} ${pending ? "is-pending" : ""} ${prevented ? "is-prevented" : ""}`} key={event.id}>
               <div className="timeline-date"><strong>{event.year}</strong><span>{event.month} 月</span><i /></div>
               <div className="historical-event-card">
                 <div className="historical-event-head">
                   <div><span className="event-category">{event.category}</span><span className={`event-impact ${event.impact}`}>{historicalImpactLabels[event.impact]}</span></div>
-                  <span className={pending ? "event-status pending" : active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
+                  <span className={pending ? "event-status pending" : prevented ? "event-status prevented" : active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
                 </div>
                 <h3>{event.name}</h3>
                 <p>{event.description}</p>
-                {record ? <div className="event-choice-result"><span>玩家决策</span><strong>{record.choiceName}</strong><p>{record.choiceDescription}</p></div> : null}
+                {record ? <div className="event-choice-result"><span>{prevented ? "事件已避免" : "玩家决策"}</span><strong>{record.choiceName}</strong><p>{record.choiceDescription}</p></div> : null}
                 <div className="event-effects">{(record?.effects ?? event.effects).map((effect) => <span key={effect}>{effect}</span>)}</div>
                 <div className="event-duration">影响持续：{formatEventDuration(record?.durationMonths ?? event.durationMonths)} · 通过 {selectedChoice?.modifiers.length ?? event.modifiers.length} 个模型变量传导</div>
               </div>
