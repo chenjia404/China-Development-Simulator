@@ -32,7 +32,7 @@
 
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif; }
 button, input { font: inherit; }
 button { color: inherit; }
 
@@ -353,6 +353,95 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .settings-action input { min-width: 0; flex: 1; padding: 8px 10px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
 .file-button { position: relative; display: inline-flex; align-items: center; }
 .file-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+/* 保证高信息密度界面中的说明、条件和操作文字仍可舒适阅读。 */
+.metric-detail,
+.panel-note,
+.detail-grid p,
+.route-blueprint-heading p,
+.route-blueprint-card > p,
+.policy-card p,
+.initiative-heading p,
+.initiative-card > p,
+.strategy-panel-heading p,
+.strategy-card > p,
+.organization-card p,
+.historical-event-card p,
+.historical-decision-header p,
+.historical-choice > p,
+.settings-grid p {
+  font-size: 12px;
+}
+
+.brand small,
+.sidebar-foot,
+.status-strip span,
+.metric-label,
+.eyebrow,
+.history-count,
+.budget-total,
+.budget-row,
+.budget-row strong,
+.pulse-grid span,
+.route-blueprint-card-head span,
+.route-blueprint-card-head small,
+.route-blueprint-points,
+.policy-card-head span,
+.policy-card-head small,
+.policy-meta,
+.initiative-heading > span,
+.initiative-card-head span,
+.initiative-card-head small,
+.initiative-facts span,
+.initiative-blockers,
+.initiative-result,
+.initiative-ready,
+.strategy-current span,
+.strategy-current small,
+.alignment-labels,
+.strategy-live-effects span,
+.strategy-card-head span,
+.strategy-card-head small,
+.strategy-effects span,
+.strategy-numbers,
+.organization-card small,
+.organization-progress span,
+.organization-card p.organization-blockers,
+.organization-card p.organization-success,
+.relation-country span,
+.relation-score span,
+.history-event-summary span,
+.history-event-toolbar label,
+.next-event span,
+.timeline-date span,
+.event-category,
+.event-impact,
+.event-status,
+.event-choice-result span,
+.event-choice-result p,
+.event-effects span,
+.event-duration,
+.decision-impact,
+.historical-choice-head,
+.historical-choice-effects span,
+.historical-choice-modifiers strong,
+.historical-choice-modifiers span,
+.historical-decision-note,
+.world-head,
+.annual-head {
+  font-size: 11px;
+}
+
+.route-blueprint-card button,
+.policy-toggle,
+.initiative-card button,
+.strategy-card button,
+.organization-card button,
+.relation-actions button,
+.organization-auto-state,
+.historical-choice button {
+  font-size: 12px;
+}
 
 @media (max-width: 1280px) {
   .metrics-grid { grid-template-columns: repeat(3, 1fr); }

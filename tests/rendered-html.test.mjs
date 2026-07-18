@@ -39,3 +39,17 @@ test("客户端构建包含自由调整的发展路线蓝图", async () => {
   assert.match(source, /采用推荐组合/);
   assert.match(source, /仍可逐项调整和跨路线混搭/);
 });
+
+test("客户端样式为说明文字保留可读字号", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const stylesheet = files.find(
+    (file) => file.startsWith("index-") && file.endsWith(".css"),
+  );
+  assert.ok(stylesheet, "应生成模拟器客户端样式");
+  const source = await readFile(new URL(stylesheet, assetsDirectory), "utf8");
+  assert.match(source, /body\{[^}]*font:14px\/1\.5/);
+  assert.match(source, /\.metric-detail,[^{}]*\{font-size:12px/);
+  assert.match(source, /\.brand small,[^{}]*\{font-size:11px/);
+  assert.match(source, /\.route-blueprint-card button,[^{}]*\{font-size:12px/);
+});
