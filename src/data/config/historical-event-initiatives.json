@@ -1,0 +1,73 @@
+[
+  {
+    "id": "early_reform_and_opening",
+    "eventId": "reform_and_opening_1978",
+    "name": "提前启动改革开放",
+    "description": "在史实节点前把工作重心转向经济建设，以试点、放权和对外交流逐步建立市场化资源配置机制。",
+    "availableFromYear": 1965,
+    "diplomaticPointCost": 8,
+    "transitionDurationMonths": 24,
+    "requirements": {
+      "historicalEventIds": [],
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStability": 50,
+      "minimumOpenness": 0,
+      "minimumReputation": 40,
+      "minimumAverageRelation": -20,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0
+    },
+    "transitionEffects": ["改革准备占用财政和行政资源", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "early_joint_venture_law",
+    "eventId": "joint_venture_law_1979",
+    "name": "提前制定中外合资经营企业法",
+    "description": "在改革开放已经启动的基础上，提前建立外资准入、利润分配和争议处理的专门法律框架。",
+    "availableFromYear": 1966,
+    "diplomaticPointCost": 12,
+    "transitionDurationMonths": 24,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978"],
+      "minimumInstitutionalEfficiency": 0.38,
+      "minimumStability": 50,
+      "minimumOpenness": 0.08,
+      "minimumReputation": 42,
+      "minimumAverageRelation": -10,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0
+    },
+    "transitionEffects": ["法律和监管体系需要额外建设投入", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
+    "id": "early_wto_accession",
+    "eventId": "wto_accession_2001",
+    "name": "提前加入世界贸易组织",
+    "description": "以更早完成关税、市场准入和国内规则谈判为目标，主动争取在史实节点前加入多边贸易体系。",
+    "availableFromYear": 1986,
+    "diplomaticPointCost": 25,
+    "transitionDurationMonths": 36,
+    "organizationId": "world_trade_organization",
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979"],
+      "minimumInstitutionalEfficiency": 0.48,
+      "minimumStability": 55,
+      "minimumOpenness": 0.25,
+      "minimumReputation": 52,
+      "minimumAverageRelation": 5,
+      "minimumTradeAgreements": 2,
+      "minimumInternationalInfluence": 20
+    },
+    "transitionEffects": ["关税和国内规则调整带来短期财政成本", "正式取得世界贸易组织成员资格", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 0.99 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
+    ]
+  }
+]

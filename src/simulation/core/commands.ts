@@ -50,6 +50,11 @@ export interface ResolveHistoricalEventCommand {
   choiceId: string;
 }
 
+export interface EnactHistoricalInitiativeCommand {
+  type: "ENACT_HISTORICAL_INITIATIVE";
+  initiativeId: string;
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -59,4 +64,5 @@ export type SimulationCommand =
   | JoinOrganizationCommand
   | SetHistoricalEventModeCommand
   | ResolveHistoricalEventCommand
+  | EnactHistoricalInitiativeCommand
   | ImportGameCommand;

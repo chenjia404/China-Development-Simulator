@@ -107,11 +107,11 @@ export function recordHistory(state: GameState): void {
     majorEvents: [...new Set([
       ...nation.history.historicalEvents
         .filter((event) => event.year === nation.date.year)
-        .map((event) =>
-          event.outcome === "prevented"
-            ? `避免：${event.name}`
-            : event.name
-        ),
+        .map((event) => {
+          if (event.outcome === "prevented") return `避免：${event.name}`;
+          if (event.outcome === "enacted_early") return `提前实施：${event.name}`;
+          return event.name;
+        }),
       ...nation.modifiers
         .filter(
           (modifier) => !nation.history.historicalEvents.some(

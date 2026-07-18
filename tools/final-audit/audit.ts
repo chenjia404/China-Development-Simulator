@@ -5,6 +5,7 @@ import {
   createSimulationEngine,
   createInitialGameState,
   historicalEventDefinitions,
+  historicalInitiativeDefinitions,
   getHistoricalEventChoices,
   deserializeGameState,
   serializeGameState,
@@ -181,6 +182,41 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const preventedEvents = causalEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "prevented");
 
+  const initiativeState = createInitialGameState(seed, 1970);
+  initiativeState.nation.economy.institutionalEfficiency = 0.4;
+  initiativeState.nation.society.stabilityIndex = 55;
+  initiativeState.nation.trade.openness = 0.1;
+  initiativeState.nation.diplomacy.globalReputation = 48;
+  const initiativePreparation = createSimulationEngine(initiativeState);
+  initiativePreparation.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_reform_and_opening",
+  });
+  initiativePreparation.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_joint_venture_law",
+  });
+  const wtoState = initiativePreparation.exportState();
+  wtoState.nation.date.year = 1986;
+  wtoState.nation.date.month = 1;
+  wtoState.nation.date.elapsedMonths = (1986 - 1949) * 12;
+  wtoState.nation.economy.institutionalEfficiency = 0.55;
+  wtoState.nation.society.stabilityIndex = 60;
+  wtoState.nation.trade.openness = 0.3;
+  wtoState.nation.diplomacy.globalReputation = 60;
+  wtoState.nation.diplomacy.diplomaticPoints = 100;
+  wtoState.nation.internationalInfluence = 25;
+  for (const country of wtoState.world.countries) country.relationWithChina = 10;
+  wtoState.world.countries[0].tradeAgreement = true;
+  wtoState.world.countries[1].tradeAgreement = true;
+  const initiativeEngine = createSimulationEngine(wtoState);
+  initiativeEngine.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_wto_accession",
+  });
+  const earlyRecords = initiativeEngine.getState().nation.history.historicalEvents
+    .filter((event) => event.outcome === "enacted_early");
+
   const policyEngine = createSimulationEngine(createInitialGameState(seed));
   policyEngine.dispatch({ type: "SET_POLICIES", policyIds: ["technology_priority"] });
   policyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
@@ -300,6 +336,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           (modifier) => modifier.sourceId === "great_leap_forward_1958",
         ),
       `已避免 ${preventedEvents.map((event) => event.name).join("、")}，三年经济困难由 36 个月降至 ${causalChoices[0]?.durationMonths ?? "未知"} 个月`,
+    ),
+    makeCheck(
+      "historical-initiatives",
+      "关键历史转折可在满足国内外条件后作为一次性国策提前实施",
+      earlyRecords.length === historicalInitiativeDefinitions.length &&
+        earlyRecords.every((record) =>
+          record.year < record.scheduledYear && record.outcome === "enacted_early"
+        ) &&
+        initiativeEngine.getState().nation.diplomacy.organizationIds.includes(
+          "world_trade_organization",
+        ),
+      earlyRecords.map((record) =>
+        `${record.name}提前至${record.year}年（史实${record.scheduledYear}年）`
+      ).join("；"),
     ),
     makeCheck(
       "industrial-tradeoff",

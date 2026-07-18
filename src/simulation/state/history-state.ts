@@ -42,6 +42,8 @@ export interface HistoricalEventRecord {
   name: string;
   year: number;
   month: number;
+  scheduledYear: number;
+  scheduledMonth: number;
   category: string;
   impact: "positive" | "negative" | "mixed";
   description: string;

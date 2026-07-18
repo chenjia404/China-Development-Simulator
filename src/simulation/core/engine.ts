@@ -16,6 +16,7 @@ import {
   setHistoricalEventDecisionMode,
 } from "../events/historical-event-engine";
 import { ensureHistoricalAccountingState } from "../economy/historical-accounting";
+import { enactHistoricalInitiative } from "../events/historical-initiatives";
 
 export interface SimulationResult {
   state: GameState;
@@ -96,6 +97,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
           command.eventId,
           command.choiceId,
         );
+        break;
+      case "ENACT_HISTORICAL_INITIATIVE":
+        enactHistoricalInitiative(this.state, command.initiativeId);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

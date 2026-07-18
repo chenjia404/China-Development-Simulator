@@ -26,6 +26,7 @@ export * from "./reports/history";
 export * from "./policies/policy-engine";
 export * from "./events/event-engine";
 export * from "./events/historical-event-engine";
+export * from "./events/historical-initiatives";
 export * from "./events/modifiers";
 export * from "./state/game-state";
 export * from "./state/history-state";

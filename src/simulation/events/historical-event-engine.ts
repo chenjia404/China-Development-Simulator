@@ -251,10 +251,13 @@ export function ensureHistoricalEventState(nation: NationState): void {
   nation.historicalEventDecisionMode ??= "automatic";
   nation.pendingHistoricalEventId ??= null;
   for (const record of nation.history.historicalEvents) {
+    const definition = getHistoricalEvent(record.id);
     record.choiceId ??= "historical_path";
     record.choiceName ??= "遵循历史路径";
     record.choiceDescription ??= "由旧版本存档迁移，按历史方案记录。";
     record.outcome ??= "occurred";
+    record.scheduledYear ??= definition?.year ?? record.year;
+    record.scheduledMonth ??= definition?.month ?? record.month;
   }
   if (
     nation.pendingHistoricalEventId &&
@@ -274,6 +277,7 @@ function applyChoice(
   nation: NationState,
   event: HistoricalEventDefinition,
   choice: HistoricalEventChoice,
+  recordDate = { year: event.year, month: event.month },
 ): HistoricalEventRecord {
   for (const [index, modifier] of choice.modifiers.entries()) {
     addModifier(nation, {
@@ -289,8 +293,10 @@ function applyChoice(
   const record: HistoricalEventRecord = {
     id: event.id,
     name: event.name,
-    year: event.year,
-    month: event.month,
+    year: recordDate.year,
+    month: recordDate.month,
+    scheduledYear: event.year,
+    scheduledMonth: event.month,
     category: event.category,
     impact: event.impact,
     description: event.description,
@@ -304,6 +310,45 @@ function applyChoice(
   nation.history.historicalEvents.push(record);
   nation.pendingHistoricalEventId = null;
   return record;
+}
+
+/** 在史实日期前主动实施一次性历史转折国策；原事件到期后不会重复触发。 */
+export function enactHistoricalEventEarly(
+  nation: NationState,
+  eventId: string,
+  initiativeId: string,
+  initiativeName: string,
+  transitionEffects: string[] = [],
+): HistoricalEventRecord {
+  ensureHistoricalEventState(nation);
+  const event = getHistoricalEvent(eventId);
+  if (!event) throw new Error(`未知历史事件：${eventId}`);
+  if (nation.pendingHistoricalEventId) {
+    throw new Error("请先处理当前待决策历史事件");
+  }
+  if (nation.history.historicalEvents.some((record) => record.id === eventId)) {
+    throw new Error(`${event.name}已经发生或已被处理`);
+  }
+  const isBeforeSchedule = nation.date.year < event.year ||
+    (nation.date.year === event.year && nation.date.month < event.month);
+  if (!isBeforeSchedule) {
+    throw new Error(`${event.name}只能在史实日期前作为国策提前实施`);
+  }
+  const historicalChoice = getHistoricalEventChoices(event, nation)[0];
+  if (!historicalChoice) throw new Error(`${event.name}缺少历史实施方案`);
+  return applyChoice(
+    nation,
+    event,
+    {
+      ...historicalChoice,
+      id: `initiative:${initiativeId}`,
+      name: initiativeName,
+      description: `玩家在史实日期前主动实施“${initiativeName}”。`,
+      effects: [...historicalChoice.effects, ...transitionEffects],
+      outcome: "enacted_early",
+    },
+    { year: nation.date.year, month: nation.date.month },
+  );
 }
 
 export function resolveHistoricalEvent(
