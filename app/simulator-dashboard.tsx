@@ -8,6 +8,7 @@ import type {
   DiplomaticStrategyId,
   FiscalBudget,
   GameState,
+  HistoricalComparisonMetric,
 } from "@/src/simulation";
 import {
   averageInternationalRelation,
@@ -26,6 +27,7 @@ import {
   maximumActivePolicies,
   nationalPolicyDefinitions,
   calculateTechnologyTreeMetrics,
+  compareSimulationWithHistory,
   getTechnologyNode,
   technologyResearchRequirements,
   technologyTreeDefinitions,
@@ -993,7 +995,86 @@ function InternationalSection({ game }: { game: GameState }) {
 }
 
 function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: boolean }) {
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>指数 {item.technologyIndex.toFixed(1)}<br />产业第 {item.industryTechnologyTier} 层 · {item.completedTechnologyCount} 节点</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div></section>;
+  const comparisons = compareSimulationWithHistory(
+    game.nation.history.annual,
+  ).reverse();
+  const differenceTone = (value: number) =>
+    value > 0.0005 ? "is-above" : value < -0.0005 ? "is-below" : "is-matched";
+  const renderMetric = (metric: HistoricalComparisonMetric) => (
+    <div className="comparison-metric">
+      <strong>{formatLarge(metric.simulated)}</strong>
+      <span>史实 {formatLarge(metric.historical)}</span>
+      <small className={differenceTone(metric.relativeDifference)}>
+        偏差 {metric.relativeDifference >= 0 ? "+" : ""}
+        {formatPercent(metric.relativeDifference)}
+      </small>
+    </div>
+  );
+  return (
+    <section className="panel detail-page">
+      <div className="detail-hero">
+        <span className="eyebrow">年度时间序列</span>
+        <h2>历史统计</h2>
+        <p>长期图表只保存年度值，最近 120 个月用于短期分析。</p>
+      </div>
+      <HistoryChart annual={game.nation.history.annual} darkMode={darkMode} />
+      <section className="historical-comparison-panel">
+        <div className="comparison-heading">
+          <div>
+            <span className="eyebrow">本局路线与史实锚点</span>
+            <h2>真实历史对比</h2>
+            <p>对照数据只用于展示，不会把反事实路线重新拉回史实。</p>
+          </div>
+          <span>{comparisons.length} 个可比年份</span>
+        </div>
+        <div className="historical-comparison-scroll">
+          <div className="historical-comparison-table">
+            <div className="comparison-head">
+              <span>年份</span>
+              <span>实际 GDP</span>
+              <span>人均 GDP</span>
+              <span>总人口</span>
+              <span>世界经济排名</span>
+            </div>
+            {comparisons.map((item) => (
+              <div className="comparison-row" key={item.year}>
+                <strong>{item.year}</strong>
+                {renderMetric(item.realGDP)}
+                {renderMetric(item.realGDPPerCapita)}
+                {renderMetric(item.population)}
+                <div className="comparison-metric comparison-rank">
+                  {item.gdpRank ? (
+                    <>
+                      <strong>第 {item.gdpRank.simulated} 名</strong>
+                      <span>史实第 {item.gdpRank.historical} 名</span>
+                      <small className={item.gdpRank.difference < 0
+                        ? "is-above"
+                        : item.gdpRank.difference > 0
+                          ? "is-below"
+                          : "is-matched"}
+                      >
+                        {item.gdpRank.difference === 0
+                          ? "与史实一致"
+                          : item.gdpRank.difference < 0
+                            ? `领先 ${Math.abs(item.gdpRank.difference)} 位`
+                            : `落后 ${item.gdpRank.difference} 位`}
+                      </small>
+                    </>
+                  ) : (
+                    <span>该年暂无统一排名锚点</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="comparison-note">
+          实际 GDP 与人均 GDP 使用项目统一的 1949 年不变价校准口径；世界经济排名按名义 GDP 总量比较。2026 年预测目标不作为真实历史展示。
+        </p>
+      </section>
+      <div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>指数 {item.technologyIndex.toFixed(1)}<br />产业第 {item.industryTechnologyTier} 层 · {item.completedTechnologyCount} 节点</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div>
+    </section>
+  );
 }
 
 function SettingsSection() {

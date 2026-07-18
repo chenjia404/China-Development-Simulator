@@ -81,3 +81,19 @@ test("客户端展示可操作科技树和产业升级门槛", async () => {
   assert.match(source, /设为研究目标/);
   assert.match(source, /科技指数高但产业节点落后/);
 });
+
+test("客户端展示本局路线与真实历史对比", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /真实历史对比/);
+  assert.match(source, /实际 GDP/);
+  assert.match(source, /人均 GDP/);
+  assert.match(source, /总人口/);
+  assert.match(source, /世界经济排名/);
+  assert.match(source, /不会把反事实路线重新拉回史实/);
+});

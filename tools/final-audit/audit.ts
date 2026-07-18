@@ -4,6 +4,7 @@ import {
   calculateGDP,
   calculateTradeAccess,
   calculateTechnologyTreeMetrics,
+  compareSimulationWithHistory,
   createSimulationEngine,
   createInitialGameState,
   developmentRouteBlueprints,
@@ -175,6 +176,10 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
 
   const duplicate = runSimulation({ strategy: "historical", seed, startYear: 1949, endYear: 2026 });
   const calibration = summarizeCalibration(compareWithTargets(historical.annual));
+  const historicalComparisons = compareSimulationWithHistory(historical.annual);
+  const historicalRankComparisons = historicalComparisons.filter(
+    (comparison) => comparison.gdpRank !== null,
+  );
   const restored = deserializeGameState(
     serializeGameState(historical.finalState, "2027-01-01T00:00:00.000Z"),
   );
@@ -724,6 +729,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "历史参考策略保持校准通过",
       calibration.passed === calibration.total,
       `${calibration.passed}/${calibration.total} 个校准项通过`,
+    ),
+    makeCheck(
+      "historical-comparison",
+      "界面可按统一口径比较实际 GDP、人均 GDP、总人口和世界经济排名",
+      historicalComparisons.length === 8 &&
+        historicalRankComparisons.length === 5 &&
+        historicalComparisons.every(
+          (comparison) =>
+            comparison.year <= 2020 &&
+            Number.isFinite(comparison.realGDP.relativeDifference) &&
+            Number.isFinite(comparison.realGDPPerCapita.relativeDifference) &&
+            Number.isFinite(comparison.population.relativeDifference),
+        ) &&
+        historicalRankComparisons.every(
+          (comparison) => Number.isFinite(comparison.gdpRank?.difference),
+        ),
+      `${historicalComparisons.length} 个真实历史年份可比，${historicalRankComparisons.length} 个年份含世界经济排名；2026 年预测目标已排除`,
     ),
     makeCheck(
       "distinct-routes",
