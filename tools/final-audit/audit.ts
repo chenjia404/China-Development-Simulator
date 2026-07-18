@@ -412,6 +412,10 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_joint_venture_law",
   });
+  initiativePreparation.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_special_economic_zones",
+  });
   const observerState = initiativePreparation.exportState();
   observerState.nation.date.year = 1979;
   observerState.nation.date.month = 1;

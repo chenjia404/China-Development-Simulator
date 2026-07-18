@@ -48,6 +48,34 @@
     ]
   },
   {
+    "id": "early_special_economic_zones",
+    "eventId": "special_economic_zones_1980",
+    "name": "提前设立经济特区",
+    "description": "在改革开放和涉外投资法律框架已经启动后，提前划定对外开放试验区，引入资本、技术、出口加工和市场化管理制度。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 10,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979"],
+      "minimumMonthsSinceEvents": {
+        "reform_and_opening_1978": 0,
+        "joint_venture_law_1979": 0
+      },
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStability": 48,
+      "minimumOpenness": 0.05,
+      "minimumReputation": 42,
+      "minimumAverageRelation": -10,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0
+    },
+    "transitionEffects": ["口岸、交通和监管体系建设增加财政支出", "试验区建设短期挤占部分国内民间投资", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.98 }
+    ]
+  },
+  {
     "id": "early_gatt_observer",
     "eventId": "gatt_observer_1982",
     "name": "提前取得关贸总协定观察员地位",

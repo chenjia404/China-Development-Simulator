@@ -18,13 +18,13 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("四项主动国策具有唯一事件映射，正式入世不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(4);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(4);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(4);
+  it("五项主动国策具有唯一事件映射，正式入世不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(5);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(5);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(5);
     expect(
       historicalInitiativeDefinitions.map((item) => item.availableFromYear),
-    ).toEqual([1949, 1949, 1979, 1982]);
+    ).toEqual([1949, 1949, 1949, 1979, 1982]);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
   });
 
@@ -90,6 +90,54 @@ describe("历史转折国策", () => {
     });
   });
 
+  it("经济特区在改革开放和合资企业法启动后可于1949年同月设立", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
+    expect(
+      getHistoricalInitiativeStatus(
+        engine.exportState(),
+        "early_special_economic_zones",
+      ).blockers,
+    ).toContain("需先完成改革开放启动");
+
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_reform_and_opening",
+    });
+    expect(
+      getHistoricalInitiativeStatus(
+        engine.exportState(),
+        "early_special_economic_zones",
+      ).blockers,
+    ).toContain("需先完成中外合资经营企业法");
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_joint_venture_law",
+    });
+    expect(
+      getHistoricalInitiativeStatus(
+        engine.exportState(),
+        "early_special_economic_zones",
+      ).available,
+    ).toBe(true);
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_special_economic_zones",
+    });
+
+    expect(engine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "special_economic_zones_1980",
+      year: 1949,
+      month: 1,
+      scheduledYear: 1980,
+      outcome: "enacted_early",
+    });
+    expect(
+      engine.getState().nation.modifiers.some(
+        (modifier) => modifier.sourceId === "special_economic_zones_1980",
+      ),
+    ).toBe(true);
+  });
+
   it("多边贸易主动国策只推进观察员和复关申请，不直接授予世贸成员资格", () => {
     const preparationEngine = createSimulationEngine(prepareReformConditions(1970));
     preparationEngine.dispatch({
@@ -104,6 +152,10 @@ describe("历史转折国策", () => {
     legalEngine.dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_joint_venture_law",
+    });
+    legalEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_special_economic_zones",
     });
     const observerState = legalEngine.exportState();
     observerState.nation.date.year = 1979;
@@ -160,6 +212,7 @@ describe("历史转折国策", () => {
       .toEqual([
         "reform_and_opening_1978",
         "joint_venture_law_1979",
+        "special_economic_zones_1980",
         "gatt_observer_1982",
         "gatt_accession_application_1986",
       ]);
