@@ -1,0 +1,74 @@
+{
+  "cooldownMonths": 60,
+  "alignmentStepPerMonth": 0.027777777777777776,
+  "strategies": [
+    {
+      "id": "pro_soviet",
+      "name": "亲苏路线",
+      "shortName": "亲苏",
+      "description": "优先发展同苏联及其后继国家的战略协作，以工业、能源和科研合作换取更强的自主安全，但会压缩西方市场与资本渠道。",
+      "targetAlignment": -1,
+      "activationCost": 15,
+      "effects": ["对苏关系显著改善", "科研与技术吸收增强", "西方贸易和外资承压", "安全指数提高"],
+      "marketAccessMultiplier": 0.92,
+      "foreignInvestmentMultiplier": 0.78,
+      "technologyDiffusionMultiplier": 1.08,
+      "researchOutputMultiplier": 1.06,
+      "securityTargetAdjustment": 5,
+      "reputationTargetAdjustment": -3,
+      "relationTargetAdjustments": {
+        "russia": 45,
+        "usa": -30,
+        "japan": -22,
+        "south_korea": -22,
+        "united_kingdom": -18,
+        "france": -12,
+        "germany": -12,
+        "canada": -15,
+        "australia": -15
+      }
+    },
+    {
+      "id": "balanced",
+      "name": "平衡外交路线",
+      "shortName": "平衡",
+      "description": "避免长期依附单一阵营，在主要大国之间保持政策回旋空间。贸易、投资、科技与安全均无极端加成或惩罚。",
+      "targetAlignment": 0,
+      "activationCost": 8,
+      "effects": ["东西方关系保持弹性", "贸易和投资来源更分散", "科技渠道较稳定", "缺少单一阵营的专项红利"],
+      "marketAccessMultiplier": 1,
+      "foreignInvestmentMultiplier": 1,
+      "technologyDiffusionMultiplier": 1,
+      "researchOutputMultiplier": 1,
+      "securityTargetAdjustment": 0,
+      "reputationTargetAdjustment": 0,
+      "relationTargetAdjustments": {}
+    },
+    {
+      "id": "pro_western",
+      "name": "亲西方路线",
+      "shortName": "亲西方",
+      "description": "优先融入西方主导的市场、资本与技术体系，以更强的出口和外资传导换取增长，同时承担对苏关系和战略安全代价。",
+      "targetAlignment": 1,
+      "activationCost": 15,
+      "effects": ["西方市场准入扩大", "外商投资明显增加", "技术扩散加快", "对苏关系和安全指数承压"],
+      "marketAccessMultiplier": 1.08,
+      "foreignInvestmentMultiplier": 1.2,
+      "technologyDiffusionMultiplier": 1.18,
+      "researchOutputMultiplier": 1.02,
+      "securityTargetAdjustment": -3,
+      "reputationTargetAdjustment": 3,
+      "relationTargetAdjustments": {
+        "russia": -30,
+        "usa": 30,
+        "japan": 22,
+        "south_korea": 22,
+        "united_kingdom": 18,
+        "france": 15,
+        "germany": 15,
+        "canada": 15,
+        "australia": 15
+      }
+    }
+  ]
+}

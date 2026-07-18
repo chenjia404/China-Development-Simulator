@@ -160,6 +160,9 @@ export interface DiplomacyState {
   globalReputation: number;
   securityIndex: number;
   organizationIds: string[];
+  strategyId: "pro_soviet" | "balanced" | "pro_western";
+  strategyAlignment: number;
+  lastStrategyChangeMonth: number | null;
 }
 
 export interface ModifierState {

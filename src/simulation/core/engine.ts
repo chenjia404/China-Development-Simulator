@@ -17,6 +17,7 @@ import {
 } from "../events/historical-event-engine";
 import { ensureHistoricalAccountingState } from "../economy/historical-accounting";
 import { enactHistoricalInitiative } from "../events/historical-initiatives";
+import { setDiplomaticStrategy } from "../diplomacy/diplomatic-strategy";
 
 export interface SimulationResult {
   state: GameState;
@@ -87,6 +88,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "JOIN_ORGANIZATION":
         joinInternationalOrganization(this.state, command.organizationId);
+        break;
+      case "SET_DIPLOMATIC_STRATEGY":
+        setDiplomaticStrategy(this.state, command.strategyId);
         break;
       case "SET_HISTORICAL_EVENT_MODE":
         setHistoricalEventDecisionMode(this.state.nation, command.mode);

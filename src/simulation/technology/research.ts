@@ -3,9 +3,11 @@ import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
 
 export function updateTechnology(nation: NationState): void {
   const { technology, education, fiscal, economy, sectors, trade } = nation;
+  const strategyEffects = diplomaticStrategyEffects(nation);
   const researchSpending = fiscal.expenditure * fiscal.budget.research;
   const fundingIntensity = clamp(
     Math.sqrt(safeDivide(researchSpending, economy.nominalGDP) / 0.01),
@@ -38,7 +40,7 @@ export function updateTechnology(nation: NationState): void {
     nation,
     "technology.researchOutput",
     policyResearchOutput,
-  );
+  ) * strategyEffects.researchOutputMultiplier;
   technology.monthlyResearchOutput = researchOutput;
   technology.researchPoints += researchOutput;
 
@@ -59,7 +61,8 @@ export function updateTechnology(nation: NationState): void {
     Math.max(0, 85 - technology.index) *
     trade.openness *
     education.literacyRate *
-    technologyConfig.diffusionStrength;
+    technologyConfig.diffusionStrength *
+    strategyEffects.technologyDiffusionMultiplier;
   const technologyGain =
     researchOutput * (0.2 + technology.adoptionRate * 0.8) + diffusion;
   const previousTechnologyIndex = technology.index;

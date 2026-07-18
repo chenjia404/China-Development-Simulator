@@ -8,6 +8,7 @@ import {
   historicalInitiativeDefinitions,
   getHistoricalEventChoices,
   deserializeGameState,
+  diplomaticStrategyEffects,
   serializeGameState,
 } from "../../src/simulation/index";
 import { compareWithTargets, summarizeCalibration } from "../baseline-calibration/calibration";
@@ -247,6 +248,17 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const neutralAccess = calculateTradeAccess(neutralTrade).marketAccessMultiplier;
   const agreementAccess = calculateTradeAccess(agreementTrade).marketAccessMultiplier;
   const sanctionedAccess = calculateTradeAccess(sanctionedTrade).marketAccessMultiplier;
+  const proSovietStrategy = structuredClone(neutralTrade);
+  const proWesternStrategy = structuredClone(neutralTrade);
+  proSovietStrategy.nation.diplomacy.strategyId = "pro_soviet";
+  proSovietStrategy.nation.diplomacy.strategyAlignment = -1;
+  proWesternStrategy.nation.diplomacy.strategyId = "pro_western";
+  proWesternStrategy.nation.diplomacy.strategyAlignment = 1;
+  const balancedStrategyEffects = diplomaticStrategyEffects(neutralTrade.nation);
+  const proSovietStrategyEffects = diplomaticStrategyEffects(proSovietStrategy.nation);
+  const proWesternStrategyEffects = diplomaticStrategyEffects(proWesternStrategy.nation);
+  const proSovietAccess = calculateTradeAccess(proSovietStrategy).marketAccessMultiplier;
+  const proWesternAccess = calculateTradeAccess(proWesternStrategy).marketAccessMultiplier;
 
   const checks: AuditCheck[] = [
     makeCheck(
@@ -294,6 +306,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "协定和制裁对国际贸易形成双向反馈",
       agreementAccess > neutralAccess && sanctionedAccess < neutralAccess,
       `中性 ${neutralAccess.toFixed(3)}，贸易协定 ${agreementAccess.toFixed(3)}，制裁 ${sanctionedAccess.toFixed(3)}`,
+    ),
+    makeCheck(
+      "diplomatic-strategies",
+      "亲苏、平衡和亲西方路线对贸易、外资、科技与安全形成不同取舍",
+      proWesternAccess > neutralAccess &&
+        neutralAccess > proSovietAccess &&
+        proWesternStrategyEffects.foreignInvestmentMultiplier >
+          balancedStrategyEffects.foreignInvestmentMultiplier &&
+        proSovietStrategyEffects.foreignInvestmentMultiplier <
+          balancedStrategyEffects.foreignInvestmentMultiplier &&
+        proWesternStrategyEffects.technologyDiffusionMultiplier >
+          balancedStrategyEffects.technologyDiffusionMultiplier &&
+        proSovietStrategyEffects.researchOutputMultiplier >
+          balancedStrategyEffects.researchOutputMultiplier &&
+        proSovietStrategyEffects.securityTargetAdjustment > 0 &&
+        proWesternStrategyEffects.securityTargetAdjustment < 0,
+      `市场准入：亲苏 ${proSovietAccess.toFixed(3)}、平衡 ${neutralAccess.toFixed(3)}、亲西方 ${proWesternAccess.toFixed(3)}；外资倍率 ${proSovietStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}/${balancedStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}/${proWesternStrategyEffects.foreignInvestmentMultiplier.toFixed(2)}`,
     ),
     makeCheck(
       "historical-timeline",

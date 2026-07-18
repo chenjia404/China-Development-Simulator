@@ -3,8 +3,114 @@ import { createSimulationEngine } from "../core/engine";
 import { calculateTradeAccess, updateInternationalTrade } from "../economy/trade";
 import { createInitialGameState } from "../state/initial-state";
 import { updateDiplomacy } from "./diplomacy";
+import { updateTechnology } from "../technology/research";
+import {
+  diplomaticStrategyEffects,
+  diplomaticStrategyDefinitions,
+} from "./diplomatic-strategy";
 
 describe("外交与国际贸易", () => {
+  it("三种外交战略互斥，切换消耗点数并受五年冷却约束", () => {
+    expect(diplomaticStrategyDefinitions.map((strategy) => strategy.id)).toEqual([
+      "pro_soviet",
+      "balanced",
+      "pro_western",
+    ]);
+    const state = createInitialGameState(1949);
+    state.nation.diplomacy.diplomaticPoints = 100;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({
+      type: "SET_DIPLOMATIC_STRATEGY",
+      strategyId: "pro_western",
+    });
+
+    expect(engine.getState().nation.diplomacy).toMatchObject({
+      strategyId: "pro_western",
+      strategyAlignment: 0,
+      diplomaticPoints: 85,
+      lastStrategyChangeMonth: 0,
+    });
+    expect(() =>
+      engine.dispatch({
+        type: "SET_DIPLOMATIC_STRATEGY",
+        strategyId: "balanced",
+      }),
+    ).toThrow("冷却 60 个月");
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 36 });
+    expect(engine.getState().nation.diplomacy.strategyAlignment).toBeCloseTo(1);
+  });
+
+  it("亲苏与亲西方路线会以相反方向改变主要大国关系和安全", () => {
+    const balanced = createInitialGameState(1);
+    const proSoviet = structuredClone(balanced);
+    const proWestern = structuredClone(balanced);
+    proSoviet.nation.diplomacy.strategyId = "pro_soviet";
+    proSoviet.nation.diplomacy.strategyAlignment = -1;
+    proWestern.nation.diplomacy.strategyId = "pro_western";
+    proWestern.nation.diplomacy.strategyAlignment = 1;
+
+    updateDiplomacy(balanced);
+    updateDiplomacy(proSoviet);
+    updateDiplomacy(proWestern);
+    const relation = (state: typeof balanced, countryId: string) =>
+      state.world.countries.find((country) => country.id === countryId)?.relationWithChina ?? 0;
+
+    expect(relation(proSoviet, "russia")).toBeGreaterThan(relation(balanced, "russia"));
+    expect(relation(proSoviet, "usa")).toBeLessThan(relation(balanced, "usa"));
+    expect(relation(proWestern, "usa")).toBeGreaterThan(relation(balanced, "usa"));
+    expect(relation(proWestern, "russia")).toBeLessThan(relation(balanced, "russia"));
+    expect(proSoviet.nation.diplomacy.securityIndex).toBeGreaterThan(
+      balanced.nation.diplomacy.securityIndex,
+    );
+    expect(proWestern.nation.diplomacy.securityIndex).toBeLessThan(
+      balanced.nation.diplomacy.securityIndex,
+    );
+  });
+
+  it("外交路线通过贸易准入、外资和科技渠道形成差异", () => {
+    const balanced = createInitialGameState(2);
+    const proSoviet = structuredClone(balanced);
+    const proWestern = structuredClone(balanced);
+    proSoviet.nation.diplomacy.strategyId = "pro_soviet";
+    proSoviet.nation.diplomacy.strategyAlignment = -1;
+    proWestern.nation.diplomacy.strategyId = "pro_western";
+    proWestern.nation.diplomacy.strategyAlignment = 1;
+    for (const state of [balanced, proSoviet, proWestern]) {
+      state.nation.trade.foreignInvestment = 1_000_000_000;
+      state.nation.trade.openness = 0.5;
+      state.nation.education.literacyRate = 0.8;
+      state.nation.technology.index = 20;
+    }
+
+    expect(calculateTradeAccess(proWestern).marketAccessMultiplier).toBeGreaterThan(
+      calculateTradeAccess(balanced).marketAccessMultiplier,
+    );
+    expect(calculateTradeAccess(proSoviet).marketAccessMultiplier).toBeLessThan(
+      calculateTradeAccess(balanced).marketAccessMultiplier,
+    );
+    updateInternationalTrade(balanced);
+    updateInternationalTrade(proSoviet);
+    updateInternationalTrade(proWestern);
+    expect(proWestern.nation.trade.foreignInvestment).toBeGreaterThan(
+      balanced.nation.trade.foreignInvestment,
+    );
+    expect(proSoviet.nation.trade.foreignInvestment).toBeLessThan(
+      balanced.nation.trade.foreignInvestment,
+    );
+
+    updateTechnology(balanced.nation);
+    updateTechnology(proSoviet.nation);
+    updateTechnology(proWestern.nation);
+    expect(proSoviet.nation.technology.monthlyResearchOutput).toBeGreaterThan(
+      balanced.nation.technology.monthlyResearchOutput,
+    );
+    expect(proWestern.nation.technology.index).toBeGreaterThan(
+      balanced.nation.technology.index,
+    );
+    expect(diplomaticStrategyEffects(proWestern.nation).technologyDiffusionMultiplier)
+      .toBeGreaterThan(diplomaticStrategyEffects(proSoviet.nation).technologyDiffusionMultiplier);
+  });
   it("外交行动消耗点数、改变关系并受冷却期约束", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));
     const before = engine.getState().world.countries.find(
@@ -158,6 +264,8 @@ describe("外交与国际贸易", () => {
     const engine = createSimulationEngine(state);
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
     expect(engine.getState().nation.diplomacy.diplomaticPoints).toBeGreaterThan(0);
+    expect(engine.getState().nation.diplomacy.strategyId).toBe("balanced");
+    expect(engine.getState().nation.diplomacy.strategyAlignment).toBe(0);
     expect(
       Number.isFinite(engine.getState().world.countries[0].relationWithChina),
     ).toBe(true);

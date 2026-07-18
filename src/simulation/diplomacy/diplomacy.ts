@@ -3,6 +3,11 @@ import { approach, clamp } from "../core/math";
 import type { GameState } from "../state/game-state";
 import type { WorldCountryState } from "../state/world-state";
 import { applyModifiers } from "../events/modifiers";
+import {
+  diplomaticRelationTargetAdjustment,
+  diplomaticStrategyEffects,
+  updateDiplomaticStrategy,
+} from "./diplomatic-strategy";
 
 export type DiplomaticActionId = keyof typeof diplomacyConfig.actions;
 
@@ -38,8 +43,14 @@ export function ensureDiplomacyState(state: GameState): void {
     globalReputation: diplomacyConfig.initialReputation,
     securityIndex: diplomacyConfig.initialSecurityIndex,
     organizationIds: [],
+    strategyId: "balanced",
+    strategyAlignment: 0,
+    lastStrategyChangeMonth: null,
   };
   state.nation.diplomacy.organizationIds ??= [];
+  state.nation.diplomacy.strategyId ??= "balanced";
+  state.nation.diplomacy.strategyAlignment ??= 0;
+  state.nation.diplomacy.lastStrategyChangeMonth ??= null;
   for (const country of state.world.countries) {
     country.relationWithChina ??= initialRelation(country.id);
     country.diplomaticStatus ??= "neutral";
@@ -204,6 +215,8 @@ export function organizationTradeMultiplier(state: GameState): number {
 export function updateDiplomacy(state: GameState): void {
   ensureDiplomacyState(state);
   const { nation } = state;
+  updateDiplomaticStrategy(nation);
+  const strategyEffects = diplomaticStrategyEffects(nation);
   const organizationPointGain = internationalOrganizations.reduce(
     (sum, organization) =>
       nation.diplomacy.organizationIds.includes(organization.id)
@@ -230,7 +243,8 @@ export function updateDiplomacy(state: GameState): void {
     25 +
       nation.fiscal.budget.defense * 180 +
       nation.technology.index * 0.2 +
-      nation.society.stabilityIndex * 0.15,
+      nation.society.stabilityIndex * 0.15 +
+      strategyEffects.securityTargetAdjustment,
     0,
     100,
   );
@@ -248,7 +262,8 @@ export function updateDiplomacy(state: GameState): void {
       (nation.diplomacy.globalReputation - 50) * 0.3 +
         nation.trade.openness * 12 +
         cooperationBonus -
-        country.sanctionLevel * 80,
+        country.sanctionLevel * 80 +
+        diplomaticRelationTargetAdjustment(nation, country.id),
       -100,
       100,
     );
@@ -273,7 +288,8 @@ export function updateDiplomacy(state: GameState): void {
       42 +
         averageInternationalRelation(state) * 0.18 +
         nation.economy.institutionalEfficiency * 12 +
-        organizationReputation,
+        organizationReputation +
+        strategyEffects.reputationTargetAdjustment,
     ),
     0,
     100,
