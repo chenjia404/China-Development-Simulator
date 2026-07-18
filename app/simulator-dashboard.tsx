@@ -103,6 +103,34 @@ function MetricCard({
   );
 }
 
+function ComparisonTargetSelector({
+  value,
+  onChange,
+}: {
+  value: ComparisonTargetId;
+  onChange: (value: ComparisonTargetId) => void;
+}) {
+  return (
+    <label className="comparison-selector">
+      <span>目标对象</span>
+      <select
+        aria-label="选择经济对比目标"
+        value={value}
+        onChange={(event) => {
+          const nextValue = event.currentTarget.value;
+          if (isComparisonTargetId(nextValue)) onChange(nextValue);
+        }}
+      >
+        {comparisonTargetOptions.map((target) => (
+          <option value={target.id} key={target.id}>
+            {target.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function HistoryChart({ annual, darkMode }: { annual: AnnualSnapshot[]; darkMode: boolean }) {
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -188,6 +216,95 @@ function BudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
   );
 }
 
+function OverviewComparison({ annual }: { annual: AnnualSnapshot[] }) {
+  const [targetId, setTargetId] = useState<ComparisonTargetId>("history");
+  const setActiveSection = useSimulationStore(
+    (store) => store.setActiveSection,
+  );
+  const comparison = useMemo(
+    () => compareSimulationWithTarget(annual, targetId),
+    [annual, targetId],
+  );
+  const latest = comparison.rows.at(-1);
+  const usesUSD = comparison.valueBasis === "current_usd";
+  const currency = usesUSD ? "$" : "";
+  const differenceTone = (value: number) =>
+    value > 0.0005 ? "is-above" : value < -0.0005 ? "is-below" : "is-matched";
+  const differenceLabel = (value: number) =>
+    `${value >= 0 ? "+" : ""}${formatPercent(value)}`;
+  const rankLabel = latest?.gdpRank
+    ? latest.gdpRank.difference === 0
+      ? "位次一致"
+      : latest.gdpRank.difference < 0
+        ? `领先 ${Math.abs(latest.gdpRank.difference)} 位`
+        : `落后 ${latest.gdpRank.difference} 位`
+    : "暂无排名锚点";
+
+  return (
+    <section className="panel overview-comparison-panel">
+      <div className="overview-comparison-heading">
+        <div>
+          <span className="eyebrow">首页发展对比</span>
+          <h2>本局与{comparison.targetLabel}</h2>
+          <p>{latest ? `${latest.year} 年最新可比数据` : "尚未到达可比年份"}</p>
+        </div>
+        <ComparisonTargetSelector value={targetId} onChange={setTargetId} />
+      </div>
+      {latest ? (
+        <div className="overview-comparison-grid">
+          <div>
+            <span>{usesUSD ? "GDP（现价美元）" : "实际 GDP"}</span>
+            <strong>{currency}{formatLarge(latest.gdp.simulated)}</strong>
+            <small className={differenceTone(latest.gdp.relativeDifference)}>
+              {comparison.targetLabel} {currency}{formatLarge(latest.gdp.target)} · {differenceLabel(latest.gdp.relativeDifference)}
+            </small>
+          </div>
+          <div>
+            <span>{usesUSD ? "人均 GDP（美元）" : "人均 GDP"}</span>
+            <strong>{currency}{formatLarge(latest.gdpPerCapita.simulated)}</strong>
+            <small className={differenceTone(latest.gdpPerCapita.relativeDifference)}>
+              {comparison.targetLabel} {currency}{formatLarge(latest.gdpPerCapita.target)} · {differenceLabel(latest.gdpPerCapita.relativeDifference)}
+            </small>
+          </div>
+          <div>
+            <span>总人口</span>
+            <strong>{formatLarge(latest.population.simulated)}</strong>
+            <small>
+              {comparison.targetLabel} {formatLarge(latest.population.target)} · {differenceLabel(latest.population.relativeDifference)}
+            </small>
+          </div>
+          <div>
+            <span>世界经济排名</span>
+            <strong>{latest.gdpRank ? `第 ${latest.gdpRank.simulated} 名` : "—"}</strong>
+            <small className={latest.gdpRank
+              ? latest.gdpRank.difference < 0
+                ? "is-above"
+                : latest.gdpRank.difference > 0
+                  ? "is-below"
+                  : "is-matched"
+              : undefined}
+            >
+              {latest.gdpRank
+                ? `${comparison.targetLabel}第 ${latest.gdpRank.target} 名 · ${rankLabel}`
+                : rankLabel}
+            </small>
+          </div>
+        </div>
+      ) : (
+        <p className="overview-comparison-empty">
+          推进到 1960 年后即可与{comparison.targetLabel}比较。
+        </p>
+      )}
+      <button
+        className="overview-comparison-link"
+        onClick={() => setActiveSection("statistics")}
+      >
+        查看完整年度对比
+      </button>
+    </section>
+  );
+}
+
 function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean; busy: boolean }) {
   const nation = game.nation;
   const lastAnnual = nation.history.annual.at(-1);
@@ -212,6 +329,7 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
         <MetricCard label="科技指数" value={nation.technology.index.toFixed(1)} detail={`采用率 ${formatPercent(nation.technology.adoptionRate)}`} tone="blue" />
         <MetricCard label="世界经济排名" value={`GDP 第 ${game.world.rankings.nominalGDP.china ?? "—"} 名`} detail={`全球人均第 ${nation.economy.globalGDPPerCapitaRank}/${nation.economy.globalGDPPerCapitaParticipants} · 评分 ${lastAnnual?.score.toFixed(1) ?? "—"}`} tone="green" />
       </div>
+      <OverviewComparison annual={nation.history.annual} />
       <div className="dashboard-grid">
         <section className="panel chart-panel">
           <div className="panel-heading"><div><span className="eyebrow">长期趋势</span><h2>国家发展轨迹</h2></div><span className="history-count">{nation.history.annual.length} 个年度</span></div>
@@ -1042,23 +1160,10 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
             <h2>国家发展对比</h2>
             <p>选择历史、韩国、日本或台湾，查看相同年份的发展差距。</p>
           </div>
-          <label className="comparison-selector">
-            <span>目标对象</span>
-            <select
-              aria-label="选择经济对比目标"
-              value={comparisonTargetId}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                if (isComparisonTargetId(value)) setComparisonTargetId(value);
-              }}
-            >
-              {comparisonTargetOptions.map((target) => (
-                <option value={target.id} key={target.id}>
-                  {target.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <ComparisonTargetSelector
+            value={comparisonTargetId}
+            onChange={setComparisonTargetId}
+          />
         </div>
         <div className="historical-comparison-scroll">
           <div className="historical-comparison-table">
