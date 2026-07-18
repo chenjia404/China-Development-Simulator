@@ -44,6 +44,7 @@ import { updateAgricultureSystem } from "../economy/agriculture-rural";
 import { updateInfrastructureResources } from "../economy/energy-transport-environment";
 import { updateHumanDevelopment } from "../society/human-development";
 import { updateUrbanHousing } from "../society/housing-urbanization";
+import { updateRegionalEconomy } from "../economy/regional-economy";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -83,6 +84,7 @@ export function simulateMonth(
   updateFiscalFederalism(state.nation);
   updateFinancialSystem(state);
   updateUrbanHousing(state.nation);
+  updateRegionalEconomy(state.nation);
   updateInflation(state.nation);
   updateMarketDynamics(state.nation);
   updateWellbeing(state.nation);

@@ -350,3 +350,16 @@ test("客户端展示住房存量、土地转用与城市承载", async () => {
   assert.match(source, /建设用地转用/);
   assert.match(source, /城市服务承载/);
 });
+
+test("客户端展示六大区域经济与跨区流动", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /六大区域经济/);
+  assert.match(source, /东北/);
+  assert.match(source, /东部沿海/);
+  assert.match(source, /西部发展指数/);
+  assert.match(source, /财政净转移/);
+});

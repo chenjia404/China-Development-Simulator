@@ -182,6 +182,17 @@ export function validateGameState(state: GameState): void {
     housing.urbanServiceCoverage < 0 ||
     housing.housingStockError / Math.max(1, housing.urbanHousingUnits) > 1e-10
   ) throw new Error("住房土地城市化账户无效或住房存量未守恒");
+  const regional = nation.regionalEconomy;
+  if (
+    regional.populationError / Math.max(1, nation.population.total) > 1e-10 ||
+    regional.gdpError / Math.max(1, nation.economy.realGDP) > 1e-10 ||
+    regional.employmentError / Math.max(1, nation.labor.employed) > 1e-10 ||
+    regional.investmentError / Math.max(1, nation.economy.investment) > 1e-10 ||
+    regional.exportError / Math.max(1, nation.trade.exports) > 1e-10 ||
+    regional.migrationFlowError / Math.max(1, nation.population.total) > 1e-10 ||
+    regional.capitalFlowError / Math.max(1, nation.economy.investment) > 1e-10 ||
+    regional.fiscalTransferError / Math.max(1, nation.fiscal.revenue) > 1e-10
+  ) throw new Error("区域经济或跨区流动账户未守恒");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

@@ -609,6 +609,40 @@ export interface MarketDynamicsState {
   aggregateCostPressure: number;
 }
 
+export type EconomicRegionId =
+  | "northeast" | "north_coast" | "east_coast"
+  | "south_coast" | "central" | "west";
+export interface EconomicRegionAccount {
+  id: EconomicRegionId;
+  population: number;
+  realGDP: number;
+  employment: number;
+  investment: number;
+  exports: number;
+  disposableIncomePerCapita: number;
+  urbanizationRate: number;
+  infrastructureIndex: number;
+  productivityIndex: number;
+  netInterregionalMigration: number;
+  netCapitalFlow: number;
+  netFiscalTransfer: number;
+}
+/** 六大经济区域及跨区域人口、资本和财政流动账户。 */
+export interface RegionalEconomyState {
+  regions: Record<EconomicRegionId, EconomicRegionAccount>;
+  regionalGDPPerCapitaRatio: number;
+  coastalGDPShare: number;
+  westernDevelopmentIndex: number;
+  populationError: number;
+  gdpError: number;
+  employmentError: number;
+  investmentError: number;
+  exportError: number;
+  migrationFlowError: number;
+  capitalFlowError: number;
+  fiscalTransferError: number;
+}
+
 export interface DiplomacyState {
   diplomaticPoints: number;
   monthlyPointGain: number;
@@ -705,6 +739,7 @@ export interface NationState {
   nationalAccounts: NationalAccountsState;
   marketDynamics: MarketDynamicsState;
   financialSystem: FinancialSystemState;
+  regionalEconomy: RegionalEconomyState;
   diplomacy: DiplomacyState;
   policies: string[];
   policyProgress: Record<string, number>;

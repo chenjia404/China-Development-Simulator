@@ -1414,6 +1414,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年城镇住房 ${historical.finalState.nation.society.urbanHousing.urbanHousingUnits.toFixed(0)} 套、短缺 ${historical.finalState.nation.society.urbanHousing.housingShortageUnits.toFixed(0)} 套、房价收入比 ${historical.finalState.nation.society.urbanHousing.priceToIncomeRatio.toFixed(1)}、服务覆盖 ${(historical.finalState.nation.society.urbanHousing.urbanServiceCoverage * 100).toFixed(1)}%`,
     ),
     makeCheck(
+      "regional-economy-flows",
+      "六大区域守恒分配全国总量，跨区人口、资本和财政流动净额为零",
+      historical.finalState.nation.regionalEconomy.populationError /
+          historical.finalState.nation.population.total < 1e-10 &&
+        historical.finalState.nation.regionalEconomy.gdpError /
+          historical.finalState.nation.economy.realGDP < 1e-10 &&
+        historical.finalState.nation.regionalEconomy.migrationFlowError < 0.01 &&
+        historical.finalState.nation.regionalEconomy.capitalFlowError < 0.01 &&
+        historical.finalState.nation.regionalEconomy.fiscalTransferError < 0.01,
+      `2026 年沿海 GDP 占 ${(historical.finalState.nation.regionalEconomy.coastalGDPShare * 100).toFixed(1)}%、区域人均差 ${historical.finalState.nation.regionalEconomy.regionalGDPPerCapitaRatio.toFixed(2)} 倍、西部发展指数 ${(historical.finalState.nation.regionalEconomy.westernDevelopmentIndex * 100).toFixed(1)}`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

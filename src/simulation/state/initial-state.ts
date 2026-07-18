@@ -49,6 +49,10 @@ import {
   createEmptyUrbanHousingState,
   updateUrbanHousing,
 } from "../society/housing-urbanization";
+import {
+  createEmptyRegionalEconomyState,
+  updateRegionalEconomy,
+} from "../economy/regional-economy";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -275,6 +279,7 @@ export function createInitialGameState(
       nationalAccounts: createEmptyNationalAccountsState(),
       marketDynamics: createEmptyMarketDynamicsState(),
       financialSystem: createEmptyFinancialSystemState(),
+      regionalEconomy: createEmptyRegionalEconomyState(),
       diplomacy: {
         diplomaticPoints: diplomacyConfig.initialDiplomaticPoints,
         monthlyPointGain: 0,
@@ -340,6 +345,7 @@ export function createInitialGameState(
   updateInfrastructureResources(state.nation, true);
   updateHumanDevelopment(state.nation);
   updateUrbanHousing(state.nation, true);
+  updateRegionalEconomy(state.nation);
   updateEnterpriseSectors(state.nation);
   updateFiscalFederalism(state.nation);
   ensureMarketDynamicsState(state.nation);

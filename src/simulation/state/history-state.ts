@@ -44,6 +44,9 @@ export interface MonthlySnapshot {
   homePriceIndex: number;
   priceToIncomeRatio: number;
   urbanServiceCoverage: number;
+  regionalGDPPerCapitaRatio: number;
+  coastalGDPShare: number;
+  westernDevelopmentIndex: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

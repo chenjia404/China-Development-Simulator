@@ -58,6 +58,7 @@ import {
   nationalAccountsProductDefinitions,
   AGE_BAND_IDS,
   enterpriseOwnershipDefinitions,
+  economicRegionDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -578,6 +579,18 @@ function UrbanHousingPanel({ game }: { game: GameState }) {
   </section>;
 }
 
+function RegionalEconomyPanel({ game }: { game: GameState }) {
+  const regional = game.nation.regionalEconomy;
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading"><div><span className="eyebrow">区域差距 · 人口 · 资本 · 财政</span><h2>六大区域经济</h2></div><span>最高/最低人均 GDP {regional.regionalGDPPerCapitaRatio.toFixed(2)} 倍</span></div>
+    <div className="enterprise-ownership-grid">{economicRegionDefinitions.map((definition) => {
+      const item = regional.regions[definition.id];
+      return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(item.realGDP / Math.max(game.nation.economy.realGDP, 1))}</span></div><p>人口 {formatLarge(item.population)} · GDP {formatLarge(item.realGDP)}</p><p>投资 {formatLarge(item.investment)} · 出口 ${formatLarge(item.exports)}</p><small>迁移 {item.netInterregionalMigration >= 0 ? "+" : ""}{formatLarge(item.netInterregionalMigration)} · 财政净转移 {formatLarge(item.netFiscalTransfer)}</small></article>;
+    })}</div>
+    <div className="account-flow-grid"><div><span>沿海 GDP</span><strong>{formatPercent(regional.coastalGDPShare)}</strong></div><div><span>西部发展指数</span><strong>{formatPercent(regional.westernDevelopmentIndex)}</strong></div><div><span>区域人口误差</span><strong>{regional.populationError.toFixed(2)}</strong></div><div><span>跨区财政净额</span><strong>{regional.fiscalTransferError.toFixed(2)}</strong></div></div>
+  </section>;
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -592,7 +605,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

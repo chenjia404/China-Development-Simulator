@@ -109,6 +109,11 @@ export function recordHistory(state: GameState): void {
     homePriceIndex: nation.society.urbanHousing.homePriceIndex,
     priceToIncomeRatio: nation.society.urbanHousing.priceToIncomeRatio,
     urbanServiceCoverage: nation.society.urbanHousing.urbanServiceCoverage,
+    regionalGDPPerCapitaRatio:
+      nation.regionalEconomy.regionalGDPPerCapitaRatio,
+    coastalGDPShare: nation.regionalEconomy.coastalGDPShare,
+    westernDevelopmentIndex:
+      nation.regionalEconomy.westernDevelopmentIndex,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

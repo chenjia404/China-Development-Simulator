@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "description": "六大经济区域的人口、生产率、开放度、基础设施和跨区流动参数。",
+    "sources": ["https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm"]
+  },
+  "regions": [
+    { "id": "northeast", "name": "东北", "populationShare": 0.09, "productivity": 1.08, "openness": 0.75, "infrastructure": 1.05 },
+    { "id": "north_coast", "name": "北部沿海", "populationShare": 0.16, "productivity": 1.12, "openness": 1.08, "infrastructure": 1.08 },
+    { "id": "east_coast", "name": "东部沿海", "populationShare": 0.18, "productivity": 1.32, "openness": 1.45, "infrastructure": 1.22 },
+    { "id": "south_coast", "name": "南部沿海", "populationShare": 0.15, "productivity": 1.24, "openness": 1.55, "infrastructure": 1.16 },
+    { "id": "central", "name": "中部", "populationShare": 0.24, "productivity": 0.88, "openness": 0.55, "infrastructure": 0.9 },
+    { "id": "west", "name": "西部", "populationShare": 0.18, "productivity": 0.72, "openness": 0.38, "infrastructure": 0.74 }
+  ]
+}
