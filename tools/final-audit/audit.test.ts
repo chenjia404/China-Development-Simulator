@@ -9,5 +9,5 @@ describe("极端策略与最终审计", () => {
       "失败项应为空",
     ).toEqual([]);
     expect(report.status).toBe("通过");
-  }, 15_000);
+  }, 30_000);
 });

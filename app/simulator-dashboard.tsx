@@ -11,6 +11,7 @@ import type {
 } from "@/src/simulation";
 import {
   averageInternationalRelation,
+  developmentRouteBlueprints,
   diplomaticActionDefinitions,
   diplomaticStrategyCooldownRemaining,
   diplomaticStrategyDefinitions,
@@ -276,6 +277,17 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
     );
     if (confirmed) void enactHistoricalInitiative(initiativeId);
   };
+  const applyBlueprint = (
+    blueprint: (typeof developmentRouteBlueprints)[number],
+  ) => {
+    const sameSelection = blueprint.policyIds.length === game.nation.policies.length &&
+      blueprint.policyIds.every((policyId) => game.nation.policies.includes(policyId));
+    if (sameSelection) return;
+    const confirmed = game.nation.policies.length === 0 || window.confirm(
+      `采用“${blueprint.referenceEconomy}参考 · ${blueprint.name}”会替换当前普通国策组合，之后仍可逐项调整和跨路线混搭。是否继续？`,
+    );
+    if (confirmed) void setPolicies(blueprint.policyIds);
+  };
 
   return (
     <section className="panel detail-page policy-page">
@@ -284,6 +296,52 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
         <h2>重要国策</h2>
         <p>国策不直接增加 GDP，而是通过资本配置、人口、公共服务、科研、贸易和财政逐月传导。取消后也会经历退出期。</p>
         <div className="selection-count"><strong>{game.nation.policies.length}</strong> / {maximumActivePolicies} 项正在实施</div>
+      </div>
+      <div className="route-blueprint-heading">
+        <div>
+          <span className="eyebrow">快捷组合 · 不锁定路线</span>
+          <h2>经济发展蓝图</h2>
+          <p>参考台湾、香港、新加坡、美国和日本的发展经验。一键采用后仍可逐项取消、替换或跨蓝图混搭。</p>
+        </div>
+      </div>
+      <div className="route-blueprint-grid">
+        {developmentRouteBlueprints.map((blueprint) => {
+          const selectedCount = blueprint.policyIds.filter(
+            (policyId) => game.nation.policies.includes(policyId),
+          ).length;
+          const active = selectedCount === blueprint.policyIds.length;
+          return (
+            <article
+              className={active ? "route-blueprint-card is-active" : "route-blueprint-card"}
+              key={blueprint.id}
+            >
+              <div className="route-blueprint-card-head">
+                <span>{blueprint.referenceEconomy}参考</span>
+                <small>{selectedCount}/{blueprint.policyIds.length} 项已选</small>
+              </div>
+              <h3>{blueprint.name}</h3>
+              <p>{blueprint.summary}</p>
+              <div className="route-blueprint-points strengths">
+                <strong>优势</strong>
+                <span>{blueprint.strengths.join(" · ")}</span>
+              </div>
+              <div className="route-blueprint-points tradeoffs">
+                <strong>代价</strong>
+                <span>{blueprint.tradeoffs.join(" · ")}</span>
+              </div>
+              <button
+                disabled={busy || active}
+                onClick={() => applyBlueprint(blueprint)}
+              >
+                {active ? "正在采用 · 可在下方调整" : "采用推荐组合"}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      <div className="policy-list-heading">
+        <span className="eyebrow">自由组合</span>
+        <h2>全部普通国策</h2>
       </div>
       <div className="policy-grid">
         {nationalPolicyDefinitions.map((policy) => {

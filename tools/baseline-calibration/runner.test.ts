@@ -104,4 +104,49 @@ describe("无界面批量模拟器", () => {
       )?.choiceId,
     ).toBe("protect_institutions");
   });
+
+  it("五条参考发展路线稳定运行并形成不同的结构特征", () => {
+    const strategyIds = [
+      "taiwan_sme_export",
+      "hong_kong_free_port",
+      "singapore_fdi_city",
+      "us_innovation_market",
+      "japan_quality_industry",
+    ] as const;
+    const results = new Map(strategyIds.map((strategy) => [
+      strategy,
+      runSimulation({
+        strategy,
+        seed: 1949,
+        startYear: 1949,
+        endYear: 2000,
+      }),
+    ]));
+    for (const result of results.values()) {
+      expect(result.annual).toHaveLength(52);
+      expect(Number.isFinite(result.finalState.nation.economy.realGDP)).toBe(true);
+      expect(result.finalState.nation.history.historicalEvents.find(
+        (event) => event.id === "cultural_revolution_disruption_1966",
+      )?.choiceId).toBe("protect_institutions");
+    }
+
+    const taiwan = results.get("taiwan_sme_export")!.finalState.nation;
+    const hongKong = results.get("hong_kong_free_port")!.finalState.nation;
+    const singapore = results.get("singapore_fdi_city")!.finalState.nation;
+    const us = results.get("us_innovation_market")!.finalState.nation;
+    const japan = results.get("japan_quality_industry")!.finalState.nation;
+    expect(hongKong.trade.openness).toBeGreaterThan(taiwan.trade.openness);
+    expect(
+      hongKong.sectors.tertiary.valueAdded / hongKong.economy.realGDP,
+    ).toBeGreaterThan(
+      taiwan.sectors.tertiary.valueAdded / taiwan.economy.realGDP,
+    );
+    expect(singapore.education.index).toBeGreaterThan(hongKong.education.index);
+    expect(us.fiscal.debtToGDP).toBeGreaterThan(taiwan.fiscal.debtToGDP);
+    expect(
+      japan.sectors.secondary.valueAdded / japan.economy.realGDP,
+    ).toBeGreaterThan(
+      singapore.sectors.secondary.valueAdded / singapore.economy.realGDP,
+    );
+  });
 });

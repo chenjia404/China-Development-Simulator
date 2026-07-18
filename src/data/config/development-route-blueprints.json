@@ -1,0 +1,47 @@
+[
+  {
+    "id": "taiwan_sme_export",
+    "name": "中小企业出口路线",
+    "referenceEconomy": "台湾",
+    "summary": "以分散的民营制造、中小企业配套、职业技能和电子产业集群进入国际市场。",
+    "policyIds": ["sme_export_networks", "electronics_science_parks", "vocational_technical_education", "export_oriented", "expand_opening"],
+    "strengths": ["民间投资与就业", "出口学习", "电子产业升级"],
+    "tradeoffs": ["外需依赖", "科研财政", "能源压力"]
+  },
+  {
+    "id": "hong_kong_free_port",
+    "name": "自由港服务路线",
+    "referenceEconomy": "香港",
+    "summary": "通过低关税、高效通关、资本流动和金融物流服务连接国际市场。",
+    "policyIds": ["free_port_trade", "international_finance_logistics", "low_tax", "expand_opening", "urbanization_reform"],
+    "strengths": ["转口贸易", "服务业与外资", "资本配置"],
+    "tradeoffs": ["税基偏窄", "制造资本减少", "金融周期"]
+  },
+  {
+    "id": "singapore_fdi_city",
+    "name": "招商与技能城市路线",
+    "referenceEconomy": "新加坡",
+    "summary": "以统一招商、外资制造、公共住房和职业技能建设高承载力产业城市。",
+    "policyIds": ["investment_promotion_agency", "public_housing_skills", "expand_opening", "vocational_technical_education", "industrial_upgrading"],
+    "strengths": ["外资制造", "人力资本", "城市承载与升级"],
+    "tradeoffs": ["长期财政支出", "跨国资本依赖", "住房能源压力"]
+  },
+  {
+    "id": "us_innovation_market",
+    "name": "创新与大市场路线",
+    "referenceEconomy": "美国",
+    "summary": "用研究型大学、风险资本、开放市场和居民消费推动高风险创新商业化。",
+    "policyIds": ["research_university_network", "venture_capital_markets", "consumption_stimulus", "low_tax", "expand_opening"],
+    "strengths": ["基础科研", "创业商业化", "消费与服务业"],
+    "tradeoffs": ["财政压力", "投资失败率", "收入分配与资产波动"]
+  },
+  {
+    "id": "japan_quality_industry",
+    "name": "质量工业路线",
+    "referenceEconomy": "日本",
+    "summary": "以长期产业金融、技能训练、供应链协作和质量制造提高出口竞争力。",
+    "policyIds": ["main_bank_industrial_coordination", "quality_manufacturing_system", "vocational_technical_education", "export_oriented", "expand_opening"],
+    "strengths": ["长期资本", "供应链与质量", "制造出口"],
+    "tradeoffs": ["居民消费受压", "关系融资僵化", "能源与贸易摩擦"]
+  }
+]

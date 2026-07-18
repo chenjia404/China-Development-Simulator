@@ -133,6 +133,7 @@
         { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.14 },
         { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.07 },
         { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.04 },
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 1.05 },
         { "target": "technology.exportLearningRate", "operation": "add", "value": 0.006 },
         { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.08 },
         { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
@@ -151,6 +152,7 @@
         { "target": "technology.exportLearningRate", "operation": "add", "value": 0.01 },
         { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0013 },
         { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.06 },
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 1.08 },
         { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.06 },
         { "target": "fiscal.spending", "operation": "multiply", "value": 1.03 },
         { "target": "resources.energyDemand", "operation": "multiply", "value": 1.05 }
@@ -179,12 +181,12 @@
       "transitionMonths": 60,
       "conflictsWith": ["centralized_fx_settlement"],
       "modifiers": [
-        { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.1 },
+        { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.16 },
         { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.22 },
         { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.06 },
         { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.04 },
         { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.06 },
-        { "target": "capital.secondaryAllocation", "operation": "add", "value": -0.04 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": -0.06 },
         { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.97 }
       ]
     },
@@ -197,6 +199,8 @@
       "conflictsWith": ["centralized_fx_settlement", "austerity"],
       "modifiers": [
         { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.3 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.05 },
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 1.07 },
         { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.07 },
         { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.04 },
         { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.08 },

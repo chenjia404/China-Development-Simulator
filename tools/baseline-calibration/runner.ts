@@ -8,6 +8,7 @@ import {
 import {
   getAnnualDecision,
   getHistoricalEventChoice,
+  optimizedHistoricalStrategyIds,
   type StrategyId,
 } from "./strategies";
 import { validateGameState } from "./validation";
@@ -34,7 +35,9 @@ export function runSimulation(options: SimulationRunOptions): SimulationRunResul
     createInitialGameState(
       options.seed,
       options.startYear,
-      options.strategy === "korean_catch_up" ? "interactive" : "automatic",
+      optimizedHistoricalStrategyIds.includes(options.strategy)
+        ? "interactive"
+        : "automatic",
     ),
   );
   const startedAt = performance.now();

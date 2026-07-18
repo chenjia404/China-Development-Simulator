@@ -5,6 +5,7 @@ import {
   calculateTradeAccess,
   createSimulationEngine,
   createInitialGameState,
+  developmentRouteBlueprints,
   historicalEventDefinitions,
   historicalInitiativeDefinitions,
   enactHistoricalEventEarly,
@@ -14,6 +15,7 @@ import {
   diplomaticStrategyEffects,
   serializeGameState,
   updateForeignExchange,
+  validateDevelopmentRouteBlueprints,
   type GameState,
 } from "../../src/simulation/index";
 import { compareWithTargets, summarizeCalibration } from "../baseline-calibration/calibration";
@@ -106,6 +108,11 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const historical = runs.get("historical")!;
   const education = runs.get("education_technology")!;
   const koreanCatchUp = runs.get("korean_catch_up")!;
+  const taiwanRoute = runs.get("taiwan_sme_export")!;
+  const hongKongRoute = runs.get("hong_kong_free_port")!;
+  const singaporeRoute = runs.get("singapore_fdi_city")!;
+  const usRoute = runs.get("us_innovation_market")!;
+  const japanRoute = runs.get("japan_quality_industry")!;
   const summaries = strategyIds.map((strategy) => summary(runs.get(strategy)!));
   const byStrategy = new Map(summaries.map((item) => [item.strategy, item]));
   const historicalSummary = byStrategy.get("historical")!;
@@ -119,6 +126,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const koreanTarget2000 = koreanCatchUpTargets.years.find(
     (target) => target.year === 2000,
   )!;
+  const taiwanRoute2000 = taiwanRoute.annual.find(
+    (snapshot) => snapshot.year === 2000,
+  )!;
+  const hongKongRoute2000 = hongKongRoute.annual.find(
+    (snapshot) => snapshot.year === 2000,
+  )!;
+  const singaporeRoute2000 = singaporeRoute.annual.find(
+    (snapshot) => snapshot.year === 2000,
+  )!;
+  const japanRoute2000 = japanRoute.annual.find(
+    (snapshot) => snapshot.year === 2000,
+  )!;
+  let developmentBlueprintValidationError: string | null = null;
+  try {
+    validateDevelopmentRouteBlueprints();
+  } catch (error) {
+    developmentBlueprintValidationError = error instanceof Error
+      ? error.message
+      : String(error);
+  }
 
   const duplicate = runSimulation({ strategy: "historical", seed, startYear: 1949, endYear: 2026 });
   const calibration = summarizeCalibration(compareWithTargets(historical.annual));
@@ -575,7 +602,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const checks: AuditCheck[] = [
     makeCheck(
       "continuous-run",
-      "七种策略均连续运行 1949—2026",
+      `${strategyIds.length} 种策略均连续运行 1949—2026`,
       summaries.every((item) => item.years === 78),
       `年度快照长度：${summaries.map((item) => `${item.strategy}=${item.years}`).join("，")}`,
     ),
@@ -626,6 +653,38 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
             koreanCatchUp.finalState.nation.economy.nominalGDP <=
           0.551,
       `2000 年中国追赶路线 $${koreanCatchUp2000.currentUSDGDPPerCapita.toFixed(1)}，韩国参考 $${koreanTarget2000.currentUSDGDPPerCapita.toFixed(1)}；教育指数 ${koreanCatchUp2000.educationIndex.toFixed(1)}，二产占比 ${(koreanCatchUp2000.secondarySectorShare * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
+      "development-route-blueprints",
+      "五组发展蓝图只提供可自由调整的合法推荐组合",
+      developmentBlueprintValidationError === null &&
+        developmentRouteBlueprints.length === 5 &&
+        developmentRouteBlueprints.every((blueprint) => {
+          const decision = getAnnualDecision(
+            blueprint.id as StrategyId,
+            1950,
+          );
+          return JSON.stringify(decision.policyIds) ===
+            JSON.stringify(blueprint.policyIds);
+        }),
+      developmentBlueprintValidationError ??
+        developmentRouteBlueprints.map((blueprint) =>
+          `${blueprint.referenceEconomy}=${blueprint.policyIds.length} 项`,
+        ).join("；"),
+    ),
+    makeCheck(
+      "development-route-differences",
+      "台港新美日参考路线形成可辨识的产业、开放、教育和财政取舍",
+      hongKongRoute.finalState.nation.trade.openness >
+          taiwanRoute.finalState.nation.trade.openness &&
+        hongKongRoute2000.tertiarySectorShare >
+          taiwanRoute2000.tertiarySectorShare &&
+        singaporeRoute2000.educationIndex > hongKongRoute2000.educationIndex &&
+        usRoute.finalState.nation.fiscal.debtToGDP >
+          taiwanRoute.finalState.nation.fiscal.debtToGDP &&
+        japanRoute2000.secondarySectorShare >
+          singaporeRoute2000.secondarySectorShare,
+      `2026 年开放度：香港 ${(hongKongRoute.finalState.nation.trade.openness * 100).toFixed(1)}%/台湾 ${(taiwanRoute.finalState.nation.trade.openness * 100).toFixed(1)}%；2000 年教育指数：新加坡 ${singaporeRoute2000.educationIndex.toFixed(1)}/香港 ${hongKongRoute2000.educationIndex.toFixed(1)}；2026 年债务率：美国 ${(usRoute.finalState.nation.fiscal.debtToGDP * 100).toFixed(1)}%；2000 年二产占比：日本 ${(japanRoute2000.secondarySectorShare * 100).toFixed(1)}%/新加坡 ${(singaporeRoute2000.secondarySectorShare * 100).toFixed(1)}%`,
     ),
     makeCheck(
       "diplomacy-trade-link",

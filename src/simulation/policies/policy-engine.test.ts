@@ -134,8 +134,8 @@ describe("国策系统", () => {
     );
     expect(getNationalPolicy("international_finance_logistics")?.modifiers).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ target: "sector.tertiary.output", value: 1.1 }),
-        expect.objectContaining({ target: "capital.secondaryAllocation", value: -0.04 }),
+        expect.objectContaining({ target: "sector.tertiary.output", value: 1.16 }),
+        expect.objectContaining({ target: "capital.secondaryAllocation", value: -0.06 }),
       ]),
     );
     expect(getNationalPolicy("investment_promotion_agency")?.modifiers).toEqual(
