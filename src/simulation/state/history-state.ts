@@ -10,6 +10,7 @@ export interface MonthlySnapshot {
 
 export interface AnnualSnapshot extends MonthlySnapshot {
   realGDPPerCapita: number;
+  currentPriceGDPPerCapita: number;
   fiscalBalance: number;
   debtToGDP: number;
   educationIndex: number;

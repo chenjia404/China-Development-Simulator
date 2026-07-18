@@ -94,6 +94,8 @@ export function createInitialGameState(
         realGDPIndex: 100,
         nominalGDPPerCapita: 227.08,
         realGDPPerCapita: 227.08,
+        currentPriceGDPPerCapita: 227.08,
+        internationalComparableGDP: 123_000_000_000,
         pppGDPPerCapita: 450,
         annualRealGDPGrowth: 0,
         annualNominalGDPGrowth: 0,

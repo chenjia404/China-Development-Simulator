@@ -15,6 +15,7 @@ import {
   resolveHistoricalEvent,
   setHistoricalEventDecisionMode,
 } from "../events/historical-event-engine";
+import { ensureHistoricalAccountingState } from "../economy/historical-accounting";
 
 export interface SimulationResult {
   state: GameState;
@@ -47,6 +48,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     this.state.nation.policyProgress ??= {};
     ensureDiplomacyState(this.state);
     ensureHistoricalEventState(this.state.nation);
+    ensureHistoricalAccountingState(this.state);
   }
 
   getState(): Readonly<GameState> {
@@ -67,6 +69,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         this.state.nation.policyProgress ??= {};
         ensureDiplomacyState(this.state);
         ensureHistoricalEventState(this.state.nation);
+        ensureHistoricalAccountingState(this.state);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

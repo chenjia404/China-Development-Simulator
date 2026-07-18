@@ -1,5 +1,6 @@
 import { clamp, safeDivide } from "../core/math";
 import type { GameState } from "../state/game-state";
+import { calculateWorldComparableGDP } from "../economy/historical-accounting";
 
 export function calculateRank<T extends { id: string }>(
   countries: T[],
@@ -29,6 +30,12 @@ interface RankingCountry {
 }
 
 export function calculateWorldRankings(state: GameState): void {
+  const chinaComparableGDP = calculateWorldComparableGDP(
+    state.nation.economy.realGDP,
+    state.world.worldPriceLevel,
+    state.nation.date.year,
+  );
+  state.nation.economy.internationalComparableGDP = chinaComparableGDP;
   const foreignCountries: RankingCountry[] = state.world.countries.map((country) => ({
     id: country.id,
     nominalGDP: country.nominalGDP,
@@ -41,11 +48,11 @@ export function calculateWorldRankings(state: GameState): void {
   }));
   const worldNominalGDP = foreignCountries.reduce(
     (sum, country) => sum + country.nominalGDP,
-    state.nation.economy.nominalGDP,
+    chinaComparableGDP,
   );
   state.nation.internationalInfluence = clamp(
     state.nation.internationalInfluence * 0.85 +
-      safeDivide(state.nation.economy.nominalGDP, worldNominalGDP) * 500 +
+      safeDivide(chinaComparableGDP, worldNominalGDP) * 500 +
       state.nation.technology.index * 0.08 +
       state.nation.diplomacy.globalReputation * 0.02 +
       state.nation.diplomacy.securityIndex * 0.01 +
@@ -57,8 +64,11 @@ export function calculateWorldRankings(state: GameState): void {
     ...foreignCountries,
     {
       id: state.nation.id,
-      nominalGDP: state.nation.economy.nominalGDP,
-      nominalGDPPerCapita: state.nation.economy.nominalGDPPerCapita,
+      nominalGDP: chinaComparableGDP,
+      nominalGDPPerCapita: safeDivide(
+        chinaComparableGDP,
+        state.nation.population.total,
+      ),
       technology: state.nation.technology.index,
       education: state.nation.education.index,
       lifeExpectancy: state.nation.health.lifeExpectancy,

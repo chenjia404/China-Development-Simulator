@@ -253,7 +253,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .world-head, .annual-head { background: var(--surface-soft); color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
 .world-row { border-top: 1px solid var(--line); font-size: 11px; }
 .world-row.is-china { color: var(--blue); background: var(--blue-soft); }
-.annual-head, .annual-row { display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; min-height: 42px; padding: 0 16px; gap: 12px; }
+.annual-head, .annual-row { display: grid; grid-template-columns: repeat(6, 1fr); align-items: center; min-height: 42px; padding: 0 16px; gap: 12px; }
 .annual-row { border-top: 1px solid var(--line); font-size: 11px; }
 .annual-table { margin-top: 18px; }
 
@@ -335,5 +335,5 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .decision-impact { display: inline-flex; margin-top: 12px; }
   .historical-choice { padding: 14px; }
   .annual-head, .annual-row { grid-template-columns: repeat(3, 1fr); }
-  .annual-head span:nth-child(3), .annual-row span:nth-child(3), .annual-head span:nth-child(4), .annual-row span:nth-child(4) { display: none; }
+  .annual-head span:nth-child(3), .annual-row span:nth-child(3), .annual-head span:nth-child(4), .annual-row span:nth-child(4), .annual-head span:nth-child(5), .annual-row span:nth-child(5) { display: none; }
 }

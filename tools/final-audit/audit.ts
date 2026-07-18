@@ -130,6 +130,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const distinctGDP = new Set(summaries.map((item) => Math.round(item.finalGDP / 1_000_000_000)));
   const historicalRecords = historical.finalState.nation.history.historicalEvents;
   const historicalRecordIds = new Set(historicalRecords.map((event) => event.id));
+  const historicalMilestoneTargets = new Map([
+    [1978, { currentPriceGDPPerCapita: 381, gdpRank: 10 }],
+    [1990, { currentPriceGDPPerCapita: 1644, gdpRank: 11 }],
+    [2000, { currentPriceGDPPerCapita: 7858, gdpRank: 6 }],
+  ]);
+  const historicalMilestones = historical.annual.filter((snapshot) =>
+    historicalMilestoneTargets.has(snapshot.year),
+  );
 
   const decisionEngine = createSimulationEngine(
     createInitialGameState(seed, 1956, "interactive"),
@@ -240,6 +248,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         decisionRecord?.choiceId === "preserve_mixed_ownership" &&
         decisionEngine.getState().nation.date.month === 1,
       `待决策事件 ${pendingDecisionId ?? "无"}，可选 ${decisionChoices.length} 个方案，记录方案 ${decisionRecord?.choiceName ?? "无"}`,
+    ),
+    makeCheck(
+      "historical-economic-milestones",
+      "1978、1990、2000 年人均 GDP 与世界位次符合史实锚点",
+      historicalMilestones.length === historicalMilestoneTargets.size &&
+        historicalMilestones.every((snapshot) => {
+          const target = historicalMilestoneTargets.get(snapshot.year);
+          if (!target) return false;
+          return Math.abs(
+            snapshot.currentPriceGDPPerCapita -
+              target.currentPriceGDPPerCapita,
+          ) / target.currentPriceGDPPerCapita <= 0.03 &&
+          snapshot.gdpRank === target.gdpRank;
+        }),
+      historicalMilestones.map((snapshot) =>
+        `${snapshot.year} 年 ${snapshot.currentPriceGDPPerCapita.toFixed(0)} 元、第 ${snapshot.gdpRank} 名`
+      ).join("；"),
     ),
     makeCheck(
       "industrial-tradeoff",

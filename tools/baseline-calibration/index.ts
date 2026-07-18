@@ -81,6 +81,7 @@ async function main(): Promise<void> {
       population: nation.population.total,
       realGDP: nation.economy.realGDP,
       realGDPPerCapita: nation.economy.realGDPPerCapita,
+      currentPriceGDPPerCapita: nation.economy.currentPriceGDPPerCapita,
       inflationRate: nation.economy.inflationRate,
       debtToGDP: nation.fiscal.debtToGDP,
       educationIndex: nation.education.index,

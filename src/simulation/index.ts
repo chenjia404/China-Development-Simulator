@@ -5,6 +5,7 @@ export * from "./core/protocol";
 export * from "./core/random";
 export * from "./core/time";
 export * from "./economy/gdp";
+export * from "./economy/historical-accounting";
 export * from "./economy/inflation";
 export * from "./economy/production";
 export * from "./economy/trade";

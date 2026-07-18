@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "description": "当年价人均GDP与国际GDP比较口径的历史折算锚点。折算只用于统计展示、国际比较和排名，不改变实际产出。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2012/html/B0104C.HTM",
+      "https://www.stats.gov.cn/sj/ndsj/2010/html/Z2606C.HTM",
+      "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1901004.html",
+      "https://www.stats.gov.cn/xxgk/sjfb/tjgb2020/202602/t20260228_1962662.html"
+    ]
+  },
+  "currentPriceGDPPerCapitaFactors": [
+    { "year": 1949, "factor": 1.0 },
+    { "year": 1978, "factor": 0.7129581880890672 },
+    { "year": 1990, "factor": 1.129184737547806 },
+    { "year": 2000, "factor": 1.9693283141600655 },
+    { "year": 2020, "factor": 5.289895308745692 },
+    { "year": 2026, "factor": 5.150396365080562 }
+  ],
+  "worldGDPComparisonFactors": [
+    { "year": 1949, "factor": 1.0 },
+    { "year": 1978, "factor": 0.466357863515 },
+    { "year": 1990, "factor": 0.190643824314 },
+    { "year": 2000, "factor": 0.259175629109 },
+    { "year": 2026, "factor": 0.225889938495 }
+  ]
+}

@@ -4,6 +4,8 @@ import type { AnnualSnapshot } from "../../src/simulation/index";
 export type CalibrationMetric =
   | "population"
   | "realGDP"
+  | "currentPriceGDPPerCapita"
+  | "gdpRank"
   | "urbanizationRate"
   | "lifeExpectancy"
   | "literacyRate"
@@ -15,6 +17,8 @@ interface CalibrationTarget {
   year: number;
   population: number;
   realGDP: number;
+  currentPriceGDPPerCapita?: number;
+  gdpRank?: number;
   urbanizationRate: number;
   lifeExpectancy: number;
   literacyRate: number;
@@ -43,6 +47,8 @@ export interface CalibrationResult {
 const metrics: CalibrationMetric[] = [
   "population",
   "realGDP",
+  "currentPriceGDPPerCapita",
+  "gdpRank",
   "urbanizationRate",
   "lifeExpectancy",
   "literacyRate",
@@ -61,6 +67,7 @@ export function compareWithTargets(annual: AnnualSnapshot[]): CalibrationResult[
     for (const metric of metrics) {
       const simulatedValue = snapshot[metric];
       const targetValue = target[metric];
+      if (targetValue === undefined) continue;
       const absoluteError = Math.abs(simulatedValue - targetValue);
       const relativeError = targetValue === 0 ? 0 : absoluteError / Math.abs(targetValue);
       const tolerance = tolerances[metric];

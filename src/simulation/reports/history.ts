@@ -68,6 +68,7 @@ export function recordHistory(state: GameState): void {
   const annual: AnnualSnapshot = {
     ...monthly,
     realGDPPerCapita: nation.economy.realGDPPerCapita,
+    currentPriceGDPPerCapita: nation.economy.currentPriceGDPPerCapita,
     fiscalBalance: nation.fiscal.balance,
     debtToGDP: nation.fiscal.debtToGDP,
     educationIndex: nation.education.index,

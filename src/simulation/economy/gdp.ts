@@ -1,5 +1,6 @@
 import { safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { calculateCurrentPriceGDPPerCapita } from "./historical-accounting";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function calculateGDP(nation: NationState): void {
@@ -17,6 +18,11 @@ export function calculateGDP(nation: NationState): void {
     realGDP,
     nation.population.total,
   );
+  nation.economy.currentPriceGDPPerCapita =
+    calculateCurrentPriceGDPPerCapita(
+      nation.economy.realGDPPerCapita,
+      nation.date.year,
+    );
   nation.economy.nominalGDPPerCapita = safeDivide(
     nominalGDP,
     nation.population.total,

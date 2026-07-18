@@ -183,7 +183,7 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
     <>
       <div className="metrics-grid">
         <MetricCard label="实际 GDP" value={formatLarge(nation.economy.realGDP)} detail={`同比 ${formatPercent(growth)}`} />
-        <MetricCard label="人均 GDP" value={formatLarge(nation.economy.realGDPPerCapita)} detail={`PPP ${formatLarge(nation.economy.pppGDPPerCapita)}`} tone="gold" />
+        <MetricCard label="人均 GDP（当年价）" value={`${formatLarge(nation.economy.currentPriceGDPPerCapita)} 元`} detail={`游戏内不变价 ${formatLarge(nation.economy.realGDPPerCapita)}`} tone="gold" />
         <MetricCard label="总人口" value={formatLarge(nation.population.total)} detail={`城市化 ${formatPercent(nation.society.urbanizationRate)}`} tone="red" />
         <MetricCard label="财政余额" value={formatLarge(nation.fiscal.balance)} detail={`债务率 ${formatPercent(nation.fiscal.debtToGDP)}`} tone={nation.fiscal.balance >= 0 ? "green" : "red"} />
         <MetricCard label="科技指数" value={nation.technology.index.toFixed(1)} detail={`采用率 ${formatPercent(nation.technology.adoptionRate)}`} tone="blue" />
@@ -611,14 +611,17 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
 
 function InternationalSection({ game }: { game: GameState }) {
   const countries = [
-    { id: "china", name: "中国", nominalGDP: game.nation.economy.nominalGDP, population: game.nation.population.total, technology: game.nation.technology.index },
+    { id: "china", name: "中国", nominalGDP: game.nation.economy.internationalComparableGDP, population: game.nation.population.total, technology: game.nation.technology.index },
     ...game.world.countries.map((country) => ({ id: country.id, name: country.name, nominalGDP: country.nominalGDP, population: country.population, technology: country.technologyIndex })),
-  ].sort((a, b) => b.nominalGDP - a.nominalGDP).slice(0, 12);
+  ].sort((a, b) =>
+    (game.world.rankings.nominalGDP[a.id] ?? Number.MAX_SAFE_INTEGER) -
+    (game.world.rankings.nominalGDP[b.id] ?? Number.MAX_SAFE_INTEGER)
+  ).slice(0, 12);
   return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">全球比较</span><h2>世界主要经济体</h2><p>外国经济体采用轻量增长模型，每月与中国同步更新。</p></div><div className="world-table"><div className="world-head"><span>排名</span><span>国家</span><span>名义 GDP</span><span>人均 GDP</span><span>科技</span></div>{countries.map((country, index) => <div className={country.id === "china" ? "world-row is-china" : "world-row"} key={country.id}><span>{index + 1}</span><strong>{country.name}</strong><span>{formatLarge(country.nominalGDP)}</span><span>{formatLarge(country.nominalGDP / country.population)}</span><span>{country.technology.toFixed(1)}</span></div>)}</div></section>;
 }
 
 function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: boolean }) {
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人口</span><span>科技</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>第 {item.gdpRank} 名</span></div>)}</div></section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">年度时间序列</span><h2>历史统计</h2><p>长期图表只保存年度值，最近 120 个月用于短期分析。</p></div><HistoryChart annual={game.nation.history.annual} darkMode={darkMode} /><div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>当年价人均 GDP</span><span>人口</span><span>科技</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>{item.technologyIndex.toFixed(1)}</span><span>第 {item.gdpRank} 名</span></div>)}</div></section>;
 }
 
 function SettingsSection() {
