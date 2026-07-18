@@ -2,6 +2,7 @@ import fiscalConfig from "../../data/config/fiscal.json";
 import { approach, clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function calculateEffectiveTaxRate(
   statutoryTaxRate: number,
@@ -53,7 +54,11 @@ export function calculateFiscalRevenue(nation: NationState): void {
     applyModifiers(
       nation,
       "fiscal.revenue",
-      generalTax + stateOwnedProfit + tariffRevenue,
+      applyPolicyModifiers(
+        nation,
+        "fiscal.revenue",
+        generalTax + stateOwnedProfit + tariffRevenue,
+      ),
     ),
   );
 }

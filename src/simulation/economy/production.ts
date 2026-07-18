@@ -98,7 +98,11 @@ export function calculateSectorOutput(
 
   return Math.max(
     0,
-    applyModifiers(nation, `sector.${id}.output`, output),
+    applyModifiers(
+      nation,
+      `sector.${id}.output`,
+      applyPolicyModifiers(nation, `sector.${id}.output`, output),
+    ),
   );
 }
 

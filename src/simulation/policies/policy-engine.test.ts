@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
+import { calculateSectorOutput } from "../economy/production";
+import { calculateFiscalRevenue } from "../fiscal/revenue";
 import { createInitialGameState } from "../state/initial-state";
 import {
   applyPolicyModifiers,
   getNationalPolicy,
   maximumActivePolicies,
+  updatePolicyEnvironment,
   validatePolicySelection,
 } from "./policy-engine";
 
@@ -97,6 +100,78 @@ describe("国策系统", () => {
       ]),
     );
     expect(getNationalPolicy("industrial_upgrading")?.transitionMonths).toBe(72);
+  });
+
+  it("台湾、香港和新加坡国策可以跨路线组合且均包含现实代价", () => {
+    expect(() =>
+      validatePolicySelection([
+        "sme_export_networks",
+        "free_port_trade",
+        "international_finance_logistics",
+        "investment_promotion_agency",
+        "public_housing_skills",
+      ]),
+    ).not.toThrow();
+
+    expect(getNationalPolicy("sme_export_networks")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "capital.privateInvestment", value: 1.14 }),
+        expect.objectContaining({ target: "resources.energyDemand", value: 1.025 }),
+      ]),
+    );
+    expect(getNationalPolicy("electronics_science_parks")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "technology.researchOutput", value: 1.18 }),
+        expect.objectContaining({ target: "fiscal.spending", value: 1.03 }),
+      ]),
+    );
+    expect(getNationalPolicy("free_port_trade")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "trade.opennessTarget", value: 0.18 }),
+        expect.objectContaining({ target: "fiscal.revenue", value: 0.96 }),
+      ]),
+    );
+    expect(getNationalPolicy("international_finance_logistics")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "sector.tertiary.output", value: 1.1 }),
+        expect.objectContaining({ target: "capital.secondaryAllocation", value: -0.04 }),
+      ]),
+    );
+    expect(getNationalPolicy("investment_promotion_agency")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "trade.foreignInvestment", value: 1.3 }),
+        expect.objectContaining({ target: "fiscal.spending", value: 1.025 }),
+      ]),
+    );
+    expect(getNationalPolicy("public_housing_skills")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "education.humanCapitalFormation", value: 1.22 }),
+        expect.objectContaining({ target: "fiscal.spending", value: 1.05 }),
+      ]),
+    );
+  });
+
+  it("自由港提高开放与外资但压低财政收入，金融物流提高服务业产出", () => {
+    const baseline = createInitialGameState(1949).nation;
+    const route = structuredClone(baseline);
+    route.policyProgress.free_port_trade = 1;
+    route.policyProgress.international_finance_logistics = 1;
+
+    updatePolicyEnvironment(baseline);
+    updatePolicyEnvironment(route);
+    expect(route.trade.openness).toBeGreaterThan(baseline.trade.openness);
+    expect(route.trade.foreignInvestment).toBeGreaterThan(
+      baseline.trade.foreignInvestment,
+    );
+    expect(
+      calculateSectorOutput("tertiary", route.sectors.tertiary, route),
+    ).toBeGreaterThan(
+      calculateSectorOutput("tertiary", baseline.sectors.tertiary, baseline),
+    );
+
+    calculateFiscalRevenue(baseline);
+    calculateFiscalRevenue(route);
+    expect(route.fiscal.revenue).toBeLessThan(baseline.fiscal.revenue);
   });
 
   it("取消国策后效果按相同过渡期逐步退出", () => {

@@ -123,6 +123,104 @@
       ]
     },
     {
+      "id": "sme_export_networks",
+      "name": "中小企业出口网络",
+      "category": "产业",
+      "description": "通过中小企业融资、产业配套和出口服务形成分散的民营制造网络，改善就业、投资效率与出口学习；代价是公共服务成本、能源需求和企业规模约束。",
+      "transitionMonths": 48,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.14 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.07 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.04 },
+        { "target": "technology.exportLearningRate", "operation": "add", "value": 0.006 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.08 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.025 }
+      ]
+    },
+    {
+      "id": "electronics_science_parks",
+      "name": "电子产业科学园",
+      "category": "发展",
+      "description": "建设电子、精密制造和科研转化集群，把技术、供应商和出口订单集中到专业园区；需要较长培养周期、科研财政和能源投入。",
+      "transitionMonths": 72,
+      "conflictsWith": ["agriculture_priority", "austerity"],
+      "modifiers": [
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.18 },
+        { "target": "technology.exportLearningRate", "operation": "add", "value": 0.01 },
+        { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0013 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.06 },
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.06 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.03 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.05 }
+      ]
+    },
+    {
+      "id": "free_port_trade",
+      "name": "自由港与简易关税",
+      "category": "开放",
+      "description": "降低关税和通关摩擦，以资本和货物自由流动发展转口贸易；收益依赖外部市场，同时会压缩关税收入并增加港口能源需求。",
+      "transitionMonths": 36,
+      "conflictsWith": ["centralized_fx_settlement"],
+      "modifiers": [
+        { "target": "trade.opennessTarget", "operation": "add", "value": 0.18 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.14 },
+        { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.16 },
+        { "target": "fiscal.revenue", "operation": "multiply", "value": 0.96 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.02 }
+      ]
+    },
+    {
+      "id": "international_finance_logistics",
+      "name": "国际金融物流中心",
+      "category": "开放",
+      "description": "发展航运、贸易融资、专业服务和跨境资本配置，提高服务业与投资效率；代价是制造资本占比下降和收入分配压力。",
+      "transitionMonths": 60,
+      "conflictsWith": ["centralized_fx_settlement"],
+      "modifiers": [
+        { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.1 },
+        { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.22 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.06 },
+        { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.04 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.06 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": -0.04 },
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.97 }
+      ]
+    },
+    {
+      "id": "investment_promotion_agency",
+      "name": "一站式招商与产业局",
+      "category": "开放",
+      "description": "用统一招商、审批和产业服务吸引跨国企业及供应链，改善外资落地和资本效率；代价是行政财政成本、能源压力和对跨国资本依赖。",
+      "transitionMonths": 48,
+      "conflictsWith": ["centralized_fx_settlement", "austerity"],
+      "modifiers": [
+        { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.3 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.07 },
+        { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.04 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.08 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.04 }
+      ]
+    },
+    {
+      "id": "public_housing_skills",
+      "name": "公共住房与技能城市",
+      "category": "社会",
+      "description": "同步建设公共住房、职业教育和城市服务，使产业扩张转化为稳定的人力资本与城市承载力；需要长期财政、土地和能源投入。",
+      "transitionMonths": 72,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "education.efficiency", "operation": "multiply", "value": 1.1 },
+        { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.22 },
+        { "target": "urban.migration", "operation": "multiply", "value": 1.18 },
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 1.08 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.05 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.03 }
+      ]
+    },
+    {
       "id": "consumption_stimulus",
       "name": "扩大内需",
       "category": "发展",

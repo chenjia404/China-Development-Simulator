@@ -85,9 +85,12 @@ export function applyPolicyModifiers(
 export function updatePolicyEnvironment(nation: NationState): void {
   updatePolicyProgress(nation);
   const openingProgress = nation.policyProgress.expand_opening ?? 0;
-  const openingTarget =
+  const openingTarget = applyPolicyModifiers(
+    nation,
+    "trade.opennessTarget",
     policyConfig.closedTarget +
-    (policyConfig.openingTarget - policyConfig.closedTarget) * openingProgress;
+      (policyConfig.openingTarget - policyConfig.closedTarget) * openingProgress,
+  );
   nation.trade.openness = clamp(
     approach(
       nation.trade.openness,
@@ -106,10 +109,14 @@ export function updatePolicyEnvironment(nation: NationState): void {
     applyModifiers(
       nation,
       "economy.institutionalEfficiencyTarget",
-      0.25 +
-        nation.education.index / 100 * 0.35 +
-        nation.trade.openness * 0.25 +
-        administrationCapacity * 0.08,
+      applyPolicyModifiers(
+        nation,
+        "economy.institutionalEfficiencyTarget",
+        0.25 +
+          nation.education.index / 100 * 0.35 +
+          nation.trade.openness * 0.25 +
+          administrationCapacity * 0.08,
+      ),
     ),
     0.1,
     0.95,
@@ -126,8 +133,12 @@ export function updatePolicyEnvironment(nation: NationState): void {
   nation.trade.foreignInvestment = applyModifiers(
     nation,
     "trade.foreignInvestment",
-    nation.economy.nominalGDP *
-      policyConfig.maximumForeignInvestmentShare *
-      investmentConfidence,
+    applyPolicyModifiers(
+      nation,
+      "trade.foreignInvestment",
+      nation.economy.nominalGDP *
+        policyConfig.maximumForeignInvestmentShare *
+        investmentConfidence,
+    ),
   );
 }
