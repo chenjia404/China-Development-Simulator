@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "description": "民营与混合所有制经济的经营空间、创业组织、技术商业化和出口网络参数。状态按月积累并保留路径依赖，不直接修改GDP。",
+    "sources": [
+      "https://www.gov.cn/gongbao/shuju/1956/gwyb195607.pdf",
+      "https://www.cppcc.gov.cn/2011/09/26/ARTI1317001118812343.shtml",
+      "https://www.npc.gov.cn/zgrdw/npc/xinwen/rdlt/fzjs/2012-04/27/content_1719289.htm",
+      "https://www.stats.gov.cn/zt_18555/ztfx/jnggkf30n/202303/t20230301_1920468.html",
+      "https://www.stats.gov.cn/zt_18555/ztfx/xzg50nxlfxbg/202303/t20230301_1920451.html"
+    ]
+  },
+  "initialState": {
+    "operatingSpace": 0.62,
+    "entrepreneurialCapacity": 0.58,
+    "technologyCommercialization": 0.38,
+    "exportNetworkStrength": 0.32
+  },
+  "maximumMonthlyChange": 0.03,
+  "investment": {
+    "floorMultiplier": 0.82,
+    "capabilityWeight": 0.18,
+    "maximumMultiplier": 1.015
+  },
+  "technology": {
+    "researchFloorMultiplier": 0.86,
+    "researchCapabilityWeight": 0.14,
+    "diffusionFloorMultiplier": 0.68,
+    "diffusionCapabilityWeight": 0.32,
+    "maximumResearchMultiplier": 1.03,
+    "maximumDiffusionMultiplier": 1.06
+  },
+  "exports": {
+    "floorMultiplier": 0.68,
+    "networkWeight": 0.32,
+    "maximumMultiplier": 1.08
+  },
+  "industrialDynamismWeight": {
+    "operatingSpace": 0.35,
+    "entrepreneurialCapacity": 0.4,
+    "technologyCommercialization": 0.25
+  },
+  "industrySensitivity": {
+    "mining_energy": 0.08,
+    "basic_materials": 0.12,
+    "consumer_goods": 0.9,
+    "construction": 0.28,
+    "general_machinery": 0.6,
+    "transport_equipment": 0.42,
+    "chemicals_pharmaceuticals": 0.55,
+    "electrical_equipment": 0.62,
+    "electronics_communications": 0.78,
+    "precision_medical": 0.72,
+    "aerospace_advanced": 0.15
+  },
+  "industryOutputResponse": 0.16,
+  "industryProductivityResponse": 0.12,
+  "industryExportResponse": 0.22
+}

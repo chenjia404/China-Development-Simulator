@@ -127,13 +127,17 @@
     "month": 9,
     "category": "经济制度",
     "impact": "mixed",
-    "description": "国家资本与私人资本在更多企业中共同经营，统一采购、生产和销售逐步加强，企业融资和组织能力改善，但经营自主性下降。",
-    "effects": ["企业组织能力提高", "财政可控收入增加", "经营自主性下降"],
+    "description": "国家资本与私人资本在更多企业中共同经营，统一采购、生产和销售逐步加强，企业融资与跨厂协作有所改善；经营自主性、企业家决策和原有供销网络则开始收缩。",
+    "effects": ["企业协作与财政可控收入提高", "经营空间和企业家能力开始下降", "原有技术转化与供销网络逐步收缩"],
     "durationMonths": 24,
     "modifiers": [
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.012 },
       { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 },
-      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.995 }
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.995 },
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": -0.0024 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": -0.0014 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": -0.0009 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0012 }
     ]
   },
   {
@@ -143,14 +147,28 @@
     "month": 1,
     "category": "经济制度",
     "impact": "mixed",
-    "description": "资本主义工商业改造从个别企业推进到全行业公私合营，私营工业和商业大部分纳入国家资本主义及计划管理体系。短期内资源协调加强，长期则削弱市场竞争和民营投资。",
-    "effects": ["工业资源协调加强", "财政收入提高", "民营投资与商业活力下降"],
-    "durationMonths": 48,
+    "description": "资本主义工商业改造迅速推进到全行业公私合营；到1956年底，私营工业和商业的绝大部分就业已纳入合营及计划管理。国家对能源、材料和投资的协调增强，但过快接管一度打断供产销与信用关系，压缩产品品种、企业家经验、技术商业化和民营出口网络。",
+    "effects": ["能源、基础材料、工业标准化和政府资本形成阶段性增强", "消费品品种、商业服务和民间投资出现转轨损失", "企业家组织能力与生产技术商业化长期衰减", "原有出口客户和供销网络收缩，改革后需要逐步重建"],
+    "durationMonths": 60,
     "modifiers": [
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
-      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.97 },
-      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
-      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.03 }
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.008, "durationMonths": 72 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025, "delayMonths": 72, "durationMonths": 204 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.94 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.96 },
+      { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.05, "durationMonths": 72 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.03 },
+      { "target": "industry.mining_energy.productivity", "operation": "multiply", "value": 1.025, "durationMonths": 72 },
+      { "target": "industry.basic_materials.productivity", "operation": "multiply", "value": 1.04, "durationMonths": 72 },
+      { "target": "industry.basic_materials.outputWeight", "operation": "multiply", "value": 1.06, "durationMonths": 72 },
+      { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 0.92, "durationMonths": 24 },
+      { "target": "industry.consumer_goods.outputWeight", "operation": "multiply", "value": 0.92, "durationMonths": 30 },
+      { "target": "industry.general_machinery.productivity", "operation": "multiply", "value": 0.96, "durationMonths": 30 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.94 },
+      { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00022, "durationMonths": 120 },
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": -0.018, "durationMonths": 28 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": -0.009, "durationMonths": 32 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": -0.0065, "durationMonths": 32 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0065, "durationMonths": 32 }
     ]
   },
   {
@@ -324,7 +342,11 @@
     "modifiers": [
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.055 },
       { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
-      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 }
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 },
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0042 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.003 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0025 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0022 }
     ]
   },
   {
@@ -386,7 +408,11 @@
     "modifiers": [
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.05 },
       { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.025 },
-      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 }
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 },
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0024 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0024 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0018 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.002 }
     ]
   },
   {
@@ -405,6 +431,25 @@
     ]
   },
   {
+    "id": "private_economy_legal_recognition_1988",
+    "name": "私营经济获得法律承认",
+    "year": 1988,
+    "month": 4,
+    "category": "经济改革",
+    "impact": "positive",
+    "description": "宪法修正案确认国家允许私营经济在法律规定范围内存在和发展，个体工商业积累形成的企业开始获得更稳定的产权预期、雇佣组织和扩大再投资空间。",
+    "effects": ["经营与产权预期改善", "企业家组织能力和民间投资扩大", "生产技术商业化和出口客户网络加快恢复", "监管、税制和劳动制度需要同步建设"],
+    "durationMonths": 48,
+    "modifiers": [
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.025 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.015 },
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0025 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0022 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0016 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0016 }
+    ]
+  },
+  {
     "id": "socialist_market_economy_1992",
     "name": "确立社会主义市场经济改革目标",
     "year": 1992,
@@ -417,7 +462,11 @@
     "modifiers": [
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.06 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.055 },
-      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.12 }
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.12 },
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0018 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0018 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0015 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0017 }
     ]
   },
   {

@@ -210,6 +210,20 @@ export interface TradeState {
   capitalGoodsImportCoverage: number;
 }
 
+/**
+ * 民营与混合所有制经济的路径依赖能力。
+ *
+ * 四项均为 0—1 的库存，不代表民营经济占 GDP 的统计份额。历史事件和改革
+ * 改变的是每月形成或损失的流量，已经保存下来的企业家经验、技术转化能力和
+ * 客户网络不会因临时修正到期而自动复原。
+ */
+export interface PrivateEconomyState {
+  operatingSpace: number;
+  entrepreneurialCapacity: number;
+  technologyCommercialization: number;
+  exportNetworkStrength: number;
+}
+
 export interface DiplomacyState {
   diplomaticPoints: number;
   monthlyPointGain: number;
@@ -259,6 +273,7 @@ export interface NationState {
   resources: ResourceState;
   society: SocietyState;
   trade: TradeState;
+  privateEconomy: PrivateEconomyState;
   diplomacy: DiplomacyState;
   policies: string[];
   policyProgress: Record<string, number>;

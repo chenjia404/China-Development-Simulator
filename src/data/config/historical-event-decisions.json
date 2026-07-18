@@ -90,28 +90,43 @@
       {
         "id": "gradual_state_capitalism",
         "name": "渐进国家资本主义",
-        "description": "延长定息、合营与行业改造周期，保留部分经营自主权，在国家协调能力和民营活力之间寻求平衡。",
-        "effects": ["工业协调稳步增强", "商业活力受损较轻", "改造周期和管理成本增加"],
+        "description": "延长定息、合营与行业改造周期，保留原企业的供销关系、生产技术、管理人员和部分经营自主权，在国家协调与企业活力之间寻求平衡。",
+        "effects": ["基础工业协调稳步增强", "消费品、技术传承和出口网络受损较轻", "改造周期与管理成本增加"],
         "durationMonths": 72,
         "modifiers": [
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.015 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.008 },
           { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.985 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.98 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.025 },
           { "target": "fiscal.revenue", "operation": "multiply", "value": 1.015 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 },
+          { "target": "industry.basic_materials.productivity", "operation": "multiply", "value": 1.02 },
+          { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 0.975, "durationMonths": 24 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.985, "durationMonths": 36 },
+          { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": -0.0075, "durationMonths": 48 },
+          { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": -0.0038, "durationMonths": 48 },
+          { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": -0.0026, "durationMonths": 48 },
+          { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.003, "durationMonths": 48 }
         ]
       },
       {
         "id": "preserve_mixed_ownership",
         "name": "保留混合所有制",
-        "description": "通过税收、信贷和行业监管引导私营工商业，同时保留多种所有制竞争，以较弱的财政控制换取投资与服务业活力。",
-        "effects": ["民间投资保持活跃", "工业与商业竞争增强", "财政可控收入短期减少"],
+        "description": "通过税收、信贷、劳工和行业监管引导私营工商业，保留混合所有制竞争以及企业原有的技术、人才与国内外客户网络，以较弱的财政控制换取长期活力。",
+        "effects": ["民间投资与企业家能力继续积累", "消费品、工业技术和出口网络更活跃", "财政可控收入短期减少"],
         "durationMonths": 60,
         "modifiers": [
           { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 },
           { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.01 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.025 },
-          { "target": "fiscal.revenue", "operation": "multiply", "value": 0.99 }
+          { "target": "fiscal.revenue", "operation": "multiply", "value": 0.99 },
+          { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 1.025 },
+          { "target": "industry.general_machinery.productivity", "operation": "multiply", "value": 1.015 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
+          { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0015, "durationMonths": 36 },
+          { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0018, "durationMonths": 48 },
+          { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0014, "durationMonths": 48 },
+          { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0018, "durationMonths": 48 }
         ]
       }
     ]

@@ -8,9 +8,12 @@ import {
   foreignExchangeInvestmentMultiplier,
   remittanceDirectedInvestment,
 } from "./foreign-exchange";
+import { calculatePrivateEconomyMultipliers } from "./private-economy";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
+  const privateEconomyMultiplier = calculatePrivateEconomyMultipliers(nation)
+    .investment;
   const governmentCapitalSpending = applyModifiers(
     nation,
     "capital.governmentInvestment",
@@ -39,10 +42,10 @@ export function updateCapitalAndInvestment(nation: NationState): void {
     applyPolicyModifiers(
       nation,
       "capital.privateInvestment",
-      economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
+      (economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
         economy.realGDP * 0.08 +
         remittanceDirectedInvestment(nation) +
-        exportSurplusReinvestment,
+        exportSurplusReinvestment) * privateEconomyMultiplier,
     ),
   );
   const annualNominalInvestment =

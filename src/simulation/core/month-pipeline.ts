@@ -32,6 +32,7 @@ import {
 import { updateInternationalTrade } from "../economy/trade";
 import { updateForeignExchange } from "../economy/foreign-exchange";
 import { checkHistoricalEvents } from "../events/historical-event-engine";
+import { updatePrivateEconomy } from "../economy/private-economy";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -45,6 +46,7 @@ export function simulateMonth(
   updatePolicyEnvironment(state.nation);
   updateDiplomacy(state);
   checkAutomaticInternationalOrganizations(state);
+  updatePrivateEconomy(state.nation);
   updateDemographics(state.nation, _random);
   updateEducation(state.nation);
   updateHealth(state.nation);

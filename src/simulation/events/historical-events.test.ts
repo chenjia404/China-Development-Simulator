@@ -64,11 +64,18 @@ describe("确定性历史事件", () => {
     expect(second).toEqual([]);
     expect(state.nation.history.historicalEvents).toHaveLength(1);
     expect(applyModifiers(state.nation, "sector.secondary.output", 100)).toBeCloseTo(
-      102.5,
+      100.8,
     );
     expect(applyModifiers(state.nation, "capital.privateInvestment", 100)).toBe(
-      94,
+      96,
     );
+    expect(
+      applyModifiers(
+        state.nation,
+        "privateEconomy.operatingSpaceChange",
+        0,
+      ),
+    ).toBe(-0.018);
   });
 
   it("历史事件进入年度报告并保留详细记录", () => {
@@ -151,7 +158,7 @@ describe("确定性历史事件", () => {
     expect(
       jointChoices.find((choice) => choice.id === "historical_path")
         ?.durationMonths,
-    ).toBe(48);
+    ).toBe(60);
     expect(
       jointChoices.find((choice) => choice.id === "gradual_state_capitalism")
         ?.durationMonths,

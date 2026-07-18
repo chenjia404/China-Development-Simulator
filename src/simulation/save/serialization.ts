@@ -11,6 +11,7 @@ import { ensureForeignExchangeState } from "../economy/foreign-exchange";
 import { ensureTechnologyTreeState } from "../technology/technology-tree";
 import { ensureIndustrialStructureState } from "../economy/industrial-structure";
 import { ensureEducationState } from "../society/education";
+import { ensurePrivateEconomyState } from "../economy/private-economy";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -55,5 +56,6 @@ export function deserializeGameState(serialized: string): GameState {
   ensureEducationState(state.nation);
   ensureTechnologyTreeState(state.nation);
   ensureIndustrialStructureState(state.nation);
+  ensurePrivateEconomyState(state.nation);
   return state;
 }

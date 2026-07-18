@@ -10,6 +10,7 @@ import { createInitialWorldState } from "../world/countries";
 import { calculateWorldRankings } from "../world/rankings";
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
+import { createInitialPrivateEconomyState } from "../economy/private-economy";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -203,6 +204,7 @@ export function createInitialGameState(
         capitalGoodsImportShare: 0.28,
         capitalGoodsImportCoverage: 0.65,
       },
+      privateEconomy: createInitialPrivateEconomyState(),
       diplomacy: {
         diplomaticPoints: diplomacyConfig.initialDiplomaticPoints,
         monthlyPointGain: 0,

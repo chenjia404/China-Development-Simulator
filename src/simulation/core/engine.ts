@@ -24,6 +24,7 @@ import {
   ensureTechnologyTreeState,
   selectTechnologyResearch,
 } from "../technology/technology-tree";
+import { ensurePrivateEconomyState } from "../economy/private-economy";
 
 export interface SimulationResult {
   state: GameState;
@@ -59,6 +60,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureHistoricalAccountingState(this.state);
     ensureForeignExchangeState(this.state);
     ensureTechnologyTreeState(this.state.nation);
+    ensurePrivateEconomyState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -82,6 +84,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureHistoricalAccountingState(this.state);
         ensureForeignExchangeState(this.state);
         ensureTechnologyTreeState(this.state.nation);
+        ensurePrivateEconomyState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

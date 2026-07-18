@@ -36,6 +36,14 @@ export function validateGameState(state: GameState): void {
   })) {
     if (value < 0 || value > 100) throw new Error(`${name}超出 0 至 100 边界`);
   }
+  for (const [name, value] of Object.entries({
+    民营经营空间: nation.privateEconomy.operatingSpace,
+    企业家组织能力: nation.privateEconomy.entrepreneurialCapacity,
+    技术商业化能力: nation.privateEconomy.technologyCommercialization,
+    民营出口网络: nation.privateEconomy.exportNetworkStrength,
+  })) {
+    if (value < 0 || value > 1) throw new Error(`${name}超出 0 至 1 边界`);
+  }
   if (nation.history.monthly.length > 120) {
     throw new Error("月度历史超过 120 条上限");
   }

@@ -6,6 +6,8 @@ import type {
   NationState,
 } from "../state/game-state";
 import { technologyTreeDefinitions } from "../technology/technology-tree";
+import { applyModifiers } from "../events/modifiers";
+import { privateEconomyIndustryMultipliers } from "./private-economy";
 
 export interface IndustrialCategoryDefinition {
   id: IndustrialCategoryId;
@@ -275,6 +277,10 @@ export function updateIndustrialStructure(nation: NationState): void {
       nation,
       definition.id,
     );
+    const privateEconomy = privateEconomyIndustryMultipliers(
+      nation,
+      definition.id,
+    );
     const skillFactor = clamp(
       1 - definition.skillIntensity * (1 - nation.education.index / 100) * 0.55,
       0.45,
@@ -288,21 +294,31 @@ export function updateIndustrialStructure(nation: NationState): void {
     const highTechnologyExpansionFactor = HIGH_TECHNOLOGY_IDS.has(definition.id)
       ? 0.75 + readiness * 0.65
       : 1;
-    const weight = definition.baselineShare *
+    const weight = applyModifiers(
+      nation,
+      `industry.${definition.id}.outputWeight`,
+      definition.baselineShare *
       (0.66 + readiness * 0.72) *
       skillFactor *
       energyFactor *
       technologyEffects.productivityMultiplier ** 0.35 *
       highTechnologyExpansionFactor *
-      demandFactor(nation, definition);
+      demandFactor(nation, definition) *
+      privateEconomy.output,
+    );
     targetWeights.set(definition.id, weight);
     totalWeight += weight;
     category.technologyReadiness = readiness;
-    category.productivityIndex = definition.productivityPotential *
-      (62 + readiness * 38) *
-      skillFactor *
-      energyFactor *
-      technologyEffects.productivityMultiplier;
+    category.productivityIndex = applyModifiers(
+      nation,
+      `industry.${definition.id}.productivity`,
+      definition.productivityPotential *
+        (62 + readiness * 38) *
+        skillFactor *
+        energyFactor *
+        technologyEffects.productivityMultiplier *
+        privateEconomy.productivity,
+    );
   }
   for (const id of INDUSTRIAL_CATEGORY_IDS) {
     nation.industries[id].outputShare = approach(
@@ -327,9 +343,11 @@ export function calculateIndustrialStructureMetrics(
       const definition = definitionFor(id);
       const category = nation.industries[id];
       const technologyEffects = completedTechnologyEffects(nation, id);
+      const privateEconomy = privateEconomyIndustryMultipliers(nation, id);
       return sum + category.outputShare * definition.exportPropensity *
         (0.35 + category.technologyReadiness * 0.65) *
-        technologyEffects.exportMultiplier;
+        technologyEffects.exportMultiplier *
+        privateEconomy.exports;
     }, 0),
     0,
     1,
@@ -396,9 +414,11 @@ export function allocateIndustrialExports(nation: NationState): void {
     const definition = definitionFor(id);
     const category = nation.industries[id];
     const technologyEffects = completedTechnologyEffects(nation, id);
+    const privateEconomy = privateEconomyIndustryMultipliers(nation, id);
     const weight = category.output * definition.exportPropensity *
       (0.3 + category.technologyReadiness * 0.7) *
-      technologyEffects.exportMultiplier;
+      technologyEffects.exportMultiplier *
+      privateEconomy.exports;
     weights.set(id, weight);
     totalWeight += weight;
   }

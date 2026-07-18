@@ -11,6 +11,7 @@ import {
   allocateIndustrialExports,
   calculateIndustrialStructureMetrics,
 } from "./industrial-structure";
+import { calculatePrivateEconomyMultipliers } from "./private-economy";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -61,6 +62,7 @@ export function updateInternationalTrade(state: GameState): void {
   const { nation, world } = state;
   const access = calculateTradeAccess(state);
   const strategyEffects = diplomaticStrategyEffects(nation);
+  const privateEconomy = calculatePrivateEconomyMultipliers(nation);
   const secondaryShare = safeDivide(
     nation.sectors.secondary.valueAdded,
     nation.economy.realGDP,
@@ -85,7 +87,7 @@ export function updateInternationalTrade(state: GameState): void {
       nation.economy.infrastructureIndex / 250,
     0.4,
     1.35,
-  );
+  ) * privateEconomy.exports;
   const globalDemand = clamp(
     0.9 + Math.log(Math.max(1, world.globalDemandIndex)) / Math.log(8) * 0.25,
     0.85,
