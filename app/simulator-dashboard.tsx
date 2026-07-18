@@ -29,11 +29,13 @@ import {
   maximumActivePolicies,
   nationalPolicyDefinitions,
   calculateTechnologyTreeMetrics,
+  calculateIndustrialStructureMetrics,
   compareSimulationWithTarget,
   comparisonTargetOptions,
   getTechnologyNode,
   technologyResearchRequirements,
   technologyTreeDefinitions,
+  industrialCategoryDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -375,6 +377,54 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
   return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
+}
+
+function IndustrySection({ game }: { game: GameState }) {
+  const nation = game.nation;
+  const metrics = calculateIndustrialStructureMetrics(nation);
+  const industrialExports = Object.values(nation.industries).reduce(
+    (sum, category) => sum + category.exportValue,
+    0,
+  );
+  return (
+    <section className="panel detail-page industry-page">
+      <div className="detail-hero industry-hero">
+        <span className="eyebrow">产业链 · 技术能力 · 出口结构</span>
+        <h2>工业细分结构</h2>
+        <p>第二产业拆分为十一类工业。类别份额会随教育、科技节点、能源、基建、投资和开放度缓慢调整，并共同决定工业生产率及出口上限；类别增加值之和始终等于第二产业总量。</p>
+      </div>
+      <div className="industry-summary">
+        <MetricCard label="工业增加值" value={formatLarge(nation.sectors.secondary.valueAdded)} detail={`占实际 GDP ${formatPercent(nation.sectors.secondary.valueAdded / Math.max(nation.economy.realGDP, 1))}`} tone="blue" />
+        <MetricCard label="工业复杂度" value={metrics.complexityIndex.toFixed(1)} detail={`产出能力倍率 ${metrics.outputMultiplier.toFixed(3)}`} tone="green" />
+        <MetricCard label="高技术工业" value={formatPercent(metrics.highTechnologyShare)} detail="化工医药、电气电子、精密医疗和高端装备" tone="gold" />
+        <MetricCard label="工业品出口" value={`$${formatLarge(industrialExports)}`} detail={`占总出口 ${formatPercent(metrics.industrialExportShare)}`} tone="red" />
+      </div>
+      <div className="industry-category-grid">
+        {industrialCategoryDefinitions.map((definition) => {
+          const category = nation.industries[definition.id];
+          return (
+            <article className="industry-category-card" key={definition.id}>
+              <div className="industry-category-head">
+                <span>{formatPercent(category.outputShare)}</span>
+                <small>技术准备 {formatPercent(category.technologyReadiness, 0)}</small>
+              </div>
+              <h3>{definition.name}</h3>
+              <p>{definition.description}</p>
+              <div className="industry-category-values">
+                <span><small>增加值</small><strong>{formatLarge(category.valueAdded)}</strong></span>
+                <span><small>出口</small><strong>${formatLarge(category.exportValue)}</strong></span>
+                <span><small>生产率</small><strong>{category.productivityIndex.toFixed(1)}</strong></span>
+              </div>
+              <div className="industry-category-track"><i style={{ width: `${category.technologyReadiness * 100}%` }} /></div>
+              <div className="industry-category-requirements">
+                教育 ≥ {definition.requiredEducationIndex} · 科技 ≥ {definition.requiredTechnologyIndex}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function TechnologySection({ game, busy }: { game: GameState; busy: boolean }) {
@@ -1306,12 +1356,13 @@ export function SimulatorDashboard() {
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
           {activeSection === "technology" ? <TechnologySection game={game} busy={busy} /> : null}
+          {activeSection === "industry" ? <IndustrySection game={game} /> : null}
           {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
           {activeSection === "history" ? <HistoricalEventsSection game={game} /> : null}
           {activeSection === "international" ? <InternationalSection game={game} /> : null}
           {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
           {activeSection === "settings" ? <SettingsSection /> : null}
-          {!(["nation", "technology", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+          {!(["nation", "technology", "industry", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
       <HistoricalDecisionModal game={game} busy={busy} />

@@ -239,6 +239,23 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .initiative-card button { width: 100%; margin-top: 13px; padding: 9px 10px; color: white; background: var(--gold); border: 1px solid var(--gold); border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 700; }
 .initiative-card button:disabled { cursor: not-allowed; color: var(--muted); background: var(--surface); border-color: var(--line); }
 
+.industry-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.industry-category-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.industry-category-card { display: flex; flex-direction: column; min-height: 275px; padding: 17px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
+.industry-category-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.industry-category-head span { color: var(--gold); font-size: 16px; font-weight: 800; }
+.industry-category-head small { color: var(--muted); font-size: 11px; }
+.industry-category-card h3 { margin: 13px 0 7px; font-size: 15px; }
+.industry-category-card > p { min-height: 59px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.industry-category-values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 14px; }
+.industry-category-values span { padding: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; }
+.industry-category-values small, .industry-category-values strong { display: block; }
+.industry-category-values small { color: var(--muted); font-size: 10px; }
+.industry-category-values strong { margin-top: 4px; font-size: 12px; }
+.industry-category-track { height: 5px; margin-top: 14px; overflow: hidden; background: var(--surface); border-radius: 10px; }
+.industry-category-track i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: inherit; }
+.industry-category-requirements { margin-top: 10px; color: var(--muted); font-size: 11px; }
+
 .diplomacy-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
 .diplomatic-strategy-panel { margin-bottom: 15px; padding: 18px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
 .strategy-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
@@ -517,6 +534,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .technology-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .technology-tree-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .industry-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .industry-category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .policy-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .initiative-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -555,6 +574,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .budget-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
   .technology-tree-grid { grid-template-columns: 1fr; }
+  .industry-category-grid { grid-template-columns: 1fr; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .initiative-grid { grid-template-columns: 1fr; }
@@ -584,6 +604,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .overview-comparison-grid > div { border-top: 1px solid var(--line); border-left: 0; }
   .overview-comparison-grid > div:first-child { border-top: 0; }
   .technology-summary { grid-template-columns: 1fr; }
+  .industry-summary { grid-template-columns: 1fr; }
   .metric-card strong { font-size: 19px; }
   .control-button, .theme-button { display: none; }
   .panel { padding: 14px; }

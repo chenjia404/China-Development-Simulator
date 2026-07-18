@@ -9,6 +9,11 @@ import type {
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
+import {
+  allocateIndustrialProduction,
+  calculateIndustrialStructureMetrics,
+  updateIndustrialStructure,
+} from "./industrial-structure";
 
 export interface ProductionInput {
   productivity: number;
@@ -95,7 +100,10 @@ export function calculateSectorOutput(
       sector.capacityUtilization / 0.75,
       economyConfig.minimumCapacityUtilization,
       economyConfig.maximumCapacityUtilization,
-    );
+    ) *
+    (id === "secondary"
+      ? calculateIndustrialStructureMetrics(nation).outputMultiplier
+      : 1);
 
   return Math.max(
     0,
@@ -190,6 +198,7 @@ export function updateResourceSupply(nation: NationState): void {
 }
 
 export function calculateIndustryOutputs(nation: NationState): void {
+  updateIndustrialStructure(nation);
   const industrialTechnology = calculateTechnologyTreeMetrics(nation)
     .effectiveIndustrialTechnology;
   for (const id of Object.keys(nation.sectors) as SectorId[]) {
@@ -203,4 +212,5 @@ export function calculateIndustryOutputs(nation: NationState): void {
     sector.valueAdded = sector.output * industryConfigs[id].valueAddedRatio;
     sector.averageWage = safeDivide(sector.valueAdded * 0.45, sector.employment);
   }
+  allocateIndustrialProduction(nation);
 }

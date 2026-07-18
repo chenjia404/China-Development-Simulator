@@ -1,0 +1,156 @@
+{
+  "metadata": {
+    "description": "第二产业细分结构。分类兼顾长期历史可比性与高技术制造业统计口径；各类别通过能力、产出和出口传导影响经济，不直接修改GDP。",
+    "sources": [
+      "https://www.stats.gov.cn/zs/tjws/tjbz/202301/t20230101_1903766.html",
+      "https://www.stats.gov.cn/sj/zxfb/202412/t20241226_1957891.html"
+    ]
+  },
+  "shareAdjustmentSpeed": 0.018,
+  "baselineComplexityIndex": 64,
+  "categories": [
+    {
+      "id": "mining_energy",
+      "name": "采矿与能源开采",
+      "description": "煤炭、石油、天然气和金属矿产开采，为电力、材料和重工业提供基础投入。",
+      "baselineShare": 0.16,
+      "productivityPotential": 0.72,
+      "energyIntensity": 0.8,
+      "skillIntensity": 0.12,
+      "exportPropensity": 0.12,
+      "requiredEducationIndex": 10,
+      "requiredTechnologyIndex": 6,
+      "requiredTechnologyIds": []
+    },
+    {
+      "id": "basic_materials",
+      "name": "钢铁与基础材料",
+      "description": "钢铁、有色金属、水泥、玻璃和基础化学材料，是建设与装备制造的中间投入。",
+      "baselineShare": 0.18,
+      "productivityPotential": 0.86,
+      "energyIntensity": 1,
+      "skillIntensity": 0.22,
+      "exportPropensity": 0.24,
+      "requiredEducationIndex": 15,
+      "requiredTechnologyIndex": 10,
+      "requiredTechnologyIds": ["grid_electrification", "chemical_materials"]
+    },
+    {
+      "id": "consumer_goods",
+      "name": "食品纺织与消费品",
+      "description": "食品加工、纺织服装、轻工和耐用消费品，吸纳就业并连接居民消费与出口市场。",
+      "baselineShare": 0.22,
+      "productivityPotential": 0.78,
+      "energyIntensity": 0.34,
+      "skillIntensity": 0.18,
+      "exportPropensity": 0.3,
+      "requiredEducationIndex": 12,
+      "requiredTechnologyIndex": 7,
+      "requiredTechnologyIds": ["basic_machine_tools"]
+    },
+    {
+      "id": "construction",
+      "name": "建筑与工程建设",
+      "description": "住宅、厂房、交通和公共工程建设，把资本与材料转化为基础设施和城市承载能力。",
+      "baselineShare": 0.18,
+      "productivityPotential": 0.8,
+      "energyIntensity": 0.58,
+      "skillIntensity": 0.2,
+      "exportPropensity": 0.04,
+      "requiredEducationIndex": 14,
+      "requiredTechnologyIndex": 8,
+      "requiredTechnologyIds": ["basic_machine_tools"]
+    },
+    {
+      "id": "general_machinery",
+      "name": "通用机械与工业装备",
+      "description": "机床、工程机械、泵阀和成套设备，决定其他工业部门能否复制和升级生产能力。",
+      "baselineShare": 0.08,
+      "productivityPotential": 1.08,
+      "energyIntensity": 0.54,
+      "skillIntensity": 0.48,
+      "exportPropensity": 0.48,
+      "requiredEducationIndex": 28,
+      "requiredTechnologyIndex": 22,
+      "requiredTechnologyIds": ["precision_manufacturing"]
+    },
+    {
+      "id": "transport_equipment",
+      "name": "交通运输设备",
+      "description": "铁路车辆、船舶、汽车及其零部件，形成规模化供应链与耐用设备出口能力。",
+      "baselineShare": 0.04,
+      "productivityPotential": 1.14,
+      "energyIntensity": 0.62,
+      "skillIntensity": 0.55,
+      "exportPropensity": 0.56,
+      "requiredEducationIndex": 34,
+      "requiredTechnologyIndex": 30,
+      "requiredTechnologyIds": ["precision_manufacturing", "grid_electrification"]
+    },
+    {
+      "id": "chemicals_pharmaceuticals",
+      "name": "化工与医药制造",
+      "description": "精细化工、化肥、合成材料和医药制造，对科研、流程控制及质量体系要求较高。",
+      "baselineShare": 0.05,
+      "productivityPotential": 1.18,
+      "energyIntensity": 0.55,
+      "skillIntensity": 0.58,
+      "exportPropensity": 0.44,
+      "requiredEducationIndex": 32,
+      "requiredTechnologyIndex": 28,
+      "requiredTechnologyIds": ["chemical_materials"]
+    },
+    {
+      "id": "electrical_equipment",
+      "name": "电气机械与电力设备",
+      "description": "发电输配电设备、电机、电器与储能装备，把电气化能力转化为工业设备和出口产品。",
+      "baselineShare": 0.035,
+      "productivityPotential": 1.24,
+      "energyIntensity": 0.44,
+      "skillIntensity": 0.6,
+      "exportPropensity": 0.6,
+      "requiredEducationIndex": 38,
+      "requiredTechnologyIndex": 36,
+      "requiredTechnologyIds": ["grid_electrification", "electronics_engineering"]
+    },
+    {
+      "id": "electronics_communications",
+      "name": "电子、通信与计算设备",
+      "description": "电子元器件、通信终端、计算设备和数字硬件，具有高研发强度和高出口弹性。",
+      "baselineShare": 0.025,
+      "productivityPotential": 1.4,
+      "energyIntensity": 0.36,
+      "skillIntensity": 0.78,
+      "exportPropensity": 0.82,
+      "requiredEducationIndex": 48,
+      "requiredTechnologyIndex": 50,
+      "requiredTechnologyIds": ["electronics_engineering", "semiconductor_manufacturing"]
+    },
+    {
+      "id": "precision_medical",
+      "name": "精密仪器与医疗设备",
+      "description": "测量仪器、光学设备和医疗器械，依赖精密加工、材料、电子与临床科研协作。",
+      "baselineShare": 0.015,
+      "productivityPotential": 1.46,
+      "energyIntensity": 0.28,
+      "skillIntensity": 0.84,
+      "exportPropensity": 0.74,
+      "requiredEducationIndex": 55,
+      "requiredTechnologyIndex": 58,
+      "requiredTechnologyIds": ["precision_manufacturing", "electronics_engineering"]
+    },
+    {
+      "id": "aerospace_advanced",
+      "name": "航空航天与高端装备",
+      "description": "航空航天器、复杂动力系统和战略高端装备，具有最长研发周期和最强知识外溢。",
+      "baselineShare": 0.015,
+      "productivityPotential": 1.55,
+      "energyIntensity": 0.7,
+      "skillIntensity": 0.9,
+      "exportPropensity": 0.5,
+      "requiredEducationIndex": 62,
+      "requiredTechnologyIndex": 68,
+      "requiredTechnologyIds": ["precision_manufacturing", "electronics_engineering", "advanced_energy_systems"]
+    }
+  ]
+}

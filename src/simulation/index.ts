@@ -20,6 +20,7 @@ export * from "./society/health";
 export * from "./society/wellbeing";
 export * from "./technology/research";
 export * from "./technology/technology-tree";
+export * from "./economy/industrial-structure";
 export * from "./world/countries";
 export * from "./world/rankings";
 export * from "./world/world-simulation";

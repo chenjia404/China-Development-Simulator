@@ -9,6 +9,7 @@ import type {
 import { createInitialWorldState } from "../world/countries";
 import { calculateWorldRankings } from "../world/rankings";
 import diplomacyConfig from "../../data/config/diplomacy.json";
+import { createInitialIndustrialCategories } from "../economy/industrial-structure";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -119,6 +120,7 @@ export function createInitialGameState(
         secondary: createSector("secondary", 28_000_000_000, 78_000_000_000, 20_000_000, 0.55),
         tertiary: createSector("tertiary", 33_000_000_000, 62_000_000_000, 27_000_000, 0.6),
       },
+      industries: createInitialIndustrialCategories(28_000_000_000),
       fiscal: {
         revenue: 12_000_000_000,
         expenditure: 13_000_000_000,

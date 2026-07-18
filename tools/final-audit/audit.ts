@@ -4,6 +4,7 @@ import {
   calculateGDP,
   calculateTradeAccess,
   calculateTechnologyTreeMetrics,
+  calculateIndustrialStructureMetrics,
   compareSimulationWithHistory,
   compareSimulationWithTarget,
   comparisonTargetOptions,
@@ -22,6 +23,9 @@ import {
   updateInternationalTrade,
   applyPolicyModifiers,
   technologyTreeDefinitions,
+  industrialCategoryDefinitions,
+  updateIndustrialStructure,
+  validateIndustrialCategoryDefinitions,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
   type GameState,
@@ -172,6 +176,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     validateTechnologyTreeDefinitions();
   } catch (error) {
     technologyTreeValidationError = error instanceof Error
+      ? error.message
+      : String(error);
+  }
+  let industrialCategoryValidationError: string | null = null;
+  try {
+    validateIndustrialCategoryDefinitions();
+  } catch (error) {
+    industrialCategoryValidationError = error instanceof Error
       ? error.message
       : String(error);
   }
@@ -712,6 +724,10 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     technologyTreeDefinitions
       .filter((node) => node.industryTier <= 4)
       .map((node) => node.id);
+  for (let month = 0; month < 120; month += 1) {
+    updateIndustrialStructure(technologyConstrainedTrade.nation);
+    updateIndustrialStructure(technologyCapableTrade.nation);
+  }
   updateInternationalTrade(technologyConstrainedTrade);
   updateInternationalTrade(technologyCapableTrade);
   const constrainedUpgradeBenefit = applyPolicyModifiers(
@@ -727,6 +743,21 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const historicalTechnologyTree = calculateTechnologyTreeMetrics(
     historical.finalState.nation,
   );
+  const historicalIndustrialStructure = calculateIndustrialStructureMetrics(
+    historical.finalState.nation,
+  );
+  const constrainedIndustrialStructure = calculateIndustrialStructureMetrics(
+    technologyConstrainedTrade.nation,
+  );
+  const capableIndustrialStructure = calculateIndustrialStructureMetrics(
+    technologyCapableTrade.nation,
+  );
+  const industrialOutputTotal = Object.values(
+    historical.finalState.nation.industries,
+  ).reduce((sum, category) => sum + category.valueAdded, 0);
+  const industrialExportTotal = Object.values(
+    historical.finalState.nation.industries,
+  ).reduce((sum, category) => sum + category.exportValue, 0);
 
   const remittanceBaseline = createInitialGameState(seed);
   const remittanceProtection = structuredClone(remittanceBaseline);
@@ -835,6 +866,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           technologyConstrainedTrade.nation.trade.exports,
       technologyTreeValidationError ??
         `史实路线完成 ${historicalTechnologyTree.completedCount}/${historicalTechnologyTree.totalCount} 个节点、产业科技第 ${historicalTechnologyTree.industryTier} 层、升级准备度 ${(historicalTechnologyTree.industrialUpgradeReadiness * 100).toFixed(1)}%；同为科技指数 80 时，无节点/具备第四层节点的产业升级出口倍率 ${constrainedUpgradeBenefit.toFixed(3)}/${capableUpgradeBenefit.toFixed(3)}，月度出口 ${technologyConstrainedTrade.nation.trade.exports.toFixed(0)}/${technologyCapableTrade.nation.trade.exports.toFixed(0)}`,
+    ),
+    makeCheck(
+      "industrial-category-structure",
+      "十一类工业通过教育、科技、能源与开放条件影响产出结构和出口",
+      industrialCategoryValidationError === null &&
+        industrialCategoryDefinitions.length === 11 &&
+        Math.abs(
+          industrialOutputTotal - historical.finalState.nation.sectors.secondary.valueAdded,
+        ) < 1 &&
+        industrialExportTotal <= historical.finalState.nation.trade.exports &&
+        capableIndustrialStructure.complexityIndex >
+          constrainedIndustrialStructure.complexityIndex &&
+        capableIndustrialStructure.highTechnologyShare >
+          constrainedIndustrialStructure.highTechnologyShare &&
+        capableIndustrialStructure.exportCapability >
+          constrainedIndustrialStructure.exportCapability,
+      industrialCategoryValidationError ??
+        `史实路线工业复杂度 ${historicalIndustrialStructure.complexityIndex.toFixed(1)}、高技术工业占比 ${(historicalIndustrialStructure.highTechnologyShare * 100).toFixed(1)}%、工业品出口 ${(industrialExportTotal / 100_000_000).toFixed(1)} 亿美元；能力完备/受限出口能力 ${capableIndustrialStructure.exportCapability.toFixed(3)}/${constrainedIndustrialStructure.exportCapability.toFixed(3)}`,
     ),
     makeCheck(
       "korean-catch-up",

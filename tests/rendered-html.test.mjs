@@ -82,6 +82,23 @@ test("客户端展示可操作科技树和产业升级门槛", async () => {
   assert.match(source, /科技指数高但产业节点落后/);
 });
 
+test("客户端展示十一类工业结构、技术准备度和类别出口", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /工业细分结构/);
+  assert.match(source, /工业复杂度/);
+  assert.match(source, /高技术工业/);
+  assert.match(source, /电子、通信与计算设备/);
+  assert.match(source, /精密仪器与医疗设备/);
+  assert.match(source, /航空航天与高端装备/);
+  assert.match(source, /技术准备/);
+});
+
 test("客户端展示可提前发动的治理、工业化与改革国策", async () => {
   const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
   const files = await readdir(assetsDirectory);

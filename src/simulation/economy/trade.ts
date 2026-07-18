@@ -7,6 +7,10 @@ import { applyModifiers } from "../events/modifiers";
 import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
 import { reserveImportCapacityMultiplier } from "./foreign-exchange";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
+import {
+  allocateIndustrialExports,
+  calculateIndustrialStructureMetrics,
+} from "./industrial-structure";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -66,7 +70,9 @@ export function updateInternationalTrade(state: GameState): void {
     nation.economy.realGDP,
   );
   const exportCapacityShare = clamp(
-    secondaryShare * 0.5 + tertiaryShare * 0.15,
+    secondaryShare *
+      (0.32 + calculateIndustrialStructureMetrics(nation).exportCapability * 0.62) +
+      tertiaryShare * 0.15,
     0.1,
     0.4,
   );
@@ -123,6 +129,7 @@ export function updateInternationalTrade(state: GameState): void {
   nation.trade.exports = approach(nation.trade.exports, targetExports, 0.04);
   nation.trade.imports = approach(nation.trade.imports, targetImports, 0.04);
   nation.trade.balance = nation.trade.exports - nation.trade.imports;
+  allocateIndustrialExports(nation);
 
   const investmentConfidence = clamp(
     1 +

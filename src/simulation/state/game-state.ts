@@ -77,6 +77,29 @@ export interface SectorState {
   technologyLevel: number;
 }
 
+export type IndustrialCategoryId =
+  | "mining_energy"
+  | "basic_materials"
+  | "consumer_goods"
+  | "construction"
+  | "general_machinery"
+  | "transport_equipment"
+  | "chemicals_pharmaceuticals"
+  | "electrical_equipment"
+  | "electronics_communications"
+  | "precision_medical"
+  | "aerospace_advanced";
+
+export interface IndustrialCategoryState {
+  id: IndustrialCategoryId;
+  output: number;
+  valueAdded: number;
+  outputShare: number;
+  exportValue: number;
+  technologyReadiness: number;
+  productivityIndex: number;
+}
+
 export interface FiscalBudget {
   education: number;
   health: number;
@@ -217,6 +240,8 @@ export interface NationState {
   labor: LaborState;
   economy: EconomyState;
   sectors: Record<SectorId, SectorState>;
+  /** 第二产业细分结构；各类别之和与第二产业总量保持一致。 */
+  industries: Record<IndustrialCategoryId, IndustrialCategoryState>;
   fiscal: FiscalState;
   education: EducationState;
   health: HealthState;
