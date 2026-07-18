@@ -34,8 +34,9 @@ export function simulateMonth(
   state: GameState,
   _random: RandomGenerator,
   eventRandom: RandomGenerator,
-): void {
+): boolean {
   checkHistoricalEvents(state.nation);
+  if (state.nation.pendingHistoricalEventId) return false;
   checkRandomEvents(state.nation, eventRandom);
   updatePolicyEnvironment(state.nation);
   updateDiplomacy(state);
@@ -62,4 +63,5 @@ export function simulateMonth(
   recordHistory(state);
   advanceModifiers(state.nation);
   advanceMonth(state.nation.date);
+  return true;
 }

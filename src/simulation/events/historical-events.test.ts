@@ -4,6 +4,7 @@ import { applyModifiers } from "./modifiers";
 import { createInitialGameState } from "../state/initial-state";
 import {
   checkHistoricalEvents,
+  getHistoricalEventChoices,
   historicalEventDefinitions,
 } from "./historical-event-engine";
 
@@ -66,7 +67,101 @@ describe("确定性历史事件", () => {
       year: 1956,
       month: 1,
       category: "经济制度",
+      choiceId: "historical_path",
+      choiceName: "遵循历史路径",
     });
+  });
+
+  it("交互模式在事件月份暂停，决策后才结算当月", () => {
+    const state = createInitialGameState(1956, 1956, "interactive");
+    const engine = createSimulationEngine(state);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+    expect(engine.getState().nation.date).toMatchObject({ year: 1956, month: 1 });
+    expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+      "industry_wide_joint_ownership_1956",
+    );
+    expect(engine.getState().nation.history.monthly).toHaveLength(0);
+
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "industry_wide_joint_ownership_1956",
+      choiceId: "preserve_mixed_ownership",
+    });
+    expect(engine.getState().nation.pendingHistoricalEventId).toBeNull();
+    expect(engine.getState().nation.history.historicalEvents[0]).toMatchObject({
+      choiceId: "preserve_mixed_ownership",
+      choiceName: "保留混合所有制",
+      durationMonths: 60,
+    });
+    expect(
+      applyModifiers(
+        engine.getState().nation,
+        "capital.privateInvestment",
+        100,
+      ),
+    ).toBeCloseTo(102.5);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.date).toMatchObject({ year: 1956, month: 2 });
+    expect(engine.getState().nation.history.monthly).toHaveLength(1);
+  });
+
+  it("关键事件提供有实际差异的专属决策", () => {
+    const foreignChoices = getHistoricalEventChoices(
+      "foreign_assets_reorganization",
+    );
+    const jointChoices = getHistoricalEventChoices(
+      "industry_wide_joint_ownership_1956",
+    );
+
+    expect(foreignChoices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "compensated_transition",
+      "regulated_foreign_business",
+    ]);
+    expect(
+      foreignChoices.find((choice) => choice.id === "compensated_transition")
+        ?.modifiers,
+    ).toContainEqual({
+      target: "fiscal.spending",
+      operation: "multiply",
+      value: 1.015,
+    });
+    expect(jointChoices.map((choice) => choice.id)).toContain(
+      "preserve_mixed_ownership",
+    );
+    expect(
+      jointChoices.find((choice) => choice.id === "historical_path")
+        ?.durationMonths,
+    ).toBe(48);
+    expect(
+      jointChoices.find((choice) => choice.id === "gradual_state_capitalism")
+        ?.durationMonths,
+    ).toBe(72);
+  });
+
+  it("所有历史事件都有三个会改变数值传导的方案", () => {
+    for (const event of historicalEventDefinitions) {
+      const choices = getHistoricalEventChoices(event);
+      expect(choices).toHaveLength(3);
+      expect(new Set(choices.map((choice) => choice.id)).size).toBe(3);
+      expect(choices[0].isHistoricalPath).toBe(true);
+      expect(choices[1].modifiers).not.toEqual(choices[0].modifiers);
+    }
+  });
+
+  it("切换为自动模式会按历史方案解决当前待决策事件", () => {
+    const engine = createSimulationEngine(
+      createInitialGameState(1956, 1956, "interactive"),
+    );
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+
+    expect(engine.getState().nation.pendingHistoricalEventId).toBeNull();
+    expect(engine.getState().nation.history.historicalEvents[0].choiceId).toBe(
+      "historical_path",
+    );
   });
 
   it("旧存档缺少历史事件记录时自动迁移", () => {
@@ -74,9 +169,16 @@ describe("确定性历史事件", () => {
     delete (
       state.nation.history as Partial<typeof state.nation.history>
     ).historicalEvents;
+    delete (
+      state.nation as Partial<typeof state.nation>
+    ).historicalEventDecisionMode;
+    delete (state.nation as Partial<typeof state.nation>).pendingHistoricalEventId;
     const engine = createSimulationEngine(state);
 
     expect(engine.getState().nation.history.historicalEvents).toEqual([]);
+    expect(engine.getState().nation.historicalEventDecisionMode).toBe(
+      "automatic",
+    );
     expect(() =>
       engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 }),
     ).not.toThrow();

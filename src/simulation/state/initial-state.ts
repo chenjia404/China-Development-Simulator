@@ -44,7 +44,11 @@ function createSector(
   };
 }
 
-export function createInitialGameState(seed: number, startYear = 1949): GameState {
+export function createInitialGameState(
+  seed: number,
+  startYear = 1949,
+  historicalEventDecisionMode: "automatic" | "interactive" = "automatic",
+): GameState {
   const normalizedSeed = seed >>> 0;
   const population = 541_670_000;
   const workingAge = population * 0.56;
@@ -181,6 +185,8 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
       policyProgress: {},
       projects: [],
       modifiers: [],
+      historicalEventDecisionMode,
+      pendingHistoricalEventId: null,
       history: { monthly: [], annual: [], reports: [], historicalEvents: [] },
     },
     world: createInitialWorldState(),

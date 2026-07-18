@@ -10,7 +10,11 @@ import {
   executeDiplomaticAction,
   joinInternationalOrganization,
 } from "../diplomacy/diplomacy";
-import { ensureHistoricalEventHistory } from "../events/historical-event-engine";
+import {
+  ensureHistoricalEventState,
+  resolveHistoricalEvent,
+  setHistoricalEventDecisionMode,
+} from "../events/historical-event-engine";
 
 export interface SimulationResult {
   state: GameState;
@@ -42,7 +46,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     }
     this.state.nation.policyProgress ??= {};
     ensureDiplomacyState(this.state);
-    ensureHistoricalEventHistory(this.state.nation);
+    ensureHistoricalEventState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -52,13 +56,17 @@ class DeterministicSimulationEngine implements SimulationEngine {
   dispatch(command: SimulationCommand): SimulationResult {
     switch (command.type) {
       case "CREATE_GAME":
-        this.state = createInitialGameState(command.seed, command.startYear);
+        this.state = createInitialGameState(
+          command.seed,
+          command.startYear,
+          command.historicalEventDecisionMode,
+        );
         break;
       case "IMPORT_GAME":
         this.state = cloneState(command.state);
         this.state.nation.policyProgress ??= {};
         ensureDiplomacyState(this.state);
-        ensureHistoricalEventHistory(this.state.nation);
+        ensureHistoricalEventState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
@@ -75,6 +83,16 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "JOIN_ORGANIZATION":
         joinInternationalOrganization(this.state, command.organizationId);
+        break;
+      case "SET_HISTORICAL_EVENT_MODE":
+        setHistoricalEventDecisionMode(this.state.nation, command.mode);
+        break;
+      case "RESOLVE_HISTORICAL_EVENT":
+        resolveHistoricalEvent(
+          this.state.nation,
+          command.eventId,
+          command.choiceId,
+        );
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);
@@ -99,7 +117,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     const random = new Mulberry32(this.state.randomState);
     const eventRandom = new Mulberry32(this.state.eventRandomState);
     for (let index = 0; index < months; index += 1) {
-      simulateMonth(this.state, random, eventRandom);
+      if (!simulateMonth(this.state, random, eventRandom)) break;
     }
     this.state.randomState = random.getState();
     this.state.eventRandomState = eventRandom.getState();

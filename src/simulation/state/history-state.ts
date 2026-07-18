@@ -46,6 +46,9 @@ export interface HistoricalEventRecord {
   description: string;
   effects: string[];
   durationMonths: number;
+  choiceId: string;
+  choiceName: string;
+  choiceDescription: string;
 }
 
 export interface NationHistory {

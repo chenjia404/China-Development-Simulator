@@ -5,6 +5,7 @@ export interface CreateGameCommand {
   type: "CREATE_GAME";
   seed: number;
   startYear?: number;
+  historicalEventDecisionMode?: "automatic" | "interactive";
 }
 
 export interface AdvanceMonthsCommand {
@@ -38,6 +39,17 @@ export interface JoinOrganizationCommand {
   organizationId: string;
 }
 
+export interface SetHistoricalEventModeCommand {
+  type: "SET_HISTORICAL_EVENT_MODE";
+  mode: "automatic" | "interactive";
+}
+
+export interface ResolveHistoricalEventCommand {
+  type: "RESOLVE_HISTORICAL_EVENT";
+  eventId: string;
+  choiceId: string;
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -45,4 +57,6 @@ export type SimulationCommand =
   | SetPoliciesCommand
   | DiplomaticActionCommand
   | JoinOrganizationCommand
+  | SetHistoricalEventModeCommand
+  | ResolveHistoricalEventCommand
   | ImportGameCommand;

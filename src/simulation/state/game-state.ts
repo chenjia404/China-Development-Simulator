@@ -199,6 +199,8 @@ export interface NationState {
   policyProgress: Record<string, number>;
   projects: ProjectState[];
   modifiers: ModifierState[];
+  historicalEventDecisionMode: "automatic" | "interactive";
+  pendingHistoricalEventId: string | null;
   history: NationHistory;
 }
 
