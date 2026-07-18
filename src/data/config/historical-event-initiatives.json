@@ -4,7 +4,7 @@
     "eventId": "reform_and_opening_1978",
     "name": "提前启动改革开放",
     "description": "在史实节点前把工作重心转向经济建设，以试点、放权和对外交流逐步建立市场化资源配置机制。",
-    "availableFromYear": 1965,
+    "availableFromYear": 1949,
     "diplomaticPointCost": 8,
     "transitionDurationMonths": 24,
     "requirements": {
@@ -28,7 +28,7 @@
     "eventId": "joint_venture_law_1979",
     "name": "提前制定中外合资经营企业法",
     "description": "在改革开放已经启动的基础上，提前建立外资准入、利润分配和争议处理的专门法律框架。",
-    "availableFromYear": 1966,
+    "availableFromYear": 1949,
     "diplomaticPointCost": 12,
     "transitionDurationMonths": 24,
     "requirements": {

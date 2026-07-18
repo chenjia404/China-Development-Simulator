@@ -312,7 +312,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     (country) => country.id === "south_korea",
   )?.relationWithChina ?? 0;
 
-  const initiativeState = createInitialGameState(seed, 1970);
+  const initiativeState = createInitialGameState(seed, 1949);
   initiativeState.nation.economy.institutionalEfficiency = 0.4;
   initiativeState.nation.society.stabilityIndex = 55;
   initiativeState.nation.trade.openness = 0.1;
@@ -323,7 +323,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     initiativeId: "early_reform_and_opening",
   });
   const legalFrameworkState = initiativePreparation.exportState();
-  legalFrameworkState.nation.date.year = 1971;
+  legalFrameworkState.nation.date.year = 1950;
   legalFrameworkState.nation.date.month = 1;
   legalFrameworkState.nation.date.elapsedMonths += 12;
   const legalFrameworkEngine = createSimulationEngine(legalFrameworkState);
