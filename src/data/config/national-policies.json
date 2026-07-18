@@ -69,7 +69,7 @@
       "modifiers": [
         { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.22 },
         { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.12 },
-        { "target": "capital.maximumAnnualGrowth", "operation": "add", "value": 0.08 },
+        { "target": "capital.maximumAnnualGrowth", "operation": "add", "value": 0.12 },
         { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.04 },
         { "target": "fiscal.spending", "operation": "multiply", "value": 1.03 },
         { "target": "resources.energyDemand", "operation": "multiply", "value": 1.05 }
@@ -115,7 +115,7 @@
       "modifiers": [
         { "target": "technology.researchOutput", "operation": "multiply", "value": 1.25 },
         { "target": "technology.exportLearningRate", "operation": "add", "value": 0.014 },
-        { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00035 },
+        { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0023 },
         { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.12 },
         { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08 },
         { "target": "fiscal.spending", "operation": "multiply", "value": 1.04 },

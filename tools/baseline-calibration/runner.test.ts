@@ -6,6 +6,7 @@ import {
 } from "../../src/simulation/index";
 import { annualSnapshotsToCsv } from "./csv";
 import { runSimulation } from "./runner";
+import koreanTargets from "../../src/data/config/korean-catch-up-targets.json";
 
 describe("无界面批量模拟器", () => {
   it("从 1949 年稳定运行至 2026 年并保留正确历史长度", () => {
@@ -69,5 +70,38 @@ describe("无界面批量模拟器", () => {
 
     expect(csv.split("\n")).toHaveLength(3);
     expect(csv.startsWith("年份,人口,实际GDP")).toBe(true);
+  });
+
+  it("韩国式追赶预设通过积累机制在 2000 年进入韩国收入数量级", () => {
+    const result = runSimulation({
+      strategy: "korean_catch_up",
+      seed: 1949,
+      startYear: 1949,
+      endYear: 2000,
+    });
+    const snapshot = result.annual.find((item) => item.year === 2000);
+    const target = koreanTargets.years.find((item) => item.year === 2000);
+    expect(snapshot).toBeDefined();
+    expect(target).toBeDefined();
+    expect(snapshot!.currentUSDGDPPerCapita).toBeGreaterThanOrEqual(
+      target!.currentUSDGDPPerCapita * 0.85,
+    );
+    expect(snapshot!.currentUSDGDPPerCapita).toBeLessThanOrEqual(
+      target!.currentUSDGDPPerCapita * 1.15,
+    );
+    expect(
+      result.finalState.nation.trade.exports /
+        result.finalState.nation.economy.nominalGDP,
+    ).toBeLessThanOrEqual(0.551);
+    expect(
+      result.finalState.nation.history.historicalEvents.find(
+        (event) => event.id === "great_leap_forward_1958",
+      )?.choiceId,
+    ).toBe("avoid_great_leap");
+    expect(
+      result.finalState.nation.history.historicalEvents.find(
+        (event) => event.id === "cultural_revolution_disruption_1966",
+      )?.choiceId,
+    ).toBe("protect_institutions");
   });
 });

@@ -109,9 +109,18 @@ export function updateEducation(nation: NationState): void {
     0,
     educationConfig.maximumIndex,
   );
+  const humanCapitalFormation = clamp(
+    applyPolicyModifiers(
+      nation,
+      "education.humanCapitalFormation",
+      1,
+    ),
+    0.5,
+    1.6,
+  );
   economy.humanCapitalIndex = approach(
     economy.humanCapitalIndex,
     education.index * 0.8 + nation.health.index * 0.2,
-    0.01,
+    0.01 * humanCapitalFormation,
   );
 }

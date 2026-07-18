@@ -17,6 +17,19 @@ export function updateCapitalAndInvestment(nation: NationState): void {
         fiscal.budget.agriculture) *
       0.65,
   );
+  const exportSurplusReinvestmentRate = clamp(
+    applyPolicyModifiers(
+      nation,
+      "capital.exportSurplusReinvestmentRate",
+      0,
+    ),
+    0,
+    0.8,
+  );
+  // 贸易顺差是上一结算月已经实现的流量，只将政策明确留存的部分转为
+  // 本月设备和产能投资，避免把出口总额或外汇储备重复计入资本。
+  const exportSurplusReinvestment =
+    Math.max(0, nation.trade.balance) * exportSurplusReinvestmentRate;
   const privateInvestment = applyModifiers(
     nation,
     "capital.privateInvestment",
@@ -25,7 +38,8 @@ export function updateCapitalAndInvestment(nation: NationState): void {
       "capital.privateInvestment",
       economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
         economy.realGDP * 0.08 +
-        remittanceDirectedInvestment(nation),
+        remittanceDirectedInvestment(nation) +
+        exportSurplusReinvestment,
     ),
   );
   const annualNominalInvestment =
@@ -36,15 +50,31 @@ export function updateCapitalAndInvestment(nation: NationState): void {
     applyModifiers(
       nation,
       "capital.investmentEfficiency",
-      economyConfig.baseInvestmentEfficiency *
-        (0.7 + economy.institutionalEfficiency * 0.3) *
-        Math.min(nation.resources.energySupplyRatio, nation.resources.foodSupplyRatio),
+      applyPolicyModifiers(
+        nation,
+        "capital.investmentEfficiency",
+        economyConfig.baseInvestmentEfficiency *
+          (0.7 + economy.institutionalEfficiency * 0.3) *
+          Math.min(
+            nation.resources.energySupplyRatio,
+            nation.resources.foodSupplyRatio,
+          ),
+      ),
     ),
     0.1,
     0.9,
   );
+  const maximumAnnualCapitalGrowth = clamp(
+    applyPolicyModifiers(
+      nation,
+      "capital.maximumAnnualGrowth",
+      economyConfig.maximumAnnualCapitalGrowth,
+    ),
+    0.08,
+    0.3,
+  );
   const maximumMonthlyInvestment =
-    economy.capitalStock * economyConfig.maximumAnnualCapitalGrowth / 12;
+    economy.capitalStock * maximumAnnualCapitalGrowth / 12;
   const effectiveMonthlyInvestment = Math.min(
     annualNominalInvestment * investmentEfficiency / 12,
     maximumMonthlyInvestment,

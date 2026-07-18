@@ -75,13 +75,42 @@ export function updateTechnology(nation: NationState): void {
 
   // 技术指数描述当期技术水平，结构性生产率则记录制度、人才和组织知识形成的
   // 路径依赖。后者在修正到期后不会倒扣，因而能让更高的发展基数继续复利。
-  const structuralProductivityGrowth = applyModifiers(
+  const policyStructuralProductivityGrowth = applyPolicyModifiers(
     nation,
     "economy.structuralProductivityGrowth",
     0,
   );
+  const structuralProductivityGrowth = applyModifiers(
+    nation,
+    "economy.structuralProductivityGrowth",
+    policyStructuralProductivityGrowth,
+  );
+  const exportIntensity = clamp(
+    safeDivide(trade.exports, economy.nominalGDP),
+    0,
+    0.5,
+  );
+  const manufacturingShare = clamp(
+    safeDivide(sectors.secondary.valueAdded, economy.realGDP),
+    0.1,
+    0.7,
+  );
+  const exportLearningRate = clamp(
+    applyPolicyModifiers(nation, "technology.exportLearningRate", 0),
+    0,
+    0.03,
+  );
+  // 出口学习依赖真实出口、制造业能力和人力资本，不会在封闭或低技能状态下
+  // 凭空产生生产率；形成的组织知识继续保存在 TFP 存量中。
+  const exportLearningGrowth =
+    exportLearningRate *
+    exportIntensity *
+    manufacturingShare *
+    clamp(0.35 + economy.humanCapitalIndex / 100, 0.35, 1.2);
+  const combinedStructuralGrowth =
+    structuralProductivityGrowth + exportLearningGrowth;
   const monthlyTFPGrowth = clamp(
-    effectiveTechnologyGain * 0.0267 + structuralProductivityGrowth,
+    effectiveTechnologyGain * 0.0267 + combinedStructuralGrowth,
     -technologyConfig.maximumMonthlyTFPGrowth,
     technologyConfig.maximumMonthlyTFPGrowth,
   );

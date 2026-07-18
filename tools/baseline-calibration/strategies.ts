@@ -5,6 +5,7 @@ export type StrategyId =
   | "industrial"
   | "livelihood"
   | "education_technology"
+  | "korean_catch_up"
   | "debt"
   | "none";
 
@@ -55,6 +56,93 @@ function historicalDecision(year: number): AnnualDecision {
   };
 }
 
+function koreanCatchUpDecision(year: number): AnnualDecision {
+  if (year > 2000) {
+    return {
+      budget: {
+        education: 0.17,
+        health: 0.12,
+        agriculture: 0.04,
+        industry: 0.13,
+        infrastructure: 0.15,
+        research: 0.14,
+        housing: 0.06,
+        welfare: 0.08,
+        defense: 0.05,
+        administration: 0.06,
+      },
+      policyIds: [
+        "technology_priority",
+        "education_priority",
+        "expand_opening",
+        "green_development",
+        "livelihood_priority",
+      ],
+    };
+  }
+  if (year < 1973) {
+    return {
+      budget: {
+        education: 0.18,
+        health: 0.05,
+        agriculture: 0.08,
+        industry: 0.24,
+        infrastructure: 0.2,
+        research: 0.05,
+        housing: 0.03,
+        welfare: 0.04,
+        defense: 0.06,
+        administration: 0.07,
+      },
+      policyIds: [
+        "developmental_finance",
+        "vocational_technical_education",
+        "expand_opening",
+        "export_oriented",
+        "export_industrial_zones",
+      ],
+    };
+  }
+  return {
+    budget: {
+      education: 0.16,
+      health: 0.07,
+      agriculture: 0.05,
+      industry: 0.23,
+      infrastructure: 0.2,
+      research: 0.12,
+      housing: 0.03,
+      welfare: 0.04,
+      defense: 0.05,
+      administration: 0.05,
+    },
+    policyIds: [
+      "developmental_finance",
+      "vocational_technical_education",
+      "expand_opening",
+      "export_industrial_zones",
+      "industrial_upgrading",
+    ],
+  };
+}
+
+export function getHistoricalEventChoice(
+  strategy: StrategyId,
+  eventId: string,
+): string {
+  if (strategy !== "korean_catch_up") return "historical_path";
+  return {
+    foreign_assets_reorganization: "regulated_foreign_business",
+    korean_war_1950: "oppose_korean_war",
+    industry_wide_joint_ownership_1956: "preserve_mixed_ownership",
+    great_leap_forward_1958: "avoid_great_leap",
+    peoples_communes_1958: "avoid_communes",
+    three_year_difficulties_1959: "accept_foreign_aid",
+    third_front_construction_1964: "cancel_third_front",
+    cultural_revolution_disruption_1966: "protect_institutions",
+  }[eventId] ?? "historical_path";
+}
+
 export function getAnnualDecision(
   strategy: StrategyId,
   year: number,
@@ -103,6 +191,8 @@ export function getAnnualDecision(
           ? ["technology_priority"]
           : ["technology_priority", "expand_opening"],
       };
+    case "korean_catch_up":
+      return koreanCatchUpDecision(year);
     case "debt":
       return {
         budget: { ...balancedBudget, education: 0.35, health: 0.3, industry: 0.45, infrastructure: 0.5, research: 0.25, welfare: 0.3 },
@@ -118,6 +208,7 @@ export const strategyIds: StrategyId[] = [
   "industrial",
   "livelihood",
   "education_technology",
+  "korean_catch_up",
   "debt",
   "none",
 ];

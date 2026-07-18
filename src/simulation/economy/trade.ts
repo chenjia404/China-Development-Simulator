@@ -1,3 +1,4 @@
+import economyConfig from "../../data/config/economy.json";
 import { approach, clamp, safeDivide } from "../core/math";
 import { organizationTradeMultiplier } from "../diplomacy/diplomacy";
 import { applyPolicyModifiers } from "../policies/policy-engine";
@@ -90,7 +91,7 @@ export function updateInternationalTrade(state: GameState): void {
       competitiveness,
     ),
   );
-  const targetExports = Math.max(
+  const unconstrainedTargetExports = Math.max(
     0,
     nation.economy.nominalGDP *
       exportCapacityShare *
@@ -98,6 +99,10 @@ export function updateInternationalTrade(state: GameState): void {
       policyCompetitiveness *
       globalDemand *
       access.marketAccessMultiplier,
+  );
+  const targetExports = Math.min(
+    unconstrainedTargetExports,
+    nation.economy.nominalGDP * economyConfig.maximumExportShareOfGDP,
   );
 
   const foodGap = Math.max(0, 1 - nation.resources.foodSupplyRatio);

@@ -11,6 +11,7 @@
     "start": "vinext start",
     "simulate": "tsx tools/baseline-calibration/index.ts",
     "simulate:baseline": "tsx tools/baseline-calibration/index.ts historical 1949 1 1949 2026",
+    "simulate:korean-catch-up": "tsx tools/baseline-calibration/index.ts korean_catch_up 1949 1 1949 2000",
     "calibrate": "tsx tools/baseline-calibration/calibrate.ts",
     "audit": "tsx tools/final-audit/index.ts",
     "test": "npm run test:unit",

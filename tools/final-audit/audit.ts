@@ -22,6 +22,7 @@ import {
   strategyIds,
   type StrategyId,
 } from "../baseline-calibration/strategies";
+import koreanCatchUpTargets from "../../src/data/config/korean-catch-up-targets.json";
 
 export interface AuditCheck {
   id: string;
@@ -102,6 +103,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   }
   const historical = runs.get("historical")!;
   const education = runs.get("education_technology")!;
+  const koreanCatchUp = runs.get("korean_catch_up")!;
   const summaries = strategyIds.map((strategy) => summary(runs.get(strategy)!));
   const byStrategy = new Map(summaries.map((item) => [item.strategy, item]));
   const historicalSummary = byStrategy.get("historical")!;
@@ -109,6 +111,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const livelihoodSummary = byStrategy.get("livelihood")!;
   const debtSummary = byStrategy.get("debt")!;
   const noneSummary = byStrategy.get("none")!;
+  const koreanCatchUp2000 = koreanCatchUp.annual.find(
+    (snapshot) => snapshot.year === 2000,
+  )!;
+  const koreanTarget2000 = koreanCatchUpTargets.years.find(
+    (target) => target.year === 2000,
+  )!;
 
   const duplicate = runSimulation({ strategy: "historical", seed, startYear: 1949, endYear: 2026 });
   const calibration = summarizeCalibration(compareWithTargets(historical.annual));
@@ -505,7 +513,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const checks: AuditCheck[] = [
     makeCheck(
       "continuous-run",
-      "六种策略均连续运行 1949—2026",
+      "七种策略均连续运行 1949—2026",
       summaries.every((item) => item.years === 78),
       `年度快照长度：${summaries.map((item) => `${item.strategy}=${item.years}`).join("，")}`,
     ),
@@ -533,7 +541,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "distinct-routes",
       "不同政策路线产生明显不同结果",
       distinctGDP.size === strategyIds.length,
-      `六条路线产生 ${distinctGDP.size} 个不同的最终 GDP 数量级结果`,
+      `${strategyIds.length} 条路线产生 ${distinctGDP.size} 个不同的最终 GDP 数量级结果`,
     ),
     makeCheck(
       "policy-transition",
@@ -542,6 +550,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         initialPolicyProgress < 1 &&
         Math.abs(maturePolicyProgress - 1) < 1e-9,
       `科技强国首月生效 ${(initialPolicyProgress * 100).toFixed(1)}%，60 个月后 ${(maturePolicyProgress * 100).toFixed(0)}%`,
+    ),
+    makeCheck(
+      "korean-catch-up",
+      "韩国式追赶路线通过资本、技能、出口学习和产业升级进入韩国收入数量级",
+      koreanCatchUp2000.currentUSDGDPPerCapita >=
+          koreanTarget2000.currentUSDGDPPerCapita * 0.85 &&
+        koreanCatchUp2000.currentUSDGDPPerCapita <=
+          koreanTarget2000.currentUSDGDPPerCapita * 1.15 &&
+        koreanCatchUp2000.educationIndex > 75 &&
+        koreanCatchUp2000.secondarySectorShare > 0.4 &&
+        koreanCatchUp.finalState.nation.trade.exports /
+            koreanCatchUp.finalState.nation.economy.nominalGDP <=
+          0.551,
+      `2000 年中国追赶路线 $${koreanCatchUp2000.currentUSDGDPPerCapita.toFixed(1)}，韩国参考 $${koreanTarget2000.currentUSDGDPPerCapita.toFixed(1)}；教育指数 ${koreanCatchUp2000.educationIndex.toFixed(1)}，二产占比 ${(koreanCatchUp2000.secondarySectorShare * 100).toFixed(1)}%`,
     ),
     makeCheck(
       "diplomacy-trade-link",
