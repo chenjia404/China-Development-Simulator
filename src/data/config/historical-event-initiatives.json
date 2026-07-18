@@ -106,37 +106,5 @@
       { "target": "fiscal.revenue", "operation": "multiply", "value": 0.995 },
       { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
     ]
-  },
-  {
-    "id": "early_wto_accession",
-    "eventId": "wto_accession_2001",
-    "name": "提前完成入世谈判并加入世界贸易组织",
-    "description": "在世界贸易组织成立后，以已经持续多年的复关和入世谈判为基础，提前完成关税、市场准入及国内规则谈判并取得正式成员资格。",
-    "availableFromYear": 1995,
-    "diplomaticPointCost": 25,
-    "transitionDurationMonths": 36,
-    "organizationId": "world_trade_organization",
-    "requirements": {
-      "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979", "gatt_accession_application_1986"],
-      "minimumMonthsSinceEvents": {
-        "reform_and_opening_1978": 120,
-        "joint_venture_law_1979": 96,
-        "gatt_accession_application_1986": 60
-      },
-      "minimumInstitutionalEfficiency": 0.55,
-      "minimumStability": 55,
-      "minimumOpenness": 0.35,
-      "minimumReputation": 55,
-      "minimumAverageRelation": 12,
-      "supportRelationThreshold": 25,
-      "minimumSupportingCountries": 10,
-      "minimumTradeAgreements": 3,
-      "minimumInternationalInfluence": 25
-    },
-    "transitionEffects": ["关税和国内规则调整带来短期财政成本", "正式取得世界贸易组织成员资格", "原史实节点不再重复触发"],
-    "transitionModifiers": [
-      { "target": "fiscal.revenue", "operation": "multiply", "value": 0.99 },
-      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
-    ]
   }
 ]

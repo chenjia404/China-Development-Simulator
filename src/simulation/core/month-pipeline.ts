@@ -25,7 +25,10 @@ import { recordHistory } from "../reports/history";
 import { updatePolicyEnvironment } from "../policies/policy-engine";
 import { checkRandomEvents } from "../events/event-engine";
 import { advanceModifiers } from "../events/modifiers";
-import { updateDiplomacy } from "../diplomacy/diplomacy";
+import {
+  checkAutomaticInternationalOrganizations,
+  updateDiplomacy,
+} from "../diplomacy/diplomacy";
 import { updateInternationalTrade } from "../economy/trade";
 import { updateForeignExchange } from "../economy/foreign-exchange";
 import { checkHistoricalEvents } from "../events/historical-event-engine";
@@ -41,6 +44,7 @@ export function simulateMonth(
   checkRandomEvents(state.nation, eventRandom);
   updatePolicyEnvironment(state.nation);
   updateDiplomacy(state);
+  checkAutomaticInternationalOrganizations(state);
   updateDemographics(state.nation, _random);
   updateEducation(state.nation);
   updateHealth(state.nation);

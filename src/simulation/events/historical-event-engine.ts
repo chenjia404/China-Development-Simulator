@@ -36,6 +36,7 @@ export interface HistoricalEventDefinition {
   name: string;
   year: number;
   month: number;
+  triggerMode?: "scheduled" | "conditional";
   category: HistoricalEventCategory;
   impact: HistoricalEventImpact;
   description: string;
@@ -352,6 +353,45 @@ export function enactHistoricalEventEarly(
   );
 }
 
+/** 条件型历史事件只在外部系统确认门槛达成后触发，不受史实日期自动结算。 */
+export function triggerConditionalHistoricalEvent(
+  nation: NationState,
+  eventId: string,
+  triggerId: string,
+  triggerName: string,
+  triggerEffects: string[] = [],
+): HistoricalEventRecord | null {
+  ensureHistoricalEventState(nation);
+  const event = getHistoricalEvent(eventId);
+  if (!event) throw new Error(`未知历史事件：${eventId}`);
+  if (event.triggerMode !== "conditional") {
+    throw new Error(`${event.name}不是条件触发型历史事件`);
+  }
+  if (nation.pendingHistoricalEventId) {
+    throw new Error("请先处理当前待决策历史事件");
+  }
+  if (nation.history.historicalEvents.some((record) => record.id === eventId)) {
+    return null;
+  }
+  const historicalChoice = getHistoricalEventChoices(event, nation)[0];
+  if (!historicalChoice) throw new Error(`${event.name}缺少历史实施方案`);
+  const isBeforeSchedule = nation.date.year < event.year ||
+    (nation.date.year === event.year && nation.date.month < event.month);
+  return applyChoice(
+    nation,
+    event,
+    {
+      ...historicalChoice,
+      id: `condition:${triggerId}`,
+      name: triggerName,
+      description: `相关历史进程和国际关系条件达成后自动触发“${event.name}”。`,
+      effects: [...historicalChoice.effects, ...triggerEffects],
+      outcome: isBeforeSchedule ? "enacted_early" : "occurred",
+    },
+    { year: nation.date.year, month: nation.date.month },
+  );
+}
+
 export function resolveHistoricalEvent(
   nation: NationState,
   eventId: string,
@@ -399,6 +439,7 @@ export function checkHistoricalEvents(nation: NationState): HistoricalEventRecor
   const triggered: HistoricalEventRecord[] = [];
   for (const event of historicalEventDefinitions) {
     if (
+      event.triggerMode === "conditional" ||
       event.year !== nation.date.year ||
       event.month !== nation.date.month ||
       occurredIds.has(event.id)

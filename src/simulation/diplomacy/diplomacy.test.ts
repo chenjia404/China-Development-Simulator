@@ -3,7 +3,7 @@ import { createSimulationEngine } from "../core/engine";
 import { calculateTradeAccess, updateInternationalTrade } from "../economy/trade";
 import { createInitialGameState } from "../state/initial-state";
 import { enactHistoricalEventEarly } from "../events/historical-event-engine";
-import { updateDiplomacy } from "./diplomacy";
+import { getInternationalOrganizationStatus, updateDiplomacy } from "./diplomacy";
 import { updateTechnology } from "../technology/research";
 import {
   diplomaticStrategyEffects,
@@ -208,14 +208,11 @@ describe("外交与国际贸易", () => {
     );
   });
 
-  it("世界贸易组织在成立后由复关进程、国际支持、开放和贸易协定共同解锁", () => {
-    const tooEarly = createSimulationEngine(createInitialGameState(1949));
-    expect(() =>
-      tooEarly.dispatch({
-        type: "JOIN_ORGANIZATION",
-        organizationId: "world_trade_organization",
-      }),
-    ).toThrow("1995 年");
+  it("世界贸易组织在复关进程和外交条件达成后自动解锁", () => {
+    const tooEarly = createInitialGameState(1949);
+    expect(
+      getInternationalOrganizationStatus(tooEarly, "world_trade_organization").blockers,
+    ).toContain("最早可在 1995 年取得资格");
 
     const missingApplication = createInitialGameState(1995, 1995);
     missingApplication.nation.internationalInfluence = 50;
@@ -225,12 +222,12 @@ describe("外交与国际贸易", () => {
       country.relationWithChina = 30;
       country.tradeAgreement = true;
     }
-    expect(() =>
-      createSimulationEngine(missingApplication).dispatch({
-        type: "JOIN_ORGANIZATION",
-        organizationId: "world_trade_organization",
-      }),
-    ).toThrow("需先完成提交恢复关贸总协定缔约方地位申请");
+    expect(
+      getInternationalOrganizationStatus(
+        missingApplication,
+        "world_trade_organization",
+      ).blockers,
+    ).toContain("需先完成提交恢复关贸总协定缔约方地位申请");
 
     const eligible = createInitialGameState(1986, 1986);
     enactHistoricalEventEarly(
@@ -251,15 +248,18 @@ describe("外交与国际贸易", () => {
       country.tradeAgreement = true;
     }
     const engine = createSimulationEngine(eligible);
-    engine.dispatch({
-      type: "JOIN_ORGANIZATION",
-      organizationId: "world_trade_organization",
-    });
+    expect(() =>
+      engine.dispatch({
+        type: "JOIN_ORGANIZATION",
+        organizationId: "world_trade_organization",
+      }),
+    ).toThrow("自动解锁");
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
     const joined = engine.getState();
     expect(joined.nation.diplomacy.organizationIds).toContain(
       "world_trade_organization",
     );
-    expect(joined.nation.diplomacy.diplomaticPoints).toBe(55);
+    expect(joined.nation.diplomacy.diplomaticPoints).toBe(100);
     expect(joined.nation.history.historicalEvents.at(-1)).toMatchObject({
       id: "wto_accession_2001",
       year: 1995,
@@ -268,25 +268,31 @@ describe("外交与国际贸易", () => {
     });
   });
 
-  it("联合国席位可在足够国家形成外交支持后提前触发", () => {
+  it("联合国席位仅在足够国家形成外交支持后自动触发", () => {
     const insufficient = createInitialGameState(1965, 1965);
     insufficient.nation.diplomacy.diplomaticPoints = 100;
     const insufficientEngine = createSimulationEngine(insufficient);
-    expect(() =>
-      insufficientEngine.dispatch({
-        type: "JOIN_ORGANIZATION",
-        organizationId: "united_nations",
-      }),
-    ).toThrow("8 个国家关系达到 20");
+    insufficientEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(insufficientEngine.getState().nation.diplomacy.organizationIds).not.toContain(
+      "united_nations",
+    );
+    expect(
+      insufficientEngine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "un_seat_restored_1971",
+      ),
+    ).toBe(false);
 
     const eligible = createInitialGameState(1965, 1965);
     eligible.nation.diplomacy.diplomaticPoints = 100;
     for (const country of eligible.world.countries) country.relationWithChina = 25;
     const engine = createSimulationEngine(eligible);
-    engine.dispatch({
-      type: "JOIN_ORGANIZATION",
-      organizationId: "united_nations",
-    });
+    expect(() =>
+      engine.dispatch({
+        type: "JOIN_ORGANIZATION",
+        organizationId: "united_nations",
+      }),
+    ).toThrow("自动解锁");
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
 
     expect(engine.getState().nation.diplomacy.organizationIds).toContain(
       "united_nations",
@@ -297,6 +303,57 @@ describe("外交与国际贸易", () => {
       scheduledYear: 1971,
       outcome: "enacted_early",
     });
+    expect(engine.getState().nation.diplomacy.diplomaticPoints).toBe(100);
+  });
+
+  it("条件不足时不会因到达史实日期直接取得联合国席位或世贸成员资格", () => {
+    const unState = createInitialGameState(1971, 1971);
+    unState.nation.date.month = 10;
+    unState.nation.date.elapsedMonths = (1971 - 1949) * 12 + 9;
+    const unEngine = createSimulationEngine(unState);
+    unEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(unEngine.getState().nation.diplomacy.organizationIds).not.toContain(
+      "united_nations",
+    );
+    expect(
+      unEngine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "un_seat_restored_1971",
+      ),
+    ).toBe(false);
+
+    const wtoState = createInitialGameState(2001, 2001);
+    wtoState.nation.date.month = 12;
+    wtoState.nation.date.elapsedMonths = (2001 - 1949) * 12 + 11;
+    const wtoEngine = createSimulationEngine(wtoState);
+    wtoEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(wtoEngine.getState().nation.diplomacy.organizationIds).not.toContain(
+      "world_trade_organization",
+    );
+    expect(
+      wtoEngine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "wto_accession_2001",
+      ),
+    ).toBe(false);
+  });
+
+  it("错过史实日期后仍会在外交条件实际达成时自动取得资格", () => {
+    const eligible = createInitialGameState(1975, 1975);
+    eligible.nation.diplomacy.diplomaticPoints = 7;
+    for (const country of eligible.world.countries) country.relationWithChina = 25;
+    const engine = createSimulationEngine(eligible);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+
+    expect(engine.getState().nation.diplomacy.organizationIds).toContain(
+      "united_nations",
+    );
+    expect(engine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "un_seat_restored_1971",
+      year: 1975,
+      scheduledYear: 1971,
+      outcome: "occurred",
+    });
+    expect(engine.getState().nation.diplomacy.diplomaticPoints).toBeGreaterThanOrEqual(7);
   });
 
   it("国防投入通过安全指数和外交资源发挥作用", () => {

@@ -6,15 +6,13 @@ import type { GameState } from "../state/game-state";
 import { createInitialGameState } from "../state/initial-state";
 import { validatePolicySelection } from "../policies/policy-engine";
 import {
+  checkAutomaticInternationalOrganizations,
   ensureDiplomacyState,
   executeDiplomaticAction,
-  getInternationalOrganizationStatus,
   joinInternationalOrganization,
 } from "../diplomacy/diplomacy";
 import {
   ensureHistoricalEventState,
-  enactHistoricalEventEarly,
-  getHistoricalEvent,
   resolveHistoricalEvent,
   setHistoricalEventDecisionMode,
 } from "../events/historical-event-engine";
@@ -93,7 +91,6 @@ class DeterministicSimulationEngine implements SimulationEngine {
         executeDiplomaticAction(this.state, command.actionId, command.countryId);
         break;
       case "JOIN_ORGANIZATION":
-        this.triggerOrganizationHistoricalEvent(command.organizationId);
         joinInternationalOrganization(this.state, command.organizationId);
         break;
       case "SET_DIPLOMATIC_STRATEGY":
@@ -116,6 +113,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         this.advanceMonths(command.months);
         break;
     }
+    checkAutomaticInternationalOrganizations(this.state);
 
     return {
       state: this.exportState(),
@@ -141,30 +139,6 @@ class DeterministicSimulationEngine implements SimulationEngine {
     this.state.eventRandomState = eventRandom.getState();
   }
 
-  private triggerOrganizationHistoricalEvent(organizationId: string): void {
-    const status = getInternationalOrganizationStatus(this.state, organizationId);
-    const eventId = status.definition.historicalEventId;
-    if (!status.available || !eventId) return;
-    const event = getHistoricalEvent(eventId);
-    if (!event) throw new Error(`国际组织关联了未知历史事件：${eventId}`);
-    const alreadyProcessed = this.state.nation.history.historicalEvents.some(
-      (record) => record.id === eventId,
-    );
-    const isBeforeSchedule = this.state.nation.date.year < event.year ||
-      (this.state.nation.date.year === event.year &&
-        this.state.nation.date.month < event.month);
-    if (alreadyProcessed || !isBeforeSchedule) return;
-    enactHistoricalEventEarly(
-      this.state.nation,
-      eventId,
-      `organization:${organizationId}`,
-      `国际支持下提前实现${status.definition.name}`,
-      [
-        `平均国际关系达到 ${status.averageRelation.toFixed(1)}`,
-        `${status.supportingCountries} 个国家达到支持门槛`,
-      ],
-    );
-  }
 }
 
 export const createSimulationEngine: SimulationEngineFactory = (initialState) =>

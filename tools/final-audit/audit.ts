@@ -136,6 +136,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const distinctGDP = new Set(summaries.map((item) => Math.round(item.finalGDP / 1_000_000_000)));
   const historicalRecords = historical.finalState.nation.history.historicalEvents;
   const historicalRecordIds = new Set(historicalRecords.map((event) => event.id));
+  const scheduledHistoricalEvents = historicalEventDefinitions.filter(
+    (event) => event.triggerMode !== "conditional",
+  );
+  const recordedScheduledEvents = historicalRecords.filter((record) =>
+    scheduledHistoricalEvents.some((event) => event.id === record.id)
+  );
   const historicalMilestoneTargets = new Map([
     [1978, { currentPriceGDPPerCapita: 381, currentUSDGDPPerCapita: 156.7, gdpRank: 10, gdpPerCapitaRank: 134, participants: 146 }],
     [1990, { currentPriceGDPPerCapita: 1644, currentUSDGDPPerCapita: 318.5, gdpRank: 11, gdpPerCapitaRank: null, participants: null }],
@@ -369,20 +375,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_gatt_accession_application",
   });
-  const wtoState = applicationEngine.exportState();
-  wtoState.nation.date.year = 1995;
-  wtoState.nation.date.month = 1;
-  wtoState.nation.date.elapsedMonths = (1995 - 1949) * 12;
-  wtoState.nation.economy.institutionalEfficiency = 0.6;
-  wtoState.nation.trade.openness = 0.45;
-  for (const country of wtoState.world.countries) country.relationWithChina = 30;
-  wtoState.world.countries[2].tradeAgreement = true;
-  const initiativeEngine = createSimulationEngine(wtoState);
-  initiativeEngine.dispatch({
-    type: "ENACT_HISTORICAL_INITIATIVE",
-    initiativeId: "early_wto_accession",
-  });
-  const earlyRecords = initiativeEngine.getState().nation.history.historicalEvents
+  const earlyRecords = applicationEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "enacted_early");
 
   const unSupportState = createInitialGameState(seed, 1965);
@@ -391,10 +384,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     country.relationWithChina = 25;
   }
   const unSupportEngine = createSimulationEngine(unSupportState);
-  unSupportEngine.dispatch({
-    type: "JOIN_ORGANIZATION",
-    organizationId: "united_nations",
-  });
+  unSupportEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
   const wtoSupportState = createInitialGameState(seed, 1986);
   enactHistoricalEventEarly(
     wtoSupportState.nation,
@@ -416,10 +406,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     country.tradeAgreement = true;
   }
   const wtoSupportEngine = createSimulationEngine(wtoSupportState);
-  wtoSupportEngine.dispatch({
-    type: "JOIN_ORGANIZATION",
-    organizationId: "world_trade_organization",
-  });
+  wtoSupportEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
   const supportTriggeredRecords = [
     unSupportEngine.getState().nation.history.historicalEvents.at(-1),
     wtoSupportEngine.getState().nation.history.historicalEvents.at(-1),
@@ -566,12 +553,13 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "historical-timeline",
-      "详细历史事件按年月唯一触发并进入年表",
-      historicalRecords.length === historicalEventDefinitions.length &&
+      "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
+      recordedScheduledEvents.length === scheduledHistoricalEvents.length &&
+        scheduledHistoricalEvents.every((event) => historicalRecordIds.has(event.id)) &&
         historicalRecordIds.size === historicalRecords.length &&
         historicalRecordIds.has("foreign_assets_reorganization") &&
         historicalRecordIds.has("industry_wide_joint_ownership_1956"),
-      `${historicalRecords.length}/${historicalEventDefinitions.length} 个事件已记录，包含外资清理与全行业公私合营`,
+      `${recordedScheduledEvents.length}/${scheduledHistoricalEvents.length} 个固定日期事件已记录；联合国席位与世贸资格另按条件审计`,
     ),
     makeCheck(
       "historical-decisions",
@@ -692,9 +680,6 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       earlyRecords.length === historicalInitiativeDefinitions.length &&
         earlyRecords.every((record) =>
           record.year < record.scheduledYear && record.outcome === "enacted_early"
-        ) &&
-        initiativeEngine.getState().nation.diplomacy.organizationIds.includes(
-          "world_trade_organization",
         ),
       earlyRecords.map((record) =>
         `${record.name}提前至${record.year}年（史实${record.scheduledYear}年）`
@@ -702,7 +687,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "relationship-triggered-organizations",
-      "联合国席位和世界贸易组织可由历史进程与足够的国际关系支持提前触发",
+      "联合国席位和世界贸易组织在历史进程与国际关系条件达成后自动触发",
       unSupportEngine.getState().nation.diplomacy.organizationIds.includes(
         "united_nations",
       ) &&

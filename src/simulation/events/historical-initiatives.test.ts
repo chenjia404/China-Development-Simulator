@@ -3,6 +3,7 @@ import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
 import { checkHistoricalEvents } from "./historical-event-engine";
 import {
+  getHistoricalInitiative,
   getHistoricalInitiativeStatus,
   historicalInitiativeDefinitions,
 } from "./historical-initiatives";
@@ -17,13 +18,14 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("五项国策具有唯一事件映射和严格早于史实的开放年份", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(5);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(5);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(5);
+  it("四项主动国策具有唯一事件映射，正式入世不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(4);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(4);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(4);
     expect(
       historicalInitiativeDefinitions.map((item) => item.availableFromYear),
-    ).toEqual([1949, 1949, 1979, 1982, 1995]);
+    ).toEqual([1949, 1949, 1979, 1982]);
+    expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
   });
 
   it("改革开放可按1949年初始状态立即发动", () => {
@@ -88,7 +90,7 @@ describe("历史转折国策", () => {
     });
   });
 
-  it("多边贸易进程必须依次经历观察员、复关申请和正式加入世贸", () => {
+  it("多边贸易主动国策只推进观察员和复关申请，不直接授予世贸成员资格", () => {
     const preparationEngine = createSimulationEngine(prepareReformConditions(1970));
     preparationEngine.dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
@@ -154,42 +156,16 @@ describe("历史转折国策", () => {
       "world_trade_organization",
     );
 
-    const wtoState = applicationEngine.exportState();
-    wtoState.nation.date.year = 1995;
-    wtoState.nation.date.month = 1;
-    wtoState.nation.date.elapsedMonths = (1995 - 1949) * 12;
-    wtoState.nation.economy.institutionalEfficiency = 0.6;
-    wtoState.nation.trade.openness = 0.45;
-    wtoState.world.countries[2].tradeAgreement = true;
-    for (const country of wtoState.world.countries) country.relationWithChina = 30;
-    const wtoEngine = createSimulationEngine(wtoState);
-    expect(
-      getHistoricalInitiativeStatus(wtoEngine.exportState(), "early_wto_accession")
-        .available,
-    ).toBe(true);
-    wtoEngine.dispatch({
-      type: "ENACT_HISTORICAL_INITIATIVE",
-      initiativeId: "early_wto_accession",
-    });
-
-    expect(wtoEngine.getState().nation.history.historicalEvents.map((event) => event.id))
+    expect(applicationEngine.getState().nation.history.historicalEvents.map((event) => event.id))
       .toEqual([
         "reform_and_opening_1978",
         "joint_venture_law_1979",
         "gatt_observer_1982",
         "gatt_accession_application_1986",
-        "wto_accession_2001",
       ]);
-    expect(wtoEngine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
-      id: "wto_accession_2001",
-      year: 1995,
-      scheduledYear: 2001,
-      outcome: "enacted_early",
-    });
-    expect(wtoEngine.getState().nation.diplomacy.organizationIds).toContain(
+    expect(applicationEngine.getState().nation.diplomacy.organizationIds).not.toContain(
       "world_trade_organization",
     );
-    expect(wtoEngine.getState().nation.diplomacy.diplomaticPoints).toBe(45);
   });
 
   it("提前实施后史实月份不会重复触发同一事件", () => {

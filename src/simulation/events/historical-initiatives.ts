@@ -1,9 +1,5 @@
 import initiativeData from "../../data/config/historical-event-initiatives.json";
-import {
-  averageInternationalRelation,
-  internationalOrganizations,
-} from "../diplomacy/diplomacy";
-import { clamp } from "../core/math";
+import { averageInternationalRelation } from "../diplomacy/diplomacy";
 import type { GameState, ModifierState } from "../state/game-state";
 import type { HistoricalEventRecord } from "../state/history-state";
 import { addModifier } from "./modifiers";
@@ -34,7 +30,6 @@ export interface HistoricalInitiativeDefinition {
   availableFromYear: number;
   diplomaticPointCost: number;
   transitionDurationMonths: number;
-  organizationId?: string;
   requirements: HistoricalInitiativeRequirements;
   transitionEffects: string[];
   transitionModifiers: Array<{
@@ -155,13 +150,6 @@ export function getHistoricalInitiativeStatus(
   if (nation.diplomacy.diplomaticPoints < definition.diplomaticPointCost) {
     blockers.push(`需要 ${definition.diplomaticPointCost} 点外交点数`);
   }
-  if (
-    definition.organizationId &&
-    nation.diplomacy.organizationIds.includes(definition.organizationId)
-  ) {
-    blockers.push("已经取得对应国际组织成员资格");
-  }
-
   return {
     definition,
     completed: false,
@@ -183,14 +171,6 @@ export function enactHistoricalInitiative(
   }
 
   const { definition } = status;
-  const organization = definition.organizationId
-    ? internationalOrganizations.find(
-        (candidate) => candidate.id === definition.organizationId,
-      )
-    : undefined;
-  if (definition.organizationId && !organization) {
-    throw new Error(`未知国际组织：${definition.organizationId}`);
-  }
   const record = enactHistoricalEventEarly(
     state.nation,
     definition.eventId,
@@ -211,13 +191,5 @@ export function enactHistoricalInitiative(
     });
   }
 
-  if (organization) {
-    state.nation.diplomacy.organizationIds.push(organization.id);
-    state.nation.diplomacy.globalReputation = clamp(
-      state.nation.diplomacy.globalReputation + organization.reputationBonus,
-      0,
-      100,
-    );
-  }
   return record;
 }

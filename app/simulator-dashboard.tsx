@@ -497,7 +497,7 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
       </section>
       <div className="diplomacy-layout">
         <section className="diplomacy-block">
-          <div className="panel-heading"><div><span className="eyebrow">多边机制</span><h2>国际组织</h2></div></div>
+          <div className="panel-heading"><div><span className="eyebrow">多边机制</span><h2>国际组织</h2><p>联合国席位和世界贸易组织由历史进程与外交条件自动解锁，其余组织仍需主动申请。</p></div></div>
           <div className="organization-list">
             {internationalOrganizations.map((organization) => {
               const status = getInternationalOrganizationStatus(game, organization.id);
@@ -509,7 +509,9 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
                   <div className="organization-content">
                     <h3>{organization.name}</h3>
                     <p>{organization.description}</p>
-                    <small>{organization.availableYear} 年起 · 消耗 {organization.cost} 点 · 贸易 ×{organization.tradeMultiplier.toFixed(2)}</small>
+                    <small>
+                      {organization.availableYear} 年起 · {organization.automatic ? "条件达成后自动生效" : `消耗 ${organization.cost} 点`} · 贸易 ×{organization.tradeMultiplier.toFixed(2)}
+                    </small>
                     <div className="organization-progress" aria-label={`${organization.name}加入条件进度`}>
                       {organization.minimumAverageRelation > 0 && (
                         <span className={status.averageRelation >= organization.minimumAverageRelation ? "is-met" : undefined}>
@@ -537,13 +539,19 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
                     )}
                     {status.joined && <p className="organization-success">成员权益已生效</p>}
                   </div>
-                  <button
-                    disabled={busy || !status.available}
-                    title={!status.joined && status.blockers.length > 0 ? status.blockers.join("；") : undefined}
-                    onClick={() => void joinOrganization(organization.id)}
-                  >
-                    {status.joined ? "已加入" : status.available ? "申请加入" : "暂未解锁"}
-                  </button>
+                  {organization.automatic ? (
+                    <span className="organization-auto-state">
+                      {status.joined ? "已自动生效" : status.available ? "条件已满足，自动结算" : "等待条件达成"}
+                    </span>
+                  ) : (
+                    <button
+                      disabled={busy || !status.available}
+                      title={!status.joined && status.blockers.length > 0 ? status.blockers.join("；") : undefined}
+                      onClick={() => void joinOrganization(organization.id)}
+                    >
+                      {status.joined ? "已加入" : status.available ? "申请加入" : "暂未解锁"}
+                    </button>
+                  )}
                 </article>
               );
             })}

@@ -3,7 +3,10 @@ import { approach, clamp } from "../core/math";
 import type { GameState } from "../state/game-state";
 import type { WorldCountryState } from "../state/world-state";
 import { applyModifiers } from "../events/modifiers";
-import { getHistoricalEvent } from "../events/historical-event-engine";
+import {
+  getHistoricalEvent,
+  triggerConditionalHistoricalEvent,
+} from "../events/historical-event-engine";
 import {
   diplomaticRelationTargetAdjustment,
   diplomaticStrategyEffects,
@@ -16,6 +19,7 @@ export interface InternationalOrganizationDefinition {
   id: string;
   name: string;
   description: string;
+  automatic?: boolean;
   availableYear: number;
   cost: number;
   minimumInfluence: number;
@@ -183,6 +187,9 @@ export function joinInternationalOrganization(
   ensureDiplomacyState(state);
   const status = getInternationalOrganizationStatus(state, organizationId);
   const { definition: organization } = status;
+  if (organization.automatic) {
+    throw new Error(`${organization.name}由历史进程和外交条件自动解锁，不能手动申请`);
+  }
   if (status.joined) throw new Error(`已经加入${organization.name}`);
   if (!status.available) {
     throw new Error(`加入${organization.name}的条件未满足：${status.blockers.join("；")}`);
@@ -195,6 +202,38 @@ export function joinInternationalOrganization(
     0,
     100,
   );
+}
+
+/** 在状态变更和月度推进后结算条件型国际资格；不消耗主动外交点数。 */
+export function checkAutomaticInternationalOrganizations(state: GameState): string[] {
+  ensureDiplomacyState(state);
+  if (state.nation.pendingHistoricalEventId) return [];
+  const unlocked: string[] = [];
+  for (const organization of internationalOrganizations) {
+    if (!organization.automatic) continue;
+    const status = getInternationalOrganizationStatus(state, organization.id);
+    if (!status.available) continue;
+    if (organization.historicalEventId) {
+      triggerConditionalHistoricalEvent(
+        state.nation,
+        organization.historicalEventId,
+        `organization:${organization.id}`,
+        `条件达成后自动取得${organization.name}`,
+        [
+          `平均国际关系达到 ${status.averageRelation.toFixed(1)}`,
+          `${status.supportingCountries} 个国家达到支持门槛`,
+        ],
+      );
+    }
+    state.nation.diplomacy.organizationIds.push(organization.id);
+    state.nation.diplomacy.globalReputation = clamp(
+      state.nation.diplomacy.globalReputation + organization.reputationBonus,
+      0,
+      100,
+    );
+    unlocked.push(organization.id);
+  }
+  return unlocked;
 }
 
 export function getInternationalOrganizationStatus(
@@ -219,7 +258,11 @@ export function getInternationalOrganizationStatus(
   ).length;
   const blockers: string[] = [];
   if (state.nation.date.year < organization.availableYear) {
-    blockers.push(`最早可在 ${organization.availableYear} 年申请`);
+    blockers.push(
+      organization.automatic
+        ? `最早可在 ${organization.availableYear} 年取得资格`
+        : `最早可在 ${organization.availableYear} 年申请`,
+    );
   }
   for (const requiredEventId of organization.requiredHistoricalEventIds ?? []) {
     const requiredEvent = getHistoricalEvent(requiredEventId);
@@ -259,7 +302,10 @@ export function getInternationalOrganizationStatus(
   if (strategicPartners < organization.minimumStrategicPartners) {
     blockers.push(`需至少拥有 ${organization.minimumStrategicPartners} 个战略伙伴`);
   }
-  if (state.nation.diplomacy.diplomaticPoints < organization.cost) {
+  if (
+    !organization.automatic &&
+    state.nation.diplomacy.diplomaticPoints < organization.cost
+  ) {
     blockers.push(`需要 ${organization.cost} 点外交点数`);
   }
   const joined = state.nation.diplomacy.organizationIds.includes(organizationId);
