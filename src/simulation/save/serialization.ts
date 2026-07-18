@@ -24,6 +24,7 @@ import { ensureInfrastructureResourceState } from "../economy/energy-transport-e
 import { ensureHumanDevelopmentState } from "../society/human-development";
 import { ensureUrbanHousingState } from "../society/housing-urbanization";
 import { ensureRegionalEconomyState } from "../economy/regional-economy";
+import { ensureWorldTradeNetworkState } from "../economy/international-network";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -81,5 +82,6 @@ export function deserializeGameState(serialized: string): GameState {
   ensureHumanDevelopmentState(state.nation);
   ensureUrbanHousingState(state.nation);
   ensureRegionalEconomyState(state.nation);
+  ensureWorldTradeNetworkState(state);
   return state;
 }

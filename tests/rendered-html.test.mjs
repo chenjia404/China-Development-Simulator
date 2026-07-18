@@ -363,3 +363,16 @@ test("客户端展示六大区域经济与跨区流动", async () => {
   assert.match(source, /西部发展指数/);
   assert.match(source, /财政净转移/);
 });
+
+test("客户端展示世界贸易伙伴与国际金融网络", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /世界贸易与金融网络/);
+  assert.match(source, /出口集中度 HHI/);
+  assert.match(source, /平均航运风险/);
+  assert.match(source, /人民币结算/);
+  assert.match(source, /制裁暴露/);
+});

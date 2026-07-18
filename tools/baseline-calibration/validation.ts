@@ -193,6 +193,15 @@ export function validateGameState(state: GameState): void {
     regional.capitalFlowError / Math.max(1, nation.economy.investment) > 1e-10 ||
     regional.fiscalTransferError / Math.max(1, nation.fiscal.revenue) > 1e-10
   ) throw new Error("区域经济或跨区流动账户未守恒");
+  const tradeNetwork = state.world.tradeNetwork;
+  if (
+    tradeNetwork.exportError / Math.max(1, nation.trade.exports) > 1e-10 ||
+    tradeNetwork.importError / Math.max(1, nation.trade.imports) > 1e-10 ||
+    tradeNetwork.investmentError / Math.max(1, nation.trade.foreignInvestment) > 1e-10 ||
+    tradeNetwork.externalDebtError / Math.max(1, nation.trade.externalDebt) > 1e-10 ||
+    tradeNetwork.renminbiSettlementShare < 0 ||
+    tradeNetwork.renminbiSettlementShare > 1
+  ) throw new Error("世界贸易与国际金融网络未守恒");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

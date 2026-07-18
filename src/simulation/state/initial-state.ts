@@ -53,6 +53,7 @@ import {
   createEmptyRegionalEconomyState,
   updateRegionalEconomy,
 } from "../economy/regional-economy";
+import { updateWorldTradeNetwork } from "../economy/international-network";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -351,5 +352,6 @@ export function createInitialGameState(
   ensureMarketDynamicsState(state.nation);
   updateFinancialSystem(state, true);
   calculateWorldRankings(state);
+  updateWorldTradeNetwork(state);
   return state;
 }

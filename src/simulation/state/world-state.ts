@@ -38,9 +38,41 @@ export interface WorldRankings {
   influence: Record<string, number>;
 }
 
+export interface TradePartnerAccount {
+  countryId: string;
+  exports: number;
+  imports: number;
+  foreignDirectInvestment: number;
+  externalDebtClaims: number;
+  tradeBalance: number;
+  marketAccessIndex: number;
+  shippingRiskIndex: number;
+  sanctionExposure: number;
+  usdSettlementShare: number;
+  renminbiSettlementShare: number;
+  otherCurrencySettlementShare: number;
+}
+
+/** 中国与世界国家之间的贸易、投资、债权和结算网络。 */
+export interface WorldTradeNetworkState {
+  partners: Record<string, TradePartnerAccount>;
+  exportConcentrationIndex: number;
+  importConcentrationIndex: number;
+  topExportPartnerId: string | null;
+  topImportPartnerId: string | null;
+  averageShippingRisk: number;
+  sanctionExposure: number;
+  renminbiSettlementShare: number;
+  exportError: number;
+  importError: number;
+  investmentError: number;
+  externalDebtError: number;
+}
+
 export interface WorldState {
   countries: WorldCountryState[];
   rankings: WorldRankings;
   globalDemandIndex: number;
   worldPriceLevel: number;
+  tradeNetwork: WorldTradeNetworkState;
 }

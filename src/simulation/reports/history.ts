@@ -114,6 +114,9 @@ export function recordHistory(state: GameState): void {
     coastalGDPShare: nation.regionalEconomy.coastalGDPShare,
     westernDevelopmentIndex:
       nation.regionalEconomy.westernDevelopmentIndex,
+    exportConcentrationIndex: state.world.tradeNetwork.exportConcentrationIndex,
+    tradeSanctionExposure: state.world.tradeNetwork.sanctionExposure,
+    renminbiSettlementShare: state.world.tradeNetwork.renminbiSettlementShare,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

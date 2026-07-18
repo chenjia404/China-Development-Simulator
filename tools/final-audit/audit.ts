@@ -1426,6 +1426,19 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年沿海 GDP 占 ${(historical.finalState.nation.regionalEconomy.coastalGDPShare * 100).toFixed(1)}%、区域人均差 ${historical.finalState.nation.regionalEconomy.regionalGDPPerCapitaRatio.toFixed(2)} 倍、西部发展指数 ${(historical.finalState.nation.regionalEconomy.westernDevelopmentIndex * 100).toFixed(1)}`,
     ),
     makeCheck(
+      "world-trade-financial-network",
+      "逐国贸易、外资、外债和结算网络与中国跨境总量保持守恒",
+      historical.finalState.world.tradeNetwork.exportError /
+          historical.finalState.nation.trade.exports < 1e-10 &&
+        historical.finalState.world.tradeNetwork.importError /
+          historical.finalState.nation.trade.imports < 1e-10 &&
+        historical.finalState.world.tradeNetwork.investmentError /
+          Math.max(1, historical.finalState.nation.trade.foreignInvestment) < 1e-10 &&
+        historical.finalState.world.tradeNetwork.externalDebtError /
+          Math.max(1, historical.finalState.nation.trade.externalDebt) < 1e-10,
+      `2026 年出口 HHI ${historical.finalState.world.tradeNetwork.exportConcentrationIndex.toFixed(3)}、进口 HHI ${historical.finalState.world.tradeNetwork.importConcentrationIndex.toFixed(3)}、航运风险 ${(historical.finalState.world.tradeNetwork.averageShippingRisk * 100).toFixed(1)}%、人民币结算 ${(historical.finalState.world.tradeNetwork.renminbiSettlementShare * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

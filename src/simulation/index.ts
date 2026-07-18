@@ -38,6 +38,7 @@ export * from "./economy/energy-transport-environment";
 export * from "./society/human-development";
 export * from "./society/housing-urbanization";
 export * from "./economy/regional-economy";
+export * from "./economy/international-network";
 export * from "./world/countries";
 export * from "./world/rankings";
 export * from "./world/world-simulation";

@@ -1664,6 +1664,7 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
 function InternationalSection({ game }: { game: GameState }) {
   const trade = game.nation.trade;
   const financial = game.nation.financialSystem;
+  const tradeNetwork = game.world.tradeNetwork;
   const reserveChangePrefix = trade.monthlyReserveChange >= 0 ? "+" : "";
   const countries = [
     { id: "china", name: "中国", nominalGDP: game.nation.economy.internationalComparableGDP, population: game.nation.population.total, technology: game.nation.technology.index },
@@ -1743,6 +1744,17 @@ function InternationalSection({ game }: { game: GameState }) {
             <span>{index + 1}</span><strong>{country.name}</strong><span>{formatLarge(country.nominalGDP)}</span><span>{formatLarge(country.nominalGDP / country.population)}</span><span>{country.technology.toFixed(1)}</span>
           </div>
         ))}
+      </div>
+      <div className="panel-heading"><div><span className="eyebrow">伙伴分布 · 结算币种 · 航运风险</span><h2>世界贸易与金融网络</h2></div><span>人民币结算 {formatPercent(tradeNetwork.renminbiSettlementShare)}</span></div>
+      <div className="diplomacy-metrics foreign-exchange-metrics">
+        <MetricCard label="出口集中度 HHI" value={tradeNetwork.exportConcentrationIndex.toFixed(3)} detail={`最大伙伴 ${game.world.countries.find((item) => item.id === tradeNetwork.topExportPartnerId)?.name ?? "—"}`} tone="blue" />
+        <MetricCard label="进口集中度 HHI" value={tradeNetwork.importConcentrationIndex.toFixed(3)} detail={`最大伙伴 ${game.world.countries.find((item) => item.id === tradeNetwork.topImportPartnerId)?.name ?? "—"}`} tone="gold" />
+        <MetricCard label="平均航运风险" value={formatPercent(tradeNetwork.averageShippingRisk)} detail="关系、制裁与基础航线风险加权" tone={tradeNetwork.averageShippingRisk < 0.3 ? "green" : "red"} />
+        <MetricCard label="制裁暴露" value={formatPercent(tradeNetwork.sanctionExposure)} detail="按出口伙伴份额加权" tone={tradeNetwork.sanctionExposure < 0.1 ? "green" : "red"} />
+      </div>
+      <div className="world-table">
+        <div className="world-head"><span>伙伴</span><span>出口</span><span>进口</span><span>外资</span><span>人民币结算</span></div>
+        {Object.values(tradeNetwork.partners).toSorted((a, b) => b.exports + b.imports - a.exports - a.imports).slice(0, 10).map((partner) => <div className="world-row" key={partner.countryId}><strong>{game.world.countries.find((item) => item.id === partner.countryId)?.name ?? partner.countryId}</strong><span>${formatLarge(partner.exports)}</span><span>${formatLarge(partner.imports)}</span><span>${formatLarge(partner.foreignDirectInvestment)}</span><span>{formatPercent(partner.renminbiSettlementShare)}</span></div>)}
       </div>
     </section>
   );

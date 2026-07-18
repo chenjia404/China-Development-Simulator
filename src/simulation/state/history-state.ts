@@ -47,6 +47,9 @@ export interface MonthlySnapshot {
   regionalGDPPerCapitaRatio: number;
   coastalGDPShare: number;
   westernDevelopmentIndex: number;
+  exportConcentrationIndex: number;
+  tradeSanctionExposure: number;
+  renminbiSettlementShare: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

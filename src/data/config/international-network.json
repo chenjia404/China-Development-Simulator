@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "description": "贸易伙伴权重、运输风险、结算币种与跨境金融网络参数。",
+    "sources": [
+      "https://www.customs.gov.cn/",
+      "https://www.safe.gov.cn/safe/2019/0627/13584.html"
+    ]
+  },
+  "relationWeight": 0.35,
+  "tradeAgreementBonus": 0.28,
+  "sanctionPenalty": 0.85,
+  "baseShippingRisk": 0.16,
+  "maximumRenminbiSettlementShare": 0.42,
+  "financialCenterCountries": ["usa", "united_kingdom", "singapore", "switzerland", "netherlands"]
+}

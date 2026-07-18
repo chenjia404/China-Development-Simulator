@@ -1,6 +1,7 @@
 import countryData from "../../data/config/world-countries.json";
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import type { DevelopmentStage, WorldCountryState, WorldState } from "../state/world-state";
+import { createEmptyWorldTradeNetworkState } from "../economy/international-network";
 
 export interface CountryGrowthPhase {
   startYear: number;
@@ -65,5 +66,6 @@ export function createInitialWorldState(): WorldState {
     },
     globalDemandIndex: 1,
     worldPriceLevel: 1,
+    tradeNetwork: createEmptyWorldTradeNetworkState(),
   };
 }
