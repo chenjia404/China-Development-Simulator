@@ -1,0 +1,46 @@
+{
+  "socialProtection": {
+    "transferEfficiency": 0.05,
+    "maximumTransferShareOfGDP": 0.12,
+    "precautionarySavingRelief": 1.6,
+    "maximumConsumptionPropensityBoost": 0.07
+  },
+  "governmentConsumptionEfficiency": 0.7,
+  "capacityAdjustmentSpeed": 0.055,
+  "maximumDemandUtilizationAdjustment": 0.002,
+  "minimumTargetUtilization": 0.58,
+  "maximumTargetUtilization": 0.92,
+  "referenceDemandShares": {
+    "consumption": 0.45,
+    "investment": 0.05,
+    "government": 0.028,
+    "exports": 0.02,
+    "imports": 0.016
+  },
+  "sectorDemandWeights": {
+    "primary": {
+      "baseline": 0.75,
+      "consumption": 0.16,
+      "investment": 0.002,
+      "government": 0.04,
+      "exports": 0.06,
+      "imports": -0.02
+    },
+    "secondary": {
+      "baseline": 0.75,
+      "consumption": 0.05,
+      "investment": 0.005,
+      "government": 0.03,
+      "exports": 0.12,
+      "imports": -0.03
+    },
+    "tertiary": {
+      "baseline": 0.75,
+      "consumption": 0.18,
+      "investment": 0.002,
+      "government": 0.15,
+      "exports": 0.04,
+      "imports": -0.01
+    }
+  }
+}

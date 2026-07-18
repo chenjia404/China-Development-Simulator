@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   calculateGDP,
+  calculateIndustryOutputs,
   calculateTradeAccess,
   calculateTechnologyTreeMetrics,
   calculateIndustrialStructureMetrics,
@@ -24,6 +25,7 @@ import {
   serializeGameState,
   updateForeignExchange,
   updateInternationalTrade,
+  updateDemandDrivenCapacityUtilization,
   applyPolicyModifiers,
   technologyTreeDefinitions,
   industrialCategoryDefinitions,
@@ -838,6 +840,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const allFinalTradeStates = [...runs.values()].map(
     (run) => run.finalState.nation.trade,
   );
+  const weakSocialProtection = createInitialGameState(seed).nation;
+  const strongSocialProtection = structuredClone(weakSocialProtection);
+  weakSocialProtection.fiscal.budget.welfare = 0.01;
+  strongSocialProtection.fiscal.budget.welfare = 0.24;
+  for (const nation of [weakSocialProtection, strongSocialProtection]) {
+    nation.fiscal.expenditure = nation.economy.nominalGDP * 0.18;
+    calculateGDP(nation);
+  }
+  const lowExternalDemand = createInitialGameState(seed).nation;
+  const highExternalDemand = structuredClone(lowExternalDemand);
+  lowExternalDemand.trade.exports = 0;
+  highExternalDemand.trade.exports = highExternalDemand.economy.nominalGDP * 0.45;
+  for (let month = 0; month < 24; month += 1) {
+    updateDemandDrivenCapacityUtilization(lowExternalDemand);
+    updateDemandDrivenCapacityUtilization(highExternalDemand);
+  }
+  calculateIndustryOutputs(lowExternalDemand);
+  calculateIndustryOutputs(highExternalDemand);
+  calculateGDP(lowExternalDemand);
+  calculateGDP(highExternalDemand);
 
   const checks: AuditCheck[] = [
     makeCheck(
@@ -991,6 +1013,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         japanRoute2000.secondarySectorShare >
           singaporeRoute2000.secondarySectorShare,
       `2000 年二产占比：韩国 ${(koreanCatchUp2000.secondarySectorShare * 100).toFixed(1)}%/新加坡 ${(singaporeRoute2000.secondarySectorShare * 100).toFixed(1)}%；2026 年开放度：香港 ${(hongKongRoute.finalState.nation.trade.openness * 100).toFixed(1)}%/台湾 ${(taiwanRoute.finalState.nation.trade.openness * 100).toFixed(1)}%；2000 年教育指数：新加坡 ${singaporeRoute2000.educationIndex.toFixed(1)}/香港 ${hongKongRoute2000.educationIndex.toFixed(1)}；2026 年债务率：美国 ${(usRoute.finalState.nation.fiscal.debtToGDP * 100).toFixed(1)}%；2000 年二产占比：日本 ${(japanRoute2000.secondarySectorShare * 100).toFixed(1)}%/新加坡 ${(singaporeRoute2000.secondarySectorShare * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
+      "domestic-external-demand-link",
+      "出口与内需通过产能利用影响经济，社会保障通过居民收入和消费支持内需",
+      highExternalDemand.sectors.secondary.capacityUtilization >
+          lowExternalDemand.sectors.secondary.capacityUtilization &&
+        highExternalDemand.economy.realGDP > lowExternalDemand.economy.realGDP &&
+        strongSocialProtection.economy.socialProtectionIncome >
+          weakSocialProtection.economy.socialProtectionIncome &&
+        strongSocialProtection.economy.householdConsumption >
+          weakSocialProtection.economy.householdConsumption,
+      `高/低出口工业产能利用率 ${(highExternalDemand.sectors.secondary.capacityUtilization * 100).toFixed(2)}%/${(lowExternalDemand.sectors.secondary.capacityUtilization * 100).toFixed(2)}%，GDP ${highExternalDemand.economy.realGDP.toFixed(0)}/${lowExternalDemand.economy.realGDP.toFixed(0)}；强/弱社保居民消费 ${strongSocialProtection.economy.householdConsumption.toFixed(0)}/${weakSocialProtection.economy.householdConsumption.toFixed(0)}`,
     ),
     makeCheck(
       "diplomacy-trade-link",

@@ -4,8 +4,7 @@ import {
   calculateCurrentPriceGDPPerCapita,
   calculateCurrentUSDGDPPerCapita,
 } from "./historical-accounting";
-import { applyPolicyModifiers } from "../policies/policy-engine";
-import { remittanceDomesticIncome } from "./foreign-exchange";
+import { updateHouseholdAndDomesticDemand } from "./domestic-demand";
 
 export function calculateGDP(nation: NationState): void {
   const previousRealGDP = nation.economy.realGDP;
@@ -42,21 +41,5 @@ export function calculateGDP(nation: NationState): void {
   const monthlyGrowth = safeDivide(realGDP, previousRealGDP, 1) - 1;
   nation.economy.annualRealGDPGrowth = (1 + monthlyGrowth) ** 12 - 1;
 
-  nation.economy.householdIncome =
-    realGDP * 0.52 + remittanceDomesticIncome(nation);
-  const disposableIncome = nation.economy.householdIncome *
-    (1 - nation.fiscal.effectiveTaxRate);
-  const consumptionPropensity = Math.max(
-    0.52,
-    applyPolicyModifiers(
-      nation,
-      "economy.consumptionPropensity",
-      0.9 - Math.log1p(nation.economy.realGDPPerCapita) / 40,
-    ),
-  );
-  nation.economy.householdConsumption = disposableIncome * consumptionPropensity;
-  nation.economy.nationalSavings = Math.max(
-    0,
-    disposableIncome - nation.economy.householdConsumption,
-  );
+  updateHouseholdAndDomesticDemand(nation);
 }

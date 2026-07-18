@@ -162,3 +162,19 @@ test("客户端提供可组合的外交取向与多条外交学说", async () =>
   assert.match(source, /周边睦邻与地区合作/);
   assert.match(source, /苏联、朝鲜、越南等苏系国家/);
 });
+
+test("客户端展示出口、内需和社会保障的经济传导指标", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /内需规模/);
+  assert.match(source, /居民消费/);
+  assert.match(source, /消费倾向/);
+  assert.match(source, /社保转移收入/);
+  assert.match(source, /受内外需求对产能利用的滞后影响/);
+  assert.match(source, /降低预防性储蓄，但不直接计入 GDP/);
+});

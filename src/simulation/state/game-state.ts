@@ -56,7 +56,12 @@ export interface EconomyState {
   institutionalEfficiency: number;
   inflationRate: number;
   householdIncome: number;
+  householdDisposableIncome: number;
   householdConsumption: number;
+  consumptionPropensity: number;
+  socialProtectionIncome: number;
+  domesticDemand: number;
+  domesticDemandShare: number;
   nationalSavings: number;
   investment: number;
   priceLevelIndex: number;
