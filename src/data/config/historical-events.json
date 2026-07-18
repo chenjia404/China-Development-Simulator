@@ -45,6 +45,29 @@
     ]
   },
   {
+    "id": "korean_war_1950",
+    "name": "朝鲜战争",
+    "year": 1950,
+    "month": 6,
+    "category": "外部冲击",
+    "impact": "mixed",
+    "description": "朝鲜半岛爆发全面战争，中国随后进行大规模军事动员并参战。战争造成军民伤亡和长期国防财政负担，美西方贸易封锁加剧；同时国防工业、后勤体系和部分军事技术受到动员刺激。",
+    "effects": ["战争伤亡增加", "国防财政支出上升", "民用投资、服务业与对外贸易受损", "国防工业和军事科研加速", "对美关系恶化、对苏关系加强"],
+    "durationMonths": 37,
+    "modifiers": [
+      { "target": "population.deathRate", "operation": "multiply", "value": 1.008 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.06 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.006 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.965 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.9 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 1.003 },
+      { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": -100 },
+      { "target": "diplomacy.relationTarget.south_korea", "operation": "add", "value": -80 },
+      { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 35 }
+    ]
+  },
+  {
     "id": "foreign_assets_reorganization",
     "name": "取消经济特权与清理在华外资企业",
     "year": 1950,

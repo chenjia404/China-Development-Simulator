@@ -31,6 +31,46 @@
     ]
   },
   {
+    "eventId": "korean_war_1950",
+    "choices": [
+      {
+        "id": "oppose_korean_war",
+        "name": "反对朝鲜战争并阻止冲突",
+        "description": "明确反对以武力改变半岛现状，通过对朝施压、与苏联协调并推动国际斡旋阻止战争爆发；避免人员伤亡和战时动员，但会承受对苏关系降温的外交代价。",
+        "effects": ["朝鲜战争不会爆发", "避免战争伤亡与国防财政冲击", "对美及对韩关系改善", "对苏关系短期降温", "贸易封锁风险下降"],
+        "durationMonths": 24,
+        "modifiers": [
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.99 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.02 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 4 },
+          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 30 },
+          { "target": "diplomacy.relationTarget.south_korea", "operation": "add", "value": 25 },
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -15 }
+        ],
+        "outcome": "prevented"
+      },
+      {
+        "id": "limited_defense_and_mediation",
+        "name": "限制军事介入并推动停战",
+        "description": "战争爆发后以边境安全、有限军事支援和停战谈判为主，避免长期全面动员；战争仍会造成伤亡和外贸压力，但规模与持续期明显降低。",
+        "effects": ["战争仍然发生但介入规模降低", "伤亡与财政冲击较小", "工业动员有限", "对美关系承压", "停战进程加快"],
+        "durationMonths": 24,
+        "modifiers": [
+          { "target": "population.deathRate", "operation": "multiply", "value": 1.0025 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.006 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.99 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.98 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.005 },
+          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": -25 },
+          { "target": "diplomacy.relationTarget.south_korea", "operation": "add", "value": -20 },
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 10 }
+        ]
+      }
+    ]
+  },
+  {
     "eventId": "industry_wide_joint_ownership_1956",
     "choices": [
       {

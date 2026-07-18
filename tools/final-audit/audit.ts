@@ -214,6 +214,54 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   foreignAidContinuation.dispatch({ type: "ADVANCE_MONTHS", months: 816 });
   const foreignAidFinalState = foreignAidContinuation.getState();
 
+  const prepareKoreanWarChoice = (choiceId: string) => {
+    const state = createInitialGameState(seed, 1950, "interactive");
+    state.nation.date.month = 6;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "land_reform_1950",
+      choiceId: "historical_path",
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "korean_war_1950",
+      choiceId,
+    });
+    return engine;
+  };
+  const koreanWarEngine = prepareKoreanWarChoice("historical_path");
+  koreanWarEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+  const koreanWarState = koreanWarEngine.getState();
+  const preventedWarEngine = prepareKoreanWarChoice("oppose_korean_war");
+  preventedWarEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+  const preventedWarState = preventedWarEngine.getState();
+  const preventedWarContinuation = prepareKoreanWarChoice(
+    "oppose_korean_war",
+  );
+  preventedWarContinuation.dispatch({
+    type: "SET_HISTORICAL_EVENT_MODE",
+    mode: "automatic",
+  });
+  preventedWarContinuation.dispatch({ type: "ADVANCE_MONTHS", months: 919 });
+  const preventedWarFinalState = preventedWarContinuation.getState();
+  const preventedWarRecord = preventedWarFinalState.nation.history
+    .historicalEvents.find((event) => event.id === "korean_war_1950");
+  const koreanWarUsRelation = koreanWarState.world.countries.find(
+    (country) => country.id === "usa",
+  )?.relationWithChina ?? 0;
+  const preventedWarUsRelation = preventedWarState.world.countries.find(
+    (country) => country.id === "usa",
+  )?.relationWithChina ?? 0;
+  const koreanWarRussiaRelation = koreanWarState.world.countries.find(
+    (country) => country.id === "russia",
+  )?.relationWithChina ?? 0;
+  const preventedWarRussiaRelation = preventedWarState.world.countries.find(
+    (country) => country.id === "russia",
+  )?.relationWithChina ?? 0;
+
   const initiativeState = createInitialGameState(seed, 1970);
   initiativeState.nation.economy.institutionalEfficiency = 0.4;
   initiativeState.nation.society.stabilityIndex = 55;
@@ -444,6 +492,22 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         foreignAidFinalState.nation.history.reports.length === 68 &&
         Number.isFinite(foreignAidFinalState.nation.economy.realGDP),
       `首月死亡人数由 ${historicalCrisis.population.monthlyDeaths.toFixed(0)} 降至 ${foreignAidCrisis.population.monthlyDeaths.toFixed(0)}，粮食供给率由 ${(historicalCrisis.resources.foodSupplyRatio * 100).toFixed(1)}% 升至 ${(foreignAidCrisis.resources.foodSupplyRatio * 100).toFixed(1)}%，援助路线生成 1959—2026 年 ${foreignAidFinalState.nation.history.reports.length} 个年度报告`,
+    ),
+    makeCheck(
+      "korean-war-branching",
+      "朝鲜战争可被阻止，发生后会传导人口、财政、产业与外交影响",
+      koreanWarState.nation.population.monthlyDeaths >
+          preventedWarState.nation.population.monthlyDeaths &&
+        koreanWarState.nation.fiscal.expenditure >
+          preventedWarState.nation.fiscal.expenditure &&
+        koreanWarState.nation.sectors.secondary.output >
+          preventedWarState.nation.sectors.secondary.output &&
+        koreanWarUsRelation < preventedWarUsRelation &&
+        koreanWarRussiaRelation > preventedWarRussiaRelation &&
+        preventedWarRecord?.outcome === "prevented" &&
+        preventedWarFinalState.nation.date.year === 2027 &&
+        preventedWarFinalState.nation.history.reports.length === 77,
+      `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，财政支出 ${koreanWarState.nation.fiscal.expenditure.toFixed(0)}/${preventedWarState.nation.fiscal.expenditure.toFixed(0)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
     ),
     makeCheck(
       "historical-initiatives",

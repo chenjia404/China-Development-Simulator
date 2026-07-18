@@ -310,11 +310,15 @@ export function updateDiplomacy(state: GameState): void {
       (country.tradeAgreement ? 8 : 0) +
       (country.diplomaticStatus === "strategic_partner" ? 12 : 0);
     const relationTarget = clamp(
-      (nation.diplomacy.globalReputation - 50) * 0.3 +
-        nation.trade.openness * 12 +
-        cooperationBonus -
-        country.sanctionLevel * 80 +
-        diplomaticRelationTargetAdjustment(nation, country.id),
+      applyModifiers(
+        nation,
+        `diplomacy.relationTarget.${country.id}`,
+        (nation.diplomacy.globalReputation - 50) * 0.3 +
+          nation.trade.openness * 12 +
+          cooperationBonus -
+          country.sanctionLevel * 80 +
+          diplomaticRelationTargetAdjustment(nation, country.id),
+      ),
       -100,
       100,
     );

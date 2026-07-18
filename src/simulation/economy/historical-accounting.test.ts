@@ -8,11 +8,11 @@ import {
 
 describe("历史经济统计口径", () => {
   it("三个关键年份可折算为国家统计局当年价人均 GDP", () => {
-    expect(calculateCurrentPriceGDPPerCapita(534.3931893414248, 1978))
+    expect(calculateCurrentPriceGDPPerCapita(538.2627222468241, 1978))
       .toBeCloseTo(381, 6);
-    expect(calculateCurrentPriceGDPPerCapita(1455.917659293016, 1990))
+    expect(calculateCurrentPriceGDPPerCapita(1472.4058582406724, 1990))
       .toBeCloseTo(1644, 6);
-    expect(calculateCurrentPriceGDPPerCapita(3990.1929726489006, 2000))
+    expect(calculateCurrentPriceGDPPerCapita(4038.042111736811, 2000))
       .toBeCloseTo(7858, 6);
   });
 

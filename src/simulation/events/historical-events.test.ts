@@ -141,6 +141,78 @@ describe("确定性历史事件", () => {
     ).toBe(72);
   });
 
+  it("朝鲜战争可被阻止，参战路线会产生人口、财政、产业和外交影响", () => {
+    const choices = getHistoricalEventChoices("korean_war_1950");
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "oppose_korean_war",
+      "limited_defense_and_mediation",
+    ]);
+
+    const runChoice = (choiceId: string) => {
+      const state = createInitialGameState(1950, 1950, "interactive");
+      state.nation.date.month = 6;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "land_reform_1950",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "land_reform_1950",
+        choiceId: "historical_path",
+      });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "korean_war_1950",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "korean_war_1950",
+        choiceId,
+      });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      return engine.getState();
+    };
+
+    const war = runChoice("historical_path");
+    const prevented = runChoice("oppose_korean_war");
+    const warRecord = war.nation.history.historicalEvents.find(
+      (event) => event.id === "korean_war_1950",
+    );
+    const preventedRecord = prevented.nation.history.historicalEvents.find(
+      (event) => event.id === "korean_war_1950",
+    );
+    expect(warRecord?.outcome).toBe("occurred");
+    expect(preventedRecord).toMatchObject({
+      choiceId: "oppose_korean_war",
+      outcome: "prevented",
+    });
+    expect(war.nation.population.monthlyDeaths).toBeGreaterThan(
+      prevented.nation.population.monthlyDeaths,
+    );
+    expect(war.nation.fiscal.expenditure).toBeGreaterThan(
+      prevented.nation.fiscal.expenditure,
+    );
+    expect(war.nation.sectors.secondary.output).toBeGreaterThan(
+      prevented.nation.sectors.secondary.output,
+    );
+    expect(
+      war.world.countries.find((country) => country.id === "usa")
+        ?.relationWithChina,
+    ).toBeLessThan(
+      prevented.world.countries.find((country) => country.id === "usa")
+        ?.relationWithChina ?? Number.NEGATIVE_INFINITY,
+    );
+    expect(
+      war.world.countries.find((country) => country.id === "russia")
+        ?.relationWithChina,
+    ).toBeGreaterThan(
+      prevented.world.countries.find((country) => country.id === "russia")
+        ?.relationWithChina ?? Number.POSITIVE_INFINITY,
+    );
+  });
+
   it("所有历史事件都有三个会改变数值传导的方案", () => {
     for (const event of historicalEventDefinitions) {
       const choices = getHistoricalEventChoices(event);
