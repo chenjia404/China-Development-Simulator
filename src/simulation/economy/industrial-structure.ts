@@ -9,6 +9,7 @@ import { technologyTreeDefinitions } from "../technology/technology-tree";
 import { applyModifiers } from "../events/modifiers";
 import { privateEconomyIndustryMultipliers } from "./private-economy";
 import { technologyIndustryEffect } from "../technology/technology-industry-path";
+import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 
 export interface IndustrialCategoryDefinition {
   id: IndustrialCategoryId;
@@ -269,6 +270,7 @@ function demandFactor(
 /** 更新各工业类别的能力与份额目标；份额调整缓慢，避免科技完成当月结构瞬跳。 */
 export function updateIndustrialStructure(nation: NationState): void {
   ensureIndustrialStructureState(nation);
+  const foreignAidEffects = foreignAidProgramEffects(nation);
   const targetWeights = new Map<IndustrialCategoryId, number>();
   let totalWeight = 0;
   for (const definition of industrialCategoryDefinitions) {
@@ -321,7 +323,8 @@ export function updateIndustrialStructure(nation: NationState): void {
         energyFactor *
         technologyEffects.productivityMultiplier *
         privateEconomy.productivity *
-        developmentPath.productivityMultiplier,
+        developmentPath.productivityMultiplier *
+        foreignAidEffects.industrialProductivityMultiplier,
     );
   }
   for (const id of INDUSTRIAL_CATEGORY_IDS) {
@@ -338,6 +341,7 @@ export function calculateIndustrialStructureMetrics(
   nation: NationState,
 ): IndustrialStructureMetrics {
   ensureIndustrialStructureState(nation);
+  const foreignAidEffects = foreignAidProgramEffects(nation);
   const complexityIndex = INDUSTRIAL_CATEGORY_IDS.reduce((sum, id) => {
     const category = nation.industries[id];
     return sum + category.outputShare * category.productivityIndex;
@@ -355,6 +359,11 @@ export function calculateIndustrialStructureMetrics(
         privateEconomy.exports *
         developmentPath.exportMultiplier;
     }, 0),
+    0,
+    1,
+  );
+  const effectiveExportCapability = clamp(
+    exportCapability * foreignAidEffects.exportCompetitivenessMultiplier,
     0,
     1,
   );
@@ -389,9 +398,9 @@ export function calculateIndustrialStructureMetrics(
       industrialCategoryConfig.minimumOutputMultiplier,
       industrialCategoryConfig.maximumOutputMultiplier,
     ),
-    exportCapability,
+    exportCapability: effectiveExportCapability,
     industrialExportShare: clamp(
-      0.34 + secondaryShare * 0.72 + exportCapability * 0.28,
+      0.34 + secondaryShare * 0.72 + effectiveExportCapability * 0.28,
       0.35,
       0.86,
     ),

@@ -3,6 +3,7 @@ import type { DiplomaticActionId } from "../diplomacy/diplomacy";
 import type { DiplomaticStrategyId } from "../diplomacy/diplomatic-strategy";
 import type { ForeignPolicyDoctrineId } from "../diplomacy/foreign-policy-doctrine";
 import type { TechnologyIndustryPathId } from "../technology/technology-industry-path";
+import type { ForeignAidProgramId } from "../diplomacy/foreign-aid";
 
 export interface CreateGameCommand {
   type: "CREATE_GAME";
@@ -78,6 +79,11 @@ export interface SetTechnologyIndustryPathCommand {
   pathId: TechnologyIndustryPathId;
 }
 
+export interface SetForeignAidProgramCommand {
+  type: "SET_FOREIGN_AID_PROGRAM";
+  programId: ForeignAidProgramId;
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -92,4 +98,5 @@ export type SimulationCommand =
   | EnactHistoricalInitiativeCommand
   | SelectTechnologyResearchCommand
   | SetTechnologyIndustryPathCommand
+  | SetForeignAidProgramCommand
   | ImportGameCommand;

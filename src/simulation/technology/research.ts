@@ -8,6 +8,7 @@ import { updateTechnologyTree } from "./technology-tree";
 import { calculatePrivateEconomyMultipliers } from "../economy/private-economy";
 import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
 import { updateTechnologyIndustryPath } from "./technology-industry-path";
+import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 
 export function updateTechnology(nation: NationState): void {
   updateTechnologyIndustryPath(nation);
@@ -15,6 +16,7 @@ export function updateTechnology(nation: NationState): void {
   const strategyEffects = diplomaticStrategyEffects(nation);
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const privateEconomy = calculatePrivateEconomyMultipliers(nation);
+  const foreignAidEffects = foreignAidProgramEffects(nation);
   const researchSpending = fiscal.expenditure * fiscal.budget.research;
   const fundingIntensity = clamp(
     Math.sqrt(safeDivide(researchSpending, economy.nominalGDP) / 0.01),
@@ -57,7 +59,8 @@ export function updateTechnology(nation: NationState): void {
     doctrineEffects.researchOutputMultiplier;
   const researchOutput = researchOutputBeforeContinuity *
     (0.9 + researchContinuityFactor * 0.1) *
-    privateEconomy.researchCommercialization;
+    privateEconomy.researchCommercialization *
+    foreignAidEffects.researchOutputMultiplier;
   technology.monthlyResearchOutput = researchOutput;
   technology.researchPoints += researchOutput;
 

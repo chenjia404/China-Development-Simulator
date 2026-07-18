@@ -5,6 +5,7 @@ import { applyPolicyModifiers } from "../policies/policy-engine";
 import type { GameState, NationState } from "../state/game-state";
 import type { MonthlySnapshot } from "../state/history-state";
 import { calculateWorldComparableGDP } from "./historical-accounting";
+import { foreignAidReserveFlowAdjustment } from "../diplomacy/foreign-aid";
 
 interface ShareAnchor {
   year: number;
@@ -351,7 +352,8 @@ export function updateForeignExchange(state: GameState): void {
     nation.trade.foreignExchangeReserves *
       foreignExchangeConfig.annualReserveInvestmentReturn +
     (reserveAnchor - nation.trade.foreignExchangeReserves) *
-      foreignExchangeConfig.reserveAnchorAdjustmentRate;
+      foreignExchangeConfig.reserveAnchorAdjustmentRate +
+    foreignAidReserveFlowAdjustment(nation);
 
   const capitalGoodsImportShare = clamp(
     foreignExchangeConfig.capitalGoodsImportShareMaximum -

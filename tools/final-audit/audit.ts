@@ -22,6 +22,8 @@ import {
   foreignPolicyDoctrineDefinitions,
   foreignPolicyDoctrineEffects,
   foreignPolicyDoctrineRelationAdjustment,
+  foreignAidProgramDefinitions,
+  historicalForeignAidTotalsThrough1980,
   serializeGameState,
   updateForeignExchange,
   updateInternationalTrade,
@@ -882,6 +884,28 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   calculateGDP(lowExternalDemand);
   calculateGDP(highExternalDemand);
 
+  const historicalAidEngine = createSimulationEngine(
+    createInitialGameState(seed, 1949, "automatic"),
+  );
+  const suspendedAidEngine = createSimulationEngine(
+    createInitialGameState(seed, 1949, "automatic"),
+  );
+  suspendedAidEngine.dispatch({
+    type: "SET_FOREIGN_AID_PROGRAM",
+    programId: "suspended",
+  });
+  historicalAidEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+  suspendedAidEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+  const historicalAidState = historicalAidEngine.getState();
+  const suspendedAidState = suspendedAidEngine.getState();
+  const historicalAidTotals = historicalForeignAidTotalsThrough1980();
+  const historicalAidNorthKorea = historicalAidState.world.countries.find(
+    (country) => country.id === "north_korea",
+  );
+  const suspendedAidNorthKorea = suspendedAidState.world.countries.find(
+    (country) => country.id === "north_korea",
+  );
+
   const checks: AuditCheck[] = [
     makeCheck(
       "continuous-run",
@@ -1116,6 +1140,26 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         multilateralDoctrineEffects.reputationTargetAdjustment >
           economicDoctrineEffects.reputationTargetAdjustment,
       `和平共处/革命援助对美关系目标 ${foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "usa").toFixed(0)}/${foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "usa").toFixed(0)}，对朝 ${foreignPolicyDoctrineRelationAdjustment(peacefulDoctrine.nation, "north_korea").toFixed(0)}/${foreignPolicyDoctrineRelationAdjustment(revolutionaryDoctrine.nation, "north_korea").toFixed(0)}；经贸外交市场倍率 ${economicDoctrineEffects.marketAccessMultiplier.toFixed(2)}、安全调整 ${economicDoctrineEffects.securityTargetAdjustment.toFixed(0)}；多边声誉调整 ${multilateralDoctrineEffects.reputationTargetAdjustment.toFixed(0)}`,
+    ),
+    makeCheck(
+      "foreign-aid-programs",
+      "玩家可选择七种对外援助方案，并在关系、国内资源、科技、出口和外汇之间取舍",
+      foreignAidProgramDefinitions.length === 7 &&
+        Math.abs(historicalAidTotals.rmb - 35_500_000_000) < 1 &&
+        historicalAidTotals.usd >= 15_000_000_000 &&
+        historicalAidTotals.usd <= 18_000_000_000 &&
+        suspendedAidState.nation.diplomacy.cumulativeForeignAidRMBThrough1980 === 0 &&
+        suspendedAidState.nation.economy.realGDP >
+          historicalAidState.nation.economy.realGDP &&
+        suspendedAidState.nation.economy.capitalStock >
+          historicalAidState.nation.economy.capitalStock &&
+        suspendedAidState.nation.technology.index >
+          historicalAidState.nation.technology.index &&
+        suspendedAidState.nation.trade.foreignExchangeReserves >
+          historicalAidState.nation.trade.foreignExchangeReserves &&
+        (historicalAidNorthKorea?.relationWithChina ?? -100) >
+          (suspendedAidNorthKorea?.relationWithChina ?? 100),
+      `史实累计 ${(historicalAidTotals.rmb / 100_000_000).toFixed(1)} 亿元、${(historicalAidTotals.usd / 100_000_000).toFixed(1)} 亿美元；1980 年暂停/史实 GDP ${(suspendedAidState.nation.economy.realGDP / 100_000_000).toFixed(1)}/${(historicalAidState.nation.economy.realGDP / 100_000_000).toFixed(1)} 亿元，科技 ${suspendedAidState.nation.technology.index.toFixed(1)}/${historicalAidState.nation.technology.index.toFixed(1)}，对朝关系 ${(suspendedAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}/${(historicalAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}`,
     ),
     makeCheck(
       "foreign-exchange-remittances",

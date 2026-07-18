@@ -107,6 +107,9 @@ export function recordHistory(state: GameState): void {
     ),
     gdpRank,
     score: calculateScore(state),
+    foreignAidAnnualRMB: nation.diplomacy.annualForeignAidRMB,
+    cumulativeForeignAidRMB: nation.diplomacy.cumulativeForeignAidRMB,
+    cumulativeForeignAidUSD: nation.diplomacy.cumulativeForeignAidUSD,
   };
   nation.history.annual.push(annual);
   nation.history.reports.push({

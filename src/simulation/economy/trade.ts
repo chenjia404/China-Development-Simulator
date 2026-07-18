@@ -13,6 +13,7 @@ import {
 } from "./industrial-structure";
 import { calculatePrivateEconomyMultipliers } from "./private-economy";
 import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
+import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -67,6 +68,7 @@ export function updateInternationalTrade(state: GameState): void {
   const strategyEffects = diplomaticStrategyEffects(nation);
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const privateEconomy = calculatePrivateEconomyMultipliers(nation);
+  const foreignAidEffects = foreignAidProgramEffects(nation);
   const secondaryShare = safeDivide(
     nation.sectors.secondary.valueAdded,
     nation.economy.realGDP,
@@ -91,7 +93,8 @@ export function updateInternationalTrade(state: GameState): void {
       nation.economy.infrastructureIndex / 250,
     0.4,
     1.35,
-  ) * privateEconomy.exports;
+  ) * privateEconomy.exports *
+    foreignAidEffects.exportCompetitivenessMultiplier;
   const globalDemand = clamp(
     0.9 + Math.log(Math.max(1, world.globalDemandIndex)) / Math.log(8) * 0.25,
     0.85,

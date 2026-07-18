@@ -9,11 +9,13 @@ import {
   remittanceDirectedInvestment,
 } from "./foreign-exchange";
 import { calculatePrivateEconomyMultipliers } from "./private-economy";
+import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
   const privateEconomyMultiplier = calculatePrivateEconomyMultipliers(nation)
     .investment;
+  const foreignAidEffects = foreignAidProgramEffects(nation);
   const governmentCapitalSpending = applyModifiers(
     nation,
     "capital.governmentInvestment",
@@ -22,7 +24,7 @@ export function updateCapitalAndInvestment(nation: NationState): void {
         fiscal.budget.infrastructure +
         fiscal.budget.agriculture) *
       0.65,
-  );
+  ) * foreignAidEffects.domesticInvestmentMultiplier;
   const exportSurplusReinvestmentRate = clamp(
     applyPolicyModifiers(
       nation,

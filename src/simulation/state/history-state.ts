@@ -37,6 +37,9 @@ export interface AnnualSnapshot extends MonthlySnapshot {
   tertiarySectorShare: number;
   gdpRank: number;
   score: number;
+  foreignAidAnnualRMB?: number;
+  cumulativeForeignAidRMB?: number;
+  cumulativeForeignAidUSD?: number;
 }
 
 export interface AnnualReport {

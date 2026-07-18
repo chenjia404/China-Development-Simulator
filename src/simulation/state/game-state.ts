@@ -129,6 +129,8 @@ export interface FiscalState {
   statutoryTaxRate: number;
   effectiveTaxRate: number;
   monetaryFinancing: number;
+  /** 已包含在财政总支出中的年度化对外援助支出。 */
+  foreignAidExpenditure: number;
   budget: FiscalBudget;
 }
 
@@ -260,6 +262,25 @@ export interface DiplomacyState {
   previousForeignPolicyDoctrineId: DiplomacyState["foreignPolicyDoctrineId"] | null;
   foreignPolicyDoctrineProgress: number;
   lastForeignPolicyDoctrineChangeMonth: number | null;
+  foreignAidProgramId:
+    | "suspended"
+    | "limited_humanitarian"
+    | "socialist_solidarity"
+    | "south_south_development"
+    | "historical_comprehensive"
+    | "economic_technical_cooperation"
+    | "expanded_internationalist";
+  previousForeignAidProgramId: DiplomacyState["foreignAidProgramId"] | null;
+  foreignAidProgramProgress: number;
+  lastForeignAidProgramChangeMonth: number | null;
+  /** 当前年度援外承诺，按当年价人民币和官方汇率美元等值记录。 */
+  annualForeignAidRMB: number;
+  annualForeignAidUSD: number;
+  annualForeignAidForeignExchangeOutflow: number;
+  cumulativeForeignAidRMB: number;
+  cumulativeForeignAidUSD: number;
+  cumulativeForeignAidRMBThrough1980: number;
+  cumulativeForeignAidUSDThrough1980: number;
 }
 
 export interface ModifierState {

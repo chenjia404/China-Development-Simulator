@@ -28,6 +28,7 @@ import { ensurePrivateEconomyState } from "../economy/private-economy";
 import { setForeignPolicyDoctrine } from "../diplomacy/foreign-policy-doctrine";
 import { setTechnologyIndustryPath } from "../technology/technology-industry-path";
 import { ensureDomesticDemandState } from "../economy/domestic-demand";
+import { setForeignAidProgram } from "../diplomacy/foreign-aid";
 
 export interface SimulationResult {
   state: GameState;
@@ -131,6 +132,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "SET_TECHNOLOGY_INDUSTRY_PATH":
         setTechnologyIndustryPath(this.state.nation, command.pathId);
+        break;
+      case "SET_FOREIGN_AID_PROGRAM":
+        setForeignAidProgram(this.state, command.programId);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);
