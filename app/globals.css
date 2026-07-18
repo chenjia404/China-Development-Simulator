@@ -147,6 +147,15 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .detail-grid strong { display: block; margin: 15px 0 8px; font-size: 23px; }
 .detail-grid p { margin: 0; color: var(--muted); font-size: 10px; }
 .national-accounts-panel { margin-top: 18px; }
+.market-dynamics-panel { margin-top: 18px; }
+.product-market-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.product-market-grid article { padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+.product-market-grid article > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.product-market-grid article > div:first-child span { color: var(--blue); font-weight: 700; }
+.product-market-grid p { margin: 7px 0 9px; color: var(--muted); font-size: 12px; }
+.inventory-track { height: 5px; overflow: hidden; border-radius: 999px; background: var(--line); }
+.inventory-track i { display: block; height: 100%; border-radius: inherit; background: var(--blue); }
+.inventory-track.excess i { background: var(--red); }
 .account-flow-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
 .account-flow-grid div, .account-bottlenecks div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
 .account-flow-grid span, .account-bottlenecks > span { color: var(--muted); font-size: 12px; }
@@ -599,6 +608,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .budget-list { grid-template-columns: repeat(2, 1fr); column-gap: 20px; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .account-flow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .product-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks > span { grid-column: 1 / -1; }
   .technology-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -652,6 +662,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .budget-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
   .account-flow-grid, .account-bottlenecks { grid-template-columns: 1fr; }
+  .product-market-grid { grid-template-columns: 1fr; }
   .technology-tree-grid { grid-template-columns: 1fr; }
   .technology-path-grid { grid-template-columns: 1fr; }
   .technology-path-heading { display: block; }

@@ -39,6 +39,7 @@ import {
   industrialCategoryDefinitions,
   updateIndustrialStructure,
   validateIndustrialCategoryDefinitions,
+  validateMarketDynamicsDefinitions,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
   type GameState,
@@ -997,6 +998,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           accounts.aggregateInputAvailability <= 1;
       }),
       `史实路线三种GDP ${historical.finalState.nation.nationalAccounts.productionGDP.toFixed(0)}/${historical.finalState.nation.nationalAccounts.incomeGDP.toFixed(0)}/${historical.finalState.nation.nationalAccounts.expenditureGDP.toFixed(0)}；投入可得率 ${(historical.finalState.nation.nationalAccounts.aggregateInputAvailability * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
+      "market-dynamics-accounts",
+      "14类产品价格、库存、工资与经济周期账户保持有限且形成库存反馈",
+      validateMarketDynamicsDefinitions().length === 0 &&
+        [...runs.values()].every((run) => {
+          const market = run.finalState.nation.marketDynamics;
+          return Object.keys(market.products).length === 14 &&
+            market.consumerPriceIndex > 0 &&
+            market.producerPriceIndex > 0 &&
+            market.realWageIndex > 0 &&
+            market.aggregateInventoryMonths >= 0 &&
+            Object.values(market.products).every(
+              (product) => product.priceIndex > 0 && product.inventoryStock >= 0,
+            );
+        }),
+      `史实路线 CPI/PPI ${historical.finalState.nation.marketDynamics.consumerPriceIndex.toFixed(3)}/${historical.finalState.nation.marketDynamics.producerPriceIndex.toFixed(3)}，实际工资指数 ${historical.finalState.nation.marketDynamics.realWageIndex.toFixed(3)}，库存 ${historical.finalState.nation.marketDynamics.aggregateInventoryMonths.toFixed(2)} 个月`,
     ),
     makeCheck(
       "historical-comparison",

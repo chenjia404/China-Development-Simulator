@@ -66,6 +66,25 @@ export function validateGameState(state: GameState): void {
       throw new Error(`${product.id} 的中间投入可得率超出 0 至 1`);
     }
   }
+  const market = nation.marketDynamics;
+  if (Object.keys(market.products).length !== NATIONAL_ACCOUNTS_PRODUCT_IDS.length) {
+    throw new Error("产品价格与库存账户数量不完整");
+  }
+  for (const product of Object.values(market.products)) {
+    if (product.priceIndex <= 0) throw new Error(`${product.id} 的价格指数必须大于零`);
+    if (product.inventoryStock < 0 || product.inventoryMonths < 0) {
+      throw new Error(`${product.id} 的库存不得为负`);
+    }
+  }
+  if (
+    market.consumerPriceIndex <= 0 ||
+    market.producerPriceIndex <= 0 ||
+    market.gdpDeflator <= 0 ||
+    market.nominalWageIndex <= 0 ||
+    market.realWageIndex <= 0
+  ) {
+    throw new Error("价格或工资指数必须大于零");
+  }
   if (state.world.countries.some((country) => country.population <= 0 || country.realGDP <= 0)) {
     throw new Error("世界国家出现非正人口或 GDP");
   }

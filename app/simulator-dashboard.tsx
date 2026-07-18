@@ -427,6 +427,42 @@ function NationalAccountsPanel({ game }: { game: GameState }) {
   );
 }
 
+function MarketDynamicsPanel({ game }: { game: GameState }) {
+  const market = game.nation.marketDynamics;
+  const productRows = nationalAccountsProductDefinitions.map((definition) => ({
+    ...definition,
+    ...market.products[definition.id],
+  }));
+  return (
+    <section className="panel market-dynamics-panel">
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">相对价格 · 工资 · 库存周期</span>
+          <h2>部门市场动态</h2>
+        </div>
+        <span>产出缺口 {formatPercent(market.outputGap)}</span>
+      </div>
+      <div className="detail-grid">
+        <article><span>居民消费价格 CPI</span><strong>{market.consumerPriceIndex.toFixed(3)}</strong><p>食品、消费品与服务加权</p></article>
+        <article><span>工业生产者价格 PPI</span><strong>{market.producerPriceIndex.toFixed(3)}</strong><p>采矿、材料与制造品加权</p></article>
+        <article><span>实际工资指数</span><strong>{market.realWageIndex.toFixed(3)}</strong><p>名义工资指数 ÷ CPI</p></article>
+        <article><span>综合库存</span><strong>{market.aggregateInventoryMonths.toFixed(2)} 个月</strong><p>过量实物库存滞后抑制生产</p></article>
+      </div>
+      <div className="product-market-grid">
+        {productRows.map((product) => (
+          <article key={product.id}>
+            <div><strong>{product.name}</strong><span>{product.priceIndex.toFixed(3)}</span></div>
+            <p>价格同比 {formatPercent(product.annualPriceInflation)} · 库存 {product.inventoryMonths.toFixed(2)} 月</p>
+            <div className={product.inventoryGapRatio > 0.75 ? "inventory-track excess" : "inventory-track"}>
+              <i style={{ width: `${Math.min(100, Math.max(0, (product.inventoryGapRatio + 1) / 4 * 100))}%` }} />
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -441,7 +477,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <NationalAccountsPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

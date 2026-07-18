@@ -289,6 +289,38 @@ export interface NationalAccountsState {
   aggregateInputAvailability: number;
 }
 
+/** 单类产品的价格与库存状态；价格指数以开局月为 1，库存使用实际价值口径。 */
+export interface ProductMarketState {
+  id: NationalAccountsProductId;
+  priceIndex: number;
+  annualPriceInflation: number;
+  inventoryStock: number;
+  targetInventoryStock: number;
+  inventoryMonths: number;
+  inventoryGapRatio: number;
+  demandPressure: number;
+  inputCostPressure: number;
+}
+
+/** 部门价格、工资与库存共同形成的月度经济周期状态。 */
+export interface MarketDynamicsState {
+  products: Record<NationalAccountsProductId, ProductMarketState>;
+  consumerPriceIndex: number;
+  producerPriceIndex: number;
+  gdpDeflator: number;
+  nominalWageIndex: number;
+  realWageIndex: number;
+  annualNominalWageGrowth: number;
+  annualRealWageGrowth: number;
+  aggregateNominalWage: number;
+  laborIncomeShare: number;
+  outputGap: number;
+  aggregateInventoryMonths: number;
+  inventoryCycleIndex: number;
+  aggregateDemandPressure: number;
+  aggregateCostPressure: number;
+}
+
 export interface DiplomacyState {
   diplomaticPoints: number;
   monthlyPointGain: number;
@@ -381,6 +413,7 @@ export interface NationState {
   trade: TradeState;
   privateEconomy: PrivateEconomyState;
   nationalAccounts: NationalAccountsState;
+  marketDynamics: MarketDynamicsState;
   diplomacy: DiplomacyState;
   policies: string[];
   policyProgress: Record<string, number>;

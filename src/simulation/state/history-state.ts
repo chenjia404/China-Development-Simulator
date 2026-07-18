@@ -5,6 +5,11 @@ export interface MonthlySnapshot {
   realGDP: number;
   nominalGDP: number;
   inflationRate: number;
+  consumerPriceIndex: number;
+  producerPriceIndex: number;
+  realWageIndex: number;
+  aggregateInventoryMonths: number;
+  outputGap: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

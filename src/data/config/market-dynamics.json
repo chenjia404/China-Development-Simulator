@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "description": "分产品价格、工资、库存与经济周期参数。年度率只在月度结算时换算一次，库存流量按年度化金额除以12后进入库存存量。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://www.stats.gov.cn/sj/ndsj/2024/html/C0901.jpg",
+      "https://www.stats.gov.cn/sj/ndsj/2024/html/C0512.jpg"
+    ]
+  },
+  "priceAdjustmentSpeed": 0.08,
+  "relativePriceAdjustmentLimit": 0.025,
+  "inventoryDemandPressure": 0.035,
+  "inputCostPassThrough": 0.18,
+  "wageCostPassThrough": 0.03,
+  "targetInventoryMonthsByProduct": {
+    "agriculture": 1.4,
+    "mining_energy": 1.8,
+    "basic_materials": 1.5,
+    "consumer_goods": 1.2,
+    "construction": 0.35,
+    "general_machinery": 1.8,
+    "transport_equipment": 1.5,
+    "chemicals_pharmaceuticals": 1.6,
+    "electrical_equipment": 1.5,
+    "electronics_communications": 1.1,
+    "precision_medical": 1.5,
+    "aerospace_advanced": 2.2,
+    "market_services": 0.2,
+    "public_services": 0.1
+  },
+  "consumerPriceWeights": {
+    "agriculture": 0.24,
+    "consumer_goods": 0.28,
+    "construction": 0.03,
+    "transport_equipment": 0.04,
+    "chemicals_pharmaceuticals": 0.06,
+    "electrical_equipment": 0.03,
+    "electronics_communications": 0.03,
+    "precision_medical": 0.02,
+    "market_services": 0.19,
+    "public_services": 0.08
+  },
+  "producerPriceWeights": {
+    "mining_energy": 0.15,
+    "basic_materials": 0.2,
+    "consumer_goods": 0.14,
+    "construction": 0.08,
+    "general_machinery": 0.1,
+    "transport_equipment": 0.08,
+    "chemicals_pharmaceuticals": 0.08,
+    "electrical_equipment": 0.06,
+    "electronics_communications": 0.05,
+    "precision_medical": 0.02,
+    "aerospace_advanced": 0.04
+  },
+  "inventoryCycle": {
+    "monthlyInventoryClearanceSpeed": 0.06,
+    "excessInventoryActivationRatio": 0.75,
+    "maximumExcessInventoryRatio": 3,
+    "productionPassThrough": 0.12,
+    "minimumProductionMultiplier": 0.78
+  },
+  "wages": {
+    "monthlyAdjustmentLimit": 0.06,
+    "referenceLaborShare": 0.5,
+    "minimumLaborShare": 0.2,
+    "maximumLaborShare": 0.8
+  }
+}

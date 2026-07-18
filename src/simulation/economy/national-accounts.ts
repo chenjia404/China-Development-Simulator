@@ -74,6 +74,13 @@ function definitionFor(id: NationalAccountsProductId): InputOutputProductDefinit
   return definition;
 }
 
+/** 向价格与库存模块提供同一份直接消耗系数，避免重复维护投入结构。 */
+export function inputCoefficientsForProduct(
+  id: NationalAccountsProductId,
+): Readonly<Partial<Record<NationalAccountsProductId, number>>> {
+  return definitionFor(id).inputs;
+}
+
 function createProductState(id: NationalAccountsProductId): NationalAccountsProductState {
   return {
     id,

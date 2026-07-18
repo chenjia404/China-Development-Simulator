@@ -221,3 +221,19 @@ test("客户端展示三种GDP口径和投入产出瓶颈", async () => {
   assert.match(source, /支出法 GDP/);
   assert.match(source, /当前投入瓶颈/);
 });
+
+test("客户端展示部门价格、实际工资和库存周期", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /部门市场动态/);
+  assert.match(source, /居民消费价格 CPI/);
+  assert.match(source, /工业生产者价格 PPI/);
+  assert.match(source, /实际工资指数/);
+  assert.match(source, /综合库存/);
+  assert.match(source, /过量实物库存滞后抑制生产/);
+});

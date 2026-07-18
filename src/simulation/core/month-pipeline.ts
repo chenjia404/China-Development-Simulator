@@ -35,6 +35,7 @@ import { checkHistoricalEvents } from "../events/historical-event-engine";
 import { updatePrivateEconomy } from "../economy/private-economy";
 import { updateDemandDrivenCapacityUtilization } from "../economy/domestic-demand";
 import { updateNationalAccounts } from "../economy/national-accounts";
+import { updateMarketDynamics } from "../economy/market-dynamics";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -67,6 +68,7 @@ export function simulateMonth(
   updateNationalAccounts(state.nation);
   updateDebt(state.nation);
   updateInflation(state.nation);
+  updateMarketDynamics(state.nation);
   updateWellbeing(state.nation);
   simulateWorldCountries(state, _random);
   if (isEndOfYear(state.nation.date)) {
