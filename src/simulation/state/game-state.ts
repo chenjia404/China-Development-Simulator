@@ -128,6 +128,10 @@ export interface TechnologyState {
   researchPoints: number;
   adoptionRate: number;
   monthlyResearchOutput: number;
+  /** 已完成的科技树节点；顺序即完成顺序，保证存档与回放确定。 */
+  completedTechnologyIds: string[];
+  activeResearchId: string | null;
+  activeResearchProgress: number;
 }
 
 export interface ResourceState {

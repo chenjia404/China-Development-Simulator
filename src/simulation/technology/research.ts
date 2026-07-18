@@ -4,6 +4,7 @@ import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
+import { updateTechnologyTree } from "./technology-tree";
 
 export function updateTechnology(nation: NationState): void {
   const { technology, education, fiscal, economy, sectors, trade } = nation;
@@ -84,6 +85,7 @@ export function updateTechnology(nation: NationState): void {
     technologyConfig.maximumTechnologyIndex,
   );
   const effectiveTechnologyGain = technology.index - previousTechnologyIndex;
+  updateTechnologyTree(nation, researchOutput);
 
   // 技术指数描述当期技术水平，结构性生产率则记录制度、人才和组织知识形成的
   // 路径依赖。后者在修正到期后不会倒扣，因而能让更高的发展基数继续复利。

@@ -61,6 +61,11 @@ export interface EnactHistoricalInitiativeCommand {
   initiativeId: string;
 }
 
+export interface SelectTechnologyResearchCommand {
+  type: "SELECT_TECH_RESEARCH";
+  technologyId: string;
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -72,4 +77,5 @@ export type SimulationCommand =
   | SetHistoricalEventModeCommand
   | ResolveHistoricalEventCommand
   | EnactHistoricalInitiativeCommand
+  | SelectTechnologyResearchCommand
   | ImportGameCommand;

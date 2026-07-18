@@ -20,6 +20,10 @@ import { ensureHistoricalAccountingState } from "../economy/historical-accountin
 import { ensureForeignExchangeState } from "../economy/foreign-exchange";
 import { enactHistoricalInitiative } from "../events/historical-initiatives";
 import { setDiplomaticStrategy } from "../diplomacy/diplomatic-strategy";
+import {
+  ensureTechnologyTreeState,
+  selectTechnologyResearch,
+} from "../technology/technology-tree";
 
 export interface SimulationResult {
   state: GameState;
@@ -54,6 +58,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureHistoricalEventState(this.state.nation);
     ensureHistoricalAccountingState(this.state);
     ensureForeignExchangeState(this.state);
+    ensureTechnologyTreeState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -76,6 +81,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureHistoricalEventState(this.state.nation);
         ensureHistoricalAccountingState(this.state);
         ensureForeignExchangeState(this.state);
+        ensureTechnologyTreeState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
@@ -108,6 +114,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "ENACT_HISTORICAL_INITIATIVE":
         enactHistoricalInitiative(this.state, command.initiativeId);
+        break;
+      case "SELECT_TECH_RESEARCH":
+        selectTechnologyResearch(this.state.nation, command.technologyId);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

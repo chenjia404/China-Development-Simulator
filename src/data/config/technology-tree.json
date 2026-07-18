@@ -1,0 +1,158 @@
+{
+  "metadata": {
+    "description": "数据驱动的科技树。科研产出逐月推进当前节点，教育和科技能力决定能否开始研究；节点本身不直接修改 GDP。",
+    "sources": [
+      "https://data.worldbank.org/indicator/GB.XPD.RSDV.GD.ZS?locations=CN",
+      "https://data.worldbank.org/indicator/SE.TER.ENRR?locations=CN",
+      "https://www.nber.org/papers/w27107"
+    ]
+  },
+  "researchAllocationRate": 0.8,
+  "industryTierCount": 5,
+  "definitions": [
+    {
+      "id": "mechanized_agriculture",
+      "name": "农业机械化",
+      "category": "农业",
+      "description": "建立农机制造、维修和基层推广能力，为现代农业技术奠定基础。",
+      "researchCost": 5,
+      "requiredEducationIndex": 12,
+      "requiredTechnologyIndex": 6,
+      "prerequisiteIds": [],
+      "industryTier": 0,
+      "effects": ["农业设备利用能力提高", "为现代农学提供前置条件"]
+    },
+    {
+      "id": "basic_machine_tools",
+      "name": "基础机床与标准化",
+      "category": "工业",
+      "description": "掌握通用机床、量具和零部件标准化，形成基础工业复制能力。",
+      "researchCost": 8,
+      "requiredEducationIndex": 13,
+      "requiredTechnologyIndex": 7,
+      "prerequisiteIds": [],
+      "industryTier": 1,
+      "effects": ["解锁第一阶段产业升级", "改善基础工业品质量"]
+    },
+    {
+      "id": "grid_electrification",
+      "name": "电网与工业电气化",
+      "category": "能源",
+      "description": "扩展稳定电网、工业电机和电气控制，使连续化生产成为可能。",
+      "researchCost": 15,
+      "requiredEducationIndex": 18,
+      "requiredTechnologyIndex": 10,
+      "prerequisiteIds": ["basic_machine_tools"],
+      "industryTier": 1,
+      "effects": ["提高能源利用能力", "支撑化工和精密制造"]
+    },
+    {
+      "id": "modern_agronomy",
+      "name": "现代农学与育种",
+      "category": "农业",
+      "description": "把农机、育种、土壤和植保知识结合为可推广的农业技术体系。",
+      "researchCost": 30,
+      "requiredEducationIndex": 30,
+      "requiredTechnologyIndex": 24,
+      "prerequisiteIds": ["mechanized_agriculture"],
+      "industryTier": 0,
+      "effects": ["提高农业技术上限", "减轻工业化的粮食约束"]
+    },
+    {
+      "id": "chemical_materials",
+      "name": "化工与基础材料",
+      "category": "工业",
+      "description": "发展化肥、基础化学品、冶金和合成材料，扩展工业投入品谱系。",
+      "researchCost": 25,
+      "requiredEducationIndex": 25,
+      "requiredTechnologyIndex": 16,
+      "prerequisiteIds": ["grid_electrification"],
+      "industryTier": 2,
+      "effects": ["解锁第二阶段产业升级", "改善中间品供给"]
+    },
+    {
+      "id": "precision_manufacturing",
+      "name": "精密制造",
+      "category": "工业",
+      "description": "形成精密加工、质量控制和工程设计体系，进入更高附加值制造。",
+      "researchCost": 35,
+      "requiredEducationIndex": 34,
+      "requiredTechnologyIndex": 26,
+      "prerequisiteIds": ["basic_machine_tools", "grid_electrification"],
+      "industryTier": 2,
+      "effects": ["提高工业升级准备度", "增强机械产品出口能力"]
+    },
+    {
+      "id": "electronics_engineering",
+      "name": "电子工程",
+      "category": "信息",
+      "description": "建立电子元器件、通信设备和工业电子的研发生产能力。",
+      "researchCost": 55,
+      "requiredEducationIndex": 43,
+      "requiredTechnologyIndex": 42,
+      "prerequisiteIds": ["precision_manufacturing"],
+      "industryTier": 3,
+      "effects": ["解锁第三阶段产业升级", "扩大技术密集型出口范围"]
+    },
+    {
+      "id": "industrial_automation",
+      "name": "工业自动化",
+      "category": "工业",
+      "description": "把控制系统、自动化设备和现代管理引入规模化制造。",
+      "researchCost": 75,
+      "requiredEducationIndex": 50,
+      "requiredTechnologyIndex": 58,
+      "prerequisiteIds": ["electronics_engineering"],
+      "industryTier": 4,
+      "effects": ["解锁第四阶段产业升级", "提高复杂制造的一致性"]
+    },
+    {
+      "id": "semiconductor_manufacturing",
+      "name": "半导体制造",
+      "category": "信息",
+      "description": "掌握集成电路设计、工艺、材料和设备协同所需的产业知识。",
+      "researchCost": 90,
+      "requiredEducationIndex": 56,
+      "requiredTechnologyIndex": 68,
+      "prerequisiteIds": ["electronics_engineering", "precision_manufacturing"],
+      "industryTier": 4,
+      "effects": ["增强高技术制造出口", "支撑数字网络和智能化"]
+    },
+    {
+      "id": "digital_networks",
+      "name": "数字网络",
+      "category": "信息",
+      "description": "建设计算机、软件、通信网络和数字化组织能力。",
+      "researchCost": 110,
+      "requiredEducationIndex": 62,
+      "requiredTechnologyIndex": 80,
+      "prerequisiteIds": ["semiconductor_manufacturing"],
+      "industryTier": 5,
+      "effects": ["解锁第五阶段产业升级", "提高数字产品和服务出口能力"]
+    },
+    {
+      "id": "advanced_energy_systems",
+      "name": "先进能源系统",
+      "category": "能源",
+      "description": "发展高效电力系统、先进电源和工业节能技术。",
+      "researchCost": 100,
+      "requiredEducationIndex": 60,
+      "requiredTechnologyIndex": 75,
+      "prerequisiteIds": ["industrial_automation", "grid_electrification"],
+      "industryTier": 4,
+      "effects": ["缓解高端工业能源约束", "提高能源系统韧性"]
+    },
+    {
+      "id": "artificial_intelligence",
+      "name": "人工智能与智能制造",
+      "category": "信息",
+      "description": "在数字网络、自动化和高等教育基础上发展算法、算力与智能制造。",
+      "researchCost": 140,
+      "requiredEducationIndex": 72,
+      "requiredTechnologyIndex": 92,
+      "prerequisiteIds": ["digital_networks", "industrial_automation"],
+      "industryTier": 5,
+      "effects": ["提高知识密集型产业上限", "增强复杂产品出口能力"]
+    }
+  ]
+}

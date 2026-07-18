@@ -154,6 +154,9 @@ export function createInitialGameState(
         researchPoints: 0,
         adoptionRate: 0.08,
         monthlyResearchOutput: 0,
+        completedTechnologyIds: [],
+        activeResearchId: null,
+        activeResearchProgress: 0,
       },
       resources: {
         foodProduction: 113_000_000,
