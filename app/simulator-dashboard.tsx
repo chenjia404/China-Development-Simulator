@@ -193,7 +193,7 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
         <MetricCard label="总人口" value={formatLarge(nation.population.total)} detail={`城市化 ${formatPercent(nation.society.urbanizationRate)}`} tone="red" />
         <MetricCard label="财政余额" value={formatLarge(nation.fiscal.balance)} detail={`债务率 ${formatPercent(nation.fiscal.debtToGDP)}`} tone={nation.fiscal.balance >= 0 ? "green" : "red"} />
         <MetricCard label="科技指数" value={nation.technology.index.toFixed(1)} detail={`采用率 ${formatPercent(nation.technology.adoptionRate)}`} tone="blue" />
-        <MetricCard label="世界 GDP 排名" value={`第 ${game.world.rankings.nominalGDP.china ?? "—"} 名`} detail={`综合评分 ${lastAnnual?.score.toFixed(1) ?? "—"}`} tone="green" />
+        <MetricCard label="世界经济排名" value={`GDP 第 ${game.world.rankings.nominalGDP.china ?? "—"} 名`} detail={`人均 GDP 第 ${game.world.rankings.nominalGDPPerCapita.china ?? "—"} 名 · 综合评分 ${lastAnnual?.score.toFixed(1) ?? "—"}`} tone="green" />
       </div>
       <div className="dashboard-grid">
         <section className="panel chart-panel">
