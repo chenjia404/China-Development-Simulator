@@ -14,6 +14,7 @@ export * from "./diplomacy/diplomacy";
 export * from "./diplomacy/diplomatic-strategy";
 export * from "./diplomacy/foreign-policy-doctrine";
 export * from "./diplomacy/foreign-aid";
+export * from "./diplomacy/sino-us-normalization";
 export * from "./fiscal/debt";
 export * from "./fiscal/revenue";
 export * from "./fiscal/spending";

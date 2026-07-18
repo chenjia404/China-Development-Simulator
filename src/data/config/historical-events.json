@@ -654,5 +654,18 @@
     "modifiers": [
       { "target": "population.birthRate", "operation": "multiply", "value": 1.015 }
     ]
+  },
+  {
+    "id": "sino_us_normalization_1979",
+    "name": "中美正式建立外交关系",
+    "year": 1979,
+    "month": 1,
+    "category": "外交经贸",
+    "impact": "mixed",
+    "triggerMode": "conditional",
+    "description": "中美两国正式互相承认并建立外交关系，随后形成使领馆、科技文化协定、留学生交流和贸易关系协定等制度渠道。关系正常化扩大了教育、科技、贸易和投资合作，也改变了同美国、苏联阵营及东亚国家的关系结构。",
+    "effects": ["中美关系和外交沟通显著改善", "留学生与科研合作渠道逐步形成", "美国市场准入、技术设备和投资信心提高", "对苏联、朝鲜关系目标承受一定调整"],
+    "durationMonths": 60,
+    "modifiers": []
   }
 ]

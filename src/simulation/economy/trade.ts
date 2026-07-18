@@ -14,6 +14,7 @@ import {
 import { calculatePrivateEconomyMultipliers } from "./private-economy";
 import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
+import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -26,6 +27,7 @@ export interface TradeAccessMetrics {
 export function calculateTradeAccess(state: GameState): TradeAccessMetrics {
   const strategyEffects = diplomaticStrategyEffects(state.nation);
   const doctrineEffects = foreignPolicyDoctrineEffects(state.nation);
+  const normalizationEffects = sinoUSNormalizationEffects(state.nation);
   const totalForeignGDP = state.world.countries.reduce(
     (sum, country) => sum + country.nominalGDP,
     0,
@@ -49,7 +51,8 @@ export function calculateTradeAccess(state: GameState): TradeAccessMetrics {
       (1 - sanctionExposure * 0.75) *
       organizationTradeMultiplier(state) *
       strategyEffects.marketAccessMultiplier *
-      doctrineEffects.marketAccessMultiplier,
+      doctrineEffects.marketAccessMultiplier *
+      normalizationEffects.marketAccessMultiplier,
     0.15,
     1.8,
   );
@@ -69,6 +72,7 @@ export function updateInternationalTrade(state: GameState): void {
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const privateEconomy = calculatePrivateEconomyMultipliers(nation);
   const foreignAidEffects = foreignAidProgramEffects(nation);
+  const normalizationEffects = sinoUSNormalizationEffects(nation);
   const secondaryShare = safeDivide(
     nation.sectors.secondary.valueAdded,
     nation.economy.realGDP,
@@ -94,7 +98,8 @@ export function updateInternationalTrade(state: GameState): void {
     0.4,
     1.35,
   ) * privateEconomy.exports *
-    foreignAidEffects.exportCompetitivenessMultiplier;
+    foreignAidEffects.exportCompetitivenessMultiplier *
+    normalizationEffects.exportCompetitivenessMultiplier;
   const globalDemand = clamp(
     0.9 + Math.log(Math.max(1, world.globalDemandIndex)) / Math.log(8) * 0.25,
     0.85,
@@ -153,5 +158,6 @@ export function updateInternationalTrade(state: GameState): void {
     investmentConfidence *
     organizationTradeMultiplier(state) *
     strategyEffects.foreignInvestmentMultiplier *
-    doctrineEffects.foreignInvestmentMultiplier;
+    doctrineEffects.foreignInvestmentMultiplier *
+    normalizationEffects.foreignInvestmentMultiplier;
 }

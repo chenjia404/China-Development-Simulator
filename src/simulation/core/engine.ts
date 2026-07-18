@@ -29,6 +29,7 @@ import { setForeignPolicyDoctrine } from "../diplomacy/foreign-policy-doctrine";
 import { setTechnologyIndustryPath } from "../technology/technology-industry-path";
 import { ensureDomesticDemandState } from "../economy/domestic-demand";
 import { setForeignAidProgram } from "../diplomacy/foreign-aid";
+import { startSinoUSNormalization } from "../diplomacy/sino-us-normalization";
 
 export interface SimulationResult {
   state: GameState;
@@ -135,6 +136,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "SET_FOREIGN_AID_PROGRAM":
         setForeignAidProgram(this.state, command.programId);
+        break;
+      case "START_SINO_US_NORMALIZATION":
+        startSinoUSNormalization(this.state);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

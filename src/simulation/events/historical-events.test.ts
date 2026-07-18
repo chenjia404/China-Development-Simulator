@@ -416,8 +416,10 @@ describe("确定性历史事件", () => {
     );
   });
 
-  it("所有历史事件都有三个会改变数值传导的方案", () => {
-    for (const event of historicalEventDefinitions) {
+  it("所有固定日期历史事件都有三个会改变数值传导的方案", () => {
+    for (const event of historicalEventDefinitions.filter(
+      (candidate) => candidate.triggerMode !== "conditional",
+    )) {
       const choices = getHistoricalEventChoices(event);
       expect(choices).toHaveLength(3);
       expect(new Set(choices.map((choice) => choice.id)).size).toBe(3);

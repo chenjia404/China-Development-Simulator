@@ -110,6 +110,11 @@ export function recordHistory(state: GameState): void {
     foreignAidAnnualRMB: nation.diplomacy.annualForeignAidRMB,
     cumulativeForeignAidRMB: nation.diplomacy.cumulativeForeignAidRMB,
     cumulativeForeignAidUSD: nation.diplomacy.cumulativeForeignAidUSD,
+    sinoUSNormalizationStatus: nation.diplomacy.sinoUSNormalizationStatus,
+    sinoUSNormalizationYear:
+      nation.diplomacy.sinoUSNormalizationEstablishedYear,
+    sinoUSNormalizationDelayMonths:
+      nation.diplomacy.sinoUSNormalizationDelayMonths,
   };
   nation.history.annual.push(annual);
   nation.history.reports.push({
@@ -128,6 +133,7 @@ export function recordHistory(state: GameState): void {
         .map((event) => {
           if (event.outcome === "prevented") return `避免：${event.name}`;
           if (event.outcome === "enacted_early") return `提前实施：${event.name}`;
+          if (event.outcome === "enacted_late") return `延后实施：${event.name}`;
           return event.name;
         }),
       ...nation.modifiers

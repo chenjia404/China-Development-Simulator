@@ -40,6 +40,9 @@ export interface AnnualSnapshot extends MonthlySnapshot {
   foreignAidAnnualRMB?: number;
   cumulativeForeignAidRMB?: number;
   cumulativeForeignAidUSD?: number;
+  sinoUSNormalizationStatus?: "not_started" | "negotiating" | "established";
+  sinoUSNormalizationYear?: number | null;
+  sinoUSNormalizationDelayMonths?: number;
 }
 
 export interface AnnualReport {
@@ -67,7 +70,7 @@ export interface HistoricalEventRecord {
   choiceId: string;
   choiceName: string;
   choiceDescription: string;
-  outcome: "occurred" | "prevented" | "enacted_early";
+  outcome: "occurred" | "prevented" | "enacted_early" | "enacted_late";
 }
 
 export interface NationHistory {

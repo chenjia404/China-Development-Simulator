@@ -11,6 +11,7 @@ import { calculateWorldRankings } from "../world/rankings";
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
 import { createInitialPrivateEconomyState } from "../economy/private-economy";
+import sinoUSNormalizationConfig from "../../data/config/sino-us-normalization.json";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -54,6 +55,15 @@ export function createInitialGameState(
   const normalizedSeed = seed >>> 0;
   const population = 541_670_000;
   const workingAge = population * 0.56;
+  const historicalNormalizationAtStart =
+    historicalEventDecisionMode === "automatic" &&
+    startYear >= sinoUSNormalizationConfig.historicalEstablishmentYear;
+  const historicalNormalizationElapsedMonths = historicalNormalizationAtStart
+    ? Math.max(
+        0,
+        (startYear - sinoUSNormalizationConfig.historicalEstablishmentYear) * 12,
+      )
+    : 0;
 
   const state: GameState = {
     schemaVersion: SAVE_SCHEMA_VERSION,
@@ -239,6 +249,31 @@ export function createInitialGameState(
         cumulativeForeignAidUSD: 0,
         cumulativeForeignAidRMBThrough1980: 0,
         cumulativeForeignAidUSDThrough1980: 0,
+        sinoUSNormalizationStatus: historicalNormalizationAtStart
+          ? "established"
+          : "not_started",
+        sinoUSNormalizationStartedYear: historicalNormalizationAtStart
+          ? sinoUSNormalizationConfig.historicalEstablishmentYear
+          : null,
+        sinoUSNormalizationStartedMonth: historicalNormalizationAtStart
+          ? sinoUSNormalizationConfig.historicalEstablishmentMonth
+          : null,
+        sinoUSNormalizationEstablishedYear: historicalNormalizationAtStart
+          ? sinoUSNormalizationConfig.historicalEstablishmentYear
+          : null,
+        sinoUSNormalizationEstablishedMonth: historicalNormalizationAtStart
+          ? sinoUSNormalizationConfig.historicalEstablishmentMonth
+          : null,
+        sinoUSNormalizationNegotiationProgress: historicalNormalizationAtStart ? 1 : 0,
+        sinoUSNormalizationNegotiationMonths: 0,
+        sinoUSCooperationProgress: historicalNormalizationAtStart
+          ? Math.min(
+              1,
+              historicalNormalizationElapsedMonths /
+                sinoUSNormalizationConfig.cooperationTransitionMonths,
+            )
+          : 0,
+        sinoUSNormalizationDelayMonths: 0,
       },
       policies: [],
       policyProgress: {},

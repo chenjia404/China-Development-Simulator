@@ -1,0 +1,31 @@
+{
+  "historicalEstablishmentYear": 1979,
+  "historicalEstablishmentMonth": 1,
+  "earliestStartYear": 1949,
+  "activationCost": 20,
+  "minimumUSRelation": 10,
+  "minimumReputation": 42,
+  "minimumStability": 48,
+  "minimumInstitutionalEfficiency": 0.35,
+  "baseNegotiationMonths": 24,
+  "minimumNegotiationMonths": 12,
+  "relationMonthsReductionDivisor": 5,
+  "cooperationTransitionMonths": 60,
+  "tradeAgreementDelayMonths": 12,
+  "effects": {
+    "usRelationTargetAdjustment": 28,
+    "japanRelationTargetAdjustment": 4,
+    "southKoreaRelationTargetAdjustment": 5,
+    "russiaRelationTargetAdjustment": -6,
+    "northKoreaRelationTargetAdjustment": -4,
+    "negotiationUSRelationTargetAdjustment": 6,
+    "reputationTargetAdjustment": 4,
+    "monthlyDiplomaticPointAdjustment": 0.08,
+    "marketAccessMultiplier": 1.06,
+    "foreignInvestmentMultiplier": 1.1,
+    "technologyDiffusionMultiplier": 1.14,
+    "researchOutputMultiplier": 1.05,
+    "educationExchangeMultiplier": 1.08,
+    "exportCompetitivenessMultiplier": 1.06
+  }
+}

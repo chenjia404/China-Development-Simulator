@@ -23,6 +23,12 @@ import {
   foreignAidRelationTargetAdjustment,
   updateForeignAidProgram,
 } from "./foreign-aid";
+import {
+  ensureSinoUSNormalizationState,
+  sinoUSNormalizationEffects,
+  sinoUSNormalizationRelationTargetAdjustment,
+  updateSinoUSNormalization,
+} from "./sino-us-normalization";
 
 export type DiplomaticActionId = keyof typeof diplomacyConfig.actions;
 
@@ -93,6 +99,15 @@ export function ensureDiplomacyState(state: GameState): void {
     cumulativeForeignAidUSD: 0,
     cumulativeForeignAidRMBThrough1980: 0,
     cumulativeForeignAidUSDThrough1980: 0,
+    sinoUSNormalizationStatus: "not_started",
+    sinoUSNormalizationStartedYear: null,
+    sinoUSNormalizationStartedMonth: null,
+    sinoUSNormalizationEstablishedYear: null,
+    sinoUSNormalizationEstablishedMonth: null,
+    sinoUSNormalizationNegotiationProgress: 0,
+    sinoUSNormalizationNegotiationMonths: 0,
+    sinoUSCooperationProgress: 0,
+    sinoUSNormalizationDelayMonths: 0,
   };
   state.nation.diplomacy.organizationIds ??= [];
   state.nation.diplomacy.strategyId ??= "balanced";
@@ -103,6 +118,7 @@ export function ensureDiplomacyState(state: GameState): void {
   state.nation.diplomacy.foreignPolicyDoctrineProgress ??= 1;
   state.nation.diplomacy.lastForeignPolicyDoctrineChangeMonth ??= null;
   ensureForeignAidState(state);
+  ensureSinoUSNormalizationState(state);
   for (const country of state.world.countries) {
     country.relationWithChina ??= initialRelation(country.id);
     country.diplomaticStatus ??= "neutral";
@@ -367,9 +383,11 @@ export function updateDiplomacy(state: GameState): void {
   updateDiplomaticStrategy(nation);
   updateForeignPolicyDoctrine(nation);
   updateForeignAidProgram(state);
+  updateSinoUSNormalization(state);
   const strategyEffects = diplomaticStrategyEffects(nation);
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const aidEffects = foreignAidProgramEffects(nation);
+  const normalizationEffects = sinoUSNormalizationEffects(nation);
   const organizationPointGain = internationalOrganizations.reduce(
     (sum, organization) =>
       nation.diplomacy.organizationIds.includes(organization.id)
@@ -384,7 +402,8 @@ export function updateDiplomacy(state: GameState): void {
       nation.internationalInfluence / 250 +
       organizationPointGain +
       doctrineEffects.monthlyPointGainAdjustment +
-      aidEffects.monthlyDiplomaticPointAdjustment,
+      aidEffects.monthlyDiplomaticPointAdjustment +
+      normalizationEffects.monthlyDiplomaticPointAdjustment,
     0.25,
     2,
   );
@@ -428,7 +447,8 @@ export function updateDiplomacy(state: GameState): void {
           country.sanctionLevel * 80 +
           diplomaticRelationTargetAdjustment(nation, country.id) +
           foreignPolicyDoctrineRelationAdjustment(nation, country.id) +
-          foreignAidRelationTargetAdjustment(nation, country.id),
+          foreignAidRelationTargetAdjustment(nation, country.id) +
+          sinoUSNormalizationRelationTargetAdjustment(nation, country.id),
       ),
       -100,
       100,
@@ -457,7 +477,8 @@ export function updateDiplomacy(state: GameState): void {
         organizationReputation +
         strategyEffects.reputationTargetAdjustment +
         doctrineEffects.reputationTargetAdjustment +
-        aidEffects.reputationTargetAdjustment,
+        aidEffects.reputationTargetAdjustment +
+        normalizationEffects.reputationTargetAdjustment,
     ),
     0,
     100,

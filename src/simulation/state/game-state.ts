@@ -281,6 +281,17 @@ export interface DiplomacyState {
   cumulativeForeignAidUSD: number;
   cumulativeForeignAidRMBThrough1980: number;
   cumulativeForeignAidUSDThrough1980: number;
+  /** 中美建交是可提前启动、也可延迟完成的一次性外交进程。 */
+  sinoUSNormalizationStatus: "not_started" | "negotiating" | "established";
+  sinoUSNormalizationStartedYear: number | null;
+  sinoUSNormalizationStartedMonth: number | null;
+  sinoUSNormalizationEstablishedYear: number | null;
+  sinoUSNormalizationEstablishedMonth: number | null;
+  sinoUSNormalizationNegotiationProgress: number;
+  sinoUSNormalizationNegotiationMonths: number;
+  sinoUSCooperationProgress: number;
+  /** 相对1979年1月史实节点推迟的月数；提前完成时为0。 */
+  sinoUSNormalizationDelayMonths: number;
 }
 
 export interface ModifierState {

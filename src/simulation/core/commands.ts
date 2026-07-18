@@ -84,6 +84,10 @@ export interface SetForeignAidProgramCommand {
   programId: ForeignAidProgramId;
 }
 
+export interface StartSinoUSNormalizationCommand {
+  type: "START_SINO_US_NORMALIZATION";
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -99,4 +103,5 @@ export type SimulationCommand =
   | SelectTechnologyResearchCommand
   | SetTechnologyIndustryPathCommand
   | SetForeignAidProgramCommand
+  | StartSinoUSNormalizationCommand
   | ImportGameCommand;

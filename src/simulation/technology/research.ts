@@ -9,6 +9,7 @@ import { calculatePrivateEconomyMultipliers } from "../economy/private-economy";
 import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
 import { updateTechnologyIndustryPath } from "./technology-industry-path";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
+import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
 
 export function updateTechnology(nation: NationState): void {
   updateTechnologyIndustryPath(nation);
@@ -17,6 +18,7 @@ export function updateTechnology(nation: NationState): void {
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);
   const privateEconomy = calculatePrivateEconomyMultipliers(nation);
   const foreignAidEffects = foreignAidProgramEffects(nation);
+  const normalizationEffects = sinoUSNormalizationEffects(nation);
   const researchSpending = fiscal.expenditure * fiscal.budget.research;
   const fundingIntensity = clamp(
     Math.sqrt(safeDivide(researchSpending, economy.nominalGDP) / 0.01),
@@ -60,7 +62,8 @@ export function updateTechnology(nation: NationState): void {
   const researchOutput = researchOutputBeforeContinuity *
     (0.9 + researchContinuityFactor * 0.1) *
     privateEconomy.researchCommercialization *
-    foreignAidEffects.researchOutputMultiplier;
+    foreignAidEffects.researchOutputMultiplier *
+    normalizationEffects.researchOutputMultiplier;
   technology.monthlyResearchOutput = researchOutput;
   technology.researchPoints += researchOutput;
 
@@ -84,7 +87,8 @@ export function updateTechnology(nation: NationState): void {
     technologyConfig.diffusionStrength *
     strategyEffects.technologyDiffusionMultiplier *
     doctrineEffects.technologyDiffusionMultiplier *
-    privateEconomy.technologyDiffusion;
+    privateEconomy.technologyDiffusion *
+    normalizationEffects.technologyDiffusionMultiplier;
   const researchCommercialization = clamp(
     applyPolicyModifiers(
       nation,

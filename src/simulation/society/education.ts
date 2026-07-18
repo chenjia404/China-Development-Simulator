@@ -3,6 +3,7 @@ import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { applyModifiers } from "../events/modifiers";
+import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
 
 function laggedValue(queue: number[], months: number): number {
   return queue[Math.max(0, queue.length - 1 - months)] ?? 0;
@@ -37,6 +38,7 @@ export function ensureEducationState(nation: NationState): void {
 export function updateEducation(nation: NationState): void {
   ensureEducationState(nation);
   const { education, fiscal, economy } = nation;
+  const normalizationEffects = sinoUSNormalizationEffects(nation);
   const spending = fiscal.expenditure * fiscal.budget.education;
   const intensity = clamp(safeDivide(spending, economy.nominalGDP), 0, 0.2);
   const efficiency = clamp(
@@ -157,6 +159,7 @@ export function updateEducation(nation: NationState): void {
   education.universityCoverage = clamp(
     education.universityCoverage +
       universityInput * educationConfig.universityEffect * efficiency *
+        normalizationEffects.educationExchangeMultiplier *
         education.higherEducationAdmissionCapacity *
         education.academicContinuity *
         (1 - education.universityCoverage),
@@ -166,11 +169,17 @@ export function updateEducation(nation: NationState): void {
   const forcedTalentLoss = education.researchTalent *
     Math.max(0, 1 - researchTalentRetention) *
     educationConfig.forcedResearchTalentLossScale;
+  // 留学生和访问学者渠道改变的是科研人才培养与回流的月度流量。提前建交
+  // 可以更早积累人才；延迟建交只会错失新增量，不会直接抹去既有人才。
+  const internationalExchangeTalentFlow = Math.max(0, education.researchTalent) *
+    (normalizationEffects.educationExchangeMultiplier - 1) * 0.001;
   education.permanentResearchTalentLosses += forcedTalentLoss;
   education.researchTalent = Math.max(
     0,
     education.researchTalent * (1 - 0.012 / 12) - forcedTalentLoss +
+      internationalExchangeTalentFlow +
       talentInput * education.secondaryCoverage *
+        normalizationEffects.educationExchangeMultiplier *
         nation.population.ageGroups.workingAge * 0.000025 *
         education.higherEducationAdmissionCapacity *
         education.academicContinuity *

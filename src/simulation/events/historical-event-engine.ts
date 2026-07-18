@@ -22,7 +22,11 @@ export type HistoricalEventCategory =
 
 export type HistoricalEventImpact = "positive" | "negative" | "mixed";
 export type HistoricalEventDecisionMode = "automatic" | "interactive";
-export type HistoricalEventOutcome = "occurred" | "prevented" | "enacted_early";
+export type HistoricalEventOutcome =
+  | "occurred"
+  | "prevented"
+  | "enacted_early"
+  | "enacted_late";
 
 export interface HistoricalEventModifierDefinition {
   target: string;
@@ -362,6 +366,7 @@ export function triggerConditionalHistoricalEvent(
   triggerId: string,
   triggerName: string,
   triggerEffects: string[] = [],
+  outcomeOverride?: HistoricalEventOutcome,
 ): HistoricalEventRecord | null {
   ensureHistoricalEventState(nation);
   const event = getHistoricalEvent(eventId);
@@ -388,7 +393,7 @@ export function triggerConditionalHistoricalEvent(
       name: triggerName,
       description: `相关历史进程和国际关系条件达成后自动触发“${event.name}”。`,
       effects: [...historicalChoice.effects, ...triggerEffects],
-      outcome: isBeforeSchedule ? "enacted_early" : "occurred",
+      outcome: outcomeOverride ?? (isBeforeSchedule ? "enacted_early" : "occurred"),
     },
     { year: nation.date.year, month: nation.date.month },
   );

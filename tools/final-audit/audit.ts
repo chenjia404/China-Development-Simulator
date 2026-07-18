@@ -24,6 +24,8 @@ import {
   foreignPolicyDoctrineRelationAdjustment,
   foreignAidProgramDefinitions,
   historicalForeignAidTotalsThrough1980,
+  getSinoUSNormalizationStatus,
+  sinoUSNormalizationEffects,
   serializeGameState,
   updateForeignExchange,
   updateInternationalTrade,
@@ -319,7 +321,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       for (let month = 0; month < 12; month += 1) {
         const elapsedMonths = engine.getState().nation.date.elapsedMonths;
         while (engine.getState().nation.date.elapsedMonths === elapsedMonths) {
+          const current = engine.getState().nation;
+          const settleHistoricalNormalization =
+            current.date.year === 1979 &&
+            current.date.month === 1 &&
+            current.diplomacy.sinoUSNormalizationStatus === "not_started";
+          if (settleHistoricalNormalization) {
+            engine.dispatch({
+              type: "SET_HISTORICAL_EVENT_MODE",
+              mode: "automatic",
+            });
+          }
           engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+          if (settleHistoricalNormalization) {
+            engine.dispatch({
+              type: "SET_HISTORICAL_EVENT_MODE",
+              mode: "interactive",
+            });
+          }
           const pendingEventId = engine.getState().nation.pendingHistoricalEventId;
           if (pendingEventId) {
             engine.dispatch({
@@ -906,6 +925,33 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     (country) => country.id === "north_korea",
   );
 
+  const prepareNormalizationState = () => {
+    const state = createInitialGameState(seed, 1970, "automatic");
+    state.nation.diplomacy.diplomaticPoints = 100;
+    state.nation.diplomacy.globalReputation = 60;
+    state.nation.society.stabilityIndex = 60;
+    state.nation.economy.institutionalEfficiency = 0.55;
+    const usa = state.world.countries.find((country) => country.id === "usa");
+    if (usa) usa.relationWithChina = 50;
+    return state;
+  };
+  const earlyNormalizationEngine = createSimulationEngine(prepareNormalizationState());
+  const delayedNormalizationEngine = createSimulationEngine(prepareNormalizationState());
+  const normalizationStatus = getSinoUSNormalizationStatus(
+    earlyNormalizationEngine.exportState(),
+  );
+  earlyNormalizationEngine.dispatch({ type: "START_SINO_US_NORMALIZATION" });
+  earlyNormalizationEngine.dispatch({ type: "ADVANCE_MONTHS", months: 96 });
+  delayedNormalizationEngine.dispatch({ type: "ADVANCE_MONTHS", months: 96 });
+  const earlyNormalization = earlyNormalizationEngine.getState();
+  const delayedNormalization = delayedNormalizationEngine.getState();
+  const earlyNormalizationEffects = sinoUSNormalizationEffects(
+    earlyNormalization.nation,
+  );
+  const normalizationRelation = (state: GameState, countryId: string) =>
+    state.world.countries.find((country) => country.id === countryId)
+      ?.relationWithChina ?? -100;
+
   const checks: AuditCheck[] = [
     makeCheck(
       "continuous-run",
@@ -1160,6 +1206,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         (historicalAidNorthKorea?.relationWithChina ?? -100) >
           (suspendedAidNorthKorea?.relationWithChina ?? 100),
       `史实累计 ${(historicalAidTotals.rmb / 100_000_000).toFixed(1)} 亿元、${(historicalAidTotals.usd / 100_000_000).toFixed(1)} 亿美元；1980 年暂停/史实 GDP ${(suspendedAidState.nation.economy.realGDP / 100_000_000).toFixed(1)}/${(historicalAidState.nation.economy.realGDP / 100_000_000).toFixed(1)} 亿元，科技 ${suspendedAidState.nation.technology.index.toFixed(1)}/${historicalAidState.nation.technology.index.toFixed(1)}，对朝关系 ${(suspendedAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}/${(historicalAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}`,
+    ),
+    makeCheck(
+      "sino-us-normalization",
+      "中美建交可提前或延迟，并通过教育、科技、出口、贸易协定和双边关系形成路径差异",
+      normalizationStatus.available &&
+        earlyNormalization.nation.diplomacy.sinoUSNormalizationEstablishedYear === 1971 &&
+        earlyNormalizationEffects.relativeTimingAdvantage > 0 &&
+        earlyNormalization.nation.education.researchTalent >
+          delayedNormalization.nation.education.researchTalent &&
+        earlyNormalization.nation.technology.index >
+          delayedNormalization.nation.technology.index &&
+        earlyNormalization.nation.trade.exports > delayedNormalization.nation.trade.exports &&
+        normalizationRelation(earlyNormalization as GameState, "usa") >
+          normalizationRelation(delayedNormalization as GameState, "usa") &&
+        normalizationRelation(earlyNormalization as GameState, "russia") <
+          normalizationRelation(delayedNormalization as GameState, "russia"),
+      `提前/未提前：科研人才 ${earlyNormalization.nation.education.researchTalent.toFixed(0)}/${delayedNormalization.nation.education.researchTalent.toFixed(0)}，科技 ${earlyNormalization.nation.technology.index.toFixed(2)}/${delayedNormalization.nation.technology.index.toFixed(2)}，出口 ${(earlyNormalization.nation.trade.exports / 100_000_000).toFixed(1)}/${(delayedNormalization.nation.trade.exports / 100_000_000).toFixed(1)} 亿元，对美关系 ${normalizationRelation(earlyNormalization as GameState, "usa").toFixed(1)}/${normalizationRelation(delayedNormalization as GameState, "usa").toFixed(1)}`,
     ),
     makeCheck(
       "foreign-exchange-remittances",
