@@ -1580,6 +1580,7 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
 
 function InternationalSection({ game }: { game: GameState }) {
   const trade = game.nation.trade;
+  const financial = game.nation.financialSystem;
   const reserveChangePrefix = trade.monthlyReserveChange >= 0 ? "+" : "";
   const countries = [
     { id: "china", name: "中国", nominalGDP: game.nation.economy.internationalComparableGDP, population: game.nation.population.total, technology: game.nation.technology.index },
@@ -1644,6 +1645,13 @@ function InternationalSection({ game }: { game: GameState }) {
           detail={`${game.nation.economy.globalGDPPerCapitaParticipants} 个参评经济体 · $${formatLarge(game.nation.economy.currentUSDGDPPerCapita)}`}
           tone="gold"
         />
+      </div>
+      <div className="panel-heading"><div><span className="eyebrow">货币 · 信贷 · 跨境流量</span><h2>货币银行与国际收支</h2></div><span>官方汇率 {financial.officialExchangeRate.toFixed(2)} 元/美元</span></div>
+      <div className="diplomacy-metrics foreign-exchange-metrics">
+        <MetricCard label="广义货币 M2" value={formatLarge(financial.monetary.broadMoney)} detail={`基础货币 ${formatLarge(financial.monetary.monetaryBase)} · 增速 ${formatPercent(financial.monetary.annualBroadMoneyGrowth, 1)}`} tone="blue" />
+        <MetricCard label="银行贷款" value={formatLarge(financial.banking.totalLoans)} detail={`企业 ${formatLarge(financial.banking.enterpriseLoans)} · 居民 ${formatLarge(financial.banking.householdLoans)}`} tone="gold" />
+        <MetricCard label="不良贷款" value={formatPercent(financial.banking.nonPerformingLoanRatio, 2)} detail={`拨备 ${formatLarge(financial.banking.loanLossProvisions)} · 资本充足率 ${formatPercent(financial.banking.capitalAdequacyRatio, 1)}`} tone={financial.banking.nonPerformingLoanRatio <= 0.05 ? "green" : "red"} />
+        <MetricCard label="经常账户" value={`$${formatLarge(financial.balanceOfPayments.currentAccountBalance)}`} detail={`金融账户 $${formatLarge(financial.balanceOfPayments.financialAccountBalance)} · 储备变动 $${formatLarge(financial.balanceOfPayments.reserveAssetChange)}`} tone={financial.balanceOfPayments.currentAccountBalance >= 0 ? "green" : "red"} />
       </div>
       <div className="world-table">
         <div className="world-head"><span>主要经济体排名</span><span>国家</span><span>名义 GDP</span><span>人均 GDP</span><span>科技</span></div>

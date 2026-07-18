@@ -29,6 +29,10 @@ import {
   createEmptyFiscalFederalismState,
   updateFiscalFederalism,
 } from "../fiscal/fiscal-federalism";
+import {
+  createEmptyFinancialSystemState,
+  updateFinancialSystem,
+} from "../economy/monetary-financial";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -250,6 +254,7 @@ export function createInitialGameState(
       enterprises: createEmptyEnterpriseSectorState(),
       nationalAccounts: createEmptyNationalAccountsState(),
       marketDynamics: createEmptyMarketDynamicsState(),
+      financialSystem: createEmptyFinancialSystemState(),
       diplomacy: {
         diplomaticPoints: diplomacyConfig.initialDiplomaticPoints,
         monthlyPointGain: 0,
@@ -314,6 +319,7 @@ export function createInitialGameState(
   updateEnterpriseSectors(state.nation);
   updateFiscalFederalism(state.nation);
   ensureMarketDynamicsState(state.nation);
+  updateFinancialSystem(state, true);
   calculateWorldRankings(state);
   return state;
 }

@@ -70,6 +70,13 @@ export function recordHistory(state: GameState): void {
     centralRevenueShare: nation.fiscal.federalism.centralRevenueShare,
     centralToLocalTransfers: nation.fiscal.federalism.centralToLocalTransfers,
     socialProtectionReserve: nation.fiscal.federalism.socialProtection.reserve,
+    broadMoney: nation.financialSystem.monetary.broadMoney,
+    totalBankLoans: nation.financialSystem.banking.totalLoans,
+    nonPerformingLoanRatio:
+      nation.financialSystem.banking.nonPerformingLoanRatio,
+    currentAccountBalance:
+      nation.financialSystem.balanceOfPayments.currentAccountBalance,
+    officialExchangeRate: nation.financialSystem.officialExchangeRate,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

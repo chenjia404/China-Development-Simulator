@@ -39,6 +39,7 @@ import { updateMarketDynamics } from "../economy/market-dynamics";
 import { updateDemographicCohorts } from "../population/demographic-cohorts";
 import { updateEnterpriseSectors } from "../economy/enterprise-sectors";
 import { updateFiscalFederalism } from "../fiscal/fiscal-federalism";
+import { updateFinancialSystem } from "../economy/monetary-financial";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -73,6 +74,7 @@ export function simulateMonth(
   updateEnterpriseSectors(state.nation);
   updateDebt(state.nation);
   updateFiscalFederalism(state.nation);
+  updateFinancialSystem(state);
   updateInflation(state.nation);
   updateMarketDynamics(state.nation);
   updateWellbeing(state.nation);

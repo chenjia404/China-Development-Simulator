@@ -125,6 +125,22 @@ export function validateGameState(state: GameState): void {
     federalism.consolidatedDebtError / Math.max(1, nation.fiscal.governmentDebt) > 1e-10
   ) throw new Error("中央地方合并财政未守恒");
   if (federalism.socialProtection.reserve < 0) throw new Error("社会保障储备不得为负");
+  const financial = nation.financialSystem;
+  if (
+    financial.monetary.monetaryBase < 0 ||
+    financial.monetary.broadMoney < 0 ||
+    financial.banking.totalLoans < 0 ||
+    financial.banking.nonPerformingLoanRatio < 0 ||
+    financial.banking.nonPerformingLoanRatio > 1
+  ) throw new Error("货币银行账户出现无效存量或比例");
+  if (
+    financial.banking.balanceSheetError /
+      Math.max(1, financial.banking.totalAssets) > 1e-10
+  ) throw new Error("银行资产负债表未守恒");
+  if (
+    financial.balanceOfPayments.identityError /
+      Math.max(1, Math.abs(financial.balanceOfPayments.reserveAssetChange)) > 1e-10
+  ) throw new Error("国际收支表未守恒");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

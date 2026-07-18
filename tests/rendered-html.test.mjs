@@ -284,3 +284,17 @@ test("客户端展示中央地方财政、转移支付与五项社会保障", as
   assert.match(source, /最低生活保障/);
   assert.match(source, /合并财政内部流量/);
 });
+
+test("客户端展示货币银行、汇率与国际收支账户", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /货币银行与国际收支/);
+  assert.match(source, /广义货币 M2/);
+  assert.match(source, /银行贷款/);
+  assert.match(source, /不良贷款/);
+  assert.match(source, /经常账户/);
+  assert.match(source, /官方汇率/);
+});

@@ -1364,6 +1364,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `12 条路线外债与资本品用汇指标均为有限非负数；史实路线 2026 年外债 ${(finalTrade.externalDebt / 100_000_000).toFixed(1)} 亿美元、负债率 ${(finalTrade.externalDebtToGDP * 100).toFixed(3)}%、偿债率 ${(finalTrade.externalDebtServiceRatio * 100).toFixed(3)}%、资本品用汇满足率 ${(finalTrade.capitalGoodsImportCoverage * 100).toFixed(1)}%`,
     ),
     makeCheck(
+      "monetary-banking-balance-of-payments",
+      "货币、银行资产负债表与国际收支恒等式可逐月核对",
+      historical.finalState.nation.financialSystem.monetary.broadMoney > 0 &&
+        historical.finalState.nation.financialSystem.banking.totalLoans > 0 &&
+        historical.finalState.nation.financialSystem.banking.balanceSheetError /
+          historical.finalState.nation.financialSystem.banking.totalAssets < 1e-10 &&
+        historical.finalState.nation.financialSystem.balanceOfPayments.identityError < 0.01,
+      `2026 年 M2 ${historical.finalState.nation.financialSystem.monetary.broadMoney.toFixed(0)}、贷款 ${historical.finalState.nation.financialSystem.banking.totalLoans.toFixed(0)}、不良率 ${(historical.finalState.nation.financialSystem.banking.nonPerformingLoanRatio * 100).toFixed(2)}%、国际收支误差 ${historical.finalState.nation.financialSystem.balanceOfPayments.identityError.toFixed(4)}`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

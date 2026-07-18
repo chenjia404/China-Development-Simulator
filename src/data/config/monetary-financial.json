@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "description": "货币深化、银行资产负债表和国际收支核算参数。账户优先调和现有宏观流量，不直接创造GDP。",
+    "sources": [
+      "https://data.stats.gov.cn/easyquery.htm?cn=C01",
+      "https://www.pbc.gov.cn/diaochatongjisi/116219/index.html",
+      "https://www.safe.gov.cn/safe/2019/0627/13584.html"
+    ]
+  },
+  "monthlyDepthAdjustmentSpeed": 0.025,
+  "minimumCapitalAdequacyRatio": 0.08,
+  "baseCapitalAdequacyRatio": 0.105,
+  "baseProvisionCoverageRatio": 1.5,
+  "baseNonPerformingLoanRatio": 0.018,
+  "enterpriseLoanShare": 0.68,
+  "householdLoanShareMinimum": 0.02,
+  "householdLoanShareMaximum": 0.34,
+  "governmentClaimShareMinimum": 0.08,
+  "serviceExportShareOfGoods": 0.09,
+  "serviceImportShareOfGoods": 0.12,
+  "m2ToGDPAnchors": [
+    { "year": 1949, "value": 0.2 },
+    { "year": 1978, "value": 0.32 },
+    { "year": 1990, "value": 0.78 },
+    { "year": 2000, "value": 1.35 },
+    { "year": 2010, "value": 1.78 },
+    { "year": 2026, "value": 2.05 }
+  ],
+  "baseMoneyToGDPAnchors": [
+    { "year": 1949, "value": 0.16 },
+    { "year": 1978, "value": 0.2 },
+    { "year": 2000, "value": 0.13 },
+    { "year": 2026, "value": 0.22 }
+  ]
+}

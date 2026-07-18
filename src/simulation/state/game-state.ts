@@ -308,6 +308,53 @@ export interface TradeState {
   capitalGoodsImportCoverage: number;
 }
 
+/** 货币、银行与国际收支账户；境内金额使用当期人民币口径，跨境项目使用美元等值。 */
+export interface FinancialSystemState {
+  monetary: {
+    monetaryBase: number;
+    broadMoney: number;
+    currencyInCirculation: number;
+    deposits: number;
+    bankReserves: number;
+    requiredReserveRatio: number;
+    policyRate: number;
+    depositRate: number;
+    lendingRate: number;
+    annualBroadMoneyGrowth: number;
+  };
+  banking: {
+    totalAssets: number;
+    totalLoans: number;
+    enterpriseLoans: number;
+    householdLoans: number;
+    governmentClaims: number;
+    bankCapital: number;
+    capitalAdequacyRatio: number;
+    nonPerformingLoans: number;
+    nonPerformingLoanRatio: number;
+    loanLossProvisions: number;
+    aggregateFinancingAccess: number;
+    balanceSheetError: number;
+  };
+  balanceOfPayments: {
+    goodsExports: number;
+    goodsImports: number;
+    servicesBalance: number;
+    primaryIncomeBalance: number;
+    secondaryIncomeBalance: number;
+    currentAccountBalance: number;
+    directInvestmentBalance: number;
+    otherInvestmentBalance: number;
+    financialAccountBalance: number;
+    reserveAssetChange: number;
+    errorsAndOmissions: number;
+    identityError: number;
+  };
+  officialExchangeRate: number;
+  realEffectiveExchangeRateIndex: number;
+  foreignCurrencyLiquidityMonths: number;
+}
+
 /**
  * 民营与混合所有制经济的路径依赖能力。
  *
@@ -532,6 +579,7 @@ export interface NationState {
   enterprises: EnterpriseSectorState;
   nationalAccounts: NationalAccountsState;
   marketDynamics: MarketDynamicsState;
+  financialSystem: FinancialSystemState;
   diplomacy: DiplomacyState;
   policies: string[];
   policyProgress: Record<string, number>;

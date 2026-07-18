@@ -20,6 +20,11 @@ export interface MonthlySnapshot {
   centralRevenueShare: number;
   centralToLocalTransfers: number;
   socialProtectionReserve: number;
+  broadMoney: number;
+  totalBankLoans: number;
+  nonPerformingLoanRatio: number;
+  currentAccountBalance: number;
+  officialExchangeRate: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;
