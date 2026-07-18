@@ -39,10 +39,14 @@ export function updateDemographics(
     (education.index / 100) * populationConfig.educationBirthSuppression +
     incomeDevelopment * populationConfig.incomeBirthSuppression;
   const annualBirthRate = clamp(
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "population.birthRate",
-      populationConfig.baseAnnualBirthRate,
+      applyPolicyModifiers(
+        nation,
+        "population.birthRate",
+        populationConfig.baseAnnualBirthRate,
+      ),
     ) * (1 - birthSuppression) +
       random.nextNormal(0, populationConfig.birthRateNoise),
     populationConfig.minimumAnnualBirthRate,

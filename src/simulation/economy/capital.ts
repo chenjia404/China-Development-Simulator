@@ -3,6 +3,7 @@ import industryConfigs from "../../data/config/industries.json";
 import { clamp } from "../core/math";
 import type { NationState, SectorId } from "../state/game-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { applyModifiers } from "../events/modifiers";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
@@ -12,11 +13,15 @@ export function updateCapitalAndInvestment(nation: NationState): void {
       fiscal.budget.infrastructure +
       fiscal.budget.agriculture) *
     0.65;
-  const privateInvestment = applyPolicyModifiers(
+  const privateInvestment = applyModifiers(
     nation,
     "capital.privateInvestment",
-    economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
-      economy.realGDP * 0.08,
+    applyPolicyModifiers(
+      nation,
+      "capital.privateInvestment",
+      economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
+        economy.realGDP * 0.08,
+    ),
   );
   const annualNominalInvestment =
     privateInvestment +

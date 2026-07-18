@@ -1,0 +1,505 @@
+[
+  {
+    "id": "bureaucratic_capital_takeover",
+    "name": "没收官僚资本与建立国营经济",
+    "year": 1949,
+    "month": 10,
+    "category": "经济制度",
+    "impact": "mixed",
+    "description": "新政权接管官僚资本工矿、金融和交通企业，国营经济迅速成为现代工业与金融体系的重要基础。所有权转移强化了国家动员能力，但企业整合也需要适应期。",
+    "effects": ["工业组织能力提高", "财政收入基础扩大", "短期整合成本上升"],
+    "durationMonths": 24,
+    "modifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.025 }
+    ]
+  },
+  {
+    "id": "unified_finance_1950",
+    "name": "统一国家财政经济",
+    "year": 1950,
+    "month": 3,
+    "category": "财政金融",
+    "impact": "positive",
+    "description": "全国财政收入、物资调度和现金管理逐步统一，缓解财政分散与市场剧烈波动，为恢复生产创造条件。",
+    "effects": ["财政征管改善", "制度效率提高", "市场秩序趋稳"],
+    "durationMonths": 30,
+    "modifiers": [
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.035 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.025 }
+    ]
+  },
+  {
+    "id": "land_reform_1950",
+    "name": "土地改革法实施",
+    "year": 1950,
+    "month": 6,
+    "category": "农业农村",
+    "impact": "mixed",
+    "description": "土地制度发生深刻变化，农业生产关系与农村资源配置被重新组织。农户生产积极性提高，同时大规模制度转换带来短期摩擦。",
+    "effects": ["农业产出提高", "农村购买力改善", "制度转换存在摩擦"],
+    "durationMonths": 36,
+    "modifiers": [
+      { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "foreign_assets_reorganization",
+    "name": "取消经济特权与清理在华外资企业",
+    "year": 1950,
+    "month": 12,
+    "category": "对外经济",
+    "impact": "mixed",
+    "description": "旧有海关与外贸特权被取消，部分敌对国家资产被管制或接管，合法经营外资则按不同情况逐步清理、征用、代管或对价转让。国家经济主权增强，但西方资本与贸易渠道明显收缩。",
+    "effects": ["经济主权增强", "外资信心下降", "对西方贸易收缩"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 0.3 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.94 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": -2 }
+    ]
+  },
+  {
+    "id": "first_five_year_plan",
+    "name": "第一个五年计划启动",
+    "year": 1953,
+    "month": 1,
+    "category": "工业化",
+    "impact": "mixed",
+    "description": "国家集中资源建设重工业、能源、交通和国防工业项目，工业化基础加速形成，但农业、消费和轻工业资源受到挤压。",
+    "effects": ["工业投资增加", "工业产出提高", "消费与农业资源承压"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.045 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.985 }
+    ]
+  },
+  {
+    "id": "unified_purchase_1953",
+    "name": "粮食统购统销",
+    "year": 1953,
+    "month": 11,
+    "category": "农业农村",
+    "impact": "mixed",
+    "description": "粮食收购与供应逐步纳入国家计划，城市工业化获得较稳定的粮食保障，但价格信号和农户自主配置空间受到压缩。",
+    "effects": ["城市粮食供应趋稳", "农业市场激励减弱", "工业化保障增强"],
+    "durationMonths": 48,
+    "modifiers": [
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.015 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.985 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 }
+    ]
+  },
+  {
+    "id": "individual_joint_ownership_1954",
+    "name": "个别企业公私合营扩展",
+    "year": 1954,
+    "month": 9,
+    "category": "经济制度",
+    "impact": "mixed",
+    "description": "国家资本与私人资本在更多企业中共同经营，统一采购、生产和销售逐步加强，企业融资和组织能力改善，但经营自主性下降。",
+    "effects": ["企业组织能力提高", "财政可控收入增加", "经营自主性下降"],
+    "durationMonths": 24,
+    "modifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.995 }
+    ]
+  },
+  {
+    "id": "industry_wide_joint_ownership_1956",
+    "name": "全行业公私合营",
+    "year": 1956,
+    "month": 1,
+    "category": "经济制度",
+    "impact": "mixed",
+    "description": "资本主义工商业改造从个别企业推进到全行业公私合营，私营工业和商业大部分纳入国家资本主义及计划管理体系。短期内资源协调加强，长期则削弱市场竞争和民营投资。",
+    "effects": ["工业资源协调加强", "财政收入提高", "民营投资与商业活力下降"],
+    "durationMonths": 48,
+    "modifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.97 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.03 }
+    ]
+  },
+  {
+    "id": "great_leap_forward_1958",
+    "name": "大跃进与高指标工业化",
+    "year": 1958,
+    "month": 5,
+    "category": "工业化",
+    "impact": "negative",
+    "description": "工业和农业生产指标被大幅提高，大量劳动力与资源向低效率工业项目集中。短期工业统计扩张伴随农业减产、能源浪费和资本效率下降。",
+    "effects": ["短期工业动员增强", "农业与粮食生产受损", "投资效率下降"],
+    "durationMonths": 30,
+    "modifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.96 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 }
+    ]
+  },
+  {
+    "id": "peoples_communes_1958",
+    "name": "人民公社化运动",
+    "year": 1958,
+    "month": 8,
+    "category": "农业农村",
+    "impact": "negative",
+    "description": "农村生产和分配被高度集中，公共资源动员能力上升，但基层信息失真、激励弱化与生产组织失序加剧粮食风险。",
+    "effects": ["农村组织高度集中", "农业激励下降", "粮食供应风险上升"],
+    "durationMonths": 36,
+    "modifiers": [
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.96 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.97 }
+    ]
+  },
+  {
+    "id": "three_year_difficulties_1959",
+    "name": "三年经济困难",
+    "year": 1959,
+    "month": 1,
+    "category": "经济危机",
+    "impact": "negative",
+    "description": "政策失误、自然灾害及外部环境变化叠加，粮食和基本生活资料严重短缺，人口健康、农业生产和社会稳定遭受长期冲击。",
+    "effects": ["粮食供应严重下降", "死亡率上升", "工农业产出收缩"],
+    "durationMonths": 36,
+    "modifiers": [
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.92 },
+      { "target": "population.deathRate", "operation": "multiply", "value": 1.03 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.97 }
+    ]
+  },
+  {
+    "id": "economic_readjustment_1961",
+    "name": "调整、巩固、充实、提高",
+    "year": 1961,
+    "month": 1,
+    "category": "宏观调控",
+    "impact": "positive",
+    "description": "国民经济进入调整期，压缩过度扩张的建设规模，恢复农业和轻工业，改善基本生活资料供给。",
+    "effects": ["农业与粮食恢复", "过热工业投资收缩", "宏观秩序改善"],
+    "durationMonths": 42,
+    "modifiers": [
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.08 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 1.055 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "third_front_construction_1964",
+    "name": "三线建设展开",
+    "year": 1964,
+    "month": 5,
+    "category": "工业化",
+    "impact": "mixed",
+    "description": "大批国防、能源、交通和基础工业项目向内陆布局，提升战略安全和工业纵深，但选址与重复建设降低了短期资本效率。",
+    "effects": ["工业纵深增强", "国家安全提高", "短期资本效率下降"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
+    ]
+  },
+  {
+    "id": "cultural_revolution_disruption_1966",
+    "name": "文化大革命冲击",
+    "year": 1966,
+    "month": 5,
+    "category": "社会教育",
+    "impact": "negative",
+    "description": "教育、科研、行政和企业管理体系受到长期扰动，人才培养中断，制度运行与服务业效率下降。部分工业生产依靠行政动员维持。",
+    "effects": ["教育积累受阻", "科研效率下降", "制度与服务业受损"],
+    "durationMonths": 120,
+    "modifiers": [
+      { "target": "education.efficiency", "operation": "multiply", "value": 0.82 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 0.78 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.973 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.94 }
+    ]
+  },
+  {
+    "id": "un_seat_restored_1971",
+    "name": "恢复联合国合法席位",
+    "year": 1971,
+    "month": 10,
+    "category": "外交",
+    "impact": "positive",
+    "description": "中国恢复在联合国的合法席位，多边外交空间和国际承认度显著扩大，为此后的经贸往来改善外部条件。",
+    "effects": ["国际声誉提高", "多边外交能力增强", "贸易环境逐步改善"],
+    "durationMonths": 36,
+    "modifiers": [
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 6 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
+    "id": "reform_and_opening_1978",
+    "name": "改革开放启动",
+    "year": 1978,
+    "month": 12,
+    "category": "经济改革",
+    "impact": "positive",
+    "description": "经济建设成为中心任务，农村改革、企业放权和对外开放逐步展开，价格与资源配置开始引入更多市场机制。",
+    "effects": ["制度效率提高", "农业生产改善", "民间投资恢复"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.055 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 }
+    ]
+  },
+  {
+    "id": "joint_venture_law_1979",
+    "name": "中外合资经营企业法",
+    "year": 1979,
+    "month": 7,
+    "category": "对外经济",
+    "impact": "positive",
+    "description": "外商直接投资首次获得专门法律框架，对外经济合作从贸易往来扩展到资本、技术和管理合作。",
+    "effects": ["外资信心提高", "技术与管理输入增加", "对外开放制度化"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.15 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
+    "id": "special_economic_zones_1980",
+    "name": "设立经济特区",
+    "year": 1980,
+    "month": 8,
+    "category": "对外经济",
+    "impact": "positive",
+    "description": "深圳、珠海、汕头和厦门等经济特区成为引进资本、技术、管理经验和出口加工制度的试验窗口。",
+    "effects": ["外资流入增加", "出口竞争力提高", "服务业与城市化加快"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.18 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.045 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
+    "id": "urban_economic_reform_1984",
+    "name": "城市经济体制改革全面展开",
+    "year": 1984,
+    "month": 10,
+    "category": "经济改革",
+    "impact": "positive",
+    "description": "国有企业放权让利、利改税、价格双轨制和沿海开放同步推进，微观经营活力增强，但价格与投资波动加大。",
+    "effects": ["企业活力提高", "财政税制转型", "价格与投资波动增加"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.05 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.025 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "socialist_market_economy_1992",
+    "name": "确立社会主义市场经济改革目标",
+    "year": 1992,
+    "month": 10,
+    "category": "经济改革",
+    "impact": "positive",
+    "description": "市场机制在资源配置中的作用进一步扩大，企业、价格、投资、外贸和所有制改革进入制度化加速阶段。",
+    "effects": ["制度效率提高", "民间投资增加", "外资和贸易扩张"],
+    "durationMonths": 84,
+    "modifiers": [
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.06 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.055 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.12 }
+    ]
+  },
+  {
+    "id": "tax_sharing_reform_1994",
+    "name": "分税制财政改革",
+    "year": 1994,
+    "month": 1,
+    "category": "财政金融",
+    "impact": "mixed",
+    "description": "中央与地方税收和支出责任重新划分，财政汲取与宏观调控能力提高，同时地方发展与融资激励发生深刻变化。",
+    "effects": ["财政收入能力提高", "宏观调控增强", "地方财政压力上升"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 1.055 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.025 }
+    ]
+  },
+  {
+    "id": "asian_financial_crisis_1997",
+    "name": "亚洲金融危机外部冲击",
+    "year": 1997,
+    "month": 7,
+    "category": "外部冲击",
+    "impact": "negative",
+    "description": "周边经济体金融动荡压低区域需求并加剧资本避险，中国出口和外资面临阶段性压力。",
+    "effects": ["外需下降", "外资趋于谨慎", "财政稳增长压力增加"],
+    "durationMonths": 18,
+    "modifiers": [
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.94 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 0.9 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 0.98 }
+    ]
+  },
+  {
+    "id": "wto_accession_2001",
+    "name": "加入世界贸易组织",
+    "year": 2001,
+    "month": 12,
+    "category": "对外经济",
+    "impact": "positive",
+    "description": "中国正式加入世界贸易组织，关税、市场准入和国内规则逐步与多边贸易体系衔接，出口和外资进入加速期。",
+    "effects": ["出口市场准入扩大", "外资信心增强", "国内企业竞争加剧"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.09 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.1 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.025 }
+    ]
+  },
+  {
+    "id": "sars_2003",
+    "name": "非典疫情",
+    "year": 2003,
+    "month": 4,
+    "category": "公共卫生",
+    "impact": "negative",
+    "description": "公共卫生危机冲击人员流动、旅游、餐饮和零售，推动疾病监测、应急体系与公共卫生投入改进。",
+    "effects": ["服务业短期收缩", "医疗压力上升", "公共卫生体系改善"],
+    "durationMonths": 9,
+    "modifiers": [
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.95 },
+      { "target": "population.deathRate", "operation": "multiply", "value": 1.015 },
+      { "target": "health.efficiency", "operation": "multiply", "value": 1.025 }
+    ]
+  },
+  {
+    "id": "global_crisis_stimulus_2008",
+    "name": "国际金融危机与扩大内需",
+    "year": 2008,
+    "month": 11,
+    "category": "宏观调控",
+    "impact": "mixed",
+    "description": "全球需求骤降后，财政、信贷和基础设施投资快速扩张以稳定就业和增长，短期托底明显，也积累债务与产能压力。",
+    "effects": ["外需下降", "公共投资扩张", "债务与产能风险增加"],
+    "durationMonths": 30,
+    "modifiers": [
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.94 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.08 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 }
+    ]
+  },
+  {
+    "id": "belt_and_road_2013",
+    "name": "共建丝绸之路经济带倡议",
+    "year": 2013,
+    "month": 9,
+    "category": "外交经贸",
+    "impact": "mixed",
+    "description": "跨境基础设施、贸易、投资与产能合作空间扩大，国际影响力和企业海外机会增加，同时带来融资、项目与地缘风险。",
+    "effects": ["国际合作空间扩大", "出口与投资机会增加", "海外项目风险上升"],
+    "durationMonths": 72,
+    "modifiers": [
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.01 }
+    ]
+  },
+  {
+    "id": "supply_side_reform_2015",
+    "name": "供给侧结构性改革",
+    "year": 2015,
+    "month": 11,
+    "category": "经济改革",
+    "impact": "mixed",
+    "description": "去产能、去库存、去杠杆、降成本和补短板逐步推进，传统工业扩张放缓，资源效率和技术升级得到强化。",
+    "effects": ["落后产能收缩", "能源效率改善", "科研与产业升级加快"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.99 },
+      { "target": "resources.energySupply", "operation": "multiply", "value": 1.025 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 1.025 }
+    ]
+  },
+  {
+    "id": "covid_19_2020",
+    "name": "新冠疫情冲击",
+    "year": 2020,
+    "month": 1,
+    "category": "公共卫生",
+    "impact": "negative",
+    "description": "疫情与防控措施显著限制人员流动和线下服务，供应链、就业、财政和医疗系统承压，数字化与公共卫生能力加速发展。",
+    "effects": ["服务业和工业短期收缩", "财政与医疗压力上升", "数字化转型加快"],
+    "durationMonths": 18,
+    "modifiers": [
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.9 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.96 },
+      { "target": "fiscal.revenue", "operation": "multiply", "value": 0.94 },
+      { "target": "population.deathRate", "operation": "multiply", "value": 1.025 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "family_planning_1971",
+    "name": "计划生育纳入国家计划",
+    "year": 1971,
+    "month": 7,
+    "category": "社会教育",
+    "impact": "mixed",
+    "description": "人口增长控制逐步纳入国民经济计划，晚婚、晚育和少生政策持续加强。人口增速下降有利于降低抚养压力，也开始积累人口结构变化。",
+    "effects": ["出生率逐步下降", "短期抚养压力缓解", "长期老龄化风险上升"],
+    "durationMonths": 108,
+    "modifiers": [
+      { "target": "population.birthRate", "operation": "multiply", "value": 0.98 }
+    ]
+  },
+  {
+    "id": "one_child_policy_1980",
+    "name": "人口控制政策进一步强化",
+    "year": 1980,
+    "month": 9,
+    "category": "社会教育",
+    "impact": "mixed",
+    "description": "独生子女倡议和更严格的人口控制措施在各地逐步实施，生育率明显下行。资源和公共服务压力降低，但人口老龄化与劳动力收缩风险不断累积。",
+    "effects": ["出生率明显下降", "教育医疗人均资源改善", "老龄化与劳动力风险上升"],
+    "durationMonths": 240,
+    "modifiers": [
+      { "target": "population.birthRate", "operation": "multiply", "value": 0.96 }
+    ]
+  },
+  {
+    "id": "universal_two_child_2016",
+    "name": "全面两孩政策实施",
+    "year": 2016,
+    "month": 1,
+    "category": "社会教育",
+    "impact": "mixed",
+    "description": "全面两孩政策开始实施，以应对生育率下降和人口老龄化。政策释放部分生育需求，但住房、教育、就业和育儿成本限制实际效果。",
+    "effects": ["出生率短期回升", "家庭养育成本增加", "老龄化压力边际缓解"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "population.birthRate", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
+    "id": "three_child_policy_2021",
+    "name": "三孩生育政策及配套支持",
+    "year": 2021,
+    "month": 5,
+    "category": "社会教育",
+    "impact": "mixed",
+    "description": "三孩生育政策与托育、教育、住房等支持方向逐步推出，目标是改善长期人口结构，但生育意愿仍受综合生活成本约束。",
+    "effects": ["生育限制进一步放宽", "公共服务需求增加", "政策效果存在明显滞后"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "population.birthRate", "operation": "multiply", "value": 1.015 }
+    ]
+  }
+]

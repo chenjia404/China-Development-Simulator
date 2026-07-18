@@ -3,6 +3,7 @@ import { clamp } from "../core/math";
 import type { RandomGenerator } from "../core/random";
 import type { NationState } from "../state/game-state";
 import { addModifier } from "./modifiers";
+import { historicalEventName } from "./historical-event-engine";
 
 type EventId = typeof eventConfig.events[number]["id"];
 
@@ -75,5 +76,7 @@ export function checkRandomEvents(
 }
 
 export function eventName(eventId: string): string {
-  return eventConfig.events.find((event) => event.id === eventId)?.name ?? eventId;
+  return eventConfig.events.find((event) => event.id === eventId)?.name ??
+    historicalEventName(eventId) ??
+    eventId;
 }

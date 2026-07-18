@@ -2,6 +2,7 @@ import diplomacyConfig from "../../data/config/diplomacy.json";
 import { approach, clamp } from "../core/math";
 import type { GameState } from "../state/game-state";
 import type { WorldCountryState } from "../state/world-state";
+import { applyModifiers } from "../events/modifiers";
 
 export type DiplomaticActionId = keyof typeof diplomacyConfig.actions;
 
@@ -266,10 +267,14 @@ export function updateDiplomacy(state: GameState): void {
     0,
   );
   const reputationTarget = clamp(
-    42 +
-      averageInternationalRelation(state) * 0.18 +
-      nation.economy.institutionalEfficiency * 12 +
-      organizationReputation,
+    applyModifiers(
+      nation,
+      "diplomacy.reputationTarget",
+      42 +
+        averageInternationalRelation(state) * 0.18 +
+        nation.economy.institutionalEfficiency * 12 +
+        organizationReputation,
+    ),
     0,
     100,
   );

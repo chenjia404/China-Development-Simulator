@@ -2,6 +2,7 @@ import policyConfig from "../../data/config/policies.json";
 import policyCatalog from "../../data/config/national-policies.json";
 import { approach, clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 export type PolicyCategory = "产业" | "社会" | "发展" | "开放" | "财政";
 export type PolicyOperation = "add" | "multiply";
@@ -102,10 +103,14 @@ export function updatePolicyEnvironment(nation: NationState): void {
     1.5,
   );
   const institutionTarget = clamp(
-    0.25 +
-      nation.education.index / 100 * 0.35 +
-      nation.trade.openness * 0.25 +
-      administrationCapacity * 0.08,
+    applyModifiers(
+      nation,
+      "economy.institutionalEfficiencyTarget",
+      0.25 +
+        nation.education.index / 100 * 0.35 +
+        nation.trade.openness * 0.25 +
+        administrationCapacity * 0.08,
+    ),
     0.1,
     0.95,
   );
@@ -118,8 +123,11 @@ export function updatePolicyEnvironment(nation: NationState): void {
     nation.trade.openness *
     nation.economy.institutionalEfficiency *
     nation.society.stabilityIndex / 100;
-  nation.trade.foreignInvestment =
+  nation.trade.foreignInvestment = applyModifiers(
+    nation,
+    "trade.foreignInvestment",
     nation.economy.nominalGDP *
-    policyConfig.maximumForeignInvestmentShare *
-    investmentConfidence;
+      policyConfig.maximumForeignInvestmentShare *
+      investmentConfidence,
+  );
 }

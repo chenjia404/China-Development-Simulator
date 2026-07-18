@@ -36,8 +36,21 @@ export interface AnnualReport {
   completedProjects: string[];
 }
 
+export interface HistoricalEventRecord {
+  id: string;
+  name: string;
+  year: number;
+  month: number;
+  category: string;
+  impact: "positive" | "negative" | "mixed";
+  description: string;
+  effects: string[];
+  durationMonths: number;
+}
+
 export interface NationHistory {
   monthly: MonthlySnapshot[];
   annual: AnnualSnapshot[];
   reports: AnnualReport[];
+  historicalEvents: HistoricalEventRecord[];
 }

@@ -2,6 +2,7 @@ import fiscalConfig from "../../data/config/fiscal.json";
 import { clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { applyModifiers } from "../events/modifiers";
 
 export function calculateFiscalSpending(nation: NationState): void {
   const { fiscal, economy } = nation;
@@ -9,10 +10,14 @@ export function calculateFiscalSpending(nation: NationState): void {
     (total, share) => total + clamp(share, 0, 1),
     0,
   );
-  const policyMultiplier = applyPolicyModifiers(
+  const policyMultiplier = applyModifiers(
     nation,
     "fiscal.spending",
-    1,
+    applyPolicyModifiers(
+      nation,
+      "fiscal.spending",
+      1,
+    ),
   );
   const primarySpending =
     economy.nominalGDP *

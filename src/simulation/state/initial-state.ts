@@ -181,7 +181,7 @@ export function createInitialGameState(seed: number, startYear = 1949): GameStat
       policyProgress: {},
       projects: [],
       modifiers: [],
-      history: { monthly: [], annual: [], reports: [] },
+      history: { monthly: [], annual: [], reports: [], historicalEvents: [] },
     },
     world: createInitialWorldState(),
   };

@@ -103,7 +103,18 @@ export function recordHistory(state: GameState): void {
       : 0,
     fiscalBalance: nation.fiscal.balance,
     rankingChange: previous ? previous.gdpRank - annual.gdpRank : 0,
-    majorEvents: [...new Set(nation.modifiers.map((modifier) => eventName(modifier.sourceId)))],
+    majorEvents: [...new Set([
+      ...nation.history.historicalEvents
+        .filter((event) => event.year === nation.date.year)
+        .map((event) => event.name),
+      ...nation.modifiers
+        .filter(
+          (modifier) => !nation.history.historicalEvents.some(
+            (event) => event.id === modifier.sourceId,
+          ),
+        )
+        .map((modifier) => eventName(modifier.sourceId)),
+    ])],
     completedProjects: [],
   });
 }

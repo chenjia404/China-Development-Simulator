@@ -5,6 +5,7 @@ import {
   type SaveEnvelope,
 } from "./schema";
 import { ensureDiplomacyState } from "../diplomacy/diplomacy";
+import { ensureHistoricalEventHistory } from "../events/historical-event-engine";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -43,5 +44,6 @@ export function deserializeGameState(serialized: string): GameState {
   }
   state.nation.policyProgress ??= {};
   ensureDiplomacyState(state);
+  ensureHistoricalEventHistory(state.nation);
   return state;
 }

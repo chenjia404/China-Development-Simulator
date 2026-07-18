@@ -2,16 +2,21 @@ import healthConfig from "../../data/config/health.json";
 import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { applyModifiers } from "../events/modifiers";
 
 export function updateHealth(nation: NationState): void {
   const { health, fiscal, economy, education, resources } = nation;
   const spending = fiscal.expenditure * fiscal.budget.health;
   const intensity = clamp(safeDivide(spending, economy.nominalGDP), 0, 0.2);
   const efficiency = clamp(
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "health.efficiency",
-      0.4 + economy.institutionalEfficiency * 0.6,
+      applyPolicyModifiers(
+        nation,
+        "health.efficiency",
+        0.4 + economy.institutionalEfficiency * 0.6,
+      ),
     ),
     0.25,
     1,

@@ -2,6 +2,7 @@ import { approach, clamp, safeDivide } from "../core/math";
 import { organizationTradeMultiplier } from "../diplomacy/diplomacy";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import type { GameState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -75,10 +76,14 @@ export function updateInternationalTrade(state: GameState): void {
     0.85,
     1.2,
   );
-  const policyCompetitiveness = applyPolicyModifiers(
+  const policyCompetitiveness = applyModifiers(
     nation,
     "trade.exportCompetitiveness",
-    competitiveness,
+    applyPolicyModifiers(
+      nation,
+      "trade.exportCompetitiveness",
+      competitiveness,
+    ),
   );
   const targetExports = Math.max(
     0,

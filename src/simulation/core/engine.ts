@@ -10,6 +10,7 @@ import {
   executeDiplomaticAction,
   joinInternationalOrganization,
 } from "../diplomacy/diplomacy";
+import { ensureHistoricalEventHistory } from "../events/historical-event-engine";
 
 export interface SimulationResult {
   state: GameState;
@@ -41,6 +42,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     }
     this.state.nation.policyProgress ??= {};
     ensureDiplomacyState(this.state);
+    ensureHistoricalEventHistory(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -56,6 +58,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         this.state = cloneState(command.state);
         this.state.nation.policyProgress ??= {};
         ensureDiplomacyState(this.state);
+        ensureHistoricalEventHistory(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
