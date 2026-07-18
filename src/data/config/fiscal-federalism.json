@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "description": "中央地方财政与社会保障分账户参数，全部为合并财政内部拆分。",
+    "sources": ["https://www.mof.gov.cn/gkml/caizhengshuju/", "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm"]
+  },
+  "centralRevenueShareBefore1994": 0.28,
+  "centralRevenueShareAfter1994": 0.47,
+  "centralSpendingShareBefore1994": 0.42,
+  "centralSpendingShareAfter1994": 0.15,
+  "reformTransitionMonths": 36,
+  "localDebtShare": 0.22,
+  "socialInsuranceContributionShareOfRevenue": 0.18,
+  "socialProtectionProgramWeights": {
+    "pension": 0.43,
+    "medical": 0.25,
+    "unemployment": 0.1,
+    "minimumLiving": 0.14,
+    "family": 0.08
+  }
+}

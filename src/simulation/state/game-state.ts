@@ -175,6 +175,43 @@ export interface FiscalState {
   /** 已包含在财政总支出中的年度化对外援助支出。 */
   foreignAidExpenditure: number;
   budget: FiscalBudget;
+  federalism: FiscalFederalismState;
+}
+
+export interface GovernmentLevelAccount {
+  revenue: number;
+  expenditure: number;
+  balance: number;
+  debt: number;
+}
+
+export interface SocialProtectionProgramAccount {
+  contributionRevenue: number;
+  benefitExpenditure: number;
+  balance: number;
+  beneficiaries: number;
+  averageBenefit: number;
+}
+
+export interface FiscalFederalismState {
+  central: GovernmentLevelAccount;
+  local: GovernmentLevelAccount;
+  centralToLocalTransfers: number;
+  centralRevenueShare: number;
+  centralSpendingShare: number;
+  socialProtection: {
+    pension: SocialProtectionProgramAccount;
+    medical: SocialProtectionProgramAccount;
+    unemployment: SocialProtectionProgramAccount;
+    minimumLiving: SocialProtectionProgramAccount;
+    family: SocialProtectionProgramAccount;
+    reserve: number;
+    totalContributions: number;
+    totalBenefits: number;
+  };
+  consolidatedRevenueError: number;
+  consolidatedExpenditureError: number;
+  consolidatedDebtError: number;
 }
 
 export interface EducationState {

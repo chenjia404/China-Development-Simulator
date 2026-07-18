@@ -160,6 +160,13 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .enterprise-ownership-grid article > div span { color: var(--blue); font-weight: 700; }
 .enterprise-ownership-grid p { margin: 7px 0; color: var(--muted); font-size: 12px; }
 .enterprise-ownership-grid small { color: var(--text); }
+.fiscal-level-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-top: 16px; }
+.fiscal-level-grid article, .social-protection-grid article { padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+.fiscal-level-grid span, .social-protection-grid span, .social-protection-grid small { display: block; color: var(--muted); font-size: 12px; }
+.fiscal-level-grid strong { display: block; margin-top: 6px; }
+.fiscal-level-grid p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+.social-protection-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; margin-top: 9px; }
+.social-protection-grid span { margin-top: 5px; }
 .product-market-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .product-market-grid article { padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
 .product-market-grid article > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -623,6 +630,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .product-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cohort-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .enterprise-ownership-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fiscal-level-grid, .social-protection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks > span { grid-column: 1 / -1; }
   .technology-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -679,6 +687,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .product-market-grid { grid-template-columns: 1fr; }
   .cohort-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .enterprise-ownership-grid { grid-template-columns: 1fr; }
+  .fiscal-level-grid, .social-protection-grid { grid-template-columns: 1fr; }
   .technology-tree-grid { grid-template-columns: 1fr; }
   .technology-path-grid { grid-template-columns: 1fr; }
   .technology-path-heading { display: block; }

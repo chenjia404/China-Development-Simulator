@@ -270,3 +270,17 @@ test("客户端展示五类所有制企业的生产、就业、投资、出口�
   assert.match(source, /混合所有制企业/);
   assert.match(source, /融资可得/);
 });
+
+test("客户端展示中央地方财政、转移支付与五项社会保障", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /中央财政/);
+  assert.match(source, /地方财政/);
+  assert.match(source, /中央对地方转移支付/);
+  assert.match(source, /社会保障储备/);
+  assert.match(source, /最低生活保障/);
+  assert.match(source, /合并财政内部流量/);
+});

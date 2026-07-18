@@ -44,6 +44,7 @@ import {
   AGE_BAND_IDS,
   ENTERPRISE_OWNERSHIP_IDS,
   validateEnterpriseSectorDefinitions,
+  validateFiscalFederalismConfig,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
   type GameState,
@@ -1061,6 +1062,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
               Math.max(1, run.finalState.nation.trade.exports) < 1e-10;
         }),
       `史实路线国有与集体 ${(historical.finalState.nation.enterprises.stateControlledShare * 100).toFixed(1)}%、民营与混合 ${(historical.finalState.nation.enterprises.privateAndMixedShare * 100).toFixed(1)}%、外商投资 ${(historical.finalState.nation.enterprises.foreignInvestedShare * 100).toFixed(1)}%，企业数 ${historical.finalState.nation.enterprises.totalEnterpriseCount.toFixed(0)}`,
+    ),
+    makeCheck(
+      "fiscal-federalism-accounts",
+      "中央地方财政与五项社会保障在合并口径内守恒",
+      validateFiscalFederalismConfig().length === 0 &&
+        [...runs.values()].every((run) => {
+          const nation = run.finalState.nation;
+          const account = nation.fiscal.federalism;
+          return account.consolidatedRevenueError / Math.max(1, nation.fiscal.revenue) < 1e-10 &&
+            account.consolidatedExpenditureError / Math.max(1, nation.fiscal.expenditure) < 1e-10 &&
+            account.consolidatedDebtError / Math.max(1, nation.fiscal.governmentDebt) < 1e-10 &&
+            account.socialProtection.reserve >= 0;
+        }),
+      `史实路线中央收入份额 ${(historical.finalState.nation.fiscal.federalism.centralRevenueShare * 100).toFixed(1)}%、中央对地方转移 ${historical.finalState.nation.fiscal.federalism.centralToLocalTransfers.toFixed(0)}、社保储备 ${historical.finalState.nation.fiscal.federalism.socialProtection.reserve.toFixed(0)}`,
     ),
     makeCheck(
       "historical-comparison",

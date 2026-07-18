@@ -25,6 +25,10 @@ import {
   createEmptyEnterpriseSectorState,
   updateEnterpriseSectors,
 } from "../economy/enterprise-sectors";
+import {
+  createEmptyFiscalFederalismState,
+  updateFiscalFederalism,
+} from "../fiscal/fiscal-federalism";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -167,6 +171,7 @@ export function createInitialGameState(
         monetaryFinancing: 0,
         foreignAidExpenditure: 0,
         budget: { ...INITIAL_BUDGET },
+        federalism: createEmptyFiscalFederalismState(),
       },
       education: {
         literacyRate: 0.2,
@@ -307,6 +312,7 @@ export function createInitialGameState(
   };
   updateNationalAccounts(state.nation);
   updateEnterpriseSectors(state.nation);
+  updateFiscalFederalism(state.nation);
   ensureMarketDynamicsState(state.nation);
   calculateWorldRankings(state);
   return state;

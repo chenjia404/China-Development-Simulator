@@ -118,6 +118,13 @@ export function validateGameState(state: GameState): void {
   ) {
     throw new Error("企业账户与宏观总量未调和");
   }
+  const federalism = nation.fiscal.federalism;
+  if (
+    federalism.consolidatedRevenueError / Math.max(1, nation.fiscal.revenue) > 1e-10 ||
+    federalism.consolidatedExpenditureError / Math.max(1, nation.fiscal.expenditure) > 1e-10 ||
+    federalism.consolidatedDebtError / Math.max(1, nation.fiscal.governmentDebt) > 1e-10
+  ) throw new Error("中央地方合并财政未守恒");
+  if (federalism.socialProtection.reserve < 0) throw new Error("社会保障储备不得为负");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

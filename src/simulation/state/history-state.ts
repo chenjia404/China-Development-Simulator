@@ -17,6 +17,9 @@ export interface MonthlySnapshot {
   privateAndMixedEnterpriseShare: number;
   foreignInvestedEnterpriseShare: number;
   enterpriseProductivityIndex: number;
+  centralRevenueShare: number;
+  centralToLocalTransfers: number;
+  socialProtectionReserve: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

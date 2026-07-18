@@ -211,6 +211,7 @@ function BudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
     [keyof FiscalBudget, number]
   >;
   const total = entries.reduce((sum, [, value]) => sum + value, 0);
+  const federalism = game.nation.fiscal.federalism;
 
   return (
     <section className="panel budget-panel">
@@ -236,6 +237,18 @@ function BudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
         ))}
       </div>
       <p className="panel-note">预算改变系统投入能力，效果通过资本、人才和公共服务逐月释放，不会直接增加 GDP。</p>
+      <div className="fiscal-level-grid">
+        <article><span>中央财政</span><strong>{formatLarge(federalism.central.revenue)} / {formatLarge(federalism.central.expenditure)}</strong><p>收入 / 支出 · 债务 {formatLarge(federalism.central.debt)}</p></article>
+        <article><span>地方财政</span><strong>{formatLarge(federalism.local.revenue)} / {formatLarge(federalism.local.expenditure)}</strong><p>收入 / 支出 · 债务 {formatLarge(federalism.local.debt)}</p></article>
+        <article><span>中央对地方转移支付</span><strong>{formatLarge(federalism.centralToLocalTransfers)}</strong><p>合并财政内部流量，不重复计支出</p></article>
+        <article><span>社会保障储备</span><strong>{formatLarge(federalism.socialProtection.reserve)}</strong><p>缴费收入减待遇支出的累计存量</p></article>
+      </div>
+      <div className="social-protection-grid">
+        {([['pension', '养老'], ['medical', '医疗'], ['unemployment', '失业'], ['minimumLiving', '最低生活保障'], ['family', '家庭与儿童']] as const).map(([id, label]) => {
+          const account = federalism.socialProtection[id];
+          return <article key={id}><strong>{label}</strong><span>待遇 {formatLarge(account.benefitExpenditure)}</span><span>覆盖 {formatLarge(account.beneficiaries)} 人</span><small>人均 {formatLarge(account.averageBenefit)}</small></article>;
+        })}
+      </div>
     </section>
   );
 }
