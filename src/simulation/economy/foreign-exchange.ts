@@ -398,20 +398,34 @@ export function updateForeignExchange(state: GameState): void {
   const openingExternalDebt = nation.trade.externalDebt;
   const openingDebtRatio = safeDivide(openingExternalDebt, comparable);
   const externalDebtInterestRate = clamp(
-    foreignExchangeConfig.baseExternalDebtInterestRate +
-      openingDebtRatio * foreignExchangeConfig.externalDebtRiskPremium +
-      (1 - nation.economy.institutionalEfficiency) * 0.01,
+    applyModifiers(
+      nation,
+      "trade.externalDebtInterestRate",
+      foreignExchangeConfig.baseExternalDebtInterestRate +
+        openingDebtRatio * foreignExchangeConfig.externalDebtRiskPremium +
+        (1 - nation.economy.institutionalEfficiency) * 0.01,
+    ),
     0.01,
     0.18,
   );
-  const annualPrincipalRepaymentRate = nation.date.year <=
-      foreignExchangeConfig.earlyRepaymentEndYear
-    ? foreignExchangeConfig.earlyAnnualPrincipalRepaymentRate
-    : foreignExchangeConfig.baseAnnualPrincipalRepaymentRate;
+  const annualPrincipalRepaymentRate = clamp(
+    applyModifiers(
+      nation,
+      "trade.externalDebtPrincipalRepaymentRate",
+      nation.date.year <= foreignExchangeConfig.earlyRepaymentEndYear
+        ? foreignExchangeConfig.earlyAnnualPrincipalRepaymentRate
+        : foreignExchangeConfig.baseAnnualPrincipalRepaymentRate,
+    ),
+    0,
+    1,
+  );
   const plannedMonthlyInterest =
     openingExternalDebt * externalDebtInterestRate / 12;
-  const plannedMonthlyPrincipal =
-    openingExternalDebt * annualPrincipalRepaymentRate / 12;
+  const plannedMonthlyPrincipal = nation.date.year ===
+      foreignExchangeConfig.historicalExternalDebtClearanceYear &&
+      nation.date.month === 1
+    ? openingExternalDebt
+    : openingExternalDebt * annualPrincipalRepaymentRate / 12;
   const reservesBeforeDebtService = Math.max(
     0,
     nation.trade.foreignExchangeReserves +

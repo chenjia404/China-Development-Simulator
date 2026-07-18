@@ -7,7 +7,9 @@
       "https://www.gqb.gov.cn/node2/node3/node5/node9/node102/userobject7ai1564.html",
       "https://policy.mofcom.gov.cn/claw/clawContent.shtml?id=36605",
       "https://www.safe.gov.cn/safe/2016/0331/5174.html",
-      "https://www.safe.gov.cn/xiamen/2019/0930/1371.html"
+      "https://www.safe.gov.cn/xiamen/2019/0930/1371.html",
+      "https://euroasia.cssn.cn/xsyj/xsyj_elswj/200912/t20091218_1784437.shtml",
+      "https://chinawto.mofcom.gov.cn/article/ap/p/201912/20191202923754.shtml"
     ]
   },
   "initialForeignExchangeReserves": 150000000,
@@ -28,6 +30,7 @@
   "baseAnnualPrincipalRepaymentRate": 0.055,
   "earlyAnnualPrincipalRepaymentRate": 0.14,
   "earlyRepaymentEndYear": 1964,
+  "historicalExternalDebtClearanceYear": 1964,
   "maximumExternalDebtToComparableGDP": 0.2,
   "maximumAnnualMarketBorrowingToGDP": 0.002,
   "marketBorrowingStartYear": 1978,

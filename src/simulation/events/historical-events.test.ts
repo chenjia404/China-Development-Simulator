@@ -177,6 +177,7 @@ describe("确定性历史事件", () => {
 
     const war = runChoice("historical_path");
     const prevented = runChoice("oppose_korean_war");
+    const limited = runChoice("limited_defense_and_mediation");
     const preventedChoice = choices.find(
       (choice) => choice.id === "oppose_korean_war",
     );
@@ -218,6 +219,21 @@ describe("确定性历史事件", () => {
     );
     expect(war.nation.sectors.secondary.output).toBeGreaterThan(
       prevented.nation.sectors.secondary.output,
+    );
+    expect(war.nation.trade.externalDebt).toBeGreaterThan(
+      limited.nation.trade.externalDebt,
+    );
+    expect(limited.nation.trade.externalDebt).toBeGreaterThan(
+      prevented.nation.trade.externalDebt,
+    );
+    expect(war.nation.trade.monthlyExternalBorrowing).toBeGreaterThan(
+      20_000_000,
+    );
+    expect(war.nation.trade.capitalGoodsImportCoverage).toBeLessThan(
+      prevented.nation.trade.capitalGoodsImportCoverage,
+    );
+    expect(prevented.nation.economy.capitalStock).toBeGreaterThan(
+      war.nation.economy.capitalStock,
     );
     expect(
       war.world.countries.find((country) => country.id === "usa")
@@ -261,6 +277,40 @@ describe("确定性历史事件", () => {
         warRelation ?? Number.POSITIVE_INFINITY,
       );
     }
+  });
+
+  it("朝鲜战争军事贷款在战争期累积，并于1964年用外汇清偿", () => {
+    const state = createInitialGameState(1950, 1950, "interactive");
+    state.nation.date.month = 6;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "land_reform_1950",
+      choiceId: "historical_path",
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "korean_war_1950",
+      choiceId: "historical_path",
+    });
+    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 37 });
+
+    expect(engine.getState().nation.trade.externalDebt).toBeGreaterThan(
+      750_000_000,
+    );
+    expect(engine.getState().nation.trade.externalDebt).toBeLessThan(
+      850_000_000,
+    );
+
+    const monthsTo1964 =
+      (1964 - engine.getState().nation.date.year) * 12 +
+      (2 - engine.getState().nation.date.month);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsTo1964 });
+    expect(engine.getState().nation.date).toMatchObject({ year: 1964, month: 2 });
+    expect(engine.getState().nation.trade.externalDebt).toBeLessThan(1_000_000);
   });
 
   it("三线建设可选，史实、集中建设和取消路线形成完整收益代价", () => {
