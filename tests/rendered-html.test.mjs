@@ -143,3 +143,22 @@ test("客户端可选择历史、韩国、日本和台湾进行发展对比", as
   assert.match(source, /世界经济排名/);
   assert.match(source, /对比只用于展示，不会改变模拟结果/);
 });
+
+test("客户端提供可组合的外交取向与多条外交学说", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /外交学说/);
+  assert.match(source, /外交学说与阵营取向相互独立/);
+  assert.match(source, /放弃对外革命、和平共处/);
+  assert.match(source, /对外革命援助/);
+  assert.match(source, /非结盟与战略自主/);
+  assert.match(source, /发展优先的经贸外交/);
+  assert.match(source, /多边制度合作/);
+  assert.match(source, /周边睦邻与地区合作/);
+  assert.match(source, /苏联、朝鲜、越南等苏系国家/);
+});

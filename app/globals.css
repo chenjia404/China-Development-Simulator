@@ -261,6 +261,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 
 .diplomacy-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
 .diplomatic-strategy-panel { margin-bottom: 15px; padding: 18px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
+.doctrine-panel { background: color-mix(in srgb, var(--blue-soft) 24%, var(--surface-soft)); }
 .strategy-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .strategy-panel-heading h2 { margin: 5px 0 7px; font-size: 18px; }
 .strategy-panel-heading p { max-width: 760px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
@@ -276,6 +277,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .strategy-live-effects { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 13px; }
 .strategy-live-effects span { padding: 5px 7px; color: var(--gold); background: color-mix(in srgb, var(--gold) 6%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 20%, var(--line)); border-radius: 6px; font-size: 8px; }
 .strategy-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.doctrine-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .strategy-card { display: flex; flex-direction: column; min-width: 0; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; }
 .strategy-card.is-selected { border-color: color-mix(in srgb, var(--blue) 48%, var(--line)); background: color-mix(in srgb, var(--blue-soft) 55%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 9%, transparent); }
 .strategy-card-head { display: flex; align-items: center; justify-content: space-between; gap: 9px; }
@@ -544,12 +546,17 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .initiative-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .diplomacy-layout { grid-template-columns: 1fr; }
   .strategy-grid { grid-template-columns: 1fr; }
+  .doctrine-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .history-events-hero { padding-right: 4px; }
   .history-event-summary { position: static; width: fit-content; margin-top: 15px; }
   .historical-choice-grid { grid-template-columns: 1fr; }
   .historical-choice > p { min-height: 0; }
   .comparison-heading { display: block; }
   .comparison-selector { width: min(240px, 100%); margin-top: 12px; }
+}
+
+@media (max-width: 760px) {
+  .doctrine-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 800px) {

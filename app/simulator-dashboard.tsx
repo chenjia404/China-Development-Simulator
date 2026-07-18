@@ -8,6 +8,7 @@ import type {
   DiplomaticActionId,
   DiplomaticStrategyId,
   FiscalBudget,
+  ForeignPolicyDoctrineId,
   GameState,
   TargetComparisonMetric,
 } from "@/src/simulation";
@@ -18,6 +19,9 @@ import {
   diplomaticStrategyCooldownRemaining,
   diplomaticStrategyDefinitions,
   diplomaticStrategyEffects,
+  foreignPolicyDoctrineCooldownRemaining,
+  foreignPolicyDoctrineDefinitions,
+  foreignPolicyDoctrineEffects,
   getInternationalOrganizationStatus,
   internationalOrganizations,
   getHistoricalEvent,
@@ -728,6 +732,9 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   const setDiplomaticStrategy = useSimulationStore(
     (store) => store.setDiplomaticStrategy,
   );
+  const setForeignPolicyDoctrine = useSimulationStore(
+    (store) => store.setForeignPolicyDoctrine,
+  );
   const countries = [...game.world.countries].sort((first, second) =>
     second.nominalGDP - first.nominalGDP,
   );
@@ -736,6 +743,12 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   );
   const currentStrategyEffects = diplomaticStrategyEffects(game.nation);
   const strategyCooldown = diplomaticStrategyCooldownRemaining(game);
+  const currentDoctrine = foreignPolicyDoctrineDefinitions.find(
+    (doctrine) => doctrine.id === game.nation.diplomacy.foreignPolicyDoctrineId,
+  );
+  const currentDoctrineEffects = foreignPolicyDoctrineEffects(game.nation);
+  const doctrineCooldown = foreignPolicyDoctrineCooldownRemaining(game);
+  const doctrineProgress = game.nation.diplomacy.foreignPolicyDoctrineProgress;
   const alignment = game.nation.diplomacy.strategyAlignment;
   const alignmentLabel = Math.abs(alignment) < 0.01
     ? "平衡"
@@ -750,6 +763,12 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
       `确定改为“${name}”吗？调整将消耗外交点数，并在 60 个月内不能再次改变路线。`,
     );
     if (confirmed) void setDiplomaticStrategy(strategyId);
+  };
+  const chooseDoctrine = (doctrineId: ForeignPolicyDoctrineId, name: string) => {
+    const confirmed = window.confirm(
+      `确定采用“${name}”吗？外交学说独立于亲苏、平衡或亲西方取向，调整将消耗外交点数，并在 60 个月内不能再次改变。`,
+    );
+    if (confirmed) void setForeignPolicyDoctrine(doctrineId);
   };
 
   return (
@@ -811,6 +830,66 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
                   onClick={() => chooseStrategy(strategy.id, strategy.name)}
                 >
                   {selected ? "当前路线" : unavailableReason ?? `选择路线 · ${strategy.activationCost} 点`}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+      <section className="diplomatic-strategy-panel doctrine-panel">
+        <div className="strategy-panel-heading">
+          <div>
+            <span className="eyebrow">对外行为准则</span>
+            <h2>外交学说</h2>
+            <p>外交学说与阵营取向相互独立，可以自由组合。放弃对外革命、和平共处会改善美国、日本、韩国等非苏系国家关系，但降低苏联、朝鲜、越南等苏系国家关系；所有变化均在三年内逐步传导。</p>
+          </div>
+          <div className="strategy-current">
+            <span>当前学说</span>
+            <strong>{currentDoctrine?.name ?? game.nation.diplomacy.foreignPolicyDoctrineId}</strong>
+            <small>{doctrineProgress >= 1 ? "学说已稳定" : `调整中 · ${(doctrineProgress * 100).toFixed(0)}%`}</small>
+          </div>
+        </div>
+        <div className="strategy-live-effects">
+          <span>市场准入 ×{currentDoctrineEffects.marketAccessMultiplier.toFixed(2)}</span>
+          <span>外资 ×{currentDoctrineEffects.foreignInvestmentMultiplier.toFixed(2)}</span>
+          <span>技术扩散 ×{currentDoctrineEffects.technologyDiffusionMultiplier.toFixed(2)}</span>
+          <span>科研产出 ×{currentDoctrineEffects.researchOutputMultiplier.toFixed(2)}</span>
+          <span>安全目标 {currentDoctrineEffects.securityTargetAdjustment >= 0 ? "+" : ""}{currentDoctrineEffects.securityTargetAdjustment.toFixed(1)}</span>
+          <span>声誉目标 {currentDoctrineEffects.reputationTargetAdjustment >= 0 ? "+" : ""}{currentDoctrineEffects.reputationTargetAdjustment.toFixed(1)}</span>
+          <span>外交点/月 {currentDoctrineEffects.monthlyPointGainAdjustment >= 0 ? "+" : ""}{currentDoctrineEffects.monthlyPointGainAdjustment.toFixed(2)}</span>
+        </div>
+        <div className="strategy-grid doctrine-grid">
+          {foreignPolicyDoctrineDefinitions.map((doctrine) => {
+            const selected = doctrine.id === game.nation.diplomacy.foreignPolicyDoctrineId;
+            const insufficientPoints = game.nation.diplomacy.diplomaticPoints <
+              doctrine.activationCost;
+            const unavailableReason = selected
+              ? "当前正在采用"
+              : doctrineCooldown > 0
+                ? `还需冷却 ${doctrineCooldown} 个月`
+                : insufficientPoints
+                  ? `需要 ${doctrine.activationCost} 点外交点数`
+                  : null;
+            return (
+              <article className={selected ? "strategy-card is-selected" : "strategy-card"} key={doctrine.id}>
+                <div className="strategy-card-head"><span>{doctrine.shortName}</span><small>调整成本 {doctrine.activationCost} 点</small></div>
+                <h3>{doctrine.name}</h3>
+                <p>{doctrine.description}</p>
+                <div className="strategy-effects">{doctrine.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+                <div className="strategy-numbers">
+                  <span>贸易 ×{doctrine.marketAccessMultiplier.toFixed(2)}</span>
+                  <span>外资 ×{doctrine.foreignInvestmentMultiplier.toFixed(2)}</span>
+                  <span>技术 ×{doctrine.technologyDiffusionMultiplier.toFixed(2)}</span>
+                  <span>科研 ×{doctrine.researchOutputMultiplier.toFixed(2)}</span>
+                  <span>安全 {doctrine.securityTargetAdjustment >= 0 ? "+" : ""}{doctrine.securityTargetAdjustment}</span>
+                  <span>声誉 {doctrine.reputationTargetAdjustment >= 0 ? "+" : ""}{doctrine.reputationTargetAdjustment}</span>
+                </div>
+                <button
+                  disabled={busy || unavailableReason !== null}
+                  title={unavailableReason ?? undefined}
+                  onClick={() => chooseDoctrine(doctrine.id, doctrine.name)}
+                >
+                  {selected ? "当前学说" : unavailableReason ?? `采用学说 · ${doctrine.activationCost} 点`}
                 </button>
               </article>
             );
