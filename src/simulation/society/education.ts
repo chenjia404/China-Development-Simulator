@@ -8,7 +8,34 @@ function laggedValue(queue: number[], months: number): number {
   return queue[Math.max(0, queue.length - 1 - months)] ?? 0;
 }
 
+/** 为旧存档补齐教育中断与科研人才存量字段。 */
+export function ensureEducationState(nation: NationState): void {
+  const education = nation.education;
+  education.higherEducationAdmissionCapacity = Number.isFinite(
+      education.higherEducationAdmissionCapacity,
+    )
+    ? clamp(education.higherEducationAdmissionCapacity, 0, 1)
+    : 1;
+  education.academicContinuity = Number.isFinite(education.academicContinuity)
+    ? clamp(education.academicContinuity, 0, 1)
+    : 1;
+  education.researchCohortGap = Number.isFinite(education.researchCohortGap)
+    ? clamp(education.researchCohortGap, 0, 1)
+    : 0;
+  education.educationDisruptionMonths = Number.isFinite(
+      education.educationDisruptionMonths,
+    )
+    ? Math.max(0, Math.round(education.educationDisruptionMonths))
+    : 0;
+  education.permanentResearchTalentLosses = Number.isFinite(
+      education.permanentResearchTalentLosses,
+    )
+    ? Math.max(0, education.permanentResearchTalentLosses)
+    : 0;
+}
+
 export function updateEducation(nation: NationState): void {
+  ensureEducationState(nation);
   const { education, fiscal, economy } = nation;
   const spending = fiscal.expenditure * fiscal.budget.education;
   const intensity = clamp(safeDivide(spending, economy.nominalGDP), 0, 0.2);
@@ -55,6 +82,56 @@ export function updateEducation(nation: NationState): void {
     education.delayedInvestment,
     educationConfig.researchTalentLagMonths,
   );
+  const admissionTarget = clamp(
+    applyModifiers(nation, "education.higherEducationAdmissions", 1),
+    0,
+    1,
+  );
+  const academicContinuityTarget = clamp(
+    applyModifiers(nation, "education.academicContinuityTarget", 1),
+    0.05,
+    1,
+  );
+  const researchCohortFormation = clamp(
+    applyModifiers(nation, "education.researchCohortFormation", 1),
+    0,
+    1.5,
+  );
+  const researchTalentRetention = clamp(
+    applyModifiers(nation, "education.researchTalentRetention", 1),
+    0.2,
+    1,
+  );
+  education.higherEducationAdmissionCapacity = approach(
+    education.higherEducationAdmissionCapacity,
+    admissionTarget,
+    admissionTarget < education.higherEducationAdmissionCapacity
+      ? educationConfig.admissionClosureSpeed
+      : educationConfig.admissionRecoverySpeed,
+  );
+  education.academicContinuity = approach(
+    education.academicContinuity,
+    academicContinuityTarget,
+    academicContinuityTarget < education.academicContinuity
+      ? educationConfig.academicDisruptionSpeed
+      : educationConfig.academicRecoverySpeed,
+  );
+  const cohortGapTarget = clamp(
+    1 - education.higherEducationAdmissionCapacity *
+      education.academicContinuity * Math.min(1, researchCohortFormation),
+    0,
+    1,
+  );
+  education.researchCohortGap = approach(
+    education.researchCohortGap,
+    cohortGapTarget,
+    cohortGapTarget > education.researchCohortGap
+      ? educationConfig.cohortGapAccumulationSpeed
+      : educationConfig.cohortGapRecoverySpeed,
+  );
+  if (education.higherEducationAdmissionCapacity < 0.5) {
+    education.educationDisruptionMonths += 1;
+  }
 
   education.literacyRate = clamp(
     education.literacyRate +
@@ -80,15 +157,26 @@ export function updateEducation(nation: NationState): void {
   education.universityCoverage = clamp(
     education.universityCoverage +
       universityInput * educationConfig.universityEffect * efficiency *
+        education.higherEducationAdmissionCapacity *
+        education.academicContinuity *
         (1 - education.universityCoverage),
     0,
     1,
   );
+  const forcedTalentLoss = education.researchTalent *
+    Math.max(0, 1 - researchTalentRetention) *
+    educationConfig.forcedResearchTalentLossScale;
+  education.permanentResearchTalentLosses += forcedTalentLoss;
   education.researchTalent = Math.max(
     0,
-    education.researchTalent * (1 - 0.012 / 12) +
+    education.researchTalent * (1 - 0.012 / 12) - forcedTalentLoss +
       talentInput * education.secondaryCoverage *
-        nation.population.ageGroups.workingAge * 0.000025,
+        nation.population.ageGroups.workingAge * 0.000025 *
+        education.higherEducationAdmissionCapacity *
+        education.academicContinuity *
+        researchCohortFormation *
+        (1 - education.researchCohortGap *
+          educationConfig.researchCohortTalentPenalty),
   );
   const targetYears =
     education.primaryCoverage * 6 +

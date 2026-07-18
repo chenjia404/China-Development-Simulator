@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
-import { updateEducation } from "./education";
+import { ensureEducationState, updateEducation } from "./education";
 import { updateHealth } from "./health";
 import { updateTechnology } from "../technology/research";
 
@@ -63,6 +63,26 @@ describe("教育、医疗和科技", () => {
     expect(strong.nation.technology.monthlyResearchOutput).toBeGreaterThan(
       weak.nation.technology.monthlyResearchOutput,
     );
+  });
+
+  it("旧存档会确定性补齐教育中断和科研人才损失字段", () => {
+    const nation = createInitialGameState(9).nation;
+    const oldEducation = nation.education as Partial<typeof nation.education>;
+    delete oldEducation.higherEducationAdmissionCapacity;
+    delete oldEducation.academicContinuity;
+    delete oldEducation.researchCohortGap;
+    delete oldEducation.educationDisruptionMonths;
+    delete oldEducation.permanentResearchTalentLosses;
+
+    ensureEducationState(nation);
+
+    expect(nation.education).toMatchObject({
+      higherEducationAdmissionCapacity: 1,
+      academicContinuity: 1,
+      researchCohortGap: 0,
+      educationDisruptionMonths: 0,
+      permanentResearchTalentLosses: 0,
+    });
   });
 
   it("连续一百年所有社会发展指数仍在边界内", () => {

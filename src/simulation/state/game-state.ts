@@ -135,6 +135,16 @@ export interface EducationState {
   averageYearsOfSchooling: number;
   index: number;
   researchTalent: number;
+  /** 高等教育正常招生与培养能力，1 表示制度完整运行。 */
+  higherEducationAdmissionCapacity: number;
+  /** 学校、研究机构和专业评价体系的连续性。 */
+  academicContinuity: number;
+  /** 因长期停招形成、需要跨代修复的科研人才培养缺口。 */
+  researchCohortGap: number;
+  /** 招生或学术体系严重中断的累计月数。 */
+  educationDisruptionMonths: number;
+  /** 迫害、死亡或永久离开科研岗位造成的累计人才存量损失。 */
+  permanentResearchTalentLosses: number;
   delayedInvestment: number[];
 }
 

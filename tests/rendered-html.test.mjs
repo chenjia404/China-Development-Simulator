@@ -79,6 +79,8 @@ test("客户端展示可操作科技树和产业升级门槛", async () => {
   assert.match(source, /国家科技树/);
   assert.match(source, /工业影响/);
   assert.match(source, /智能制造/);
+  assert.match(source, /科研人才代际缺口/);
+  assert.match(source, /科研人才永久损失/);
   assert.match(source, /产业升级准备度/);
   assert.match(source, /设为研究目标/);
   assert.match(source, /科技指数高但产业节点落后/);

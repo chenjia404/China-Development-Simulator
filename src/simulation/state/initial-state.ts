@@ -142,6 +142,11 @@ export function createInitialGameState(
         averageYearsOfSchooling: 1.6,
         index: 12,
         researchTalent: 40_000,
+        higherEducationAdmissionCapacity: 1,
+        academicContinuity: 1,
+        researchCohortGap: 0,
+        educationDisruptionMonths: 0,
+        permanentResearchTalentLosses: 0,
         delayedInvestment: Array.from({ length: 240 }, () => 0),
       },
       health: {

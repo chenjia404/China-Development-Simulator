@@ -618,6 +618,26 @@ describe("确定性历史事件", () => {
       )?.value,
     ).toBe(0.55);
     expect(
+      historicalPath?.modifiers.find(
+        (modifier) =>
+          modifier.target === "education.higherEducationAdmissions" &&
+          modifier.durationMonths === 54,
+      )?.value,
+    ).toBe(0.02);
+    expect(
+      historicalPath?.modifiers.find(
+        (modifier) => modifier.target === "education.researchTalentRetention",
+      )?.value,
+    ).toBe(0.45);
+    expect(
+      historicalPath?.modifiers.some(
+        (modifier) =>
+          modifier.target === "economy.structuralProductivityGrowth" &&
+          modifier.delayMonths === 408 &&
+          modifier.value < 0,
+      ),
+    ).toBe(true);
+    expect(
       protectedInstitutions?.modifiers.find(
         (modifier) => modifier.target === "technology.treeResearchProgress",
       )?.value,
@@ -670,6 +690,19 @@ describe("确定性历史事件", () => {
     expect(protectedRoute.economy.institutionalEfficiency).toBeGreaterThan(
       historical.economy.institutionalEfficiency,
     );
+    expect(historical.education.higherEducationAdmissionCapacity).toBeLessThan(
+      protectedRoute.education.higherEducationAdmissionCapacity,
+    );
+    expect(historical.education.academicContinuity).toBeLessThan(
+      protectedRoute.education.academicContinuity,
+    );
+    expect(historical.education.researchCohortGap).toBeGreaterThan(
+      protectedRoute.education.researchCohortGap,
+    );
+    expect(historical.education.permanentResearchTalentLosses).toBeGreaterThan(
+      0,
+    );
+    expect(protectedRoute.education.permanentResearchTalentLosses).toBe(0);
 
     const historicalAfterExpiry = runChoice("historical_path", 180);
     const protectedAfterExpiry = runChoice("protect_institutions", 180);
@@ -689,6 +722,15 @@ describe("确定性历史事件", () => {
       protectedAfterExpiry.technology.completedTechnologyIds.length,
     ).toBeGreaterThan(
       historicalAfterExpiry.technology.completedTechnologyIds.length,
+    );
+    expect(historicalAfterExpiry.education.educationDisruptionMonths).toBeGreaterThanOrEqual(
+      120,
+    );
+    expect(historicalAfterExpiry.education.researchCohortGap).toBeGreaterThan(
+      0.5,
+    );
+    expect(historicalAfterExpiry.education.permanentResearchTalentLosses).toBeGreaterThan(
+      3_000,
     );
   });
 

@@ -388,6 +388,28 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       };
     });
 
+  const runCulturalEducationChoice = (choiceId: string) => {
+    const state = createInitialGameState(seed, 1966, "interactive");
+    state.nation.date.month = 5;
+    state.nation.date.elapsedMonths = (1966 - 1949) * 12 + 4;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "cultural_revolution_disruption_1966",
+      choiceId,
+    });
+    engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 180 });
+    return engine.getState().nation.education;
+  };
+  const disruptedCulturalEducation = runCulturalEducationChoice(
+    "historical_path",
+  );
+  const protectedCulturalEducation = runCulturalEducationChoice(
+    "protect_institutions",
+  );
+
   const runCrisisChoice = (choiceId: string) => {
     const engine = createSimulationEngine(
       createInitialGameState(seed, 1959, "interactive"),
@@ -1094,8 +1116,13 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         avoidedCulturalRevolution1990.completedTechnologyCount >
           strictHistorical1990.completedTechnologyCount &&
         avoidedCulturalRevolution1990.industryTechnologyTier >=
-          strictHistorical1990.industryTechnologyTier,
-      `${culturalRevolutionGrowthResults.map((result) => `${result.year} 年 ${(result.simulatedGrowth * 100).toFixed(1)}%（参考 ${(result.growth * 100).toFixed(1)}%）`).join("；")}；避免文革后 1978 年教育指数 ${avoidedCulturalRevolution1978.educationIndex.toFixed(1)}，史实 ${strictHistorical1978.educationIndex.toFixed(1)}；1990 年科技指数 ${avoidedCulturalRevolution1990.technologyIndex.toFixed(1)}/${strictHistorical1990.technologyIndex.toFixed(1)}，完成科技节点 ${avoidedCulturalRevolution1990.completedTechnologyCount}/${strictHistorical1990.completedTechnologyCount}`,
+          strictHistorical1990.industryTechnologyTier &&
+        disruptedCulturalEducation.educationDisruptionMonths >= 120 &&
+        disruptedCulturalEducation.researchCohortGap > 0.5 &&
+        disruptedCulturalEducation.permanentResearchTalentLosses > 3_000 &&
+        protectedCulturalEducation.educationDisruptionMonths === 0 &&
+        protectedCulturalEducation.permanentResearchTalentLosses === 0,
+      `${culturalRevolutionGrowthResults.map((result) => `${result.year} 年 ${(result.simulatedGrowth * 100).toFixed(1)}%（参考 ${(result.growth * 100).toFixed(1)}%）`).join("；")}；史实方案累计严重停招 ${disruptedCulturalEducation.educationDisruptionMonths} 个月、科研人才永久损失 ${disruptedCulturalEducation.permanentResearchTalentLosses.toFixed(0)}、15 年后人才代际缺口 ${(disruptedCulturalEducation.researchCohortGap * 100).toFixed(1)}%；保护制度路线对应为 ${protectedCulturalEducation.educationDisruptionMonths} 个月/${protectedCulturalEducation.permanentResearchTalentLosses.toFixed(0)}；避免文革后 1978 年教育指数 ${avoidedCulturalRevolution1978.educationIndex.toFixed(1)}，史实 ${strictHistorical1978.educationIndex.toFixed(1)}；1990 年科技指数 ${avoidedCulturalRevolution1990.technologyIndex.toFixed(1)}/${strictHistorical1990.technologyIndex.toFixed(1)}，完成科技节点 ${avoidedCulturalRevolution1990.completedTechnologyCount}/${strictHistorical1990.completedTechnologyCount}`,
     ),
     makeCheck(
       "historical-causality",

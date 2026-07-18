@@ -21,6 +21,12 @@ export function updateTechnology(nation: NationState): void {
     1,
   );
   const universityFactor = 0.2 + education.universityCoverage * 0.8;
+  const researchContinuityFactor = clamp(
+    0.7 + education.academicContinuity * 0.18 +
+      (1 - education.researchCohortGap) * 0.12,
+    0.7,
+    1,
+  );
   const institutionFactor = economy.institutionalEfficiency;
   const industryDemand = clamp(
     0.3 + sectors.secondary.valueAdded / Math.max(economy.realGDP, 1),
@@ -37,11 +43,13 @@ export function updateTechnology(nation: NationState): void {
       institutionFactor *
       industryDemand,
   );
-  const researchOutput = applyModifiers(
+  const researchOutputBeforeContinuity = applyModifiers(
     nation,
     "technology.researchOutput",
     policyResearchOutput,
   ) * strategyEffects.researchOutputMultiplier;
+  const researchOutput = researchOutputBeforeContinuity *
+    (0.9 + researchContinuityFactor * 0.1);
   technology.monthlyResearchOutput = researchOutput;
   technology.researchPoints += researchOutput;
 
@@ -85,7 +93,7 @@ export function updateTechnology(nation: NationState): void {
     technologyConfig.maximumTechnologyIndex,
   );
   const effectiveTechnologyGain = technology.index - previousTechnologyIndex;
-  updateTechnologyTree(nation, researchOutput);
+  updateTechnologyTree(nation, researchOutput * researchContinuityFactor);
 
   // 技术指数描述当期技术水平，结构性生产率则记录制度、人才和组织知识形成的
   // 路径依赖。后者在修正到期后不会倒扣，因而能让更高的发展基数继续复利。

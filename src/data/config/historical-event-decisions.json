@@ -281,6 +281,10 @@
         "durationMonths": 60,
         "modifiers": [
           { "target": "education.efficiency", "operation": "multiply", "value": 0.92 },
+          { "target": "education.higherEducationAdmissions", "operation": "multiply", "value": 0.7, "durationMonths": 24 },
+          { "target": "education.academicContinuityTarget", "operation": "multiply", "value": 0.72, "durationMonths": 36 },
+          { "target": "education.researchCohortFormation", "operation": "multiply", "value": 0.75 },
+          { "target": "education.researchTalentRetention", "operation": "multiply", "value": 0.85, "durationMonths": 12 },
           { "target": "technology.researchOutput", "operation": "multiply", "value": 0.9 },
           { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 0.82 },
           { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.985 },
@@ -297,6 +301,7 @@
         "durationMonths": 144,
         "modifiers": [
           { "target": "education.efficiency", "operation": "multiply", "value": 1.25 },
+          { "target": "education.researchCohortFormation", "operation": "multiply", "value": 1.08 },
           { "target": "technology.researchOutput", "operation": "multiply", "value": 1.28 },
           { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.22 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.12 },
