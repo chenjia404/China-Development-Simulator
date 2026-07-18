@@ -192,11 +192,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_reform_and_opening",
   });
-  initiativePreparation.dispatch({
+  const legalFrameworkState = initiativePreparation.exportState();
+  legalFrameworkState.nation.date.year = 1971;
+  legalFrameworkState.nation.date.month = 1;
+  legalFrameworkState.nation.date.elapsedMonths += 12;
+  const legalFrameworkEngine = createSimulationEngine(legalFrameworkState);
+  legalFrameworkEngine.dispatch({
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_joint_venture_law",
   });
-  const wtoState = initiativePreparation.exportState();
+  const wtoState = legalFrameworkEngine.exportState();
   wtoState.nation.date.year = 1986;
   wtoState.nation.date.month = 1;
   wtoState.nation.date.elapsedMonths = (1986 - 1949) * 12;

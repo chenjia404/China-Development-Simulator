@@ -14,7 +14,9 @@ import {
   internationalOrganizations,
   getHistoricalEvent,
   getHistoricalEventChoices,
+  getHistoricalInitiativeStatus,
   historicalEventDefinitions,
+  historicalInitiativeDefinitions,
   maximumActivePolicies,
   nationalPolicyDefinitions,
 } from "@/src/simulation";
@@ -253,12 +255,21 @@ function policyUnavailableReason(game: GameState, policyId: string): string | nu
 
 function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
   const setPolicies = useSimulationStore((store) => store.setPolicies);
+  const enactHistoricalInitiative = useSimulationStore(
+    (store) => store.enactHistoricalInitiative,
+  );
   const togglePolicy = (policyId: string) => {
     const selected = game.nation.policies.includes(policyId);
     const next = selected
       ? game.nation.policies.filter((id) => id !== policyId)
       : [...game.nation.policies, policyId];
     void setPolicies(next);
+  };
+  const enactInitiative = (initiativeId: string, name: string) => {
+    const confirmed = window.confirm(
+      `确定发动“${name}”吗？该历史转折会写入存档且不可撤销。`,
+    );
+    if (confirmed) void enactHistoricalInitiative(initiativeId);
   };
 
   return (
@@ -292,6 +303,60 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
                 onClick={() => togglePolicy(policy.id)}
               >
                 {selected ? "停止实施" : reason ?? "开始实施"}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      <div className="initiative-heading">
+        <div>
+          <span className="eyebrow">一次性重大决策</span>
+          <h2>历史转折国策</h2>
+          <p>满足国内治理与外交条件后，可在史实日期前主动实施。它们不占普通国策槽位，实施后不可撤销且不会在史实节点重复触发。</p>
+        </div>
+        <span>{game.nation.diplomacy.diplomaticPoints.toFixed(1)} 外交点数</span>
+      </div>
+      <div className="initiative-grid">
+        {historicalInitiativeDefinitions.map((initiative) => {
+          const status = getHistoricalInitiativeStatus(game, initiative);
+          const event = getHistoricalEvent(initiative.eventId);
+          const record = status.completedRecord;
+          const completedEarly = record?.outcome === "enacted_early";
+          return (
+            <article
+              className={`initiative-card ${status.available ? "is-available" : ""} ${status.completed ? "is-completed" : ""}`}
+              key={initiative.id}
+            >
+              <div className="initiative-card-head">
+                <span>{status.completed ? completedEarly ? "已提前实施" : "事件已处理" : status.available ? "可以发动" : "条件未满足"}</span>
+                <small>史实 {event?.year ?? "—"} 年 {event?.month ?? "—"} 月</small>
+              </div>
+              <h3>{initiative.name}</h3>
+              <p>{initiative.description}</p>
+              <div className="initiative-facts">
+                <span>最早 {initiative.availableFromYear} 年</span>
+                <span>外交成本 {initiative.diplomaticPointCost} 点</span>
+                <span>调整期 {formatEventDuration(initiative.transitionDurationMonths)}</span>
+              </div>
+              {record ? (
+                <div className="initiative-result">
+                  <strong>{completedEarly ? `${record.year} 年 ${record.month} 月提前实施` : `${record.year} 年 ${record.month} 月已处理`}</strong>
+                  <span>{completedEarly ? `比史实计划提前 ${record.scheduledYear - record.year} 年` : record.choiceName}</span>
+                </div>
+              ) : status.blockers.length > 0 ? (
+                <div className="initiative-blockers">
+                  <strong>尚缺条件</strong>
+                  <ul>{status.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>
+                </div>
+              ) : (
+                <div className="initiative-ready">国内外条件已满足，可立即提交重大决策。</div>
+              )}
+              <button
+                disabled={busy || !status.available}
+                title={!status.available && !status.completed ? status.blockers.join("；") : undefined}
+                onClick={() => enactInitiative(initiative.id, initiative.name)}
+              >
+                {busy && status.available ? "正在执行…" : status.completed ? "已完成" : status.available ? `发动国策 · ${initiative.diplomaticPointCost} 点` : "暂不可发动"}
               </button>
             </article>
           );
@@ -565,7 +630,7 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
         <h2>历史事件时间线</h2>
         <p>事件按真实年月确定触发，通过产业、人口、财政、教育、科研、外交与贸易等中间变量持续生效。相同存档与决策下，触发顺序完全确定。</p>
         <div className="history-event-summary">
-          <div><strong>{occurredIds.size}</strong><span>已发生</span></div>
+          <div><strong>{occurredIds.size}</strong><span>已处理</span></div>
           <div><strong>{historicalEventDefinitions.length}</strong><span>事件总数</span></div>
           <div><strong>{activeIds.size}</strong><span>当前修正器</span></div>
         </div>
@@ -587,18 +652,19 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
           const pending = game.nation.pendingHistoricalEventId === event.id;
           const isPast = event.year * 12 + event.month < currentSerial;
           const prevented = record?.outcome === "prevented";
-          const status = pending ? "待决策" : prevented ? "已避免" : active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
+          const enactedEarly = record?.outcome === "enacted_early";
+          const status = pending ? "待决策" : prevented ? "已避免" : enactedEarly ? "提前实施" : active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
           return (
-            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""} ${pending ? "is-pending" : ""} ${prevented ? "is-prevented" : ""}`} key={event.id}>
+            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""} ${pending ? "is-pending" : ""} ${prevented ? "is-prevented" : ""} ${enactedEarly ? "is-early" : ""}`} key={event.id}>
               <div className="timeline-date"><strong>{event.year}</strong><span>{event.month} 月</span><i /></div>
               <div className="historical-event-card">
                 <div className="historical-event-head">
                   <div><span className="event-category">{event.category}</span><span className={`event-impact ${event.impact}`}>{historicalImpactLabels[event.impact]}</span></div>
-                  <span className={pending ? "event-status pending" : prevented ? "event-status prevented" : active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
+                  <span className={pending ? "event-status pending" : prevented ? "event-status prevented" : enactedEarly ? "event-status early" : active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
                 </div>
                 <h3>{event.name}</h3>
                 <p>{event.description}</p>
-                {record ? <div className="event-choice-result"><span>{prevented ? "事件已避免" : "玩家决策"}</span><strong>{record.choiceName}</strong><p>{record.choiceDescription}</p></div> : null}
+                {record ? <div className="event-choice-result"><span>{prevented ? "事件已避免" : enactedEarly ? `提前于 ${record.year} 年 ${record.month} 月实施` : "玩家决策"}</span><strong>{record.choiceName}</strong><p>{record.choiceDescription}</p></div> : null}
                 <div className="event-effects">{(record?.effects ?? event.effects).map((effect) => <span key={effect}>{effect}</span>)}</div>
                 <div className="event-duration">影响持续：{formatEventDuration(record?.durationMonths ?? event.durationMonths)} · 通过 {selectedChoice?.modifiers.length ?? event.modifiers.length} 个模型变量传导</div>
               </div>

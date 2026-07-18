@@ -9,6 +9,7 @@
     "transitionDurationMonths": 24,
     "requirements": {
       "historicalEventIds": [],
+      "minimumMonthsSinceEvents": {},
       "minimumInstitutionalEfficiency": 0.35,
       "minimumStability": 50,
       "minimumOpenness": 0,
@@ -32,6 +33,7 @@
     "transitionDurationMonths": 24,
     "requirements": {
       "historicalEventIds": ["reform_and_opening_1978"],
+      "minimumMonthsSinceEvents": { "reform_and_opening_1978": 12 },
       "minimumInstitutionalEfficiency": 0.38,
       "minimumStability": 50,
       "minimumOpenness": 0.08,
@@ -56,6 +58,10 @@
     "organizationId": "world_trade_organization",
     "requirements": {
       "historicalEventIds": ["reform_and_opening_1978", "joint_venture_law_1979"],
+      "minimumMonthsSinceEvents": {
+        "reform_and_opening_1978": 60,
+        "joint_venture_law_1979": 36
+      },
       "minimumInstitutionalEfficiency": 0.48,
       "minimumStability": 55,
       "minimumOpenness": 0.25,

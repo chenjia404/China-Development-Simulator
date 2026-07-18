@@ -57,7 +57,7 @@ describe("历史转折国策", () => {
     ).toBe(true);
   });
 
-  it("合资企业法必须以已经启动的改革开放为前提", () => {
+  it("合资企业法必须以已经运行满一年的改革开放为前提", () => {
     const engine = createSimulationEngine(prepareReformConditions(1970));
     expect(
       getHistoricalInitiativeStatus(
@@ -70,14 +70,26 @@ describe("历史转折国策", () => {
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_reform_and_opening",
     });
-    engine.dispatch({
+    expect(
+      getHistoricalInitiativeStatus(
+        engine.exportState(),
+        "early_joint_venture_law",
+      ).blockers,
+    ).toContain("改革开放启动需实施满 12 个月（还需 12 个月）");
+
+    const maturedState = engine.exportState();
+    maturedState.nation.date.year = 1971;
+    maturedState.nation.date.month = 1;
+    maturedState.nation.date.elapsedMonths += 12;
+    const maturedEngine = createSimulationEngine(maturedState);
+    maturedEngine.dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_joint_venture_law",
     });
 
-    expect(engine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+    expect(maturedEngine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
       id: "joint_venture_law_1979",
-      year: 1970,
+      year: 1971,
       scheduledYear: 1979,
       outcome: "enacted_early",
     });
@@ -89,11 +101,16 @@ describe("历史转折国策", () => {
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_reform_and_opening",
     });
-    preparationEngine.dispatch({
+    const legalState = preparationEngine.exportState();
+    legalState.nation.date.year = 1971;
+    legalState.nation.date.month = 1;
+    legalState.nation.date.elapsedMonths += 12;
+    const legalEngine = createSimulationEngine(legalState);
+    legalEngine.dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_joint_venture_law",
     });
-    const state = preparationEngine.exportState();
+    const state = legalEngine.exportState();
     state.nation.date.year = 1986;
     state.nation.date.month = 1;
     state.nation.date.elapsedMonths = (1986 - 1949) * 12;

@@ -147,6 +147,34 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .policy-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 8px; }
 .policy-toggle { width: 100%; margin-top: 13px; padding: 8px 10px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 700; }
 .policy-toggle.remove { color: var(--red); background: transparent; border-color: color-mix(in srgb, var(--red) 35%, var(--line)); }
+.initiative-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-top: 30px; padding: 24px 4px 16px; border-top: 1px solid var(--line); }
+.initiative-heading h2 { margin: 5px 0 7px; font-size: 20px; }
+.initiative-heading p { max-width: 790px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+.initiative-heading > span { flex: 0 0 auto; padding: 7px 10px; color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--line)); border-radius: 8px; font-size: 9px; font-weight: 700; }
+.initiative-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.initiative-card { display: flex; flex-direction: column; min-height: 350px; padding: 17px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
+.initiative-card.is-available { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 9%, transparent); }
+.initiative-card.is-completed { border-color: color-mix(in srgb, var(--green) 42%, var(--line)); background: color-mix(in srgb, var(--green) 5%, var(--surface)); }
+.initiative-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.initiative-card-head span { padding: 4px 8px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 20px; font-size: 8px; font-weight: 700; }
+.initiative-card.is-available .initiative-card-head span { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 30%, var(--line)); }
+.initiative-card.is-completed .initiative-card-head span { color: var(--green); border-color: color-mix(in srgb, var(--green) 30%, var(--line)); }
+.initiative-card-head small { color: var(--muted); font-size: 8px; }
+.initiative-card h3 { margin: 14px 0 7px; font-size: 15px; }
+.initiative-card > p { min-height: 53px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
+.initiative-facts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
+.initiative-facts span { padding: 4px 6px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-size: 8px; }
+.initiative-blockers, .initiative-result, .initiative-ready { flex: 1; margin-top: 13px; padding: 11px; border-radius: 8px; font-size: 8px; }
+.initiative-blockers { color: var(--muted); background: color-mix(in srgb, var(--red) 4%, var(--surface)); border: 1px solid color-mix(in srgb, var(--red) 18%, var(--line)); }
+.initiative-blockers strong { color: var(--red); }
+.initiative-blockers ul { display: grid; gap: 4px; margin: 7px 0 0; padding-left: 15px; }
+.initiative-result { background: color-mix(in srgb, var(--green) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--green) 25%, var(--line)); }
+.initiative-result strong, .initiative-result span { display: block; }
+.initiative-result strong { color: var(--green); font-size: 10px; }
+.initiative-result span { margin-top: 5px; color: var(--muted); }
+.initiative-ready { color: var(--gold); background: color-mix(in srgb, var(--gold) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 25%, var(--line)); }
+.initiative-card button { width: 100%; margin-top: 13px; padding: 9px 10px; color: white; background: var(--gold); border: 1px solid var(--gold); border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 700; }
+.initiative-card button:disabled { cursor: not-allowed; color: var(--muted); background: var(--surface); border-color: var(--line); }
 
 .diplomacy-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
 .diplomacy-layout { display: grid; grid-template-columns: minmax(330px, .85fr) minmax(560px, 1.45fr); gap: 14px; }
@@ -208,8 +236,10 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .event-status.active { color: white; background: var(--blue); border-color: var(--blue); }
 .event-status.pending { color: white; background: var(--gold); border-color: var(--gold); }
 .event-status.prevented { color: white; background: var(--green); border-color: var(--green); }
+.event-status.early { color: white; background: var(--gold); border-color: var(--gold); }
 .historical-event.is-pending .historical-event-card { opacity: 1; border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); border-left-color: var(--gold); box-shadow: 0 8px 24px color-mix(in srgb, var(--gold) 10%, transparent); }
 .historical-event.is-prevented .historical-event-card { opacity: 1; border-left-color: var(--green); }
+.historical-event.is-early .historical-event-card { opacity: 1; border-left-color: var(--gold); }
 .historical-event-card h3 { margin: 12px 0 7px; font-size: 15px; }
 .historical-event-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
 .event-choice-result { margin-top: 12px; padding: 10px 11px; background: color-mix(in srgb, var(--green) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--green) 25%, var(--line)); border-radius: 8px; }
@@ -275,6 +305,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .budget-list { grid-template-columns: repeat(2, 1fr); column-gap: 20px; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .policy-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .initiative-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .diplomacy-layout { grid-template-columns: 1fr; }
   .history-events-hero { padding-right: 4px; }
   .history-event-summary { position: static; width: fit-content; margin-top: 15px; }
@@ -304,6 +335,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .budget-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .initiative-grid { grid-template-columns: 1fr; }
+  .initiative-heading { align-items: flex-start; }
   .policy-hero { padding-right: 4px; }
   .selection-count { position: static; display: inline-block; margin-top: 14px; }
   .relation-row { grid-template-columns: 1fr 64px; }
@@ -325,6 +358,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .control-button, .theme-button { display: none; }
   .panel { padding: 14px; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: 1fr; }
+  .initiative-heading { display: block; }
+  .initiative-heading > span { display: inline-flex; margin-top: 12px; }
   .diplomacy-block { padding: 12px; }
   .organization-card { grid-template-columns: 1fr; }
   .organization-card button { width: 100%; }

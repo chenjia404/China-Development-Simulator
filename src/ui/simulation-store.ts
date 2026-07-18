@@ -46,6 +46,7 @@ interface SimulationStore {
   diplomaticAction(actionId: DiplomaticActionId, countryId: string): Promise<void>;
   joinOrganization(organizationId: string): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
+  enactHistoricalInitiative(initiativeId: string): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
@@ -162,6 +163,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       type: "RESOLVE_HISTORICAL_EVENT",
       eventId,
       choiceId,
+    });
+  },
+
+  async enactHistoricalInitiative(initiativeId) {
+    await get().dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId,
     });
   },
 

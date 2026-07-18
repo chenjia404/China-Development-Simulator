@@ -14,6 +14,7 @@ import {
 
 export interface HistoricalInitiativeRequirements {
   historicalEventIds: string[];
+  minimumMonthsSinceEvents: Record<string, number>;
   minimumInstitutionalEfficiency: number;
   minimumStability: number;
   minimumOpenness: number;
@@ -98,8 +99,20 @@ export function getHistoricalInitiativeStatus(
   }
   if (nation.pendingHistoricalEventId) blockers.push("需先处理当前历史事件决策");
   for (const requiredEventId of requirements.historicalEventIds) {
-    if (!nation.history.historicalEvents.some((record) => record.id === requiredEventId)) {
+    const requiredRecord = nation.history.historicalEvents.find(
+      (record) => record.id === requiredEventId,
+    );
+    if (!requiredRecord) {
       blockers.push(`需先完成${getHistoricalEvent(requiredEventId)?.name ?? requiredEventId}`);
+      continue;
+    }
+    const minimumMonths = requirements.minimumMonthsSinceEvents[requiredEventId] ?? 0;
+    const elapsedMonths = (nation.date.year - requiredRecord.year) * 12 +
+      nation.date.month - requiredRecord.month;
+    if (elapsedMonths < minimumMonths) {
+      blockers.push(
+        `${requiredRecord.name}需实施满 ${minimumMonths} 个月（还需 ${minimumMonths - elapsedMonths} 个月）`,
+      );
     }
   }
   if (nation.economy.institutionalEfficiency < requirements.minimumInstitutionalEfficiency) {
