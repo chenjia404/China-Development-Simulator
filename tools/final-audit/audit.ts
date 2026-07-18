@@ -5,6 +5,8 @@ import {
   calculateTradeAccess,
   calculateTechnologyTreeMetrics,
   compareSimulationWithHistory,
+  compareSimulationWithTarget,
+  comparisonTargetOptions,
   createSimulationEngine,
   createInitialGameState,
   developmentRouteBlueprints,
@@ -179,6 +181,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const historicalComparisons = compareSimulationWithHistory(historical.annual);
   const historicalRankComparisons = historicalComparisons.filter(
     (comparison) => comparison.gdpRank !== null,
+  );
+  const targetComparisons = comparisonTargetOptions.map((target) =>
+    compareSimulationWithTarget(historical.annual, target.id)
+  );
+  const internationalTargetComparisons = targetComparisons.filter(
+    (comparison) => comparison.targetId !== "history",
   );
   const restored = deserializeGameState(
     serializeGameState(historical.finalState, "2027-01-01T00:00:00.000Z"),
@@ -732,9 +740,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "historical-comparison",
-      "界面可按统一口径比较实际 GDP、人均 GDP、总人口和世界经济排名",
+      "界面可选择历史、韩国、日本和台湾比较 GDP、人均 GDP、人口与世界排名",
       historicalComparisons.length === 8 &&
         historicalRankComparisons.length === 5 &&
+        targetComparisons.length === 4 &&
+        internationalTargetComparisons.every(
+          (comparison) =>
+            comparison.valueBasis === "current_usd" &&
+            comparison.rows.length === 9 &&
+            comparison.rows.every(
+              (row) =>
+                Number.isFinite(row.gdp.relativeDifference) &&
+                Number.isFinite(row.gdpPerCapita.relativeDifference) &&
+                Number.isFinite(row.population.relativeDifference) &&
+                Number.isFinite(row.gdpRank?.difference) &&
+                (row.gdpRank?.targetParticipants ?? 0) > 100,
+            ),
+        ) &&
         historicalComparisons.every(
           (comparison) =>
             comparison.year <= 2020 &&
@@ -745,7 +767,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         historicalRankComparisons.every(
           (comparison) => Number.isFinite(comparison.gdpRank?.difference),
         ),
-      `${historicalComparisons.length} 个真实历史年份可比，${historicalRankComparisons.length} 个年份含世界经济排名；2026 年预测目标已排除`,
+      `历史 ${historicalComparisons.length} 个锚点；韩国、日本、台湾各 ${internationalTargetComparisons.map((comparison) => comparison.rows.length).join("/")} 个现价美元锚点；2026 年预测目标已排除`,
     ),
     makeCheck(
       "distinct-routes",

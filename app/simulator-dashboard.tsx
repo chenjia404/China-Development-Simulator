@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ECharts } from "echarts/core";
 import type {
   AnnualSnapshot,
+  ComparisonTargetId,
   DiplomaticActionId,
   DiplomaticStrategyId,
   FiscalBudget,
   GameState,
-  HistoricalComparisonMetric,
+  TargetComparisonMetric,
 } from "@/src/simulation";
 import {
   averageInternationalRelation,
@@ -24,10 +25,12 @@ import {
   getHistoricalInitiativeStatus,
   historicalEventDefinitions,
   historicalInitiativeDefinitions,
+  isComparisonTargetId,
   maximumActivePolicies,
   nationalPolicyDefinitions,
   calculateTechnologyTreeMetrics,
-  compareSimulationWithHistory,
+  compareSimulationWithTarget,
+  comparisonTargetOptions,
   getTechnologyNode,
   technologyResearchRequirements,
   technologyTreeDefinitions,
@@ -995,15 +998,29 @@ function InternationalSection({ game }: { game: GameState }) {
 }
 
 function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: boolean }) {
-  const comparisons = compareSimulationWithHistory(
-    game.nation.history.annual,
-  ).reverse();
+  const [comparisonTargetId, setComparisonTargetId] =
+    useState<ComparisonTargetId>("history");
+  const comparison = useMemo(
+    () => compareSimulationWithTarget(
+      game.nation.history.annual,
+      comparisonTargetId,
+    ),
+    [comparisonTargetId, game.nation.history.annual],
+  );
+  const comparisons = [...comparison.rows].reverse();
+  const isInternationalComparison = comparison.valueBasis === "current_usd";
   const differenceTone = (value: number) =>
     value > 0.0005 ? "is-above" : value < -0.0005 ? "is-below" : "is-matched";
-  const renderMetric = (metric: HistoricalComparisonMetric) => (
+  const renderMetric = (
+    metric: TargetComparisonMetric,
+    currency = false,
+  ) => (
     <div className="comparison-metric">
-      <strong>{formatLarge(metric.simulated)}</strong>
-      <span>史实 {formatLarge(metric.historical)}</span>
+      <strong>{currency ? "$" : ""}{formatLarge(metric.simulated)}</strong>
+      <span>
+        {comparison.targetLabel} {currency ? "$" : ""}
+        {formatLarge(metric.target)}
+      </span>
       <small className={differenceTone(metric.relativeDifference)}>
         偏差 {metric.relativeDifference >= 0 ? "+" : ""}
         {formatPercent(metric.relativeDifference)}
@@ -1021,32 +1038,53 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
       <section className="historical-comparison-panel">
         <div className="comparison-heading">
           <div>
-            <span className="eyebrow">本局路线与史实锚点</span>
-            <h2>真实历史对比</h2>
-            <p>对照数据只用于展示，不会把反事实路线重新拉回史实。</p>
+            <span className="eyebrow">本局路线与同期发展目标</span>
+            <h2>国家发展对比</h2>
+            <p>选择历史、韩国、日本或台湾，查看相同年份的发展差距。</p>
           </div>
-          <span>{comparisons.length} 个可比年份</span>
+          <label className="comparison-selector">
+            <span>目标对象</span>
+            <select
+              aria-label="选择经济对比目标"
+              value={comparisonTargetId}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                if (isComparisonTargetId(value)) setComparisonTargetId(value);
+              }}
+            >
+              {comparisonTargetOptions.map((target) => (
+                <option value={target.id} key={target.id}>
+                  {target.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         <div className="historical-comparison-scroll">
           <div className="historical-comparison-table">
             <div className="comparison-head">
               <span>年份</span>
-              <span>实际 GDP</span>
-              <span>人均 GDP</span>
+              <span>{isInternationalComparison ? "GDP（现价美元）" : "实际 GDP"}</span>
+              <span>{isInternationalComparison ? "人均 GDP（美元）" : "人均 GDP"}</span>
               <span>总人口</span>
               <span>世界经济排名</span>
             </div>
             {comparisons.map((item) => (
               <div className="comparison-row" key={item.year}>
                 <strong>{item.year}</strong>
-                {renderMetric(item.realGDP)}
-                {renderMetric(item.realGDPPerCapita)}
+                {renderMetric(item.gdp, isInternationalComparison)}
+                {renderMetric(item.gdpPerCapita, isInternationalComparison)}
                 {renderMetric(item.population)}
                 <div className="comparison-metric comparison-rank">
                   {item.gdpRank ? (
                     <>
                       <strong>第 {item.gdpRank.simulated} 名</strong>
-                      <span>史实第 {item.gdpRank.historical} 名</span>
+                      <span>
+                        {comparison.targetLabel}第 {item.gdpRank.target} 名
+                        {item.gdpRank.targetParticipants
+                          ? ` / ${item.gdpRank.targetParticipants}`
+                          : ""}
+                      </span>
                       <small className={item.gdpRank.difference < 0
                         ? "is-above"
                         : item.gdpRank.difference > 0
@@ -1054,7 +1092,7 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
                           : "is-matched"}
                       >
                         {item.gdpRank.difference === 0
-                          ? "与史实一致"
+                          ? `与${comparison.targetLabel}一致`
                           : item.gdpRank.difference < 0
                             ? `领先 ${Math.abs(item.gdpRank.difference)} 位`
                             : `落后 ${item.gdpRank.difference} 位`}
@@ -1066,10 +1104,17 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
                 </div>
               </div>
             ))}
+            {comparisons.length === 0 && (
+              <p className="comparison-empty">
+                推进到 1960 年后即可开始与{comparison.targetLabel}比较。
+              </p>
+            )}
           </div>
         </div>
         <p className="comparison-note">
-          实际 GDP 与人均 GDP 使用项目统一的 1949 年不变价校准口径；世界经济排名按名义 GDP 总量比较。2026 年预测目标不作为真实历史展示。
+          {isInternationalComparison
+            ? "国家横向对标统一使用同期现价美元；目标排名按同年有数据的世界经济体计算，本局排名来自动态世界模型。对比只用于展示，不会改变模拟结果。"
+            : "历史对比的实际 GDP 与人均 GDP 使用项目统一的 1949 年不变价校准口径；世界经济排名按名义 GDP 总量比较。2026 年预测目标不作为真实历史展示。"}
         </p>
       </section>
       <div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>指数 {item.technologyIndex.toFixed(1)}<br />产业第 {item.industryTechnologyTier} 层 · {item.completedTechnologyCount} 节点</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div>

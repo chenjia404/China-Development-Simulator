@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "description": "用于统计页国家对标的现价美元历史锚点，不参与模拟结算或历史路线回拉。",
+    "valueBasis": "GDP 与人均 GDP 均为当年现价美元；人口为年中或官方国民账户隐含人口；排名为同年名义 GDP 排名。",
+    "rankingMethod": "日韩排名按世界银行同年有 GDP 数据的经济体计算并排除聚合项；台湾作为独立对标经济体插入同一分布。",
+    "taiwanPopulationMethod": "台湾人口由官方现价美元 GDP 除以官方现价美元人均 GDP 得出，受官方表格取整影响，属于近似值。",
+    "sources": [
+      "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD?locations=JP-KR",
+      "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=JP-KR",
+      "https://data.worldbank.org/indicator/SP.POP.TOTL?locations=JP-KR",
+      "https://eng.stat.gov.tw/News_Content.aspx?n=2336&s=236301"
+    ]
+  },
+  "targets": [
+    {
+      "id": "south_korea",
+      "name": "韩国",
+      "years": [
+        { "year": 1960, "nominalGDP": 3973069307, "currentUSDGDPPerCapita": 158.8, "population": 25012374, "gdpRank": 35, "rankParticipants": 111 },
+        { "year": 1965, "nominalGDP": 3141131708, "currentUSDGDPPerCapita": 109.4, "population": 28704674, "gdpRank": 42, "rankParticipants": 121 },
+        { "year": 1970, "nominalGDP": 9085001794, "currentUSDGDPPerCapita": 281.8, "population": 32240827, "gdpRank": 32, "rankParticipants": 146 },
+        { "year": 1978, "nominalGDP": 52824793388, "currentUSDGDPPerCapita": 1428.9, "population": 36969185, "gdpRank": 24, "rankParticipants": 152 },
+        { "year": 1980, "nominalGDP": 66547970351, "currentUSDGDPPerCapita": 1745.6, "population": 38123775, "gdpRank": 26, "rankParticipants": 163 },
+        { "year": 1990, "nominalGDP": 292064221389, "currentUSDGDPPerCapita": 6812.9, "population": 42869283, "gdpRank": 15, "rankParticipants": 192 },
+        { "year": 2000, "nominalGDP": 597487173479, "currentUSDGDPPerCapita": 12710.3, "population": 47008111, "gdpRank": 12, "rankParticipants": 204 },
+        { "year": 2010, "nominalGDP": 1192830015738, "currentUSDGDPPerCapita": 24071.3, "population": 49554112, "gdpRank": 13, "rankParticipants": 213 },
+        { "year": 2020, "nominalGDP": 1744070276373, "currentUSDGDPPerCapita": 33645.8, "population": 51836239, "gdpRank": 9, "rankParticipants": 210 }
+      ]
+    },
+    {
+      "id": "japan",
+      "name": "日本",
+      "years": [
+        { "year": 1960, "nominalGDP": 48417804545, "currentUSDGDPPerCapita": 519.4, "population": 93216000, "gdpRank": 6, "rankParticipants": 111 },
+        { "year": 1965, "nominalGDP": 99387878008, "currentUSDGDPPerCapita": 1014.7, "population": 97952000, "gdpRank": 5, "rankParticipants": 121 },
+        { "year": 1970, "nominalGDP": 221798003144, "currentUSDGDPPerCapita": 2145.0, "population": 103403000, "gdpRank": 2, "rankParticipants": 146 },
+        { "year": 1978, "nominalGDP": 1057419758047, "currentUSDGDPPerCapita": 9201.9, "population": 114913000, "gdpRank": 2, "rankParticipants": 152 },
+        { "year": 1980, "nominalGDP": 1153159955513, "currentUSDGDPPerCapita": 9872.4, "population": 116807000, "gdpRank": 2, "rankParticipants": 163 },
+        { "year": 1990, "nominalGDP": 3252994239867, "currentUSDGDPPerCapita": 26344.7, "population": 123478000, "gdpRank": 2, "rankParticipants": 192 },
+        { "year": 2000, "nominalGDP": 5042381838343, "currentUSDGDPPerCapita": 39752.9, "population": 126843000, "gdpRank": 2, "rankParticipants": 204 },
+        { "year": 2010, "nominalGDP": 5811578109447, "currentUSDGDPPerCapita": 45378.1, "population": 128070000, "gdpRank": 3, "rankParticipants": 213 },
+        { "year": 2020, "nominalGDP": 5189197543645, "currentUSDGDPPerCapita": 41099.0, "population": 126261000, "gdpRank": 3, "rankParticipants": 210 }
+      ]
+    },
+    {
+      "id": "taiwan",
+      "name": "台湾",
+      "years": [
+        { "year": 1960, "nominalGDP": 1743000000, "currentUSDGDPPerCapita": 163, "population": 10693252, "gdpRank": 49, "rankParticipants": 112 },
+        { "year": 1965, "nominalGDP": 2869000000, "currentUSDGDPPerCapita": 229, "population": 12528384, "gdpRank": 48, "rankParticipants": 122 },
+        { "year": 1970, "nominalGDP": 5785000000, "currentUSDGDPPerCapita": 397, "population": 14571788, "gdpRank": 42, "rankParticipants": 147 },
+        { "year": 1978, "nominalGDP": 27373000000, "currentUSDGDPPerCapita": 1606, "population": 17044209, "gdpRank": 32, "rankParticipants": 153 },
+        { "year": 1980, "nominalGDP": 42292000000, "currentUSDGDPPerCapita": 2389, "population": 17702805, "gdpRank": 35, "rankParticipants": 164 },
+        { "year": 1990, "nominalGDP": 166392000000, "currentUSDGDPPerCapita": 8205, "population": 20279342, "gdpRank": 21, "rankParticipants": 193 },
+        { "year": 2000, "nominalGDP": 330725000000, "currentUSDGDPPerCapita": 14908, "population": 22184398, "gdpRank": 16, "rankParticipants": 205 },
+        { "year": 2010, "nominalGDP": 444245000000, "currentUSDGDPPerCapita": 19197, "population": 23141376, "gdpRank": 25, "rankParticipants": 214 },
+        { "year": 2020, "nominalGDP": 676935000000, "currentUSDGDPPerCapita": 28705, "population": 23582477, "gdpRank": 21, "rankParticipants": 211 }
+      ]
+    }
+  ]
+}

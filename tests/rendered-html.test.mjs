@@ -82,7 +82,7 @@ test("客户端展示可操作科技树和产业升级门槛", async () => {
   assert.match(source, /科技指数高但产业节点落后/);
 });
 
-test("客户端展示本局路线与真实历史对比", async () => {
+test("客户端可选择历史、韩国、日本和台湾进行发展对比", async () => {
   const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
   const files = await readdir(assetsDirectory);
   const dashboardFile = files.find(
@@ -90,10 +90,15 @@ test("客户端展示本局路线与真实历史对比", async () => {
   );
   assert.ok(dashboardFile, "应生成模拟器客户端代码块");
   const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
-  assert.match(source, /真实历史对比/);
+  assert.match(source, /国家发展对比/);
+  assert.match(source, /选择经济对比目标/);
+  assert.match(source, /韩国/);
+  assert.match(source, /日本/);
+  assert.match(source, /台湾/);
   assert.match(source, /实际 GDP/);
+  assert.match(source, /GDP（现价美元）/);
   assert.match(source, /人均 GDP/);
   assert.match(source, /总人口/);
   assert.match(source, /世界经济排名/);
-  assert.match(source, /不会把反事实路线重新拉回史实/);
+  assert.match(source, /对比只用于展示，不会改变模拟结果/);
 });

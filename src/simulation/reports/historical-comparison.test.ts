@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   compareSimulationWithHistory,
+  compareSimulationWithTarget,
+  comparisonTargetOptions,
   historicalComparisonAnchors,
 } from "./historical-comparison";
 
@@ -31,6 +33,7 @@ describe("真实历史对比", () => {
       year: 1978,
       realGDP: 638_000_000_000,
       realGDPPerCapita: 660,
+      currentUSDGDPPerCapita: 170,
       population: 962_590_000,
       gdpRank: 8,
     }]);
@@ -46,5 +49,54 @@ describe("真实历史对比", () => {
       historical: 10,
       difference: -2,
     });
+  });
+
+  it("提供历史、韩国、日本和台湾四个可选对标对象", () => {
+    expect(comparisonTargetOptions.map((target) => target.id)).toEqual([
+      "history",
+      "south_korea",
+      "japan",
+      "taiwan",
+    ]);
+  });
+
+  it("国家对标使用同期现价美元 GDP、人均 GDP、人口和世界排名", () => {
+    const comparison = compareSimulationWithTarget([{
+      year: 2000,
+      realGDP: 5_000_000_000_000,
+      realGDPPerCapita: 4_000,
+      currentUSDGDPPerCapita: 15_000,
+      population: 50_000_000,
+      gdpRank: 10,
+    }], "south_korea");
+
+    expect(comparison.targetLabel).toBe("韩国");
+    expect(comparison.valueBasis).toBe("current_usd");
+    expect(comparison.rows).toHaveLength(1);
+    expect(comparison.rows[0].gdp.simulated).toBe(750_000_000_000);
+    expect(comparison.rows[0].gdp.target).toBe(597_487_173_479);
+    expect(comparison.rows[0].gdpPerCapita.target).toBe(12_710.3);
+    expect(comparison.rows[0].population.target).toBe(47_008_111);
+    expect(comparison.rows[0].gdpRank).toEqual({
+      simulated: 10,
+      target: 12,
+      difference: -2,
+      targetParticipants: 204,
+    });
+  });
+
+  it("国家对标只展示本局已经到达的锚点年份", () => {
+    const comparison = compareSimulationWithTarget([{
+      year: 1978,
+      realGDP: 580_000_000_000,
+      realGDPPerCapita: 603,
+      currentUSDGDPPerCapita: 1_500,
+      population: 36_000_000,
+      gdpRank: 20,
+    }], "taiwan");
+
+    expect(comparison.rows.map((row) => row.year)).toEqual([1978]);
+    expect(comparison.rows[0].gdpPerCapita.target).toBe(1_606);
+    expect(comparison.rows[0].gdpRank?.target).toBe(32);
   });
 });
