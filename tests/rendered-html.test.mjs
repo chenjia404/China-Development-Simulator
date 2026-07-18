@@ -324,3 +324,16 @@ test("客户端展示能源结构、运输网络和环境压力", async () => {
   assert.match(source, /空气污染/);
   assert.match(source, /资源耗竭压力/);
 });
+
+test("客户端展示学段、技能就业与疾病负担", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /人力发展账户/);
+  assert.match(source, /职业教育/);
+  assert.match(source, /高级技能/);
+  assert.match(source, /基层医疗覆盖/);
+  assert.match(source, /健康预期寿命/);
+});

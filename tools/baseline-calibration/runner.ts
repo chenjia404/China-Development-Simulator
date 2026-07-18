@@ -45,17 +45,17 @@ export function runSimulation(options: SimulationRunOptions): SimulationRunResul
   for (let year = options.startYear; year <= options.endYear; year += 1) {
     const decision = getAnnualDecision(options.strategy, year);
     if (decision.budget) {
-      engine.dispatch({ type: "UPDATE_BUDGET", budget: decision.budget });
+      engine.dispatchHeadless({ type: "UPDATE_BUDGET", budget: decision.budget });
     }
-    engine.dispatch({ type: "SET_POLICIES", policyIds: decision.policyIds });
+    engine.dispatchHeadless({ type: "SET_POLICIES", policyIds: decision.policyIds });
     for (let month = 0; month < 12; month += 1) {
       const elapsedMonths = engine.getState().nation.date.elapsedMonths;
       while (engine.getState().nation.date.elapsedMonths === elapsedMonths) {
-        engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+        engine.dispatchHeadless({ type: "ADVANCE_MONTHS", months: 1 });
         const pendingEventId =
           engine.getState().nation.pendingHistoricalEventId;
         if (pendingEventId) {
-          engine.dispatch({
+          engine.dispatchHeadless({
             type: "RESOLVE_HISTORICAL_EVENT",
             eventId: pendingEventId,
             choiceId: getHistoricalEventChoice(

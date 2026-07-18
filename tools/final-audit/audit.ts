@@ -1392,6 +1392,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年煤炭占比 ${(historical.finalState.nation.resources.infrastructureResources.energyMix.coal.share * 100).toFixed(1)}%、能源进口依赖 ${(historical.finalState.nation.resources.infrastructureResources.energyImportDependence * 100).toFixed(1)}%、物流效率 ${historical.finalState.nation.resources.infrastructureResources.logisticsEfficiencyIndex.toFixed(1)}、空气污染 ${historical.finalState.nation.resources.infrastructureResources.airPollutionIndex.toFixed(1)}`,
     ),
     makeCheck(
+      "human-development-accounts",
+      "学段人口、技能就业、基层医疗和疾病负担形成守恒细账",
+      historical.finalState.nation.humanDevelopment.educationPopulationError < 1 &&
+        historical.finalState.nation.humanDevelopment.laborForceError /
+          historical.finalState.nation.labor.laborForce < 1e-10 &&
+        historical.finalState.nation.humanDevelopment.employmentError /
+          historical.finalState.nation.labor.employed < 1e-10 &&
+        historical.finalState.nation.humanDevelopment.healthyLifeExpectancy <=
+          historical.finalState.nation.health.lifeExpectancy,
+      `2026 年高等教育入学率 ${(historical.finalState.nation.humanDevelopment.educationStages.higher.enrollmentRate * 100).toFixed(1)}%、高级技能与科研占比 ${((historical.finalState.nation.humanDevelopment.laborSkills.advanced.laborForce + historical.finalState.nation.humanDevelopment.laborSkills.research.laborForce) / historical.finalState.nation.labor.laborForce * 100).toFixed(1)}%、健康预期寿命 ${historical.finalState.nation.humanDevelopment.healthyLifeExpectancy.toFixed(1)} 岁`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

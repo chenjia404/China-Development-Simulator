@@ -38,6 +38,7 @@ import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
 import { ensureInfrastructureResourceState } from "../economy/energy-transport-environment";
+import { ensureHumanDevelopmentState } from "../society/human-development";
 
 export interface SimulationResult {
   state: GameState;
@@ -48,6 +49,8 @@ export interface SimulationResult {
 export interface SimulationEngine {
   getState(): Readonly<GameState>;
   dispatch(command: SimulationCommand): SimulationResult;
+  /** 无界面批量模拟专用：执行命令但不为未使用的返回值深拷贝完整状态。 */
+  dispatchHeadless(command: SimulationCommand): void;
   exportState(): GameState;
 }
 
@@ -83,6 +86,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
     ensureInfrastructureResourceState(this.state.nation);
+    ensureHumanDevelopmentState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -90,6 +94,15 @@ class DeterministicSimulationEngine implements SimulationEngine {
   }
 
   dispatch(command: SimulationCommand): SimulationResult {
+    this.dispatchHeadless(command);
+    return {
+      state: this.exportState(),
+      latestMonth: this.state.nation.history.monthly.at(-1) ?? null,
+      annualReport: this.state.nation.history.reports.at(-1) ?? null,
+    };
+  }
+
+  dispatchHeadless(command: SimulationCommand): void {
     switch (command.type) {
       case "CREATE_GAME":
         this.state = createInitialGameState(
@@ -116,6 +129,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
         ensureInfrastructureResourceState(this.state.nation);
+        ensureHumanDevelopmentState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
@@ -170,11 +184,6 @@ class DeterministicSimulationEngine implements SimulationEngine {
     }
     checkAutomaticInternationalOrganizations(this.state);
 
-    return {
-      state: this.exportState(),
-      latestMonth: this.state.nation.history.monthly.at(-1) ?? null,
-      annualReport: this.state.nation.history.reports.at(-1) ?? null,
-    };
   }
 
   exportState(): GameState {

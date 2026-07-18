@@ -95,6 +95,15 @@ export function recordHistory(state: GameState): void {
       nation.resources.infrastructureResources.carbonEmissions,
     airPollutionIndex:
       nation.resources.infrastructureResources.airPollutionIndex,
+    higherEducationEnrollmentRate:
+      nation.humanDevelopment.educationStages.higher.enrollmentRate,
+    advancedSkillShare:
+      (nation.humanDevelopment.laborSkills.advanced.laborForce +
+        nation.humanDevelopment.laborSkills.research.laborForce) /
+      Math.max(nation.labor.laborForce, 1),
+    skillMismatchRate: nation.humanDevelopment.skillMismatchRate,
+    healthyLifeExpectancy: nation.humanDevelopment.healthyLifeExpectancy,
+    healthRelatedLaborLoss: nation.humanDevelopment.healthRelatedLaborLoss,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

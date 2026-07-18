@@ -41,6 +41,10 @@ import {
   createEmptyInfrastructureResourceState,
   updateInfrastructureResources,
 } from "../economy/energy-transport-environment";
+import {
+  createEmptyHumanDevelopmentState,
+  updateHumanDevelopment,
+} from "../society/human-development";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -207,6 +211,7 @@ export function createInitialGameState(
         lifeExpectancy: 35,
         index: 12,
       },
+      humanDevelopment: createEmptyHumanDevelopmentState(),
       technology: {
         index: 6,
         researchPoints: 0,
@@ -328,6 +333,7 @@ export function createInitialGameState(
   updateNationalAccounts(state.nation);
   updateAgricultureSystem(state.nation, true);
   updateInfrastructureResources(state.nation, true);
+  updateHumanDevelopment(state.nation);
   updateEnterpriseSectors(state.nation);
   updateFiscalFederalism(state.nation);
   ensureMarketDynamicsState(state.nation);

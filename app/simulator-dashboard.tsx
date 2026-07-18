@@ -544,6 +544,23 @@ function InfrastructureResourcePanel({ game }: { game: GameState }) {
   </section>;
 }
 
+function HumanDevelopmentPanel({ game }: { game: GameState }) {
+  const state = game.nation.humanDevelopment;
+  const stageNames: Record<string, string> = { primary: "小学", secondary: "中学", vocational: "职业教育", higher: "高等教育" };
+  const skillNames: Record<string, string> = { basic: "基础劳动", skilled: "技能劳动", advanced: "高级技能", research: "科研人才" };
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading"><div><span className="eyebrow">学段 · 技能 · 疾病负担</span><h2>人力发展账户</h2></div><span>技能错配 {formatPercent(state.skillMismatchRate)}</span></div>
+    <div className="enterprise-ownership-grid">{Object.values(state.educationStages).map((item) => <article key={item.id}><div><strong>{stageNames[item.id]}</strong><span>{formatPercent(item.enrollmentRate)}</span></div><p>在校 {formatLarge(item.enrolledStudents)} · 毕业 {formatLarge(item.graduates)}</p><small>完成率 {formatPercent(item.completionRate)}</small></article>)}</div>
+    <div className="enterprise-ownership-grid">{Object.values(state.laborSkills).map((item) => <article key={item.id}><div><strong>{skillNames[item.id]}</strong><span>{formatLarge(item.employed)}</span></div><p>劳动力 {formatLarge(item.laborForce)} · 失业 {formatPercent(item.unemploymentRate)}</p><small>相对工资 ×{item.relativeWage.toFixed(2)}</small></article>)}</div>
+    <div className="detail-grid">
+      <article><span>基层医疗覆盖</span><strong>{formatPercent(state.primaryCareCoverage)}</strong><p>预防保健 {formatPercent(state.preventiveCareCoverage)}</p></article>
+      <article><span>健康预期寿命</span><strong>{state.healthyLifeExpectancy.toFixed(1)} 岁</strong><p>健康劳动损失 {formatPercent(state.healthRelatedLaborLoss)}</p></article>
+      <article><span>传染病负担</span><strong>{formatPercent(state.communicableDiseaseBurden)}</strong><p>慢性病 {formatPercent(state.nonCommunicableDiseaseBurden)}</p></article>
+      <article><span>个人医疗负担</span><strong>{formatPercent(state.outOfPocketHealthShare)}</strong><p>床位 {state.hospitalBedsPerThousand.toFixed(1)} / 千人</p></article>
+    </div>
+  </section>;
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -558,7 +575,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <InfrastructureResourcePanel game={game} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <InfrastructureResourcePanel game={game} /> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

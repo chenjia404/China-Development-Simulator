@@ -163,6 +163,16 @@ export function validateGameState(state: GameState): void {
     infrastructureResources.airPollutionIndex < 0 ||
     infrastructureResources.airPollutionIndex > 100
   ) throw new Error("能源运输环境账户无效或能源份额未守恒");
+  const humanDevelopment = nation.humanDevelopment;
+  if (
+    humanDevelopment.educationPopulationError > 1 ||
+    humanDevelopment.laborForceError /
+      Math.max(1, nation.labor.laborForce) > 1e-10 ||
+    humanDevelopment.employmentError /
+      Math.max(1, nation.labor.employed) > 1e-10 ||
+    humanDevelopment.healthyLifeExpectancy > nation.health.lifeExpectancy ||
+    humanDevelopment.healthRelatedLaborLoss < 0
+  ) throw new Error("教育劳动力医疗细账未守恒或出现无效指标");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

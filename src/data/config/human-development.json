@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "description": "学段入学完成、劳动力技能、基层医疗和疾病负担核算参数。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://data.worldbank.org/country/china"
+    ]
+  },
+  "educationStageWeights": { "primary": 0.42, "secondary": 0.3, "vocational": 0.12, "higher": 0.16 },
+  "baseCompletionRates": { "primary": 0.82, "secondary": 0.68, "vocational": 0.72, "higher": 0.76 },
+  "laborSkillWages": { "basic": 0.72, "skilled": 1, "advanced": 1.55, "research": 2.25 }
+}

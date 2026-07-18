@@ -243,6 +243,45 @@ export interface HealthState {
   index: number;
 }
 
+export type EducationStageId = "primary" | "secondary" | "vocational" | "higher";
+export interface EducationStageAccount {
+  id: EducationStageId;
+  eligiblePopulation: number;
+  enrolledStudents: number;
+  enrollmentRate: number;
+  completionRate: number;
+  graduates: number;
+}
+export type LaborSkillId = "basic" | "skilled" | "advanced" | "research";
+export interface LaborSkillAccount {
+  id: LaborSkillId;
+  laborForce: number;
+  employed: number;
+  unemploymentRate: number;
+  relativeWage: number;
+}
+/** 学段、技能就业与疾病负担的统一人力发展细账。 */
+export interface HumanDevelopmentState {
+  educationStages: Record<EducationStageId, EducationStageAccount>;
+  laborSkills: Record<LaborSkillId, LaborSkillAccount>;
+  skillMismatchRate: number;
+  vocationalCapacity: number;
+  lifelongLearningRate: number;
+  primaryCareCoverage: number;
+  preventiveCareCoverage: number;
+  hospitalBedsPerThousand: number;
+  healthWorkersPerThousand: number;
+  communicableDiseaseBurden: number;
+  nonCommunicableDiseaseBurden: number;
+  injuryBurden: number;
+  healthyLifeExpectancy: number;
+  outOfPocketHealthShare: number;
+  healthRelatedLaborLoss: number;
+  educationPopulationError: number;
+  laborForceError: number;
+  employmentError: number;
+}
+
 export interface TechnologyState {
   index: number;
   researchPoints: number;
@@ -632,6 +671,7 @@ export interface NationState {
   fiscal: FiscalState;
   education: EducationState;
   health: HealthState;
+  humanDevelopment: HumanDevelopmentState;
   technology: TechnologyState;
   resources: ResourceState;
   society: SocietyState;

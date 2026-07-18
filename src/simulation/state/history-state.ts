@@ -34,6 +34,11 @@ export interface MonthlySnapshot {
   logisticsEfficiencyIndex: number;
   carbonEmissions: number;
   airPollutionIndex: number;
+  higherEducationEnrollmentRate: number;
+  advancedSkillShare: number;
+  skillMismatchRate: number;
+  healthyLifeExpectancy: number;
+  healthRelatedLaborLoss: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;
