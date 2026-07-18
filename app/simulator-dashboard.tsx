@@ -12,6 +12,8 @@ import {
   averageInternationalRelation,
   diplomaticActionDefinitions,
   internationalOrganizations,
+  getHistoricalEvent,
+  getHistoricalEventChoices,
   historicalEventDefinitions,
   maximumActivePolicies,
   nationalPolicyDefinitions,
@@ -426,6 +428,109 @@ function formatEventDuration(months: number): string {
     : `${years} 年 ${remainingMonths} 个月`;
 }
 
+const historicalModifierLabels: Record<string, string> = {
+  "sector.primary.output": "农业产出",
+  "sector.secondary.output": "工业产出",
+  "sector.tertiary.output": "服务业产出",
+  "capital.privateInvestment": "社会投资",
+  "fiscal.revenue": "财政收入",
+  "fiscal.spending": "财政支出",
+  "trade.foreignInvestment": "外商投资",
+  "trade.exportCompetitiveness": "出口竞争力",
+  "diplomacy.reputationTarget": "国际声誉目标",
+  "economy.institutionalEfficiencyTarget": "制度效率目标",
+  "resources.foodSupply": "粮食供应",
+  "resources.energySupply": "能源供应",
+  "population.birthRate": "出生率",
+  "population.deathRate": "死亡率",
+  "education.efficiency": "教育效率",
+  "health.efficiency": "医疗效率",
+  "technology.researchOutput": "科研产出",
+};
+
+function formatHistoricalModifier(modifier: {
+  target: string;
+  operation: "add" | "multiply" | "override";
+  value: number;
+}): string {
+  const label = historicalModifierLabels[modifier.target] ?? modifier.target;
+  if (modifier.operation === "multiply") {
+    const change = (modifier.value - 1) * 100;
+    return `${label} ${change >= 0 ? "+" : ""}${change.toFixed(1)}%`;
+  }
+  if (modifier.operation === "add") {
+    return `${label} ${modifier.value >= 0 ? "+" : ""}${modifier.value.toFixed(1)}`;
+  }
+  return `${label} 调整为 ${modifier.value}`;
+}
+
+function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolean }) {
+  const resolveHistoricalEvent = useSimulationStore(
+    (store) => store.resolveHistoricalEvent,
+  );
+  const pendingId = game.nation.pendingHistoricalEventId;
+  const event = pendingId ? getHistoricalEvent(pendingId) : undefined;
+  const choices = event ? getHistoricalEventChoices(event) : [];
+  if (!event) return null;
+
+  return (
+    <div className="historical-decision-overlay">
+      <section
+        className="historical-decision-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="historical-decision-title"
+      >
+        <header className="historical-decision-header">
+          <div>
+            <span className="eyebrow">国家重大决策 · {event.year} 年 {event.month} 月</span>
+            <h2 id="historical-decision-title">{event.name}</h2>
+            <p>{event.description}</p>
+          </div>
+          <span className={`decision-impact ${event.impact}`}>
+            {historicalImpactLabels[event.impact]}
+          </span>
+        </header>
+        <div className="historical-choice-grid">
+          {choices.map((choice) => (
+            <article
+              className={choice.isHistoricalPath ? "historical-choice is-historical" : "historical-choice"}
+              key={choice.id}
+            >
+              <div className="historical-choice-head">
+                <span>{choice.isHistoricalPath ? "史实方案" : "可选路线"}</span>
+                <small>持续 {formatEventDuration(choice.durationMonths)}</small>
+              </div>
+              <h3>{choice.name}</h3>
+              <p>{choice.description}</p>
+              <div className="historical-choice-effects">
+                {choice.effects.map((effect) => <span key={effect}>{effect}</span>)}
+              </div>
+              <div className="historical-choice-modifiers">
+                <strong>模型传导</strong>
+                <div>{choice.modifiers.map((modifier, index) => (
+                  <span key={`${modifier.target}:${index}`}>
+                    {formatHistoricalModifier(modifier)}
+                  </span>
+                ))}</div>
+              </div>
+              <button
+                disabled={busy}
+                onClick={() => void resolveHistoricalEvent(event.id, choice.id)}
+              >
+                {busy ? "正在执行…" : `选择：${choice.name}`}
+              </button>
+            </article>
+          ))}
+        </div>
+        <p className="historical-decision-note">
+          决策将写入存档且不可撤销。选择后本月仍未结算，可继续推进时间。
+        </p>
+      </section>
+    </div>
+  );
+}
+
 function HistoricalEventsSection({ game }: { game: GameState }) {
   const [category, setCategory] = useState("全部");
   const sortedEvents = useMemo(
@@ -440,6 +545,9 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
   );
   const occurredIds = new Set(
     game.nation.history.historicalEvents.map((event) => event.id),
+  );
+  const recordsById = new Map(
+    game.nation.history.historicalEvents.map((event) => [event.id, event]),
   );
   const activeIds = new Set(game.nation.modifiers.map((modifier) => modifier.sourceId));
   const currentSerial = game.nation.date.year * 12 + game.nation.date.month;
@@ -468,22 +576,30 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
       </div>
       <div className="historical-timeline">
         {visibleEvents.map((event) => {
+          const record = recordsById.get(event.id);
+          const selectedChoice = record
+            ? getHistoricalEventChoices(event).find(
+                (choice) => choice.id === record.choiceId,
+              )
+            : undefined;
           const occurred = occurredIds.has(event.id);
           const active = activeIds.has(event.id);
+          const pending = game.nation.pendingHistoricalEventId === event.id;
           const isPast = event.year * 12 + event.month < currentSerial;
-          const status = active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
+          const status = pending ? "待决策" : active ? "影响中" : occurred ? "已发生" : isPast ? "未记录" : "待发生";
           return (
-            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""}`} key={event.id}>
+            <article className={`historical-event impact-${event.impact} ${occurred ? "has-occurred" : ""} ${pending ? "is-pending" : ""}`} key={event.id}>
               <div className="timeline-date"><strong>{event.year}</strong><span>{event.month} 月</span><i /></div>
               <div className="historical-event-card">
                 <div className="historical-event-head">
                   <div><span className="event-category">{event.category}</span><span className={`event-impact ${event.impact}`}>{historicalImpactLabels[event.impact]}</span></div>
-                  <span className={active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
+                  <span className={pending ? "event-status pending" : active ? "event-status active" : occurred ? "event-status occurred" : "event-status"}>{status}</span>
                 </div>
                 <h3>{event.name}</h3>
                 <p>{event.description}</p>
-                <div className="event-effects">{event.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
-                <div className="event-duration">影响持续：{formatEventDuration(event.durationMonths)} · 通过 {event.modifiers.length} 个模型变量传导</div>
+                {record ? <div className="event-choice-result"><span>玩家决策</span><strong>{record.choiceName}</strong><p>{record.choiceDescription}</p></div> : null}
+                <div className="event-effects">{(record?.effects ?? event.effects).map((effect) => <span key={effect}>{effect}</span>)}</div>
+                <div className="event-duration">影响持续：{formatEventDuration(record?.durationMonths ?? event.durationMonths)} · 通过 {selectedChoice?.modifiers.length ?? event.modifiers.length} 个模型变量传导</div>
               </div>
             </article>
           );
@@ -530,14 +646,15 @@ export function SimulatorDashboard() {
   useEffect(() => { void initialize(); }, [initialize]);
   useEffect(() => { document.documentElement.dataset.theme = darkMode ? "dark" : "light"; }, [darkMode]);
   useEffect(() => {
-    if (!autoRunning) return;
+    if (!autoRunning || game?.nation.pendingHistoricalEventId) return;
     const interval = window.setInterval(() => { if (!useSimulationStore.getState().busy) void useSimulationStore.getState().advanceYear(); }, speed === 1 ? 1300 : speed === 5 ? 420 : 180);
     return () => window.clearInterval(interval);
-  }, [autoRunning, speed]);
+  }, [autoRunning, game?.nation.pendingHistoricalEventId, speed]);
 
   const sectionTitle = useMemo(() => menuItems.find((item) => item.id === activeSection)?.label ?? "国家总览", [activeSection]);
   if (!game) return <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>;
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
+  const awaitingHistoricalDecision = Boolean(game.nation.pendingHistoricalEventId);
   const handleRestart = async () => {
     const confirmed = window.confirm(
       "确定重新开始吗？当前进度将被清除，并使用相同随机种子回到 1949 年。",
@@ -560,13 +677,13 @@ export function SimulatorDashboard() {
             <button className="restart-button" disabled={busy} onClick={() => void handleRestart()}>重新开始</button>
             <button className="theme-button" onClick={() => store.setDarkMode(!darkMode)} aria-label="切换深色模式">{darkMode ? "日" : "夜"}</button>
             <div className="speed-control">{([1, 5, 10] as const).map((value) => <button className={speed === value ? "active" : ""} key={value} onClick={() => store.setSpeed(value)}>{value}×</button>)}</div>
-            <button className={autoRunning ? "control-button stop" : "control-button"} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>
-            <button className="primary-button" disabled={busy} onClick={() => void store.advanceYear()}>{busy ? "结算中…" : "推进一年"}</button>
+            <button className={autoRunning ? "control-button stop" : "control-button"} disabled={awaitingHistoricalDecision} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>
+            <button className="primary-button" disabled={busy || awaitingHistoricalDecision} onClick={() => void store.advanceYear()}>{awaitingHistoricalDecision ? "请先决策" : busy ? "结算中…" : "推进一年"}</button>
           </div>
         </header>
         {error ? <div className="error-banner">{error}</div> : null}
         <div className="workspace">
-          <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div><button disabled={busy || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
+          <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}<button disabled={busy || awaitingHistoricalDecision || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
           {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
@@ -577,6 +694,7 @@ export function SimulatorDashboard() {
           {!(["nation", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
+      <HistoricalDecisionModal game={game} busy={busy} />
     </main>
   );
 }

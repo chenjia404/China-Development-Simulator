@@ -5,6 +5,7 @@ import {
   createSimulationEngine,
   createInitialGameState,
   historicalEventDefinitions,
+  getHistoricalEventChoices,
   deserializeGameState,
   serializeGameState,
 } from "../../src/simulation/index";
@@ -130,6 +131,25 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const historicalRecords = historical.finalState.nation.history.historicalEvents;
   const historicalRecordIds = new Set(historicalRecords.map((event) => event.id));
 
+  const decisionEngine = createSimulationEngine(
+    createInitialGameState(seed, 1956, "interactive"),
+  );
+  decisionEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+  const pendingDecisionId =
+    decisionEngine.getState().nation.pendingHistoricalEventId;
+  const decisionChoices = pendingDecisionId
+    ? getHistoricalEventChoices(pendingDecisionId)
+    : [];
+  if (pendingDecisionId) {
+    decisionEngine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: pendingDecisionId,
+      choiceId: "preserve_mixed_ownership",
+    });
+  }
+  const decisionRecord =
+    decisionEngine.getState().nation.history.historicalEvents.at(-1);
+
   const policyEngine = createSimulationEngine(createInitialGameState(seed));
   policyEngine.dispatch({ type: "SET_POLICIES", policyIds: ["technology_priority"] });
   policyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
@@ -211,6 +231,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         historicalRecordIds.has("foreign_assets_reorganization") &&
         historicalRecordIds.has("industry_wide_joint_ownership_1956"),
       `${historicalRecords.length}/${historicalEventDefinitions.length} 个事件已记录，包含外资清理与全行业公私合营`,
+    ),
+    makeCheck(
+      "historical-decisions",
+      "历史事件可暂停并由玩家选择不同传导路线",
+      pendingDecisionId === "industry_wide_joint_ownership_1956" &&
+        decisionChoices.length === 3 &&
+        decisionRecord?.choiceId === "preserve_mixed_ownership" &&
+        decisionEngine.getState().nation.date.month === 1,
+      `待决策事件 ${pendingDecisionId ?? "无"}，可选 ${decisionChoices.length} 个方案，记录方案 ${decisionRecord?.choiceName ?? "无"}`,
     ),
     makeCheck(
       "industrial-tradeoff",

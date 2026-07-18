@@ -45,6 +45,7 @@ interface SimulationStore {
   setPolicies(policyIds: string[]): Promise<void>;
   diplomaticAction(actionId: DiplomaticActionId, countryId: string): Promise<void>;
   joinOrganization(organizationId: string): Promise<void>;
+  resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
@@ -76,10 +77,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ busy: true, error: null });
     try {
       const saved = await loadAutoSave().catch(() => undefined);
-      const command: SimulationCommand = saved
+      const client = getSimulationClient();
+      let result = await client.dispatch(saved
         ? { type: "IMPORT_GAME", state: saved }
-        : { type: "CREATE_GAME", seed: 1949, startYear: 1949 };
-      const result = await getSimulationClient().dispatch(command);
+        : {
+            type: "CREATE_GAME",
+            seed: 1949,
+            startYear: 1949,
+            historicalEventDecisionMode: "interactive",
+          });
+      if (saved) {
+        result = await client.dispatch({
+          type: "SET_HISTORICAL_EVENT_MODE",
+          mode: "interactive",
+        });
+      }
       set({ game: result.state, busy: false });
     } catch (error) {
       set({
@@ -94,7 +106,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ busy: true, error: null });
     try {
       const result = await getSimulationClient().dispatch(command);
-      set({ game: result.state, busy: false });
+      set({
+        game: result.state,
+        busy: false,
+        autoRunning: result.state.nation.pendingHistoricalEventId
+          ? false
+          : get().autoRunning,
+      });
       await persist(result.state);
     } catch (error) {
       set({
@@ -139,15 +157,32 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     await get().dispatch({ type: "JOIN_ORGANIZATION", organizationId });
   },
 
+  async resolveHistoricalEvent(eventId, choiceId) {
+    await get().dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId,
+      choiceId,
+    });
+  },
+
   async newGame(seed = 1949) {
     set({ autoRunning: false });
     await clearAutoSave().catch(() => undefined);
-    await get().dispatch({ type: "CREATE_GAME", seed, startYear: 1949 });
+    await get().dispatch({
+      type: "CREATE_GAME",
+      seed,
+      startYear: 1949,
+      historicalEventDecisionMode: "interactive",
+    });
   },
 
   async importSave(serialized) {
     const state = deserializeGameState(serialized);
     await get().dispatch({ type: "IMPORT_GAME", state });
+    await get().dispatch({
+      type: "SET_HISTORICAL_EVENT_MODE",
+      mode: "interactive",
+    });
   },
 
   exportSave() {
@@ -165,6 +200,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ speed });
   },
   setAutoRunning(autoRunning) {
-    set({ autoRunning });
+    set({
+      autoRunning: get().game?.nation.pendingHistoricalEventId
+        ? false
+        : autoRunning,
+    });
   },
 }));
