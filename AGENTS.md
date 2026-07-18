@@ -91,6 +91,7 @@
 npm run typecheck
 npm run lint
 npm test
+npm run data:audit
 npm run calibrate
 npm run audit
 npm run build

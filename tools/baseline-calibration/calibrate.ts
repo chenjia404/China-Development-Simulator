@@ -31,6 +31,8 @@ async function main(): Promise<void> {
     passed: summary.passed,
     total: summary.total,
     passRate: Number((summary.passRate * 100).toFixed(1)),
+    byRole: summary.byRole,
+    byConfidence: summary.byConfidence,
     failed: summary.failed,
   }, null, 2)}\n`);
   if (summary.passRate < 0.85) process.exitCode = 1;

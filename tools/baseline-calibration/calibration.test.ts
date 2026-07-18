@@ -28,4 +28,19 @@ describe("1949—2026 历史校准", () => {
 
     expect(current.every((result) => result.passed)).toBe(true);
   });
+
+  it("拟合、留出验证和预测三组分别报告，避免只用拟合点自证", () => {
+    const run = runSimulation({
+      strategy: "historical",
+      seed: 1949,
+      startYear: 1949,
+      endYear: 2026,
+    });
+    const summary = summarizeCalibration(compareWithTargets(run.annual));
+
+    expect(summary.byRole.fit.total).toBe(49);
+    expect(summary.byRole.validation.total).toBe(28);
+    expect(summary.byRole.projection.total).toBe(8);
+    expect(summary.byRole.validation.passRate).toBeGreaterThanOrEqual(0.85);
+  });
 });

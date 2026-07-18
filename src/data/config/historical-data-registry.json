@@ -1,0 +1,270 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "description": "历史校准数据的来源、统计口径、单位、价格基准和可信度注册表。这里登记观测数据，不存放模拟机制参数。",
+    "lastReviewedOn": "2026-07-19",
+    "confidenceLevels": {
+      "high": "官方连续统计或口径清晰的国际可比序列",
+      "medium": "官方历史资料、经过折算的可比序列或多来源重建",
+      "low": "资料稀缺时期的数量级估计，只用于宽容差约束"
+    }
+  },
+  "sources": [
+    {
+      "id": "nbs-70-years-population",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "新中国成立70周年经济社会发展成就系列报告：人口总量平稳增长",
+      "url": "https://www.stats.gov.cn/zt_18555/zthd/sjtjr/d10j/70cj/202302/t20230216_1909162.html",
+      "scope": "人口、城镇化及长期人口结构"
+    },
+    {
+      "id": "nbs-national-accounts-history",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "中国国民经济核算历史资料与统计年鉴",
+      "url": "https://www.stats.gov.cn/sj/ndsj/2010/html/B0103C.HTM",
+      "scope": "GDP、产业增加值和产业结构"
+    },
+    {
+      "id": "nbs-population-history",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "人口数及构成历史统计表",
+      "url": "https://www.stats.gov.cn/sj/ndsj/2012/html/B0104C.HTM",
+      "scope": "人口总量与城乡人口"
+    },
+    {
+      "id": "nbs-gdp-per-capita-history",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "人均国内生产总值与官方汇率历史统计表",
+      "url": "https://www.stats.gov.cn/sj/ndsj/2010/html/Z2606C.HTM",
+      "scope": "当年价人民币人均GDP与美元折算"
+    },
+    {
+      "id": "nbs-life-expectancy",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "人口平均预期寿命稳步提高",
+      "url": "https://www.stats.gov.cn/zt_18555/ztfx/yjsld/202303/t20230301_1920321.html",
+      "scope": "预期寿命长期变化"
+    },
+    {
+      "id": "nbs-2020-census",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "第七次全国人口普查公报",
+      "url": "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1900430.html",
+      "scope": "2020年人口、城镇化和人口结构"
+    },
+    {
+      "id": "nbs-2025-communique",
+      "publisher": "中华人民共和国国家统计局",
+      "title": "2025年国民经济和社会发展统计公报",
+      "url": "https://www.stats.gov.cn/sj/zxfbhjd/202602/t20260228_1962662.html",
+      "scope": "当前年份预测所依据的最近完整年度数据"
+    },
+    {
+      "id": "unesco-literacy-trends",
+      "publisher": "联合国教科文组织统计研究所",
+      "title": "Adult and Youth Literacy: National, Regional and Global Trends",
+      "url": "https://uis.unesco.org/sites/default/files/documents/adult-and-youth-literacy-national-regional-and-global-trends-1985-2015-en_0.pdf",
+      "scope": "成人识字率及国际可比教育数据"
+    },
+    {
+      "id": "world-bank-china-gdp-per-capita",
+      "publisher": "世界银行",
+      "title": "GDP per capita (current US$) - China",
+      "url": "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=CN",
+      "scope": "现价美元人均GDP"
+    },
+    {
+      "id": "hong-kong-edb-china-performance",
+      "publisher": "香港特别行政区教育局",
+      "title": "Economic performance of our country",
+      "url": "https://www.edb.gov.hk/attachment/en/curriculum-development/kla/pshe/references-and-resources/ces/support_materials_S3/M3.2%20%28Part1%29%20Economic%20performance%20of%20our%20country_e_2023%20Dec_clean.pdf",
+      "scope": "中国GDP国际位次历史资料"
+    }
+  ],
+  "series": [
+    {
+      "id": "china.population.total",
+      "metric": "population",
+      "name": "年末总人口",
+      "unit": "人",
+      "valueType": "stock",
+      "priceBasis": "not_applicable",
+      "frequency": "annual",
+      "sourceIds": ["nbs-population-history", "nbs-70-years-population", "nbs-2020-census", "nbs-2025-communique"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1952, "level": "medium" },
+        { "startYear": 1953, "endYear": 2025, "level": "high" },
+        { "startYear": 2026, "endYear": 2026, "level": "medium" }
+      ],
+      "notes": "2026年为基于2025年完整数据的情景基准，不是已公布年末实绩。"
+    },
+    {
+      "id": "china.gdp.real.internal-1949-rmb",
+      "metric": "realGDP",
+      "name": "实际GDP",
+      "unit": "1949年游戏内部不变价人民币",
+      "valueType": "flow",
+      "priceBasis": "internal_constant_1949_rmb",
+      "frequency": "annual",
+      "sourceIds": ["nbs-national-accounts-history"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "low" },
+        { "startYear": 1978, "endYear": 2020, "level": "medium" },
+        { "startYear": 2021, "endYear": 2026, "level": "low" }
+      ],
+      "notes": "用于模拟内部实际增长和数量级校准；不得与现价人民币直接比较。"
+    },
+    {
+      "id": "china.gdp-per-capita.current-rmb",
+      "metric": "currentPriceGDPPerCapita",
+      "name": "当年价人民币人均GDP",
+      "unit": "当年价人民币/人",
+      "valueType": "flow",
+      "priceBasis": "current_rmb",
+      "frequency": "annual",
+      "sourceIds": ["nbs-gdp-per-capita-history"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "medium" },
+        { "startYear": 1978, "endYear": 2026, "level": "high" }
+      ],
+      "notes": "用于国内现价展示，不参与实际生产函数。"
+    },
+    {
+      "id": "china.gdp-per-capita.current-usd",
+      "metric": "currentUSDGDPPerCapita",
+      "name": "现价美元人均GDP",
+      "unit": "当年价美元/人",
+      "valueType": "flow",
+      "priceBasis": "current_usd",
+      "frequency": "annual",
+      "sourceIds": ["nbs-gdp-per-capita-history", "world-bank-china-gdp-per-capita"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "low" },
+        { "startYear": 1978, "endYear": 2026, "level": "high" }
+      ],
+      "notes": "按当年官方或国际数据库汇率口径折算，只用于国际比较。"
+    },
+    {
+      "id": "china.gdp.rank",
+      "metric": "gdpRank",
+      "name": "GDP世界位次",
+      "unit": "名次",
+      "valueType": "rank",
+      "priceBasis": "current_usd",
+      "frequency": "annual",
+      "sourceIds": ["hong-kong-edb-china-performance", "world-bank-china-gdp-per-capita"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "low" },
+        { "startYear": 1978, "endYear": 2026, "level": "medium" }
+      ],
+      "notes": "参与国家集合和历史统计修订会改变位次口径。"
+    },
+    {
+      "id": "china.gdp-per-capita.rank",
+      "metric": "gdpPerCapitaRank",
+      "name": "人均GDP世界位次",
+      "unit": "名次",
+      "valueType": "rank",
+      "priceBasis": "current_usd",
+      "frequency": "annual",
+      "sourceIds": ["world-bank-china-gdp-per-capita", "hong-kong-edb-china-performance"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "low" },
+        { "startYear": 1978, "endYear": 2026, "level": "medium" }
+      ],
+      "notes": "位次必须同时记录参与排名的国家和地区数量。"
+    },
+    {
+      "id": "china.urbanization.rate",
+      "metric": "urbanizationRate",
+      "name": "常住人口城镇化率",
+      "unit": "比例",
+      "valueType": "share",
+      "priceBasis": "not_applicable",
+      "frequency": "annual",
+      "sourceIds": ["nbs-population-history", "nbs-70-years-population", "nbs-2020-census", "nbs-2025-communique"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1981, "level": "medium" },
+        { "startYear": 1982, "endYear": 2025, "level": "high" },
+        { "startYear": 2026, "endYear": 2026, "level": "medium" }
+      ],
+      "notes": "后续户籍人口与常住人口口径拆分后需要分别登记。"
+    },
+    {
+      "id": "china.life-expectancy.birth",
+      "metric": "lifeExpectancy",
+      "name": "出生时预期寿命",
+      "unit": "岁",
+      "valueType": "index",
+      "priceBasis": "not_applicable",
+      "frequency": "annual",
+      "sourceIds": ["nbs-life-expectancy", "nbs-2020-census", "nbs-2025-communique"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1980, "level": "medium" },
+        { "startYear": 1981, "endYear": 2025, "level": "high" },
+        { "startYear": 2026, "endYear": 2026, "level": "medium" }
+      ],
+      "notes": "重大饥荒、战争和疫情年份应使用死亡率模块而不是直接改寿命。"
+    },
+    {
+      "id": "china.adult-literacy.rate",
+      "metric": "literacyRate",
+      "name": "成人识字率",
+      "unit": "比例",
+      "valueType": "share",
+      "priceBasis": "not_applicable",
+      "frequency": "annual",
+      "sourceIds": ["unesco-literacy-trends", "nbs-70-years-population"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1981, "level": "low" },
+        { "startYear": 1982, "endYear": 2026, "level": "medium" }
+      ],
+      "notes": "早期识字率来自历史估计，不能按现代调查精度解释。"
+    },
+    {
+      "id": "china.sector-share.primary",
+      "metric": "primarySectorShare",
+      "name": "第一产业增加值占比",
+      "unit": "比例",
+      "valueType": "share",
+      "priceBasis": "current_rmb",
+      "frequency": "annual",
+      "sourceIds": ["nbs-national-accounts-history"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "medium" },
+        { "startYear": 1978, "endYear": 2026, "level": "high" }
+      ],
+      "notes": "当前模拟以实际增加值占比近似，阶段80需建立现价与不变价双口径。"
+    },
+    {
+      "id": "china.sector-share.secondary",
+      "metric": "secondarySectorShare",
+      "name": "第二产业增加值占比",
+      "unit": "比例",
+      "valueType": "share",
+      "priceBasis": "current_rmb",
+      "frequency": "annual",
+      "sourceIds": ["nbs-national-accounts-history"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "medium" },
+        { "startYear": 1978, "endYear": 2026, "level": "high" }
+      ],
+      "notes": "建筑业包含在第二产业，工业细分在投入产出账户中单独处理。"
+    },
+    {
+      "id": "china.sector-share.tertiary",
+      "metric": "tertiarySectorShare",
+      "name": "第三产业增加值占比",
+      "unit": "比例",
+      "valueType": "share",
+      "priceBasis": "current_rmb",
+      "frequency": "annual",
+      "sourceIds": ["nbs-national-accounts-history"],
+      "confidencePeriods": [
+        { "startYear": 1949, "endYear": 1977, "level": "medium" },
+        { "startYear": 1978, "endYear": 2026, "level": "high" }
+      ],
+      "notes": "第三产业普查和经济普查会引起历史序列修订。"
+    }
+  ]
+}
