@@ -221,6 +221,73 @@
       ]
     },
     {
+      "id": "research_university_network",
+      "name": "研究型大学网络",
+      "category": "发展",
+      "description": "建立由大学、公共实验室和企业共同参与的基础科研网络，积累科研人才并提高成果转化；代价是长期教育科研财政和较低的当期消费。",
+      "transitionMonths": 84,
+      "conflictsWith": ["austerity"],
+      "modifiers": [
+        { "target": "education.efficiency", "operation": "multiply", "value": 1.12 },
+        { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.25 },
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.28 },
+        { "target": "technology.researchCommercialization", "operation": "multiply", "value": 1.08 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.05 },
+        { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.01 }
+      ]
+    },
+    {
+      "id": "venture_capital_markets",
+      "name": "风险资本与创业市场",
+      "category": "发展",
+      "description": "用股权资本、创业融资和退出市场推动高风险创新商业化，提高新企业形成和技术扩散；代价是投资失败率、资产波动和收入分配压力。",
+      "transitionMonths": 60,
+      "conflictsWith": ["centralized_fx_settlement"],
+      "modifiers": [
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.18 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.96 },
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.08 },
+        { "target": "technology.researchCommercialization", "operation": "multiply", "value": 1.28 },
+        { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0015 },
+        { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.04 },
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.94 }
+      ]
+    },
+    {
+      "id": "main_bank_industrial_coordination",
+      "name": "主银行与产业协调",
+      "category": "财政",
+      "description": "以高储蓄、长期信贷和产业协调支持设备投资及供应链扩张，提高资本形成稳定性；代价是居民消费受压、财政协调成本和创新选择偏保守。",
+      "transitionMonths": 48,
+      "conflictsWith": ["consumption_stimulus", "austerity"],
+      "modifiers": [
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.2 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.11 },
+        { "target": "capital.maximumAnnualGrowth", "operation": "add", "value": 0.08 },
+        { "target": "capital.secondaryAllocation", "operation": "add", "value": 0.07 },
+        { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.045 },
+        { "target": "technology.researchCommercialization", "operation": "multiply", "value": 0.95 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
+      ]
+    },
+    {
+      "id": "quality_manufacturing_system",
+      "name": "精益质量制造",
+      "category": "产业",
+      "description": "建设长期技能训练、供应商协作和质量改进体系，提高制造可靠性、资本效率与出口竞争力；代价是设备、训练、能源和外需压力。",
+      "transitionMonths": 72,
+      "conflictsWith": ["agriculture_priority"],
+      "modifiers": [
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 1.08 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.1 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.15 },
+        { "target": "technology.exportLearningRate", "operation": "add", "value": 0.009 },
+        { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.12 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 },
+        { "target": "resources.energyDemand", "operation": "multiply", "value": 1.055 }
+      ]
+    },
+    {
       "id": "consumption_stimulus",
       "name": "扩大内需",
       "category": "发展",

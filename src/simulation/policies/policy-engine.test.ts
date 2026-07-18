@@ -3,6 +3,7 @@ import { createSimulationEngine } from "../core/engine";
 import { calculateSectorOutput } from "../economy/production";
 import { calculateFiscalRevenue } from "../fiscal/revenue";
 import { createInitialGameState } from "../state/initial-state";
+import { updateTechnology } from "../technology/research";
 import {
   applyPolicyModifiers,
   getNationalPolicy,
@@ -172,6 +173,76 @@ describe("国策系统", () => {
     calculateFiscalRevenue(baseline);
     calculateFiscalRevenue(route);
     expect(route.fiscal.revenue).toBeLessThan(baseline.fiscal.revenue);
+  });
+
+  it("美国和日本国策可混合选择，并同时保留创新、消费、资源和分配代价", () => {
+    expect(() =>
+      validatePolicySelection([
+        "research_university_network",
+        "venture_capital_markets",
+        "main_bank_industrial_coordination",
+        "quality_manufacturing_system",
+        "expand_opening",
+      ]),
+    ).not.toThrow();
+    expect(getNationalPolicy("research_university_network")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "technology.researchOutput", value: 1.28 }),
+        expect.objectContaining({ target: "fiscal.spending", value: 1.05 }),
+      ]),
+    );
+    expect(getNationalPolicy("venture_capital_markets")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "technology.researchCommercialization", value: 1.28 }),
+        expect.objectContaining({ target: "capital.investmentEfficiency", value: 0.96 }),
+        expect.objectContaining({ target: "wellbeing.welfare", value: 0.94 }),
+      ]),
+    );
+    expect(getNationalPolicy("main_bank_industrial_coordination")?.modifiers)
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({ target: "capital.privateInvestment", value: 1.2 }),
+        expect.objectContaining({ target: "economy.consumptionPropensity", value: -0.045 }),
+        expect.objectContaining({ target: "technology.researchCommercialization", value: 0.95 }),
+      ]));
+    expect(getNationalPolicy("quality_manufacturing_system")?.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ target: "sector.secondary.output", value: 1.08 }),
+        expect.objectContaining({ target: "resources.energyDemand", value: 1.055 }),
+      ]),
+    );
+  });
+
+  it("研究大学与风险资本提高科研商业化，精益制造提高工业产出", () => {
+    const baseline = createInitialGameState(1949).nation;
+    const innovation = structuredClone(baseline);
+    innovation.policyProgress.research_university_network = 1;
+    innovation.policyProgress.venture_capital_markets = 1;
+    updateTechnology(baseline);
+    updateTechnology(innovation);
+    expect(innovation.technology.monthlyResearchOutput).toBeGreaterThan(
+      baseline.technology.monthlyResearchOutput,
+    );
+    expect(innovation.technology.index).toBeGreaterThan(
+      baseline.technology.index,
+    );
+    expect(
+      applyPolicyModifiers(innovation, "capital.investmentEfficiency", 1),
+    ).toBeLessThan(1);
+
+    const manufacturing = structuredClone(baseline);
+    manufacturing.policyProgress.quality_manufacturing_system = 1;
+    expect(
+      calculateSectorOutput(
+        "secondary",
+        manufacturing.sectors.secondary,
+        manufacturing,
+      ),
+    ).toBeGreaterThan(
+      calculateSectorOutput("secondary", baseline.sectors.secondary, baseline),
+    );
+    expect(
+      applyPolicyModifiers(manufacturing, "resources.energyDemand", 1),
+    ).toBeGreaterThan(1);
   });
 
   it("取消国策后效果按相同过渡期逐步退出", () => {

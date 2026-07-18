@@ -63,8 +63,20 @@ export function updateTechnology(nation: NationState): void {
     education.literacyRate *
     technologyConfig.diffusionStrength *
     strategyEffects.technologyDiffusionMultiplier;
+  const researchCommercialization = clamp(
+    applyPolicyModifiers(
+      nation,
+      "technology.researchCommercialization",
+      1,
+    ),
+    0.5,
+    1.6,
+  );
   const technologyGain =
-    researchOutput * (0.2 + technology.adoptionRate * 0.8) + diffusion;
+    researchOutput *
+      (0.2 + technology.adoptionRate * 0.8) *
+      researchCommercialization +
+    diffusion;
   const previousTechnologyIndex = technology.index;
   technology.index = clamp(
     technology.index + technologyGain,
