@@ -153,6 +153,13 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .cohort-grid article { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); }
 .cohort-grid strong, .cohort-grid span { display: block; }
 .cohort-grid span { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.enterprise-ownership-panel { margin: 18px 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); }
+.enterprise-ownership-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
+.enterprise-ownership-grid article { padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.enterprise-ownership-grid article > div { display: flex; justify-content: space-between; gap: 8px; }
+.enterprise-ownership-grid article > div span { color: var(--blue); font-weight: 700; }
+.enterprise-ownership-grid p { margin: 7px 0; color: var(--muted); font-size: 12px; }
+.enterprise-ownership-grid small { color: var(--text); }
 .product-market-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .product-market-grid article { padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
 .product-market-grid article > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -615,6 +622,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .account-flow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .product-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cohort-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .enterprise-ownership-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .account-bottlenecks > span { grid-column: 1 / -1; }
   .technology-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -670,6 +678,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .account-flow-grid, .account-bottlenecks { grid-template-columns: 1fr; }
   .product-market-grid { grid-template-columns: 1fr; }
   .cohort-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .enterprise-ownership-grid { grid-template-columns: 1fr; }
   .technology-tree-grid { grid-template-columns: 1fr; }
   .technology-path-grid { grid-template-columns: 1fr; }
   .technology-path-heading { display: block; }

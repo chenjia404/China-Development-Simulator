@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "description": "五类所有制企业的结构、生产率、工资、出口和融资参数。账户分配现有增加值，不直接创造GDP。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://data.stats.gov.cn/easyquery.htm?cn=C01"
+    ]
+  },
+  "monthlyShareAdjustmentSpeed": 0.018,
+  "enterprisesPerBillionGDP": { "minimum": 80, "maximum": 1800 },
+  "ownership": [
+    { "id": "state_owned", "name": "国有企业", "baseScore": 0.55, "productivity": 0.94, "wage": 1.08, "export": 0.78, "profitability": 0.9, "financing": 0.92 },
+    { "id": "collective", "name": "集体企业", "baseScore": 0.42, "productivity": 0.86, "wage": 0.92, "export": 0.58, "profitability": 0.82, "financing": 0.68 },
+    { "id": "private_domestic", "name": "民营企业", "baseScore": 0.08, "productivity": 1.08, "wage": 0.96, "export": 1.08, "profitability": 1.14, "financing": 0.48 },
+    { "id": "foreign_invested", "name": "外商投资企业", "baseScore": 0.005, "productivity": 1.18, "wage": 1.16, "export": 1.35, "profitability": 1.12, "financing": 0.76 },
+    { "id": "mixed_ownership", "name": "混合所有制企业", "baseScore": 0.03, "productivity": 1.05, "wage": 1.04, "export": 1.02, "profitability": 1.04, "financing": 0.82 }
+  ]
+}

@@ -63,6 +63,10 @@ export function recordHistory(state: GameState): void {
       nation.population.demographicDetail.households.totalDependencyRatio,
     monthlyRuralToUrbanMigration:
       nation.population.demographicDetail.migration.monthlyRuralToUrban,
+    stateControlledEnterpriseShare: nation.enterprises.stateControlledShare,
+    privateAndMixedEnterpriseShare: nation.enterprises.privateAndMixedShare,
+    foreignInvestedEnterpriseShare: nation.enterprises.foreignInvestedShare,
+    enterpriseProductivityIndex: nation.enterprises.aggregateProductivityIndex,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

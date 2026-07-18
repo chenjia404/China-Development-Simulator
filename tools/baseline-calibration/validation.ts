@@ -95,6 +95,29 @@ export function validateGameState(state: GameState): void {
   ) {
     throw new Error("家庭户或抚养比账户无效");
   }
+  const enterprises = nation.enterprises;
+  if (Object.keys(enterprises.ownership).length !== 5) {
+    throw new Error("企业所有制账户数量不完整");
+  }
+  const enterpriseShare = Object.values(enterprises.ownership).reduce(
+    (sum, account) => sum + account.valueAddedShare,
+    0,
+  );
+  if (Math.abs(enterpriseShare - 1) > 1e-8) {
+    throw new Error("企业所有制增加值份额未守恒");
+  }
+  if (
+    enterprises.valueAddedReconciliationError /
+      Math.max(1, nation.nationalAccounts.productionGDP * 0.88) > 1e-10 ||
+    enterprises.employmentReconciliationError /
+      Math.max(1, nation.labor.employed) > 1e-10 ||
+    enterprises.investmentReconciliationError /
+      Math.max(1, nation.economy.investment) > 1e-10 ||
+    enterprises.exportReconciliationError /
+      Math.max(1, nation.trade.exports) > 1e-10
+  ) {
+    throw new Error("企业账户与宏观总量未调和");
+  }
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

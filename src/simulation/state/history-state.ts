@@ -13,6 +13,10 @@ export interface MonthlySnapshot {
   averageHouseholdSize: number;
   totalDependencyRatio: number;
   monthlyRuralToUrbanMigration: number;
+  stateControlledEnterpriseShare: number;
+  privateAndMixedEnterpriseShare: number;
+  foreignInvestedEnterpriseShare: number;
+  enterpriseProductivityIndex: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

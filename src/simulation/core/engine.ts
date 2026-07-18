@@ -33,6 +33,7 @@ import { startSinoUSNormalization } from "../diplomacy/sino-us-normalization";
 import { ensureNationalAccountsState } from "../economy/national-accounts";
 import { ensureMarketDynamicsState } from "../economy/market-dynamics";
 import { ensureDemographicDetailState } from "../population/demographic-cohorts";
+import { ensureEnterpriseSectorState } from "../economy/enterprise-sectors";
 
 export interface SimulationResult {
   state: GameState;
@@ -73,6 +74,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureNationalAccountsState(this.state.nation);
     ensureMarketDynamicsState(this.state.nation);
     ensureDemographicDetailState(this.state.nation);
+    ensureEnterpriseSectorState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -101,6 +103,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureNationalAccountsState(this.state.nation);
         ensureMarketDynamicsState(this.state.nation);
         ensureDemographicDetailState(this.state.nation);
+        ensureEnterpriseSectorState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

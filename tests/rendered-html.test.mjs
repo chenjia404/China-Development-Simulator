@@ -253,3 +253,20 @@ test("客户端展示年龄性别队列、家庭户、抚养比和城乡迁移",
   assert.match(source, /本月农村转城市/);
   assert.match(source, /年龄×性别/);
 });
+
+test("客户端展示五类所有制企业的生产、就业、投资、出口与融资", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /企业部门账户/);
+  assert.match(source, /国有企业/);
+  assert.match(source, /集体企业/);
+  assert.match(source, /民营企业/);
+  assert.match(source, /外商投资企业/);
+  assert.match(source, /混合所有制企业/);
+  assert.match(source, /融资可得/);
+});

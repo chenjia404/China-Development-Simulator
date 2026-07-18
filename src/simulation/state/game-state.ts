@@ -285,6 +285,43 @@ export interface PrivateEconomyState {
   exportNetworkStrength: number;
 }
 
+export type EnterpriseOwnershipId =
+  | "state_owned"
+  | "collective"
+  | "private_domestic"
+  | "foreign_invested"
+  | "mixed_ownership";
+
+export interface EnterpriseOwnershipAccount {
+  id: EnterpriseOwnershipId;
+  valueAddedShare: number;
+  enterpriseCount: number;
+  output: number;
+  valueAdded: number;
+  employment: number;
+  investment: number;
+  exports: number;
+  averageWage: number;
+  operatingSurplus: number;
+  productivityIndex: number;
+  financingAccess: number;
+}
+
+export interface EnterpriseSectorState {
+  ownership: Record<EnterpriseOwnershipId, EnterpriseOwnershipAccount>;
+  totalEnterpriseCount: number;
+  aggregateProductivityIndex: number;
+  stateControlledShare: number;
+  privateAndMixedShare: number;
+  foreignInvestedShare: number;
+  monthlyEntryRate: number;
+  monthlyExitRate: number;
+  valueAddedReconciliationError: number;
+  employmentReconciliationError: number;
+  investmentReconciliationError: number;
+  exportReconciliationError: number;
+}
+
 export type NationalAccountsProductId =
   | "agriculture"
   | IndustrialCategoryId
@@ -455,6 +492,7 @@ export interface NationState {
   society: SocietyState;
   trade: TradeState;
   privateEconomy: PrivateEconomyState;
+  enterprises: EnterpriseSectorState;
   nationalAccounts: NationalAccountsState;
   marketDynamics: MarketDynamicsState;
   diplomacy: DiplomacyState;

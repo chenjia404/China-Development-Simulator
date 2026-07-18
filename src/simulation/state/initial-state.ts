@@ -21,6 +21,10 @@ import {
   ensureMarketDynamicsState,
 } from "../economy/market-dynamics";
 import { createInitialDemographicDetailState } from "../population/demographic-cohorts";
+import {
+  createEmptyEnterpriseSectorState,
+  updateEnterpriseSectors,
+} from "../economy/enterprise-sectors";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -238,6 +242,7 @@ export function createInitialGameState(
         capitalGoodsImportCoverage: 0.65,
       },
       privateEconomy: createInitialPrivateEconomyState(),
+      enterprises: createEmptyEnterpriseSectorState(),
       nationalAccounts: createEmptyNationalAccountsState(),
       marketDynamics: createEmptyMarketDynamicsState(),
       diplomacy: {
@@ -301,6 +306,7 @@ export function createInitialGameState(
     world: createInitialWorldState(),
   };
   updateNationalAccounts(state.nation);
+  updateEnterpriseSectors(state.nation);
   ensureMarketDynamicsState(state.nation);
   calculateWorldRankings(state);
   return state;

@@ -37,6 +37,7 @@ import { updateDemandDrivenCapacityUtilization } from "../economy/domestic-deman
 import { updateNationalAccounts } from "../economy/national-accounts";
 import { updateMarketDynamics } from "../economy/market-dynamics";
 import { updateDemographicCohorts } from "../population/demographic-cohorts";
+import { updateEnterpriseSectors } from "../economy/enterprise-sectors";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -68,6 +69,7 @@ export function simulateMonth(
   calculateFiscalRevenue(state.nation);
   calculateFiscalSpending(state.nation);
   updateNationalAccounts(state.nation);
+  updateEnterpriseSectors(state.nation);
   updateDebt(state.nation);
   updateInflation(state.nation);
   updateMarketDynamics(state.nation);

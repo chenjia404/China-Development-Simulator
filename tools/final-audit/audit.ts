@@ -42,6 +42,8 @@ import {
   validateMarketDynamicsDefinitions,
   validateDemographicCohortDefinitions,
   AGE_BAND_IDS,
+  ENTERPRISE_OWNERSHIP_IDS,
+  validateEnterpriseSectorDefinitions,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
   type GameState,
@@ -1036,6 +1038,29 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
             detail.migration.cumulativeRuralToUrban >= 0;
         }),
       `史实路线家庭 ${historical.finalState.nation.population.demographicDetail.households.householdCount.toFixed(0)} 户、户均 ${historical.finalState.nation.population.demographicDetail.households.averageHouseholdSize.toFixed(2)} 人、总抚养比 ${(historical.finalState.nation.population.demographicDetail.households.totalDependencyRatio * 100).toFixed(1)}%、累计农村转城市 ${(historical.finalState.nation.population.demographicDetail.migration.cumulativeRuralToUrban / 100_000_000).toFixed(2)} 亿人次`,
+    ),
+    makeCheck(
+      "enterprise-ownership-accounts",
+      "五类所有制企业完整分配增加值、就业、投资、出口与利润",
+      validateEnterpriseSectorDefinitions().length === 0 &&
+        [...runs.values()].every((run) => {
+          const enterprises = run.finalState.nation.enterprises;
+          const share = ENTERPRISE_OWNERSHIP_IDS.reduce(
+            (sum, id) => sum + enterprises.ownership[id].valueAddedShare,
+            0,
+          );
+          return Object.keys(enterprises.ownership).length === 5 &&
+            Math.abs(share - 1) < 1e-10 &&
+            enterprises.valueAddedReconciliationError /
+              Math.max(1, run.finalState.nation.nationalAccounts.productionGDP * 0.88) < 1e-10 &&
+            enterprises.employmentReconciliationError /
+              Math.max(1, run.finalState.nation.labor.employed) < 1e-10 &&
+            enterprises.investmentReconciliationError /
+              Math.max(1, run.finalState.nation.economy.investment) < 1e-10 &&
+            enterprises.exportReconciliationError /
+              Math.max(1, run.finalState.nation.trade.exports) < 1e-10;
+        }),
+      `史实路线国有与集体 ${(historical.finalState.nation.enterprises.stateControlledShare * 100).toFixed(1)}%、民营与混合 ${(historical.finalState.nation.enterprises.privateAndMixedShare * 100).toFixed(1)}%、外商投资 ${(historical.finalState.nation.enterprises.foreignInvestedShare * 100).toFixed(1)}%，企业数 ${historical.finalState.nation.enterprises.totalEnterpriseCount.toFixed(0)}`,
     ),
     makeCheck(
       "historical-comparison",

@@ -57,6 +57,7 @@ import {
   technologyIndustryPathDefinitions,
   nationalAccountsProductDefinitions,
   AGE_BAND_IDS,
+  enterpriseOwnershipDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -534,6 +535,15 @@ function IndustrySection({ game }: { game: GameState }) {
         <MetricCard label="高技术工业" value={formatPercent(metrics.highTechnologyShare)} detail="化工医药、电气电子、精密医疗和高端装备" tone="gold" />
         <MetricCard label="工业品出口" value={`$${formatLarge(industrialExports)}`} detail={`占总出口 ${formatPercent(metrics.industrialExportShare)}`} tone="red" />
       </div>
+      <section className="enterprise-ownership-panel">
+        <div className="panel-heading"><div><span className="eyebrow">所有制 · 就业 · 投资 · 出口</span><h2>企业部门账户</h2></div><span>企业约 {formatLarge(nation.enterprises.totalEnterpriseCount)} 家</span></div>
+        <div className="enterprise-ownership-grid">
+          {enterpriseOwnershipDefinitions.map((definition) => {
+            const account = nation.enterprises.ownership[definition.id];
+            return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(account.valueAddedShare)}</span></div><p>增加值 {formatLarge(account.valueAdded)} · 就业 {formatLarge(account.employment)}</p><p>投资 {formatLarge(account.investment)} · 出口 ${formatLarge(account.exports)}</p><small>生产率 {account.productivityIndex.toFixed(3)} · 融资可得 {formatPercent(account.financingAccess)}</small></article>;
+          })}
+        </div>
+      </section>
       <div className="industry-category-grid">
         {industrialCategoryDefinitions.map((definition) => {
           const category = nation.industries[definition.id];
