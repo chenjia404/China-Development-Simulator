@@ -170,6 +170,16 @@ test("客户端提供可组合的外交取向与多条外交学说", async () =>
   assert.match(source, /多边制度合作/);
   assert.match(source, /周边睦邻与地区合作/);
   assert.match(source, /苏联、朝鲜、越南等苏系国家/);
+  assert.match(source, /对外援助方案/);
+  assert.match(source, /暂停政府对外援助/);
+  assert.match(source, /史实综合援外规模/);
+  assert.match(source, /经贸与技术合作援助/);
+  assert.match(source, /1949—1980累计/);
+  assert.match(source, /约365亿元人民币/);
+  assert.match(source, /当年官方汇率约170亿美元/);
+  assert.match(source, /重点受援国/);
+  assert.match(source, /国内投资/);
+  assert.match(source, /援外用汇/);
 });
 
 test("客户端展示出口、内需和社会保障的经济传导指标", async () => {

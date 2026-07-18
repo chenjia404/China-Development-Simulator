@@ -1145,7 +1145,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "foreign-aid-programs",
       "玩家可选择七种对外援助方案，并在关系、国内资源、科技、出口和外汇之间取舍",
       foreignAidProgramDefinitions.length === 7 &&
-        Math.abs(historicalAidTotals.rmb - 35_500_000_000) < 1 &&
+        Math.abs(historicalAidTotals.rmb - 36_500_000_000) < 1 &&
         historicalAidTotals.usd >= 15_000_000_000 &&
         historicalAidTotals.usd <= 18_000_000_000 &&
         suspendedAidState.nation.diplomacy.cumulativeForeignAidRMBThrough1980 === 0 &&

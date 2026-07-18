@@ -5,7 +5,7 @@
   "historicalSchedule": [
     { "startYear": 1950, "endYear": 1963, "annualRMB": 630000000 },
     { "startYear": 1964, "endYear": 1970, "annualRMB": 1100000000 },
-    { "startYear": 1971, "endYear": 1978, "annualRMB": 2200000000 },
+    { "startYear": 1971, "endYear": 1978, "annualRMB": 2325000000 },
     { "startYear": 1979, "endYear": 1980, "annualRMB": 690000000 }
   ],
   "officialExchangeRateAnchors": [
@@ -106,7 +106,7 @@
       "id": "historical_comprehensive",
       "name": "史实综合援外规模",
       "shortName": "史实援外",
-      "description": "按1950—1980年约355亿元人民币的历史规模，兼顾周边伙伴、亚非国家、物资和成套项目。",
+      "description": "按1950—1980年约365亿元人民币的历史规模，兼顾周边伙伴、亚非国家、物资和成套项目。",
       "effects": ["维持史实外交与经济校准基线", "巩固受援伙伴和国际影响", "占用财政、设备、外汇与技术人员"],
       "activationCost": 4,
       "historicalScale": 1,

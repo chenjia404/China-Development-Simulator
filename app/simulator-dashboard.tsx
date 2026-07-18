@@ -9,6 +9,7 @@ import type {
   DiplomaticStrategyId,
   FiscalBudget,
   ForeignPolicyDoctrineId,
+  ForeignAidProgramId,
   GameState,
   TargetComparisonMetric,
   TechnologyIndustryPathId,
@@ -41,6 +42,11 @@ import {
   technologyResearchRequirements,
   technologyTreeDefinitions,
   industrialCategoryDefinitions,
+  foreignAidProgramCooldownRemaining,
+  foreignAidProgramDefinitions,
+  foreignAidProgramEffects,
+  getForeignAidProgram,
+  historicalForeignAidTotalsThrough1980,
   getTechnologyIndustryPath,
   technologyIndustryEffect,
   technologyIndustryEnergyDemandMultiplier,
@@ -376,7 +382,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总，受内外需求对产能利用的滞后影响"], ["内需规模", formatLarge(n.economy.domesticDemand), `约为名义 GDP 的 ${formatPercent(n.economy.domesticDemandShare)}`], ["居民消费", formatLarge(n.economy.householdConsumption), `消费倾向 ${formatPercent(n.economy.consumptionPropensity)}`], ["社保转移收入", formatLarge(n.economy.socialProtectionIncome), "降低预防性储蓄，但不直接计入 GDP"], ["居民可支配收入", formatLarge(n.economy.householdDisposableIncome), "税后收入、侨汇与社保转移的综合结果"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
-    fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
+    fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息与对外援助"], ["对外援助", formatLarge(n.fiscal.foreignAidExpenditure), "已包含在财政总支出中，不重复相加"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)}`]],
     education: [["教育指数", n.education.index.toFixed(1), "长期滞后生效"], ["识字率", formatPercent(n.education.literacyRate), `平均受教育 ${n.education.averageYearsOfSchooling.toFixed(1)} 年`], ["大学招生能力", formatPercent(n.education.higherEducationAdmissionCapacity), `累计严重中断 ${n.education.educationDisruptionMonths} 个月`], ["学术体系连续性", formatPercent(n.education.academicContinuity), "恢复速度慢于停摆速度"], ["科研人才代际缺口", formatPercent(n.education.researchCohortGap), `现有科研人才 ${formatLarge(n.education.researchTalent)}`], ["科研人才永久损失", formatLarge(n.education.permanentResearchTalentLosses), "含迫害死亡与永久离岗"]],
     technology: [["科技指数", n.technology.index.toFixed(1), `采用率 ${formatPercent(n.technology.adoptionRate)}`], ["科研点数", n.technology.researchPoints.toFixed(1), "累计知识存量"], ["本月科研产出", n.technology.monthlyResearchOutput.toFixed(2), "受人才与制度约束"], ["全要素生产率", n.economy.totalFactorProductivity.toFixed(3), "受年度软上限约束"]],
@@ -824,6 +830,9 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   const setForeignPolicyDoctrine = useSimulationStore(
     (store) => store.setForeignPolicyDoctrine,
   );
+  const setForeignAidProgram = useSimulationStore(
+    (store) => store.setForeignAidProgram,
+  );
   const countries = [...game.world.countries].sort((first, second) =>
     second.nominalGDP - first.nominalGDP,
   );
@@ -838,6 +847,13 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
   const currentDoctrineEffects = foreignPolicyDoctrineEffects(game.nation);
   const doctrineCooldown = foreignPolicyDoctrineCooldownRemaining(game);
   const doctrineProgress = game.nation.diplomacy.foreignPolicyDoctrineProgress;
+  const currentAidProgram = getForeignAidProgram(
+    game.nation.diplomacy.foreignAidProgramId,
+  );
+  const aidProgramEffects = foreignAidProgramEffects(game.nation);
+  const aidCooldown = foreignAidProgramCooldownRemaining(game.nation);
+  const aidProgress = game.nation.diplomacy.foreignAidProgramProgress;
+  const historicalAidTotals = historicalForeignAidTotalsThrough1980();
   const alignment = game.nation.diplomacy.strategyAlignment;
   const alignmentLabel = Math.abs(alignment) < 0.01
     ? "平衡"
@@ -858,6 +874,15 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
       `确定采用“${name}”吗？外交学说独立于亲苏、平衡或亲西方取向，调整将消耗外交点数，并在 60 个月内不能再次改变。`,
     );
     if (confirmed) void setForeignPolicyDoctrine(doctrineId);
+  };
+  const chooseForeignAidProgram = (
+    programId: ForeignAidProgramId,
+    name: string,
+  ) => {
+    const confirmed = window.confirm(
+      `确定采用“${name}”吗？援外承诺将在 12 个月内调整到位，并在 24 个月内不能再次改变；财政、设备、科研、外汇和受援国关系都会随之变化。`,
+    );
+    if (confirmed) void setForeignAidProgram(programId);
   };
 
   return (
@@ -984,6 +1009,77 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
             );
           })}
         </div>
+      </section>
+      <section className="diplomatic-strategy-panel foreign-aid-panel">
+        <div className="strategy-panel-heading">
+          <div>
+            <span className="eyebrow">财政承诺 · 受援伙伴 · 国内机会成本</span>
+            <h2>对外援助方案</h2>
+            <p>史实路线按1950—1980年约365亿元人民币、当年官方汇率约170亿美元记录。玩家可以停止、缩减、改变受援方向或扩大援助；变化不会直接修改 GDP，而是通过财政构成、国内投资、工业设备、科研人员、外汇、出口网络、国际声誉和相关国家关系逐月传导。</p>
+          </div>
+          <div className="strategy-current">
+            <span>当前方案</span>
+            <strong>{currentAidProgram?.name ?? game.nation.diplomacy.foreignAidProgramId}</strong>
+            <small>{aidProgress >= 1 ? "方案已稳定" : `调整中 · ${(aidProgress * 100).toFixed(0)}%`}</small>
+          </div>
+        </div>
+        <div className="foreign-aid-metrics">
+          <div><span>1949—1980累计</span><strong>{formatLarge(game.nation.diplomacy.cumulativeForeignAidRMBThrough1980)} 元</strong><small>史实参考 {formatLarge(historicalAidTotals.rmb)} 元</small></div>
+          <div><span>官方汇率美元等值</span><strong>${formatLarge(game.nation.diplomacy.cumulativeForeignAidUSDThrough1980)}</strong><small>史实参考 ${formatLarge(historicalAidTotals.usd)}</small></div>
+          <div><span>当前年度承诺</span><strong>{formatLarge(game.nation.diplomacy.annualForeignAidRMB)} 元</strong><small>约 ${formatLarge(game.nation.diplomacy.annualForeignAidUSD)}</small></div>
+          <div><span>年度援外用汇</span><strong>${formatLarge(game.nation.diplomacy.annualForeignAidForeignExchangeOutflow)}</strong><small>财政占用 {formatLarge(game.nation.fiscal.foreignAidExpenditure)}</small></div>
+        </div>
+        <div className="strategy-live-effects">
+          <span>国内投资 ×{aidProgramEffects.domesticInvestmentMultiplier.toFixed(3)}</span>
+          <span>科研产出 ×{aidProgramEffects.researchOutputMultiplier.toFixed(3)}</span>
+          <span>工业生产率 ×{aidProgramEffects.industrialProductivityMultiplier.toFixed(3)}</span>
+          <span>出口竞争力 ×{aidProgramEffects.exportCompetitivenessMultiplier.toFixed(3)}</span>
+          <span>调整冷却 {aidCooldown > 0 ? `${aidCooldown} 个月` : "已结束"}</span>
+        </div>
+        <div className="strategy-grid foreign-aid-grid">
+          {foreignAidProgramDefinitions.map((program) => {
+            const selected = program.id === game.nation.diplomacy.foreignAidProgramId;
+            const insufficientPoints = game.nation.diplomacy.diplomaticPoints <
+              program.activationCost;
+            const unavailableReason = selected
+              ? "当前正在采用"
+              : aidCooldown > 0
+                ? `还需冷却 ${aidCooldown} 个月`
+                : insufficientPoints
+                  ? `需要 ${program.activationCost} 点外交点数`
+                  : null;
+            const recipientNames = program.recipientCountryIds.map(
+              (countryId) => game.world.countries.find(
+                (country) => country.id === countryId,
+              )?.name ?? countryId,
+            );
+            return (
+              <article className={selected ? "strategy-card aid-program-card is-selected" : "strategy-card aid-program-card"} key={program.id}>
+                <div className="strategy-card-head"><span>{program.shortName}</span><small>调整成本 {program.activationCost} 点</small></div>
+                <h3>{program.name}</h3>
+                <p>{program.description}</p>
+                <div className="strategy-effects">{program.effects.map((effect) => <span key={effect}>{effect}</span>)}</div>
+                <div className="strategy-numbers aid-program-numbers">
+                  <span>国内投资 ×{program.domesticInvestmentMultiplier.toFixed(3)}</span>
+                  <span>科研 ×{program.researchOutputMultiplier.toFixed(3)}</span>
+                  <span>工业 ×{program.industrialProductivityMultiplier.toFixed(3)}</span>
+                  <span>出口 ×{program.exportCompetitivenessMultiplier.toFixed(3)}</span>
+                  <span>财政/GDP {formatPercent(program.fiscalShareOfGDP, 2)}</span>
+                  <span>援外用汇 {formatPercent(program.foreignExchangeShare, 0)}</span>
+                </div>
+                <div className="aid-recipient-list"><strong>重点受援国</strong><span>{recipientNames.length > 0 ? recipientNames.join("、") : "不安排政府援助"}</span></div>
+                <button
+                  disabled={busy || unavailableReason !== null}
+                  title={unavailableReason ?? undefined}
+                  onClick={() => chooseForeignAidProgram(program.id, program.name)}
+                >
+                  {selected ? "当前方案" : unavailableReason ?? `采用方案 · ${program.activationCost} 点`}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+        <p className="panel-note">史实综合援外是历史校准的中性基线。暂停援助会把原有资源转回国内，但不会凭空增加财政收入；经贸与技术合作可能改善工业经验和出口网络，大规模援助则以更强关系和声誉换取更高国内机会成本。</p>
       </section>
       <div className="diplomacy-layout">
         <section className="diplomacy-block">

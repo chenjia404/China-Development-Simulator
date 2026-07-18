@@ -37,9 +37,9 @@ describe("可选对外援助方案", () => {
     ]);
   });
 
-  it("史实方案在1950至1980年累计约355亿元和165亿美元", () => {
+  it("史实方案在1950至1980年累计约365亿元和170亿美元", () => {
     const configured = historicalForeignAidTotalsThrough1980();
-    expect(configured.rmb).toBeCloseTo(35_500_000_000, -2);
+    expect(configured.rmb).toBeCloseTo(36_500_000_000, -2);
     expect(configured.usd).toBeGreaterThan(15_000_000_000);
     expect(configured.usd).toBeLessThan(18_000_000_000);
 
@@ -49,7 +49,7 @@ describe("可选对外援助方案", () => {
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
     const diplomacy = engine.getState().nation.diplomacy;
     expect(diplomacy.cumulativeForeignAidRMBThrough1980)
-      .toBeCloseTo(35_500_000_000, -2);
+      .toBeCloseTo(36_500_000_000, -2);
     expect(diplomacy.cumulativeForeignAidUSDThrough1980)
       .toBeCloseTo(configured.usd, -2);
   });

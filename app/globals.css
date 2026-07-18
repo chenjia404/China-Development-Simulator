@@ -290,6 +290,19 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .diplomacy-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
 .diplomatic-strategy-panel { margin-bottom: 15px; padding: 18px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
 .doctrine-panel { background: color-mix(in srgb, var(--blue-soft) 24%, var(--surface-soft)); }
+.foreign-aid-panel { background: color-mix(in srgb, var(--gold) 3%, var(--surface-soft)); }
+.foreign-aid-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 16px 0 13px; }
+.foreign-aid-metrics div { min-width: 0; padding: 11px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.foreign-aid-metrics span, .foreign-aid-metrics strong, .foreign-aid-metrics small { display: block; }
+.foreign-aid-metrics span, .foreign-aid-metrics small { color: var(--muted); font-size: 11px; }
+.foreign-aid-metrics strong { margin: 6px 0 4px; color: var(--gold); font-size: 15px; }
+.foreign-aid-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.aid-program-card { min-height: 365px; }
+.aid-program-numbers { color: var(--gold); }
+.aid-recipient-list { margin-top: 11px; padding: 9px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 7px; font-size: 11px; line-height: 1.55; }
+.aid-recipient-list strong, .aid-recipient-list span { display: block; }
+.aid-recipient-list strong { margin-bottom: 4px; color: var(--text); }
+.aid-recipient-list span { color: var(--muted); }
 .strategy-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .strategy-panel-heading h2 { margin: 5px 0 7px; font-size: 18px; }
 .strategy-panel-heading p { max-width: 760px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
@@ -576,6 +589,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .diplomacy-layout { grid-template-columns: 1fr; }
   .strategy-grid { grid-template-columns: 1fr; }
   .doctrine-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foreign-aid-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foreign-aid-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .history-events-hero { padding-right: 4px; }
   .history-event-summary { position: static; width: fit-content; margin-top: 15px; }
   .historical-choice-grid { grid-template-columns: 1fr; }
@@ -623,6 +638,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .initiative-heading { align-items: flex-start; }
   .strategy-panel-heading { display: block; }
   .strategy-current { width: fit-content; margin-top: 12px; text-align: left; }
+  .foreign-aid-grid { grid-template-columns: 1fr; }
   .policy-hero { padding-right: 4px; }
   .selection-count { position: static; display: inline-block; margin-top: 14px; }
   .relation-row { grid-template-columns: 1fr 64px; }
@@ -652,6 +668,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .control-button, .theme-button { display: none; }
   .panel { padding: 14px; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: 1fr; }
+  .foreign-aid-metrics { grid-template-columns: 1fr; }
   .route-blueprint-grid { grid-template-columns: 1fr; }
   .initiative-heading { display: block; }
   .initiative-heading > span { display: inline-flex; margin-top: 12px; }

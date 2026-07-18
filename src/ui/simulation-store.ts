@@ -8,6 +8,7 @@ import {
   type DiplomaticActionId,
   type DiplomaticStrategyId,
   type ForeignPolicyDoctrineId,
+  type ForeignAidProgramId,
   type GameState,
   type SimulationCommand,
   type TechnologyIndustryPathId,
@@ -50,6 +51,7 @@ interface SimulationStore {
   joinOrganization(organizationId: string): Promise<void>;
   setDiplomaticStrategy(strategyId: DiplomaticStrategyId): Promise<void>;
   setForeignPolicyDoctrine(doctrineId: ForeignPolicyDoctrineId): Promise<void>;
+  setForeignAidProgram(programId: ForeignAidProgramId): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
@@ -171,6 +173,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   async setForeignPolicyDoctrine(doctrineId) {
     await get().dispatch({ type: "SET_FOREIGN_POLICY_DOCTRINE", doctrineId });
+  },
+
+  async setForeignAidProgram(programId) {
+    await get().dispatch({ type: "SET_FOREIGN_AID_PROGRAM", programId });
   },
 
   async resolveHistoricalEvent(eventId, choiceId) {
