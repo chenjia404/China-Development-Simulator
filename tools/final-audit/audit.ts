@@ -305,6 +305,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const preventedWarRussiaRelation = preventedWarState.world.countries.find(
     (country) => country.id === "russia",
   )?.relationWithChina ?? 0;
+  const koreanWarSouthKoreaRelation = koreanWarState.world.countries.find(
+    (country) => country.id === "south_korea",
+  )?.relationWithChina ?? 0;
+  const preventedWarSouthKoreaRelation = preventedWarState.world.countries.find(
+    (country) => country.id === "south_korea",
+  )?.relationWithChina ?? 0;
 
   const initiativeState = createInitialGameState(seed, 1970);
   initiativeState.nation.economy.institutionalEfficiency = 0.4;
@@ -641,10 +647,13 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           preventedWarState.nation.sectors.secondary.output &&
         koreanWarUsRelation < preventedWarUsRelation &&
         koreanWarRussiaRelation > preventedWarRussiaRelation &&
+        koreanWarSouthKoreaRelation < -30 &&
+        preventedWarSouthKoreaRelation > -30 &&
+        preventedWarSouthKoreaRelation > koreanWarSouthKoreaRelation &&
         preventedWarRecord?.outcome === "prevented" &&
         preventedWarFinalState.nation.date.year === 2027 &&
         preventedWarFinalState.nation.history.reports.length === 77,
-      `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，财政支出 ${koreanWarState.nation.fiscal.expenditure.toFixed(0)}/${preventedWarState.nation.fiscal.expenditure.toFixed(0)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
+      `参战/阻止首月死亡 ${koreanWarState.nation.population.monthlyDeaths.toFixed(0)}/${preventedWarState.nation.population.monthlyDeaths.toFixed(0)}，对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，阻止路线生成 1950—2026 年 ${preventedWarFinalState.nation.history.reports.length} 个年度报告`,
     ),
     makeCheck(
       "historical-initiatives",

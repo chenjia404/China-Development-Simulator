@@ -211,6 +211,17 @@ describe("确定性历史事件", () => {
       prevented.world.countries.find((country) => country.id === "russia")
         ?.relationWithChina ?? Number.POSITIVE_INFINITY,
     );
+    const warSouthKoreaRelation = war.world.countries.find(
+      (country) => country.id === "south_korea",
+    )?.relationWithChina;
+    const preventedSouthKoreaRelation = prevented.world.countries.find(
+      (country) => country.id === "south_korea",
+    )?.relationWithChina;
+    expect(warSouthKoreaRelation).toBeLessThan(-30);
+    expect(preventedSouthKoreaRelation).toBeGreaterThan(-30);
+    expect(preventedSouthKoreaRelation).toBeGreaterThan(
+      warSouthKoreaRelation ?? Number.POSITIVE_INFINITY,
+    );
   });
 
   it("所有历史事件都有三个会改变数值传导的方案", () => {
