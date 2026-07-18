@@ -270,9 +270,44 @@ export interface ResourceState {
   foodDemand: number;
   foodSupplyRatio: number;
   agriculture: AgricultureSystemState;
+  infrastructureResources: InfrastructureResourceState;
   energySupply: number;
   energyDemand: number;
   energySupplyRatio: number;
+}
+
+export type EnergySourceId =
+  | "coal" | "oil" | "gas" | "hydro" | "nuclear" | "renewables";
+
+export interface EnergySourceAccount {
+  id: EnergySourceId;
+  share: number;
+  supply: number;
+  importShare: number;
+  emissionFactor: number;
+}
+
+/** 能源结构、运输网络与环境资源压力账户。 */
+export interface InfrastructureResourceState {
+  energyMix: Record<EnergySourceId, EnergySourceAccount>;
+  totalPrimaryEnergy: number;
+  electricityGeneration: number;
+  gridLossRate: number;
+  energyImportDependence: number;
+  railNetworkKm: number;
+  highwayNetworkKm: number;
+  portThroughputTonnes: number;
+  freightDemand: number;
+  freightCapacity: number;
+  freightCapacityUtilization: number;
+  logisticsEfficiencyIndex: number;
+  carbonEmissions: number;
+  carbonIntensity: number;
+  annualEmissionChange: number;
+  airPollutionIndex: number;
+  waterStressIndex: number;
+  resourceDepletionIndex: number;
+  energyShareError: number;
 }
 
 /** 农业生产、粮食库存、农村收入和营养安全的实物账户。 */

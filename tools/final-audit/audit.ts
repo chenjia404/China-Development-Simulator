@@ -1383,6 +1383,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年耕地 ${(historical.finalState.nation.resources.agriculture.cultivatedLandHectares / 10_000).toFixed(0)} 万公顷、单产 ${historical.finalState.nation.resources.agriculture.grainYieldKgPerHectare.toFixed(0)} 千克/公顷、储备覆盖 ${historical.finalState.nation.resources.agriculture.reserveCoverageMonths.toFixed(1)} 个月、每日 ${historical.finalState.nation.resources.agriculture.dailyCaloriesPerCapita.toFixed(0)} 千卡`,
     ),
     makeCheck(
+      "energy-transport-environment",
+      "六类能源、运输能力、物流效率与环境资源压力保持可核对",
+      historical.finalState.nation.resources.infrastructureResources.energyShareError < 1e-10 &&
+        historical.finalState.nation.resources.infrastructureResources.freightCapacity > 0 &&
+        historical.finalState.nation.resources.infrastructureResources.logisticsEfficiencyIndex >= 0 &&
+        historical.finalState.nation.resources.infrastructureResources.airPollutionIndex <= 100,
+      `2026 年煤炭占比 ${(historical.finalState.nation.resources.infrastructureResources.energyMix.coal.share * 100).toFixed(1)}%、能源进口依赖 ${(historical.finalState.nation.resources.infrastructureResources.energyImportDependence * 100).toFixed(1)}%、物流效率 ${historical.finalState.nation.resources.infrastructureResources.logisticsEfficiencyIndex.toFixed(1)}、空气污染 ${historical.finalState.nation.resources.infrastructureResources.airPollutionIndex.toFixed(1)}`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

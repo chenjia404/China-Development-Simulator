@@ -20,6 +20,7 @@ import { ensureEnterpriseSectorState } from "../economy/enterprise-sectors";
 import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
+import { ensureInfrastructureResourceState } from "../economy/energy-transport-environment";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -73,5 +74,6 @@ export function deserializeGameState(serialized: string): GameState {
   ensureFiscalFederalismState(state.nation);
   ensureFinancialSystemState(state);
   ensureAgricultureSystemState(state.nation);
+  ensureInfrastructureResourceState(state.nation);
   return state;
 }

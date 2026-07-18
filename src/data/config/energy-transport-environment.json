@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "description": "一次能源结构、运输网络、物流效率、碳排放与环境资源压力参数。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://www.iea.org/countries/china"
+    ]
+  },
+  "electricityPerEnergyUnit": 32,
+  "baseGridLossRate": 0.14,
+  "minimumGridLossRate": 0.045,
+  "initialRailNetworkKm": 21800,
+  "initialHighwayNetworkKm": 80700,
+  "emissionFactors": {
+    "coal": 0.95,
+    "oil": 0.72,
+    "gas": 0.42,
+    "hydro": 0.02,
+    "nuclear": 0.01,
+    "renewables": 0.015
+  }
+}

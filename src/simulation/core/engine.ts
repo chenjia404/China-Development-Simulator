@@ -37,6 +37,7 @@ import { ensureEnterpriseSectorState } from "../economy/enterprise-sectors";
 import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
+import { ensureInfrastructureResourceState } from "../economy/energy-transport-environment";
 
 export interface SimulationResult {
   state: GameState;
@@ -81,6 +82,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureFiscalFederalismState(this.state.nation);
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
+    ensureInfrastructureResourceState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -113,6 +115,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureFiscalFederalismState(this.state.nation);
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
+        ensureInfrastructureResourceState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

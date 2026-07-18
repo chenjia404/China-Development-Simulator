@@ -525,6 +525,25 @@ function AgricultureSystemPanel({ game }: { game: GameState }) {
   </section>;
 }
 
+function InfrastructureResourcePanel({ game }: { game: GameState }) {
+  const state = game.nation.resources.infrastructureResources;
+  const energyNames: Record<string, string> = { coal: "煤炭", oil: "石油", gas: "天然气", hydro: "水电", nuclear: "核电", renewables: "可再生能源" };
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 运输网络 · 环境约束</span><h2>能源运输与资源环境</h2></div><span>物流效率 {state.logisticsEfficiencyIndex.toFixed(1)}</span></div>
+    <div className="account-flow-grid">{Object.values(state.energyMix).map((item) => <div key={item.id}><span>{energyNames[item.id]}</span><strong>{formatPercent(item.share)}</strong></div>)}</div>
+    <div className="detail-grid">
+      <article><span>发电量</span><strong>{formatLarge(state.electricityGeneration)}</strong><p>电网损耗 {formatPercent(state.gridLossRate)}</p></article>
+      <article><span>能源进口依赖</span><strong>{formatPercent(state.energyImportDependence)}</strong><p>油气进口与开放条件相关</p></article>
+      <article><span>铁路 / 公路</span><strong>{formatLarge(state.railNetworkKm)} / {formatLarge(state.highwayNetworkKm)} 公里</strong><p>全国运输网络长度</p></article>
+      <article><span>货运负荷</span><strong>{formatPercent(state.freightCapacityUtilization)}</strong><p>需求超过能力会压低物流效率</p></article>
+      <article><span>碳排放</span><strong>{formatLarge(state.carbonEmissions)}</strong><p>碳强度 {state.carbonIntensity.toExponential(2)}</p></article>
+      <article><span>空气污染</span><strong>{state.airPollutionIndex.toFixed(1)}</strong><p>水压力 {formatPercent(state.waterStressIndex)}</p></article>
+      <article><span>资源耗竭压力</span><strong>{formatPercent(state.resourceDepletionIndex)}</strong><p>化石能源结构与供需共同决定</p></article>
+      <article><span>港口吞吐</span><strong>{formatLarge(state.portThroughputTonnes)} 吨</strong><p>由进出口与开放度形成</p></article>
+    </div>
+  </section>;
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -539,7 +558,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <InfrastructureResourcePanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

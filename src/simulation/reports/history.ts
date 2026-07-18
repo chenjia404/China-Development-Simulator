@@ -87,6 +87,14 @@ export function recordHistory(state: GameState): void {
       nation.resources.agriculture.selfSufficiencyRate,
     dailyCaloriesPerCapita:
       nation.resources.agriculture.dailyCaloriesPerCapita,
+    energyImportDependence:
+      nation.resources.infrastructureResources.energyImportDependence,
+    logisticsEfficiencyIndex:
+      nation.resources.infrastructureResources.logisticsEfficiencyIndex,
+    carbonEmissions:
+      nation.resources.infrastructureResources.carbonEmissions,
+    airPollutionIndex:
+      nation.resources.infrastructureResources.airPollutionIndex,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

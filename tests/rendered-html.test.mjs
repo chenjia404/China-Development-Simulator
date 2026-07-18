@@ -311,3 +311,16 @@ test("客户端展示农业农村、粮食库存与营养安全", async () => {
   assert.match(source, /综合粮食保障/);
   assert.match(source, /人均营养供给/);
 });
+
+test("客户端展示能源结构、运输网络和环境压力", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /能源运输与资源环境/);
+  assert.match(source, /能源进口依赖/);
+  assert.match(source, /货运负荷/);
+  assert.match(source, /空气污染/);
+  assert.match(source, /资源耗竭压力/);
+});

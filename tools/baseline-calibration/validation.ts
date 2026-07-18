@@ -154,6 +154,15 @@ export function validateGameState(state: GameState): void {
     agriculture.massBalanceError /
       Math.max(1, agriculture.availableFoodSupply) > 1e-10
   ) throw new Error("粮食供需库存账户未守恒");
+  const infrastructureResources = nation.resources.infrastructureResources;
+  if (
+    infrastructureResources.energyShareError > 1e-10 ||
+    infrastructureResources.totalPrimaryEnergy < 0 ||
+    infrastructureResources.freightCapacity <= 0 ||
+    infrastructureResources.carbonEmissions < 0 ||
+    infrastructureResources.airPollutionIndex < 0 ||
+    infrastructureResources.airPollutionIndex > 100
+  ) throw new Error("能源运输环境账户无效或能源份额未守恒");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

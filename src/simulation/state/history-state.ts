@@ -30,6 +30,10 @@ export interface MonthlySnapshot {
   strategicFoodReserve: number;
   foodSelfSufficiencyRate: number;
   dailyCaloriesPerCapita: number;
+  energyImportDependence: number;
+  logisticsEfficiencyIndex: number;
+  carbonEmissions: number;
+  airPollutionIndex: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;
