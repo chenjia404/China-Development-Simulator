@@ -567,7 +567,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
         <div>
           <span className="eyebrow">一次性重大决策</span>
           <h2>历史转折国策</h2>
-          <p>满足国内治理与外交条件后，可在史实日期前主动实施。它们不占普通国策槽位，实施后不可撤销且不会在史实节点重复触发。</p>
+          <p>适合主动推动的治理、工业化、改革与国际合作事件，满足真实能力门槛后均可由玩家在史实日期前发动。战争、灾害、危机和政治运动仍按事件处理。</p>
         </div>
         <span>{game.nation.diplomacy.diplomaticPoints.toFixed(1)} 外交点数</span>
       </div>
@@ -577,6 +577,18 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
           const event = getHistoricalEvent(initiative.eventId);
           const record = status.completedRecord;
           const completedEarly = record?.outcome === "enacted_early";
+          const initiativeCostLabel = initiative.diplomaticPointCost > 0
+            ? `外交成本 ${initiative.diplomaticPointCost} 点`
+            : "国内决策 · 无外交成本";
+          const initiativeActionLabel = busy && status.available
+            ? "正在执行…"
+            : status.completed
+              ? "已完成"
+              : status.available
+                ? initiative.diplomaticPointCost > 0
+                  ? `发动国策 · ${initiative.diplomaticPointCost} 点`
+                  : "发动国策"
+                : "暂不可发动";
           return (
             <article
               className={`initiative-card ${status.available ? "is-available" : ""} ${status.completed ? "is-completed" : ""}`}
@@ -589,8 +601,9 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
               <h3>{initiative.name}</h3>
               <p>{initiative.description}</p>
               <div className="initiative-facts">
+                <span>{initiative.category}</span>
                 <span>最早 {initiative.availableFromYear} 年</span>
-                <span>外交成本 {initiative.diplomaticPointCost} 点</span>
+                <span>{initiativeCostLabel}</span>
                 <span>调整期 {formatEventDuration(initiative.transitionDurationMonths)}</span>
               </div>
               {record ? (
@@ -611,7 +624,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
                 title={!status.available && !status.completed ? status.blockers.join("；") : undefined}
                 onClick={() => enactInitiative(initiative.id, initiative.name)}
               >
-                {busy && status.available ? "正在执行…" : status.completed ? "已完成" : status.available ? `发动国策 · ${initiative.diplomaticPointCost} 点` : "暂不可发动"}
+                {initiativeActionLabel}
               </button>
             </article>
           );

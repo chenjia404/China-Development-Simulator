@@ -18,14 +18,162 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("五项主动国策具有唯一事件映射，正式入世不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(5);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(5);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(5);
-    expect(
-      historicalInitiativeDefinitions.map((item) => item.availableFromYear),
-    ).toEqual([1949, 1949, 1949, 1979, 1982]);
+  it("十四项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(14);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(14);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(14);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
+    expect(
+      historicalInitiativeDefinitions.map((item) => item.eventId),
+    ).not.toEqual(expect.arrayContaining([
+      "korean_war_1950",
+      "great_leap_forward_1958",
+      "cultural_revolution_disruption_1966",
+      "asian_financial_crisis_1997",
+      "covid_19_2020",
+      "un_seat_restored_1971",
+      "wto_accession_2001",
+    ]));
+  });
+
+  it("财政统一、土地改革和五年计划可由玩家依次提前启动", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
+    const beforePoints = engine.getState().nation.diplomacy.diplomaticPoints;
+
+    expect(getHistoricalInitiativeStatus(
+      engine.exportState(),
+      "early_unified_finance",
+    ).available).toBe(true);
+    expect(getHistoricalInitiativeStatus(
+      engine.exportState(),
+      "early_land_reform",
+    ).available).toBe(true);
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_unified_finance",
+    });
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_land_reform",
+    });
+
+    expect(engine.getState().nation.diplomacy.diplomaticPoints).toBe(beforePoints);
+    expect(getHistoricalInitiativeStatus(
+      engine.exportState(),
+      "early_first_five_year_plan",
+    ).blockers).toContain("统一国家财政经济需实施满 6 个月（还需 6 个月）");
+
+    const preparedState = engine.exportState();
+    preparedState.nation.date.month = 7;
+    preparedState.nation.date.elapsedMonths = 6;
+    const preparedEngine = createSimulationEngine(preparedState);
+    expect(getHistoricalInitiativeStatus(
+      preparedEngine.exportState(),
+      "early_first_five_year_plan",
+    ).available).toBe(true);
+    preparedEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_first_five_year_plan",
+    });
+
+    expect(preparedEngine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "first_five_year_plan",
+      year: 1949,
+      month: 7,
+      outcome: "enacted_early",
+    });
+    const historicalDateState = preparedEngine.exportState();
+    historicalDateState.nation.date.year = 1953;
+    historicalDateState.nation.date.month = 1;
+    expect(checkHistoricalEvents(historicalDateState.nation)).toEqual([]);
+  });
+
+  it("后续改革必须经过能力积累，达标后可沿改革链提前推进", () => {
+    const engine = createSimulationEngine(prepareReformConditions(1950));
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_reform_and_opening",
+    });
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_joint_venture_law",
+    });
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_special_economic_zones",
+    });
+
+    const prematureState = engine.exportState();
+    prematureState.nation.date.year = 1952;
+    prematureState.nation.date.month = 1;
+    prematureState.nation.date.elapsedMonths = 24;
+    expect(getHistoricalInitiativeStatus(
+      prematureState,
+      "early_urban_economic_reform",
+    ).blockers).toEqual(expect.arrayContaining([
+      "制度效率需达到 42%",
+      "教育指数需达到 18",
+      "科技指数需达到 10",
+      "城镇化率需达到 12%",
+    ]));
+
+    prematureState.nation.economy.institutionalEfficiency = 0.6;
+    prematureState.nation.society.stabilityIndex = 60;
+    prematureState.nation.trade.openness = 0.35;
+    prematureState.nation.diplomacy.globalReputation = 60;
+    prematureState.nation.internationalInfluence = 30;
+    prematureState.nation.education.index = 50;
+    prematureState.nation.technology.index = 45;
+    prematureState.nation.society.urbanizationRate = 0.4;
+    for (const country of prematureState.world.countries) {
+      country.relationWithChina = 15;
+    }
+    prematureState.world.countries[0].tradeAgreement = true;
+    const reformEngine = createSimulationEngine(prematureState);
+    reformEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_urban_economic_reform",
+    });
+
+    const marketState = reformEngine.exportState();
+    marketState.nation.date.year = 1956;
+    marketState.nation.date.elapsedMonths = 72;
+    const marketEngine = createSimulationEngine(marketState);
+    marketEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_socialist_market_economy",
+    });
+
+    const fiscalState = marketEngine.exportState();
+    fiscalState.nation.date.year = 1958;
+    fiscalState.nation.date.elapsedMonths = 96;
+    const fiscalEngine = createSimulationEngine(fiscalState);
+    fiscalEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_tax_sharing_reform",
+    });
+
+    const supplyState = fiscalEngine.exportState();
+    supplyState.nation.date.year = 1966;
+    supplyState.nation.date.elapsedMonths = 192;
+    supplyState.nation.sectors.secondary.output = 80_000_000_000;
+    const supplyEngine = createSimulationEngine(supplyState);
+    expect(getHistoricalInitiativeStatus(
+      supplyEngine.exportState(),
+      "early_supply_side_reform",
+    ).available).toBe(true);
+    supplyEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_supply_side_reform",
+    });
+
+    expect(supplyEngine.getState().nation.history.historicalEvents.map((event) => event.id))
+      .toEqual(expect.arrayContaining([
+        "urban_economic_reform_1984",
+        "socialist_market_economy_1992",
+        "tax_sharing_reform_1994",
+        "supply_side_reform_2015",
+      ]));
   });
 
   it("改革开放可按1949年初始状态立即发动", () => {

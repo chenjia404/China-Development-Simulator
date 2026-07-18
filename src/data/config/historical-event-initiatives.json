@@ -1,8 +1,120 @@
 [
   {
+    "id": "early_unified_finance",
+    "eventId": "unified_finance_1950",
+    "name": "提前统一国家财政经济",
+    "category": "国家治理",
+    "description": "提前统一财政收入、现金管理和重要物资调度，以行政建设成本换取更稳定的财政征管与市场秩序。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 18,
+    "requirements": {
+      "historicalEventIds": [],
+      "minimumMonthsSinceEvents": {},
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStability": 48,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0
+    },
+    "transitionEffects": ["财政和物资管理机构扩张增加短期行政支出", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+    ]
+  },
+  {
+    "id": "early_land_reform",
+    "eventId": "land_reform_1950",
+    "name": "提前实施土地改革",
+    "category": "农业农村",
+    "description": "提前调整土地关系并组织基层执行，在释放农业生产积极性的同时承担制度转换、测量登记和基层治理成本。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 24,
+    "requirements": {
+      "historicalEventIds": [],
+      "minimumMonthsSinceEvents": {},
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStability": 45,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0
+    },
+    "transitionEffects": ["土地登记和基层制度转换增加财政支出", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
+    "id": "early_first_five_year_plan",
+    "eventId": "first_five_year_plan",
+    "name": "提前启动第一个五年计划",
+    "category": "工业化",
+    "description": "在财政与土地制度初步稳定后提前集中建设能源、交通和基础工业；工业资本形成加快，但建设准备会额外挤占财政与民间投资。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["unified_finance_1950", "land_reform_1950"],
+      "minimumMonthsSinceEvents": {
+        "unified_finance_1950": 6,
+        "land_reform_1950": 6
+      },
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStability": 48,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0,
+      "minimumEducationIndex": 12,
+      "minimumTechnologyIndex": 6,
+      "minimumSecondarySectorShare": 0.2
+    },
+    "transitionEffects": ["项目前期准备提高财政支出", "重工业配置进一步挤出部分民间投资", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 }
+    ]
+  },
+  {
+    "id": "early_third_front_construction",
+    "eventId": "third_front_construction_1964",
+    "name": "提前启动三线建设",
+    "category": "战略工业",
+    "description": "在具备基础工业、科研和组织能力后，主动把国防、能源、交通和机械项目布局到内陆。安全纵深增强，但长期财政占用、重复配套和沿海投资挤出仍会完整发生。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 48,
+    "requirements": {
+      "historicalEventIds": ["first_five_year_plan"],
+      "minimumMonthsSinceEvents": { "first_five_year_plan": 36 },
+      "minimumInstitutionalEfficiency": 0.4,
+      "minimumStability": 50,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0,
+      "minimumEducationIndex": 15,
+      "minimumTechnologyIndex": 10,
+      "minimumSecondarySectorShare": 0.25
+    },
+    "transitionEffects": ["勘察、迁建和配套工程进一步提高财政支出", "建设准备期额外挤出民间投资", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 }
+    ]
+  },
+  {
     "id": "early_reform_and_opening",
     "eventId": "reform_and_opening_1978",
     "name": "提前启动改革开放",
+    "category": "经济改革",
     "description": "在史实节点前把工作重心转向经济建设，以试点、放权和对外交流逐步建立市场化资源配置机制。",
     "availableFromYear": 1949,
     "diplomaticPointCost": 8,
@@ -27,6 +139,7 @@
     "id": "early_joint_venture_law",
     "eventId": "joint_venture_law_1979",
     "name": "提前制定中外合资经营企业法",
+    "category": "涉外法治",
     "description": "在改革开放已经启动的基础上，提前建立外资准入、利润分配和争议处理的专门法律框架。",
     "availableFromYear": 1949,
     "diplomaticPointCost": 12,
@@ -51,6 +164,7 @@
     "id": "early_special_economic_zones",
     "eventId": "special_economic_zones_1980",
     "name": "提前设立经济特区",
+    "category": "对外开放",
     "description": "在改革开放和涉外投资法律框架已经启动后，提前划定对外开放试验区，引入资本、技术、出口加工和市场化管理制度。",
     "availableFromYear": 1949,
     "diplomaticPointCost": 10,
@@ -76,9 +190,139 @@
     ]
   },
   {
+    "id": "early_urban_economic_reform",
+    "eventId": "urban_economic_reform_1984",
+    "name": "提前推进城市经济体制改革",
+    "category": "经济改革",
+    "description": "在开放试验和涉外法治运行一段时间后，提前推进企业放权、税制调整和价格改革。经营活力提高，但转轨期财政与价格波动成本仍会出现。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978", "special_economic_zones_1980"],
+      "minimumMonthsSinceEvents": {
+        "reform_and_opening_1978": 24,
+        "special_economic_zones_1980": 12
+      },
+      "minimumInstitutionalEfficiency": 0.42,
+      "minimumStability": 50,
+      "minimumOpenness": 0.12,
+      "minimumReputation": 40,
+      "minimumAverageRelation": -10,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0,
+      "minimumEducationIndex": 18,
+      "minimumTechnologyIndex": 10,
+      "minimumUrbanizationRate": 0.12
+    },
+    "transitionEffects": ["企业和价格制度转轨增加财政管理成本", "改革试错短期压低投资效率", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 }
+    ]
+  },
+  {
+    "id": "early_socialist_market_economy",
+    "eventId": "socialist_market_economy_1992",
+    "name": "提前确立社会主义市场经济目标",
+    "category": "制度改革",
+    "description": "在城市改革形成可复制经验后，提前把市场化资源配置上升为系统改革目标。制度收益更早释放，配套立法、监管和社会调整成本也同步前移。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 48,
+    "requirements": {
+      "historicalEventIds": ["urban_economic_reform_1984", "joint_venture_law_1979"],
+      "minimumMonthsSinceEvents": {
+        "urban_economic_reform_1984": 48,
+        "joint_venture_law_1979": 36
+      },
+      "minimumInstitutionalEfficiency": 0.5,
+      "minimumStability": 52,
+      "minimumOpenness": 0.2,
+      "minimumReputation": 45,
+      "minimumAverageRelation": -5,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 5,
+      "minimumEducationIndex": 25,
+      "minimumTechnologyIndex": 18,
+      "minimumUrbanizationRate": 0.18
+    },
+    "transitionEffects": ["市场制度立法和监管建设增加财政支出", "转轨期需要承担企业重组成本", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 }
+    ]
+  },
+  {
+    "id": "early_tax_sharing_reform",
+    "eventId": "tax_sharing_reform_1994",
+    "name": "提前实施分税制财政改革",
+    "category": "财政改革",
+    "description": "在市场体制和城市财政运行趋于成熟后，提前重划中央与地方收入及支出责任。财政能力增强，但征管重建和地方财力调整形成过渡成本。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["socialist_market_economy_1992", "urban_economic_reform_1984"],
+      "minimumMonthsSinceEvents": {
+        "socialist_market_economy_1992": 24,
+        "urban_economic_reform_1984": 60
+      },
+      "minimumInstitutionalEfficiency": 0.55,
+      "minimumStability": 55,
+      "minimumOpenness": 0.2,
+      "minimumReputation": 40,
+      "minimumAverageRelation": -10,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 5,
+      "minimumEducationIndex": 30,
+      "minimumTechnologyIndex": 20,
+      "minimumUrbanizationRate": 0.2
+    },
+    "transitionEffects": ["税务征管重建提高行政支出", "地方财力调整带来短期投资摩擦", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.995 }
+    ]
+  },
+  {
+    "id": "early_supply_side_reform",
+    "eventId": "supply_side_reform_2015",
+    "name": "提前推进供给侧结构性改革",
+    "category": "产业改革",
+    "description": "在市场、财税和产业体系成熟后，主动去除低效产能、降低杠杆并补齐技术与基础设施短板。升级收益取决于教育科技积累，调整期会压低传统工业产出。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["socialist_market_economy_1992", "tax_sharing_reform_1994"],
+      "minimumMonthsSinceEvents": {
+        "socialist_market_economy_1992": 120,
+        "tax_sharing_reform_1994": 60
+      },
+      "minimumInstitutionalEfficiency": 0.6,
+      "minimumStability": 55,
+      "minimumOpenness": 0.25,
+      "minimumReputation": 45,
+      "minimumAverageRelation": 0,
+      "minimumTradeAgreements": 1,
+      "minimumInternationalInfluence": 15,
+      "minimumEducationIndex": 45,
+      "minimumTechnologyIndex": 40,
+      "minimumUrbanizationRate": 0.35,
+      "minimumSecondarySectorShare": 0.3
+    },
+    "transitionEffects": ["落后产能退出进一步压低短期工业产出", "职业转换和补短板增加财政支出", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
+    ]
+  },
+  {
     "id": "early_gatt_observer",
     "eventId": "gatt_observer_1982",
     "name": "提前取得关贸总协定观察员地位",
+    "category": "多边贸易",
     "description": "在改革和涉外经济法律框架初步建立后，通过区域贸易合作与多边外交接触，争取提前参与关贸总协定规则讨论。",
     "availableFromYear": 1979,
     "diplomaticPointCost": 12,
@@ -108,6 +352,7 @@
     "id": "early_gatt_accession_application",
     "eventId": "gatt_accession_application_1986",
     "name": "提前启动关贸总协定复关申请",
+    "category": "多边贸易",
     "description": "在取得观察员地位并完成初步规则准备后，正式提交恢复关贸总协定缔约方地位申请，进入外贸体制审议和关税谈判。",
     "availableFromYear": 1982,
     "diplomaticPointCost": 18,
@@ -133,6 +378,41 @@
     "transitionModifiers": [
       { "target": "fiscal.revenue", "operation": "multiply", "value": 0.995 },
       { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+    ]
+  },
+  {
+    "id": "early_belt_and_road",
+    "eventId": "belt_and_road_2013",
+    "name": "提前提出跨境互联互通倡议",
+    "category": "国际合作",
+    "description": "在开放、贸易规则和国际伙伴网络成熟后，提前发起跨境基础设施、产能与贸易合作。出口和影响力机会扩大，外交协调、项目融资与地缘风险也同步前移。",
+    "availableFromYear": 1960,
+    "diplomaticPointCost": 20,
+    "transitionDurationMonths": 48,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978", "special_economic_zones_1980", "gatt_observer_1982"],
+      "minimumMonthsSinceEvents": {
+        "reform_and_opening_1978": 120,
+        "special_economic_zones_1980": 120,
+        "gatt_observer_1982": 60
+      },
+      "minimumInstitutionalEfficiency": 0.55,
+      "minimumStability": 55,
+      "minimumOpenness": 0.35,
+      "minimumReputation": 55,
+      "minimumAverageRelation": 10,
+      "supportRelationThreshold": 20,
+      "minimumSupportingCountries": 8,
+      "minimumTradeAgreements": 3,
+      "minimumInternationalInfluence": 30,
+      "minimumEducationIndex": 35,
+      "minimumTechnologyIndex": 30,
+      "minimumUrbanizationRate": 0.25
+    },
+    "transitionEffects": ["前期外交协调与项目评估增加财政支出", "跨境项目融资占用部分国内资本", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 }
     ]
   }
 ]

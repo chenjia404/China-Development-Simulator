@@ -551,6 +551,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const initiativePreparation = createSimulationEngine(initiativeState);
   initiativePreparation.dispatch({
     type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_unified_finance",
+  });
+  initiativePreparation.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_land_reform",
+  });
+  initiativePreparation.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_reform_and_opening",
   });
   initiativePreparation.dispatch({
@@ -561,7 +569,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     type: "ENACT_HISTORICAL_INITIATIVE",
     initiativeId: "early_special_economic_zones",
   });
-  const observerState = initiativePreparation.exportState();
+  const industrializationState = initiativePreparation.exportState();
+  industrializationState.nation.date.month = 7;
+  industrializationState.nation.date.elapsedMonths = 6;
+  const industrializationEngine = createSimulationEngine(industrializationState);
+  industrializationEngine.dispatch({
+    type: "ENACT_HISTORICAL_INITIATIVE",
+    initiativeId: "early_first_five_year_plan",
+  });
+  const observerState = industrializationEngine.exportState();
   observerState.nation.date.year = 1979;
   observerState.nation.date.month = 1;
   observerState.nation.date.elapsedMonths = (1979 - 1949) * 12;
@@ -590,6 +606,28 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   });
   const earlyRecords = applicationEngine.getState().nation.history.historicalEvents
     .filter((event) => event.outcome === "enacted_early");
+  const auditedEarlyInitiativeEvents = [
+    "unified_finance_1950",
+    "land_reform_1950",
+    "first_five_year_plan",
+    "reform_and_opening_1978",
+    "joint_venture_law_1979",
+    "special_economic_zones_1980",
+    "gatt_observer_1982",
+    "gatt_accession_application_1986",
+  ];
+  const initiativeEventIds = historicalInitiativeDefinitions.map(
+    (definition) => definition.eventId,
+  );
+  const excludedInitiativeEvents = [
+    "korean_war_1950",
+    "great_leap_forward_1958",
+    "cultural_revolution_disruption_1966",
+    "asian_financial_crisis_1997",
+    "covid_19_2020",
+    "un_seat_restored_1971",
+    "wto_accession_2001",
+  ];
 
   const unSupportState = createInitialGameState(seed, 1965);
   unSupportState.nation.diplomacy.diplomaticPoints = 100;
@@ -1101,14 +1139,19 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "historical-initiatives",
-      "关键历史转折可在满足国内外条件后作为一次性国策提前实施",
-      earlyRecords.length === historicalInitiativeDefinitions.length &&
+      "适合主动推动的历史转折可提前实施，战争危机与组织资格保持事件化",
+      historicalInitiativeDefinitions.length === 14 &&
+        new Set(initiativeEventIds).size === historicalInitiativeDefinitions.length &&
+        excludedInitiativeEvents.every((eventId) => !initiativeEventIds.includes(eventId)) &&
+        auditedEarlyInitiativeEvents.every((eventId) =>
+          earlyRecords.some((record) => record.id === eventId)
+        ) &&
         earlyRecords.every((record) =>
           record.year < record.scheduledYear && record.outcome === "enacted_early"
         ),
-      earlyRecords.map((record) =>
+      `共${historicalInitiativeDefinitions.length}项主动国策；审计链路：${earlyRecords.map((record) =>
         `${record.name}提前至${record.year}年（史实${record.scheduledYear}年）`
-      ).join("；"),
+      ).join("；")}`,
     ),
     makeCheck(
       "relationship-triggered-organizations",

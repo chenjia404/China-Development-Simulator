@@ -20,12 +20,17 @@ export interface HistoricalInitiativeRequirements {
   minimumSupportingCountries?: number;
   minimumTradeAgreements: number;
   minimumInternationalInfluence: number;
+  minimumEducationIndex?: number;
+  minimumTechnologyIndex?: number;
+  minimumUrbanizationRate?: number;
+  minimumSecondarySectorShare?: number;
 }
 
 export interface HistoricalInitiativeDefinition {
   id: string;
   eventId: string;
   name: string;
+  category: string;
   description: string;
   availableFromYear: number;
   diplomaticPointCost: number;
@@ -146,6 +151,37 @@ export function getHistoricalInitiativeStatus(
   }
   if (nation.internationalInfluence < requirements.minimumInternationalInfluence) {
     blockers.push(`国际影响力需达到 ${requirements.minimumInternationalInfluence.toFixed(0)}`);
+  }
+  if (
+    requirements.minimumEducationIndex !== undefined &&
+    nation.education.index < requirements.minimumEducationIndex
+  ) {
+    blockers.push(`教育指数需达到 ${requirements.minimumEducationIndex.toFixed(0)}`);
+  }
+  if (
+    requirements.minimumTechnologyIndex !== undefined &&
+    nation.technology.index < requirements.minimumTechnologyIndex
+  ) {
+    blockers.push(`科技指数需达到 ${requirements.minimumTechnologyIndex.toFixed(0)}`);
+  }
+  if (
+    requirements.minimumUrbanizationRate !== undefined &&
+    nation.society.urbanizationRate < requirements.minimumUrbanizationRate
+  ) {
+    blockers.push(`城镇化率需达到 ${formatPercent(requirements.minimumUrbanizationRate)}`);
+  }
+  const totalSectorOutput = Object.values(nation.sectors).reduce(
+    (sum, sector) => sum + sector.output,
+    0,
+  );
+  const secondarySectorShare = totalSectorOutput > 0
+    ? nation.sectors.secondary.output / totalSectorOutput
+    : 0;
+  if (
+    requirements.minimumSecondarySectorShare !== undefined &&
+    secondarySectorShare < requirements.minimumSecondarySectorShare
+  ) {
+    blockers.push(`第二产业占比需达到 ${formatPercent(requirements.minimumSecondarySectorShare)}`);
   }
   if (nation.diplomacy.diplomaticPoints < definition.diplomaticPointCost) {
     blockers.push(`需要 ${definition.diplomaticPointCost} 点外交点数`);
