@@ -30,6 +30,7 @@ import { setTechnologyIndustryPath } from "../technology/technology-industry-pat
 import { ensureDomesticDemandState } from "../economy/domestic-demand";
 import { setForeignAidProgram } from "../diplomacy/foreign-aid";
 import { startSinoUSNormalization } from "../diplomacy/sino-us-normalization";
+import { ensureNationalAccountsState } from "../economy/national-accounts";
 
 export interface SimulationResult {
   state: GameState;
@@ -67,6 +68,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureTechnologyTreeState(this.state.nation);
     ensurePrivateEconomyState(this.state.nation);
     ensureDomesticDemandState(this.state.nation);
+    ensureNationalAccountsState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -92,6 +94,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureTechnologyTreeState(this.state.nation);
         ensurePrivateEconomyState(this.state.nation);
         ensureDomesticDemandState(this.state.nation);
+        ensureNationalAccountsState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {

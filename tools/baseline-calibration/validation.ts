@@ -1,4 +1,7 @@
-import type { GameState } from "../../src/simulation/index";
+import {
+  NATIONAL_ACCOUNTS_PRODUCT_IDS,
+  type GameState,
+} from "../../src/simulation/index";
 
 export function validateGameState(state: GameState): void {
   const visit = (value: unknown, path: string): void => {
@@ -46,6 +49,22 @@ export function validateGameState(state: GameState): void {
   }
   if (nation.history.monthly.length > 120) {
     throw new Error("月度历史超过 120 条上限");
+  }
+  const accounts = nation.nationalAccounts;
+  if (Object.keys(accounts.products).length !== NATIONAL_ACCOUNTS_PRODUCT_IDS.length) {
+    throw new Error("投入产出产品账户数量不完整");
+  }
+  if (accounts.productionGDP <= 0) throw new Error("生产法 GDP 必须大于零");
+  if (accounts.gdpIdentityError / accounts.productionGDP > 1e-8) {
+    throw new Error("生产法、收入法与支出法 GDP 未守恒");
+  }
+  if (accounts.maximumProductBalanceError / accounts.productionGDP > 1e-8) {
+    throw new Error("投入产出供给使用表未守恒");
+  }
+  for (const product of Object.values(accounts.products)) {
+    if (product.inputAvailability < 0 || product.inputAvailability > 1) {
+      throw new Error(`${product.id} 的中间投入可得率超出 0 至 1`);
+    }
   }
   if (state.world.countries.some((country) => country.population <= 0 || country.realGDP <= 0)) {
     throw new Error("世界国家出现非正人口或 GDP");

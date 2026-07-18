@@ -55,6 +55,7 @@ import {
   technologyIndustryEnergyDemandMultiplier,
   technologyIndustryPathCooldownRemaining,
   technologyIndustryPathDefinitions,
+  nationalAccountsProductDefinitions,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -381,6 +382,51 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
   );
 }
 
+function NationalAccountsPanel({ game }: { game: GameState }) {
+  const accounts = game.nation.nationalAccounts;
+  const bottlenecks = nationalAccountsProductDefinitions
+    .map((definition) => ({
+      ...definition,
+      availability: accounts.products[definition.id].inputAvailability,
+    }))
+    .toSorted((left, right) => left.availability - right.availability)
+    .slice(0, 4);
+  const identityErrorRate = accounts.gdpIdentityError /
+    Math.max(accounts.productionGDP, 1);
+  return (
+    <section className="panel national-accounts-panel">
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">供给使用表 · 三种GDP口径</span>
+          <h2>国民经济账户</h2>
+        </div>
+        <span>核算误差 {formatPercent(identityErrorRate, 4)}</span>
+      </div>
+      <div className="detail-grid">
+        <article><span>生产法 GDP</span><strong>{formatLarge(accounts.productionGDP)}</strong><p>14类产品增加值合计</p></article>
+        <article><span>收入法 GDP</span><strong>{formatLarge(accounts.incomeGDP)}</strong><p>劳动报酬、折旧、生产税与营业盈余</p></article>
+        <article><span>支出法 GDP</span><strong>{formatLarge(accounts.expenditureGDP)}</strong><p>消费、资本形成、政府消费与净出口</p></article>
+        <article><span>中间投入可得率</span><strong>{formatPercent(accounts.aggregateInputAvailability)}</strong><p>低于临界值后滞后约束下一月生产</p></article>
+      </div>
+      <div className="account-flow-grid">
+        <div><span>居民消费</span><strong>{formatLarge(accounts.householdConsumption)}</strong></div>
+        <div><span>资本形成</span><strong>{formatLarge(accounts.grossCapitalFormation + accounts.inventoryChange)}</strong></div>
+        <div><span>政府消费</span><strong>{formatLarge(accounts.governmentConsumption)}</strong></div>
+        <div><span>净出口</span><strong>{formatLarge(accounts.exports - accounts.imports)}</strong></div>
+      </div>
+      <div className="account-bottlenecks">
+        <span>当前投入瓶颈</span>
+        {bottlenecks.map((item) => (
+          <div key={item.id}>
+            <strong>{item.name}</strong>
+            <span>{formatPercent(item.availability)}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -395,7 +441,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <NationalAccountsPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

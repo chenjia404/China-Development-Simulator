@@ -115,6 +115,11 @@ export function recordHistory(state: GameState): void {
       nation.diplomacy.sinoUSNormalizationEstablishedYear,
     sinoUSNormalizationDelayMonths:
       nation.diplomacy.sinoUSNormalizationDelayMonths,
+    productionGDP: nation.nationalAccounts.productionGDP,
+    incomeGDP: nation.nationalAccounts.incomeGDP,
+    expenditureGDP: nation.nationalAccounts.expenditureGDP,
+    nationalAccountsIdentityError: nation.nationalAccounts.gdpIdentityError,
+    inputOutputAvailability: nation.nationalAccounts.aggregateInputAvailability,
   };
   nation.history.annual.push(annual);
   nation.history.reports.push({

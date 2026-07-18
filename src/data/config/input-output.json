@@ -1,0 +1,126 @@
+{
+  "metadata": {
+    "description": "14类产品的简化投入产出系数。系数表示每单位总产出需要的直接中间投入，用于供给使用核算和中间品瓶颈，不直接增加GDP。",
+    "sources": [
+      "https://www.stats.gov.cn/yearbook/ml/cc.htm",
+      "https://www.stats.gov.cn/sj/ndsj/2024/html/sm03.htm"
+    ],
+    "benchmarkYears": [1987, 1990, 1992, 1995, 1997, 2000, 2002, 2005, 2007, 2010, 2012, 2015, 2017, 2020],
+    "aggregationNote": "国家统计局投入产出部门按本项目长期可比需要归并为农业、十一类工业、市场服务和公共服务。"
+  },
+  "serviceOutputShares": {
+    "marketServices": 0.78,
+    "publicServices": 0.22
+  },
+  "maximumInputConstraint": 1,
+  "minimumInputConstraint": 0.35,
+  "inputConstraintActivationCoverage": 0.45,
+  "inputConstraintPassThrough": 0.45,
+  "targetInventoryShareOfResidualSupply": 0.02,
+  "agricultureExportShare": 0.08,
+  "incomeAccount": {
+    "consumptionOfFixedCapitalShare": 0.08,
+    "productionTaxShareOfFiscalRevenue": 0.28,
+    "maximumProductionTaxShareOfGDP": 0.15
+  },
+  "products": [
+    {
+      "id": "agriculture",
+      "name": "农业与初级食品",
+      "importWeight": 0.16,
+      "finalUseWeights": { "consumption": 0.82, "capital": 0.02, "government": 0.16 },
+      "inputs": { "agriculture": 0.08, "mining_energy": 0.03, "general_machinery": 0.04, "chemicals_pharmaceuticals": 0.07, "market_services": 0.08 }
+    },
+    {
+      "id": "mining_energy",
+      "name": "采矿与能源开采",
+      "importWeight": 0.2,
+      "finalUseWeights": { "consumption": 0.18, "capital": 0.62, "government": 0.2 },
+      "inputs": { "mining_energy": 0.08, "basic_materials": 0.05, "general_machinery": 0.08, "electrical_equipment": 0.03, "market_services": 0.12 }
+    },
+    {
+      "id": "basic_materials",
+      "name": "钢铁与基础材料",
+      "importWeight": 0.12,
+      "finalUseWeights": { "consumption": 0.08, "capital": 0.82, "government": 0.1 },
+      "inputs": { "mining_energy": 0.18, "basic_materials": 0.12, "general_machinery": 0.04, "chemicals_pharmaceuticals": 0.06, "market_services": 0.08 }
+    },
+    {
+      "id": "consumer_goods",
+      "name": "食品纺织与消费品",
+      "importWeight": 0.1,
+      "finalUseWeights": { "consumption": 0.88, "capital": 0.04, "government": 0.08 },
+      "inputs": { "agriculture": 0.18, "basic_materials": 0.05, "general_machinery": 0.03, "chemicals_pharmaceuticals": 0.08, "electrical_equipment": 0.02, "market_services": 0.12 }
+    },
+    {
+      "id": "construction",
+      "name": "建筑与工程建设",
+      "importWeight": 0.01,
+      "finalUseWeights": { "consumption": 0.05, "capital": 0.8, "government": 0.15 },
+      "inputs": { "mining_energy": 0.08, "basic_materials": 0.22, "general_machinery": 0.05, "electrical_equipment": 0.04, "market_services": 0.1 }
+    },
+    {
+      "id": "general_machinery",
+      "name": "通用机械与工业装备",
+      "importWeight": 0.08,
+      "finalUseWeights": { "consumption": 0.04, "capital": 0.84, "government": 0.12 },
+      "inputs": { "basic_materials": 0.2, "general_machinery": 0.07, "electrical_equipment": 0.05, "electronics_communications": 0.03, "market_services": 0.1 }
+    },
+    {
+      "id": "transport_equipment",
+      "name": "交通运输设备",
+      "importWeight": 0.07,
+      "finalUseWeights": { "consumption": 0.28, "capital": 0.58, "government": 0.14 },
+      "inputs": { "basic_materials": 0.18, "general_machinery": 0.08, "chemicals_pharmaceuticals": 0.06, "electrical_equipment": 0.05, "electronics_communications": 0.03, "market_services": 0.09 }
+    },
+    {
+      "id": "chemicals_pharmaceuticals",
+      "name": "化工与医药制造",
+      "importWeight": 0.08,
+      "finalUseWeights": { "consumption": 0.52, "capital": 0.28, "government": 0.2 },
+      "inputs": { "mining_energy": 0.16, "basic_materials": 0.05, "general_machinery": 0.04, "chemicals_pharmaceuticals": 0.12, "market_services": 0.08 }
+    },
+    {
+      "id": "electrical_equipment",
+      "name": "电气机械与电力设备",
+      "importWeight": 0.06,
+      "finalUseWeights": { "consumption": 0.2, "capital": 0.68, "government": 0.12 },
+      "inputs": { "basic_materials": 0.14, "general_machinery": 0.07, "chemicals_pharmaceuticals": 0.06, "electrical_equipment": 0.08, "electronics_communications": 0.04, "market_services": 0.09 }
+    },
+    {
+      "id": "electronics_communications",
+      "name": "电子、通信与计算设备",
+      "importWeight": 0.08,
+      "finalUseWeights": { "consumption": 0.38, "capital": 0.48, "government": 0.14 },
+      "inputs": { "basic_materials": 0.04, "chemicals_pharmaceuticals": 0.08, "electrical_equipment": 0.08, "electronics_communications": 0.12, "precision_medical": 0.02, "market_services": 0.12 }
+    },
+    {
+      "id": "precision_medical",
+      "name": "精密仪器与医疗设备",
+      "importWeight": 0.04,
+      "finalUseWeights": { "consumption": 0.24, "capital": 0.42, "government": 0.34 },
+      "inputs": { "basic_materials": 0.07, "general_machinery": 0.06, "chemicals_pharmaceuticals": 0.06, "electrical_equipment": 0.08, "electronics_communications": 0.09, "precision_medical": 0.04, "market_services": 0.12 }
+    },
+    {
+      "id": "aerospace_advanced",
+      "name": "航空航天与先进制造",
+      "importWeight": 0.03,
+      "finalUseWeights": { "consumption": 0.02, "capital": 0.48, "government": 0.5 },
+      "inputs": { "basic_materials": 0.12, "general_machinery": 0.08, "transport_equipment": 0.05, "chemicals_pharmaceuticals": 0.05, "electrical_equipment": 0.06, "electronics_communications": 0.07, "precision_medical": 0.04, "market_services": 0.12 }
+    },
+    {
+      "id": "market_services",
+      "name": "市场化服务",
+      "importWeight": 0.06,
+      "finalUseWeights": { "consumption": 0.68, "capital": 0.16, "government": 0.16 },
+      "inputs": { "agriculture": 0.04, "consumer_goods": 0.05, "construction": 0.03, "electrical_equipment": 0.02, "electronics_communications": 0.02, "market_services": 0.12, "public_services": 0.03 }
+    },
+    {
+      "id": "public_services",
+      "name": "公共与社会服务",
+      "importWeight": 0.01,
+      "finalUseWeights": { "consumption": 0.15, "capital": 0.05, "government": 0.8 },
+      "inputs": { "consumer_goods": 0.04, "construction": 0.03, "chemicals_pharmaceuticals": 0.03, "electronics_communications": 0.02, "market_services": 0.12, "public_services": 0.05 }
+    }
+  ]
+}

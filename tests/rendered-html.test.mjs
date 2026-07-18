@@ -206,3 +206,18 @@ test("客户端展示出口、内需和社会保障的经济传导指标", async
   assert.match(source, /受内外需求对产能利用的滞后影响/);
   assert.match(source, /降低预防性储蓄，但不直接计入 GDP/);
 });
+
+test("客户端展示三种GDP口径和投入产出瓶颈", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /国民经济账户/);
+  assert.match(source, /生产法 GDP/);
+  assert.match(source, /收入法 GDP/);
+  assert.match(source, /支出法 GDP/);
+  assert.match(source, /当前投入瓶颈/);
+});

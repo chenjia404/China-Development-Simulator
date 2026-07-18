@@ -12,6 +12,10 @@ import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
 import { createInitialPrivateEconomyState } from "../economy/private-economy";
 import sinoUSNormalizationConfig from "../../data/config/sino-us-normalization.json";
+import {
+  createEmptyNationalAccountsState,
+  updateNationalAccounts,
+} from "../economy/national-accounts";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -225,6 +229,7 @@ export function createInitialGameState(
         capitalGoodsImportCoverage: 0.65,
       },
       privateEconomy: createInitialPrivateEconomyState(),
+      nationalAccounts: createEmptyNationalAccountsState(),
       diplomacy: {
         diplomaticPoints: diplomacyConfig.initialDiplomaticPoints,
         monthlyPointGain: 0,
@@ -285,6 +290,7 @@ export function createInitialGameState(
     },
     world: createInitialWorldState(),
   };
+  updateNationalAccounts(state.nation);
   calculateWorldRankings(state);
   return state;
 }

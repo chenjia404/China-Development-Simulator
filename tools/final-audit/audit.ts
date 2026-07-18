@@ -985,6 +985,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `${calibration.passed}/${calibration.total} 个校准项通过`,
     ),
     makeCheck(
+      "national-accounts-identity",
+      "14类投入产出账户与生产法、收入法、支出法GDP保持守恒",
+      [...runs.values()].every((run) => {
+        const accounts = run.finalState.nation.nationalAccounts;
+        return Object.keys(accounts.products).length === 14 &&
+          accounts.productionGDP > 0 &&
+          accounts.gdpIdentityError / accounts.productionGDP < 1e-10 &&
+          accounts.maximumProductBalanceError / accounts.productionGDP < 1e-10 &&
+          accounts.aggregateInputAvailability > 0 &&
+          accounts.aggregateInputAvailability <= 1;
+      }),
+      `史实路线三种GDP ${historical.finalState.nation.nationalAccounts.productionGDP.toFixed(0)}/${historical.finalState.nation.nationalAccounts.incomeGDP.toFixed(0)}/${historical.finalState.nation.nationalAccounts.expenditureGDP.toFixed(0)}；投入可得率 ${(historical.finalState.nation.nationalAccounts.aggregateInputAvailability * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
       "historical-comparison",
       "界面可选择历史、韩国、日本和台湾比较 GDP、人均 GDP、人口与世界排名",
       historicalComparisons.length === 8 &&

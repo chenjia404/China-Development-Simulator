@@ -15,6 +15,7 @@ import {
   updateIndustrialStructure,
 } from "./industrial-structure";
 import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
+import { inputOutputConstraintForSector } from "./national-accounts";
 
 export interface ProductionInput {
   productivity: number;
@@ -97,6 +98,7 @@ export function calculateSectorOutput(
     infrastructureModifier *
     institutionModifier *
     stabilityModifier *
+    inputOutputConstraintForSector(nation, id) *
     clamp(
       sector.capacityUtilization / 0.75,
       economyConfig.minimumCapacityUtilization,

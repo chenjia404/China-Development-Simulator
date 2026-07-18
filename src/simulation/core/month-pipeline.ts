@@ -34,6 +34,7 @@ import { updateForeignExchange } from "../economy/foreign-exchange";
 import { checkHistoricalEvents } from "../events/historical-event-engine";
 import { updatePrivateEconomy } from "../economy/private-economy";
 import { updateDemandDrivenCapacityUtilization } from "../economy/domestic-demand";
+import { updateNationalAccounts } from "../economy/national-accounts";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -63,6 +64,7 @@ export function simulateMonth(
   updateForeignExchange(state);
   calculateFiscalRevenue(state.nation);
   calculateFiscalSpending(state.nation);
+  updateNationalAccounts(state.nation);
   updateDebt(state.nation);
   updateInflation(state.nation);
   updateWellbeing(state.nation);

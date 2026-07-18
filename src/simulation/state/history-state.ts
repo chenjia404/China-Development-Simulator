@@ -43,6 +43,11 @@ export interface AnnualSnapshot extends MonthlySnapshot {
   sinoUSNormalizationStatus?: "not_started" | "negotiating" | "established";
   sinoUSNormalizationYear?: number | null;
   sinoUSNormalizationDelayMonths?: number;
+  productionGDP?: number;
+  incomeGDP?: number;
+  expenditureGDP?: number;
+  nationalAccountsIdentityError?: number;
+  inputOutputAvailability?: number;
 }
 
 export interface AnnualReport {

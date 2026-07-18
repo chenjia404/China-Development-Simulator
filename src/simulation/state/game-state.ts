@@ -242,6 +242,53 @@ export interface PrivateEconomyState {
   exportNetworkStrength: number;
 }
 
+export type NationalAccountsProductId =
+  | "agriculture"
+  | IndustrialCategoryId
+  | "market_services"
+  | "public_services";
+
+/** 单类产品的年度化供给使用账户；所有金额均使用模拟内部实际价值口径。 */
+export interface NationalAccountsProductState {
+  id: NationalAccountsProductId;
+  grossOutput: number;
+  domesticSupply: number;
+  imports: number;
+  exports: number;
+  intermediateDemand: number;
+  householdConsumption: number;
+  capitalFormation: number;
+  governmentConsumption: number;
+  inventoryChange: number;
+  valueAdded: number;
+  inputSupplyCoverage: number;
+  inputAvailability: number;
+  supplyUseGap: number;
+}
+
+/** 生产法、收入法和支出法相互调和的国民经济账户。 */
+export interface NationalAccountsState {
+  products: Record<NationalAccountsProductId, NationalAccountsProductState>;
+  productionGDP: number;
+  incomeGDP: number;
+  expenditureGDP: number;
+  compensationOfEmployees: number;
+  consumptionOfFixedCapital: number;
+  taxesLessSubsidies: number;
+  operatingSurplus: number;
+  householdConsumption: number;
+  governmentConsumption: number;
+  grossCapitalFormation: number;
+  inventoryChange: number;
+  exports: number;
+  imports: number;
+  statisticalDiscrepancyBeforeReconciliation: number;
+  expenditureReconciliationFactor: number;
+  gdpIdentityError: number;
+  maximumProductBalanceError: number;
+  aggregateInputAvailability: number;
+}
+
 export interface DiplomacyState {
   diplomaticPoints: number;
   monthlyPointGain: number;
@@ -333,6 +380,7 @@ export interface NationState {
   society: SocietyState;
   trade: TradeState;
   privateEconomy: PrivateEconomyState;
+  nationalAccounts: NationalAccountsState;
   diplomacy: DiplomacyState;
   policies: string[];
   policyProgress: Record<string, number>;
