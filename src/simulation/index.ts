@@ -33,6 +33,7 @@ export * from "./population/demographic-cohorts";
 export * from "./economy/enterprise-sectors";
 export * from "./fiscal/fiscal-federalism";
 export * from "./economy/monetary-financial";
+export * from "./economy/agriculture-rural";
 export * from "./world/countries";
 export * from "./world/rankings";
 export * from "./world/world-simulation";

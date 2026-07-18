@@ -269,9 +269,35 @@ export interface ResourceState {
   foodProduction: number;
   foodDemand: number;
   foodSupplyRatio: number;
+  agriculture: AgricultureSystemState;
   energySupply: number;
   energyDemand: number;
   energySupplyRatio: number;
+}
+
+/** 农业生产、粮食库存、农村收入和营养安全的实物账户。 */
+export interface AgricultureSystemState {
+  cultivatedLandHectares: number;
+  irrigatedLandRate: number;
+  mechanizationRate: number;
+  fertilizerInputKgPerHectare: number;
+  grainYieldKgPerHectare: number;
+  grossHarvest: number;
+  postHarvestLoss: number;
+  netDomesticProduction: number;
+  foodImports: number;
+  foodExports: number;
+  strategicReserveStock: number;
+  monthlyReserveChange: number;
+  reserveCoverageMonths: number;
+  availableFoodSupply: number;
+  selfSufficiencyRate: number;
+  foodSecurityCoverage: number;
+  rationCoverageRate: number;
+  ruralIncomePerWorker: number;
+  dailyCaloriesPerCapita: number;
+  nutritionStressIndex: number;
+  massBalanceError: number;
 }
 
 export interface SocietyState {

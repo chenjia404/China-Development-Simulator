@@ -77,6 +77,16 @@ export function recordHistory(state: GameState): void {
     currentAccountBalance:
       nation.financialSystem.balanceOfPayments.currentAccountBalance,
     officialExchangeRate: nation.financialSystem.officialExchangeRate,
+    cultivatedLandHectares:
+      nation.resources.agriculture.cultivatedLandHectares,
+    grainYieldKgPerHectare:
+      nation.resources.agriculture.grainYieldKgPerHectare,
+    strategicFoodReserve:
+      nation.resources.agriculture.strategicReserveStock,
+    foodSelfSufficiencyRate:
+      nation.resources.agriculture.selfSufficiencyRate,
+    dailyCaloriesPerCapita:
+      nation.resources.agriculture.dailyCaloriesPerCapita,
     unemploymentRate: nation.labor.unemploymentRate,
     foreignExchangeReserves: nation.trade.foreignExchangeReserves,
     remittanceInflows: nation.trade.remittanceInflows,

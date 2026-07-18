@@ -25,6 +25,11 @@ export interface MonthlySnapshot {
   nonPerformingLoanRatio: number;
   currentAccountBalance: number;
   officialExchangeRate: number;
+  cultivatedLandHectares: number;
+  grainYieldKgPerHectare: number;
+  strategicFoodReserve: number;
+  foodSelfSufficiencyRate: number;
+  dailyCaloriesPerCapita: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;

@@ -141,6 +141,19 @@ export function validateGameState(state: GameState): void {
     financial.balanceOfPayments.identityError /
       Math.max(1, Math.abs(financial.balanceOfPayments.reserveAssetChange)) > 1e-10
   ) throw new Error("国际收支表未守恒");
+  const agriculture = nation.resources.agriculture;
+  if (
+    agriculture.cultivatedLandHectares <= 0 ||
+    agriculture.grainYieldKgPerHectare <= 0 ||
+    agriculture.strategicReserveStock < 0 ||
+    agriculture.foodSecurityCoverage < 0 ||
+    agriculture.rationCoverageRate < 0 ||
+    agriculture.rationCoverageRate > 1
+  ) throw new Error("农业农村账户出现无效实物存量或比例");
+  if (
+    agriculture.massBalanceError /
+      Math.max(1, agriculture.availableFoodSupply) > 1e-10
+  ) throw new Error("粮食供需库存账户未守恒");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

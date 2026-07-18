@@ -1374,6 +1374,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年 M2 ${historical.finalState.nation.financialSystem.monetary.broadMoney.toFixed(0)}、贷款 ${historical.finalState.nation.financialSystem.banking.totalLoans.toFixed(0)}、不良率 ${(historical.finalState.nation.financialSystem.banking.nonPerformingLoanRatio * 100).toFixed(2)}%、国际收支误差 ${historical.finalState.nation.financialSystem.balanceOfPayments.identityError.toFixed(4)}`,
     ),
     makeCheck(
+      "agriculture-rural-food-security",
+      "农业土地、单产、粮食库存、农村收入与营养账户保持实物守恒",
+      historical.finalState.nation.resources.agriculture.cultivatedLandHectares > 90_000_000 &&
+        historical.finalState.nation.resources.agriculture.grainYieldKgPerHectare > 0 &&
+        historical.finalState.nation.resources.agriculture.strategicReserveStock >= 0 &&
+        historical.finalState.nation.resources.agriculture.massBalanceError < 0.01,
+      `2026 年耕地 ${(historical.finalState.nation.resources.agriculture.cultivatedLandHectares / 10_000).toFixed(0)} 万公顷、单产 ${historical.finalState.nation.resources.agriculture.grainYieldKgPerHectare.toFixed(0)} 千克/公顷、储备覆盖 ${historical.finalState.nation.resources.agriculture.reserveCoverageMonths.toFixed(1)} 个月、每日 ${historical.finalState.nation.resources.agriculture.dailyCaloriesPerCapita.toFixed(0)} 千卡`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

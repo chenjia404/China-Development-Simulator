@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "description": "农业土地、投入、粮食库存、农村收入和营养安全参数。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://www.fao.org/faostat/en/#data"
+    ]
+  },
+  "initialCultivatedLandHectares": 108000000,
+  "minimumCultivatedLandHectares": 95000000,
+  "initialStrategicReserveStock": 4500000,
+  "targetReserveCoverageMonths": 5,
+  "maximumMonthlyReserveReleaseShare": 0.12,
+  "maximumMonthlyReserveAccumulationShare": 0.08,
+  "basePostHarvestLossRate": 0.075,
+  "minimumPostHarvestLossRate": 0.025,
+  "baseDailyCalories": 1650,
+  "maximumDailyCalories": 3300,
+  "annualLandUrbanizationLossRate": 0.0016,
+  "annualLandProtectionRecoveryRate": 0.0009
+}

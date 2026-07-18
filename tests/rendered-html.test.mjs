@@ -298,3 +298,16 @@ test("客户端展示货币银行、汇率与国际收支账户", async () => {
   assert.match(source, /经常账户/);
   assert.match(source, /官方汇率/);
 });
+
+test("客户端展示农业农村、粮食库存与营养安全", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /农业农村与粮食安全/);
+  assert.match(source, /战略粮食储备/);
+  assert.match(source, /粮食单产/);
+  assert.match(source, /综合粮食保障/);
+  assert.match(source, /人均营养供给/);
+});

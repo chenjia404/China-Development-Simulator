@@ -508,6 +508,23 @@ function DemographicDetailPanel({ game }: { game: GameState }) {
   );
 }
 
+function AgricultureSystemPanel({ game }: { game: GameState }) {
+  const agriculture = game.nation.resources.agriculture;
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading"><div><span className="eyebrow">土地 · 单产 · 库存 · 营养</span><h2>农业农村与粮食安全</h2></div><span>自给率 {formatPercent(agriculture.selfSufficiencyRate)}</span></div>
+    <div className="detail-grid">
+      <article><span>耕地面积</span><strong>{formatLarge(agriculture.cultivatedLandHectares)} 公顷</strong><p>灌溉覆盖 {formatPercent(agriculture.irrigatedLandRate)}</p></article>
+      <article><span>粮食单产</span><strong>{formatLarge(agriculture.grainYieldKgPerHectare)} 千克/公顷</strong><p>机械化率 {formatPercent(agriculture.mechanizationRate)}</p></article>
+      <article><span>战略粮食储备</span><strong>{formatLarge(agriculture.strategicReserveStock)} 吨</strong><p>可覆盖 {agriculture.reserveCoverageMonths.toFixed(1)} 个月</p></article>
+      <article><span>综合粮食保障</span><strong>{formatPercent(agriculture.foodSecurityCoverage)}</strong><p>配给覆盖 {formatPercent(agriculture.rationCoverageRate)}</p></article>
+      <article><span>粮食进出口</span><strong>{formatLarge(agriculture.foodImports)} / {formatLarge(agriculture.foodExports)} 吨</strong><p>进口 / 出口年度流量</p></article>
+      <article><span>人均营养供给</span><strong>{formatLarge(agriculture.dailyCaloriesPerCapita)} 千卡/日</strong><p>营养压力 {formatPercent(agriculture.nutritionStressIndex)}</p></article>
+      <article><span>农村劳动收入</span><strong>{formatLarge(agriculture.ruralIncomePerWorker)}</strong><p>第一产业劳动报酬口径</p></article>
+      <article><span>收获后损失</span><strong>{formatLarge(agriculture.postHarvestLoss)} 吨</strong><p>总收获到净产量的损耗</p></article>
+    </div>
+  </section>;
+}
+
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
@@ -522,7 +539,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <DemographicDetailPanel game={game} /> : null}{section === "fiscal" ? <BudgetPanel game={game} busy={false} /> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game }: { game: GameState }) {

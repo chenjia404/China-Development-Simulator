@@ -33,6 +33,10 @@ import {
   createEmptyFinancialSystemState,
   updateFinancialSystem,
 } from "../economy/monetary-financial";
+import {
+  createEmptyAgricultureSystemState,
+  updateAgricultureSystem,
+} from "../economy/agriculture-rural";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -216,6 +220,7 @@ export function createInitialGameState(
         foodProduction: 113_000_000,
         foodDemand: 120_000_000,
         foodSupplyRatio: 0.942,
+        agriculture: createEmptyAgricultureSystemState(),
         energySupply: 24,
         energyDemand: 25,
         energySupplyRatio: 0.96,
@@ -316,6 +321,7 @@ export function createInitialGameState(
     world: createInitialWorldState(),
   };
   updateNationalAccounts(state.nation);
+  updateAgricultureSystem(state.nation, true);
   updateEnterpriseSectors(state.nation);
   updateFiscalFederalism(state.nation);
   ensureMarketDynamicsState(state.nation);
