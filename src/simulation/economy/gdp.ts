@@ -2,6 +2,7 @@ import { safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { calculateCurrentPriceGDPPerCapita } from "./historical-accounting";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { remittanceDomesticIncome } from "./foreign-exchange";
 
 export function calculateGDP(nation: NationState): void {
   const previousRealGDP = nation.economy.realGDP;
@@ -33,7 +34,8 @@ export function calculateGDP(nation: NationState): void {
   const monthlyGrowth = safeDivide(realGDP, previousRealGDP, 1) - 1;
   nation.economy.annualRealGDPGrowth = (1 + monthlyGrowth) ** 12 - 1;
 
-  nation.economy.householdIncome = realGDP * 0.52;
+  nation.economy.householdIncome =
+    realGDP * 0.52 + remittanceDomesticIncome(nation);
   const disposableIncome = nation.economy.householdIncome *
     (1 - nation.fiscal.effectiveTaxRate);
   const consumptionPropensity = Math.max(

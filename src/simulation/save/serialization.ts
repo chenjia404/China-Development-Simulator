@@ -7,6 +7,7 @@ import {
 import { ensureDiplomacyState } from "../diplomacy/diplomacy";
 import { ensureHistoricalEventState } from "../events/historical-event-engine";
 import { ensureHistoricalAccountingState } from "../economy/historical-accounting";
+import { ensureForeignExchangeState } from "../economy/foreign-exchange";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -47,5 +48,6 @@ export function deserializeGameState(serialized: string): GameState {
   ensureDiplomacyState(state);
   ensureHistoricalEventState(state.nation);
   ensureHistoricalAccountingState(state);
+  ensureForeignExchangeState(state);
   return state;
 }

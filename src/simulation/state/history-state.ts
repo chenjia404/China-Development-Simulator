@@ -6,6 +6,8 @@ export interface MonthlySnapshot {
   nominalGDP: number;
   inflationRate: number;
   unemploymentRate: number;
+  foreignExchangeReserves: number;
+  remittanceInflows: number;
 }
 
 export interface AnnualSnapshot extends MonthlySnapshot {

@@ -175,6 +175,11 @@ export function createInitialGameState(
         balance: -500_000_000,
         openness: 0.05,
         foreignInvestment: 0,
+        foreignExchangeReserves: 150_000_000,
+        monthlyReserveChange: 0,
+        remittanceInflows: 200_000_000,
+        remittanceReserveContribution: 90_000_000,
+        importCoverageMonths: 0.72,
       },
       diplomacy: {
         diplomaticPoints: diplomacyConfig.initialDiplomaticPoints,

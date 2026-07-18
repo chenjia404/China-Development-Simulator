@@ -4,6 +4,7 @@ import { applyPolicyModifiers } from "../policies/policy-engine";
 import type { GameState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { diplomaticStrategyEffects } from "../diplomacy/diplomatic-strategy";
+import { reserveImportCapacityMultiplier } from "./foreign-exchange";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -107,7 +108,8 @@ export function updateInternationalTrade(state: GameState): void {
     nation.economy.nominalGDP *
       (0.012 + nation.trade.openness * 0.11) *
       resourceImportPressure *
-      clamp(access.marketAccessMultiplier, 0.35, 1.35),
+      clamp(access.marketAccessMultiplier, 0.35, 1.35) *
+      reserveImportCapacityMultiplier(nation),
   );
 
   nation.trade.exports = approach(nation.trade.exports, targetExports, 0.04);

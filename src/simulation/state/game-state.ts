@@ -152,6 +152,11 @@ export interface TradeState {
   balance: number;
   openness: number;
   foreignInvestment: number;
+  foreignExchangeReserves: number;
+  monthlyReserveChange: number;
+  remittanceInflows: number;
+  remittanceReserveContribution: number;
+  importCoverageMonths: number;
 }
 
 export interface DiplomacyState {

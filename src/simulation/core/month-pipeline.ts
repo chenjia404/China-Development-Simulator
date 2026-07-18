@@ -27,6 +27,7 @@ import { checkRandomEvents } from "../events/event-engine";
 import { advanceModifiers } from "../events/modifiers";
 import { updateDiplomacy } from "../diplomacy/diplomacy";
 import { updateInternationalTrade } from "../economy/trade";
+import { updateForeignExchange } from "../economy/foreign-exchange";
 import { checkHistoricalEvents } from "../events/historical-event-engine";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
@@ -51,6 +52,7 @@ export function simulateMonth(
   calculateIndustryOutputs(state.nation);
   calculateGDP(state.nation);
   updateInternationalTrade(state);
+  updateForeignExchange(state);
   calculateFiscalRevenue(state.nation);
   calculateFiscalSpending(state.nation);
   updateDebt(state.nation);

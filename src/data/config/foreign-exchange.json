@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "description": "外汇储备与侨汇的长期平滑参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。",
+    "sources": [
+      "https://www.safe.gov.cn/safe/whcb/",
+      "https://data.worldbank.org/indicator/BX.TRF.PWKR.CD.DT?locations=CN",
+      "https://www.gqb.gov.cn/node2/node3/node5/node9/node102/userobject7ai1564.html",
+      "https://policy.mofcom.gov.cn/claw/clawContent.shtml?id=36605"
+    ]
+  },
+  "initialForeignExchangeReserves": 150000000,
+  "initialRemittanceInflows": 200000000,
+  "remittanceAdjustmentSpeed": 0.08,
+  "remittanceSettlementRetentionRate": 0.45,
+  "remittanceHouseholdIncomePassThrough": 0.92,
+  "tradeSurplusRetentionRate": 0.012,
+  "tradeDeficitCoverageRate": 0.08,
+  "foreignInvestmentRetentionRate": 0.04,
+  "annualReserveInvestmentReturn": 0.01,
+  "reserveAnchorAdjustmentRate": 0.08,
+  "maximumReserveToComparableGDP": 0.2,
+  "reserveGDPShareAnchors": [
+    { "year": 1949, "share": 0.0012 },
+    { "year": 1978, "share": 0.005 },
+    { "year": 1990, "share": 0.04 },
+    { "year": 2000, "share": 0.045 },
+    { "year": 2010, "share": 0.35 },
+    { "year": 2014, "share": 0.28 },
+    { "year": 2024, "share": 0.11 },
+    { "year": 2026, "share": 0.11 }
+  ],
+  "remittanceGDPShareAnchors": [
+    { "year": 1949, "share": 0.0016 },
+    { "year": 1955, "share": 0.0021 },
+    { "year": 1966, "share": 0.0008 },
+    { "year": 1979, "share": 0.00175 },
+    { "year": 1981, "share": 0.0012 },
+    { "year": 1995, "share": 0.0022 },
+    { "year": 2005, "share": 0.0035 },
+    { "year": 2010, "share": 0.003 },
+    { "year": 2024, "share": 0.0017 },
+    { "year": 2026, "share": 0.0017 }
+  ]
+}
