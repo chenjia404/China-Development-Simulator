@@ -656,9 +656,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "development-route-blueprints",
-      "五组发展蓝图只提供可自由调整的合法推荐组合",
+      "六组发展蓝图只提供可自由调整的合法推荐组合",
       developmentBlueprintValidationError === null &&
-        developmentRouteBlueprints.length === 5 &&
+        developmentRouteBlueprints.length === 6 &&
         developmentRouteBlueprints.every((blueprint) => {
           const decision = getAnnualDecision(
             blueprint.id as StrategyId,
@@ -674,8 +674,10 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "development-route-differences",
-      "台港新美日参考路线形成可辨识的产业、开放、教育和财政取舍",
-      hongKongRoute.finalState.nation.trade.openness >
+      "韩台港新美日参考路线形成可辨识的产业、开放、教育和财政取舍",
+      koreanCatchUp2000.secondarySectorShare >
+          singaporeRoute2000.secondarySectorShare &&
+        hongKongRoute.finalState.nation.trade.openness >
           taiwanRoute.finalState.nation.trade.openness &&
         hongKongRoute2000.tertiarySectorShare >
           taiwanRoute2000.tertiarySectorShare &&
@@ -684,7 +686,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           taiwanRoute.finalState.nation.fiscal.debtToGDP &&
         japanRoute2000.secondarySectorShare >
           singaporeRoute2000.secondarySectorShare,
-      `2026 年开放度：香港 ${(hongKongRoute.finalState.nation.trade.openness * 100).toFixed(1)}%/台湾 ${(taiwanRoute.finalState.nation.trade.openness * 100).toFixed(1)}%；2000 年教育指数：新加坡 ${singaporeRoute2000.educationIndex.toFixed(1)}/香港 ${hongKongRoute2000.educationIndex.toFixed(1)}；2026 年债务率：美国 ${(usRoute.finalState.nation.fiscal.debtToGDP * 100).toFixed(1)}%；2000 年二产占比：日本 ${(japanRoute2000.secondarySectorShare * 100).toFixed(1)}%/新加坡 ${(singaporeRoute2000.secondarySectorShare * 100).toFixed(1)}%`,
+      `2000 年二产占比：韩国 ${(koreanCatchUp2000.secondarySectorShare * 100).toFixed(1)}%/新加坡 ${(singaporeRoute2000.secondarySectorShare * 100).toFixed(1)}%；2026 年开放度：香港 ${(hongKongRoute.finalState.nation.trade.openness * 100).toFixed(1)}%/台湾 ${(taiwanRoute.finalState.nation.trade.openness * 100).toFixed(1)}%；2000 年教育指数：新加坡 ${singaporeRoute2000.educationIndex.toFixed(1)}/香港 ${hongKongRoute2000.educationIndex.toFixed(1)}；2026 年债务率：美国 ${(usRoute.finalState.nation.fiscal.debtToGDP * 100).toFixed(1)}%；2000 年二产占比：日本 ${(japanRoute2000.secondarySectorShare * 100).toFixed(1)}%/新加坡 ${(singaporeRoute2000.secondarySectorShare * 100).toFixed(1)}%`,
     ),
     makeCheck(
       "diplomacy-trade-link",

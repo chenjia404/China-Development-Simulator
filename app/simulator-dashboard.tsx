@@ -301,7 +301,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
         <div>
           <span className="eyebrow">快捷组合 · 不锁定路线</span>
           <h2>经济发展蓝图</h2>
-          <p>参考台湾、香港、新加坡、美国和日本的发展经验。一键采用后仍可逐项取消、替换或跨蓝图混搭。</p>
+          <p>参考韩国、台湾、香港、新加坡、美国和日本的发展经验。一键采用后仍可逐项取消、替换或跨蓝图混搭。</p>
         </div>
       </div>
       <div className="route-blueprint-grid">

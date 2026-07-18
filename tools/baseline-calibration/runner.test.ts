@@ -105,8 +105,9 @@ describe("无界面批量模拟器", () => {
     ).toBe("protect_institutions");
   });
 
-  it("五条参考发展路线稳定运行并形成不同的结构特征", () => {
+  it("六条参考发展路线稳定运行并形成不同的结构特征", () => {
     const strategyIds = [
+      "korean_catch_up",
       "taiwan_sme_export",
       "hong_kong_free_port",
       "singapore_fdi_city",
@@ -130,6 +131,7 @@ describe("无界面批量模拟器", () => {
       )?.choiceId).toBe("protect_institutions");
     }
 
+    const korea = results.get("korean_catch_up")!.finalState.nation;
     const taiwan = results.get("taiwan_sme_export")!.finalState.nation;
     const hongKong = results.get("hong_kong_free_port")!.finalState.nation;
     const singapore = results.get("singapore_fdi_city")!.finalState.nation;
@@ -143,6 +145,11 @@ describe("无界面批量模拟器", () => {
     );
     expect(singapore.education.index).toBeGreaterThan(hongKong.education.index);
     expect(us.fiscal.debtToGDP).toBeGreaterThan(taiwan.fiscal.debtToGDP);
+    expect(
+      korea.sectors.secondary.valueAdded / korea.economy.realGDP,
+    ).toBeGreaterThan(
+      singapore.sectors.secondary.valueAdded / singapore.economy.realGDP,
+    );
     expect(
       japan.sectors.secondary.valueAdded / japan.economy.realGDP,
     ).toBeGreaterThan(

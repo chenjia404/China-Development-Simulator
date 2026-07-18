@@ -35,7 +35,7 @@ test("客户端构建包含自由调整的发展路线蓝图", async () => {
   const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
   assert.match(source, /快捷组合/);
   assert.match(source, /不锁定路线/);
-  assert.match(source, /台湾、香港、新加坡、美国和日本/);
+  assert.match(source, /韩国、台湾、香港、新加坡、美国和日本/);
   assert.match(source, /采用推荐组合/);
   assert.match(source, /仍可逐项调整和跨路线混搭/);
 });

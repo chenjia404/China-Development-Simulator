@@ -1,5 +1,14 @@
 [
   {
+    "id": "korean_catch_up",
+    "name": "出口工业化追赶路线",
+    "referenceEconomy": "韩国",
+    "summary": "以发展型金融、职业技能、出口工业区和国际市场推动资本积累与制造升级。",
+    "policyIds": ["developmental_finance", "vocational_technical_education", "expand_opening", "export_oriented", "export_industrial_zones"],
+    "strengths": ["高储蓄与资本形成", "制造业就业", "出口学习"],
+    "tradeoffs": ["居民消费受压", "能源与外需依赖", "产业倾斜"]
+  },
+  {
     "id": "taiwan_sme_export",
     "name": "中小企业出口路线",
     "referenceEconomy": "台湾",
