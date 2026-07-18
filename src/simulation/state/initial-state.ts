@@ -45,6 +45,10 @@ import {
   createEmptyHumanDevelopmentState,
   updateHumanDevelopment,
 } from "../society/human-development";
+import {
+  createEmptyUrbanHousingState,
+  updateUrbanHousing,
+} from "../society/housing-urbanization";
 
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
@@ -243,6 +247,7 @@ export function createInitialGameState(
         urbanizationRate: 0.1064,
         medianDisposableIncome: 85,
         housingIndex: 18,
+        urbanHousing: createEmptyUrbanHousingState(),
       },
       trade: {
         exports: 2_000_000_000,
@@ -334,6 +339,7 @@ export function createInitialGameState(
   updateAgricultureSystem(state.nation, true);
   updateInfrastructureResources(state.nation, true);
   updateHumanDevelopment(state.nation);
+  updateUrbanHousing(state.nation, true);
   updateEnterpriseSectors(state.nation);
   updateFiscalFederalism(state.nation);
   ensureMarketDynamicsState(state.nation);

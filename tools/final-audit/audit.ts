@@ -1404,6 +1404,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年高等教育入学率 ${(historical.finalState.nation.humanDevelopment.educationStages.higher.enrollmentRate * 100).toFixed(1)}%、高级技能与科研占比 ${((historical.finalState.nation.humanDevelopment.laborSkills.advanced.laborForce + historical.finalState.nation.humanDevelopment.laborSkills.research.laborForce) / historical.finalState.nation.labor.laborForce * 100).toFixed(1)}%、健康预期寿命 ${historical.finalState.nation.humanDevelopment.healthyLifeExpectancy.toFixed(1)} 岁`,
     ),
     makeCheck(
+      "housing-land-urbanization",
+      "住房建设拆除、家庭需求、土地转用和城市服务承载形成库存账户",
+      historical.finalState.nation.society.urbanHousing.urbanHousingUnits > 0 &&
+        historical.finalState.nation.society.urbanHousing.housingStockError /
+          historical.finalState.nation.society.urbanHousing.urbanHousingUnits < 1e-10 &&
+        historical.finalState.nation.society.urbanHousing.homePriceIndex > 0 &&
+        historical.finalState.nation.society.urbanHousing.urbanServiceCoverage >= 0,
+      `2026 年城镇住房 ${historical.finalState.nation.society.urbanHousing.urbanHousingUnits.toFixed(0)} 套、短缺 ${historical.finalState.nation.society.urbanHousing.housingShortageUnits.toFixed(0)} 套、房价收入比 ${historical.finalState.nation.society.urbanHousing.priceToIncomeRatio.toFixed(1)}、服务覆盖 ${(historical.finalState.nation.society.urbanHousing.urbanServiceCoverage * 100).toFixed(1)}%`,
+    ),
+    makeCheck(
       "historical-timeline",
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&

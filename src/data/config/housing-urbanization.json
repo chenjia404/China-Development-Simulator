@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "description": "城镇住房存量、建设拆除、房价租金、土地转用和公共服务参数。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://data.stats.gov.cn/easyquery.htm?cn=C01"
+    ]
+  },
+  "initialHousingCoverage": 0.82,
+  "annualDemolitionRate": 0.008,
+  "constructionUnitsPerBillion": 720,
+  "averageFloorAreaPerUnit": 78,
+  "floorAreaPerLandHectare": 18500,
+  "baseVacancyTarget": 0.08,
+  "maximumPriceToIncomeRatio": 35
+}

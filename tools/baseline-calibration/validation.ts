@@ -173,6 +173,15 @@ export function validateGameState(state: GameState): void {
     humanDevelopment.healthyLifeExpectancy > nation.health.lifeExpectancy ||
     humanDevelopment.healthRelatedLaborLoss < 0
   ) throw new Error("教育劳动力医疗细账未守恒或出现无效指标");
+  const housing = nation.society.urbanHousing;
+  if (
+    housing.urbanHousingUnits <= 0 ||
+    housing.occupiedUnits < 0 ||
+    housing.vacantUnits < 0 ||
+    housing.homePriceIndex <= 0 ||
+    housing.urbanServiceCoverage < 0 ||
+    housing.housingStockError / Math.max(1, housing.urbanHousingUnits) > 1e-10
+  ) throw new Error("住房土地城市化账户无效或住房存量未守恒");
   if (
     market.consumerPriceIndex <= 0 ||
     market.producerPriceIndex <= 0 ||

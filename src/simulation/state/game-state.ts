@@ -382,6 +382,30 @@ export interface SocietyState {
   urbanizationRate: number;
   medianDisposableIncome: number;
   housingIndex: number;
+  urbanHousing: UrbanHousingState;
+}
+
+/** 城镇住房存量、家庭需求、土地转用与公共服务承载账户。 */
+export interface UrbanHousingState {
+  urbanHousingUnits: number;
+  occupiedUnits: number;
+  vacantUnits: number;
+  annualNewCompletions: number;
+  monthlyDemolitions: number;
+  housingDemandHouseholds: number;
+  housingShortageUnits: number;
+  vacancyRate: number;
+  homePriceIndex: number;
+  rentIndex: number;
+  priceToIncomeRatio: number;
+  rentBurdenRate: number;
+  mortgageDebt: number;
+  annualLandConversionHectares: number;
+  annualLandLeaseRevenue: number;
+  informalHousingShare: number;
+  urbanServiceCapacity: number;
+  urbanServiceCoverage: number;
+  housingStockError: number;
 }
 
 export interface TradeState {

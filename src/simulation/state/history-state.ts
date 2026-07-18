@@ -39,6 +39,11 @@ export interface MonthlySnapshot {
   skillMismatchRate: number;
   healthyLifeExpectancy: number;
   healthRelatedLaborLoss: number;
+  urbanHousingUnits: number;
+  housingShortageUnits: number;
+  homePriceIndex: number;
+  priceToIncomeRatio: number;
+  urbanServiceCoverage: number;
   unemploymentRate: number;
   foreignExchangeReserves: number;
   remittanceInflows: number;
