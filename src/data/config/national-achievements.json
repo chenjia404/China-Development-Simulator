@@ -1,0 +1,782 @@
+{
+  "settings": {
+    "unlockScore": 1,
+    "rushScore": 0.75,
+    "maxActiveBreakthroughs": 1,
+    "metricRatioCap": 1.25,
+    "minBreakthroughMonths": 6
+  },
+  "achievements": [
+    {
+      "id": "atomic_bomb",
+      "name": "第一颗原子弹",
+      "category": "战略核导",
+      "description": "在工业、科研与国防资本达到史实锚点能力后，实现首次核爆突破。能力占优可提前解锁；也可在接近门槛时集中突破。",
+      "historicalHint": {
+        "year": 1964,
+        "month": 10
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 36,
+      "metrics": [
+        {
+          "id": "technologyIndex",
+          "weight": 1.2
+        },
+        {
+          "id": "educationIndex",
+          "weight": 0.8
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 0.8
+        },
+        {
+          "id": "defenseReadinessIndex",
+          "weight": 1.1
+        },
+        {
+          "id": "defenseCapitalStock",
+          "weight": 1.2
+        },
+        {
+          "id": "equipmentModernizationRate",
+          "weight": 0.9
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1
+        }
+      ],
+      "baseline": {
+        "technologyIndex": 13.9,
+        "educationIndex": 26.4,
+        "infrastructureIndex": 18.8,
+        "defenseReadinessIndex": 28.4,
+        "defenseCapitalStock": 19397458567,
+        "equipmentModernizationRate": 0.111,
+        "aerospaceReadiness": 0.065
+      },
+      "effects": [
+        "战略威慑上升",
+        "国际安全认知改变"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.securityTarget",
+          "operation": "add",
+          "value": 6,
+          "durationMonths": 120
+        },
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 2,
+          "durationMonths": 60
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.012
+        },
+        {
+          "target": "capital.privateInvestment",
+          "operation": "multiply",
+          "value": 0.992
+        }
+      ]
+    },
+    {
+      "id": "hydrogen_bomb",
+      "name": "氢弹",
+      "category": "战略核导",
+      "description": "在原子弹能力之上继续提高热核研制与试验组织能力。",
+      "historicalHint": {
+        "year": 1967,
+        "month": 6
+      },
+      "prerequisiteIds": [
+        "atomic_bomb"
+      ],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 24,
+      "metrics": [
+        {
+          "id": "technologyIndex",
+          "weight": 1.2
+        },
+        {
+          "id": "educationIndex",
+          "weight": 0.8
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 0.7
+        },
+        {
+          "id": "defenseReadinessIndex",
+          "weight": 1.1
+        },
+        {
+          "id": "defenseCapitalStock",
+          "weight": 1.1
+        },
+        {
+          "id": "equipmentModernizationRate",
+          "weight": 1
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1
+        }
+      ],
+      "baseline": {
+        "technologyIndex": 15.8,
+        "educationIndex": 28.9,
+        "infrastructureIndex": 21,
+        "defenseReadinessIndex": 31.4,
+        "defenseCapitalStock": 30910605405,
+        "equipmentModernizationRate": 0.126,
+        "aerospaceReadiness": 0.074
+      },
+      "effects": [
+        "战略威慑进一步巩固"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.securityTarget",
+          "operation": "add",
+          "value": 4,
+          "durationMonths": 96
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.01
+        },
+        {
+          "target": "capital.privateInvestment",
+          "operation": "multiply",
+          "value": 0.994
+        }
+      ]
+    },
+    {
+      "id": "first_satellite",
+      "name": "第一颗人造卫星",
+      "category": "航天深空",
+      "description": "系统工程、运载与测控能力达到史实锚点后发射首星。",
+      "historicalHint": {
+        "year": 1970,
+        "month": 4
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 30,
+      "metrics": [
+        {
+          "id": "technologyIndex",
+          "weight": 1.3
+        },
+        {
+          "id": "educationIndex",
+          "weight": 0.9
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 0.8
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1.4
+        },
+        {
+          "id": "defenseCapitalStock",
+          "weight": 0.8
+        },
+        {
+          "id": "equipmentModernizationRate",
+          "weight": 0.8
+        }
+      ],
+      "baseline": {
+        "technologyIndex": 17.6,
+        "educationIndex": 31,
+        "infrastructureIndex": 23.2,
+        "aerospaceReadiness": 0.083,
+        "defenseCapitalStock": 47495710205,
+        "equipmentModernizationRate": 0.14
+      },
+      "effects": [
+        "航天系统能力外溢",
+        "国际声誉提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 3,
+          "durationMonths": 84
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.01
+        }
+      ]
+    },
+    {
+      "id": "icbm",
+      "name": "洲际导弹",
+      "category": "战略核导",
+      "description": "在核能力与航天运载能力基础上形成远程战略投送。",
+      "historicalHint": {
+        "year": 1971,
+        "month": 9
+      },
+      "prerequisiteIds": [
+        "atomic_bomb"
+      ],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 42,
+      "metrics": [
+        {
+          "id": "technologyIndex",
+          "weight": 1.2
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1.5
+        },
+        {
+          "id": "defenseReadinessIndex",
+          "weight": 1.1
+        },
+        {
+          "id": "defenseCapitalStock",
+          "weight": 1.1
+        },
+        {
+          "id": "equipmentModernizationRate",
+          "weight": 1
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 0.7
+        }
+      ],
+      "baseline": {
+        "technologyIndex": 18.5,
+        "aerospaceReadiness": 0.09,
+        "defenseReadinessIndex": 34.5,
+        "defenseCapitalStock": 60000000000,
+        "equipmentModernizationRate": 0.15,
+        "infrastructureIndex": 24.5
+      },
+      "effects": [
+        "战略纵深与安全目标提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.securityTarget",
+          "operation": "add",
+          "value": 5,
+          "durationMonths": 120
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.014
+        },
+        {
+          "target": "capital.privateInvestment",
+          "operation": "multiply",
+          "value": 0.99
+        }
+      ]
+    },
+    {
+      "id": "first_olympic_gold",
+      "name": "奥运首金",
+      "category": "软实力",
+      "description": "改革开放后竞技体育与对外开放达到史实锚点能力。",
+      "historicalHint": {
+        "year": 1984,
+        "month": 7
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": false,
+      "breakthroughDurationMonths": 12,
+      "metrics": [
+        {
+          "id": "educationIndex",
+          "weight": 1
+        },
+        {
+          "id": "happinessIndex",
+          "weight": 1
+        },
+        {
+          "id": "globalReputation",
+          "weight": 1.2
+        },
+        {
+          "id": "urbanizationRate",
+          "weight": 0.9
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 0.8
+        },
+        {
+          "id": "openness",
+          "weight": 0.8
+        }
+      ],
+      "baseline": {
+        "educationIndex": 42,
+        "happinessIndex": 57,
+        "globalReputation": 48.5,
+        "urbanizationRate": 0.263,
+        "infrastructureIndex": 33.8,
+        "openness": 0.075
+      },
+      "effects": [
+        "国际体育声誉提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 2,
+          "durationMonths": 48
+        }
+      ],
+      "breakthroughModifiers": []
+    },
+    {
+      "id": "manned_spaceflight",
+      "name": "载人航天",
+      "category": "航天深空",
+      "description": "航天器、测控与高可靠系统工程达到载人飞行门槛。",
+      "historicalHint": {
+        "year": 2003,
+        "month": 10
+      },
+      "prerequisiteIds": [
+        "first_satellite"
+      ],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 48,
+      "metrics": [
+        {
+          "id": "technologyIndex",
+          "weight": 1.2
+        },
+        {
+          "id": "educationIndex",
+          "weight": 1
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1.5
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 1
+        },
+        {
+          "id": "institutionalEfficiency",
+          "weight": 0.9
+        },
+        {
+          "id": "stabilityIndex",
+          "weight": 0.8
+        }
+      ],
+      "baseline": {
+        "technologyIndex": 97.4,
+        "educationIndex": 59.6,
+        "aerospaceReadiness": 0.308,
+        "infrastructureIndex": 48.7,
+        "institutionalEfficiency": 0.467,
+        "stabilityIndex": 70.6
+      },
+      "effects": [
+        "高端系统工程能力外溢",
+        "国际声誉提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 4,
+          "durationMonths": 72
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.012
+        }
+      ]
+    },
+    {
+      "id": "j10_fighter",
+      "name": "第三代主力战机",
+      "category": "航空海军",
+      "description": "航空工业、航电与装备现代化达到第三代战斗机量产能力。",
+      "historicalHint": {
+        "year": 2004,
+        "month": 3
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 48,
+      "metrics": [
+        {
+          "id": "technologyIndex",
+          "weight": 1.1
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1.4
+        },
+        {
+          "id": "equipmentModernizationRate",
+          "weight": 1.3
+        },
+        {
+          "id": "defenseReadinessIndex",
+          "weight": 1
+        },
+        {
+          "id": "defenseCapitalStock",
+          "weight": 1
+        },
+        {
+          "id": "educationIndex",
+          "weight": 0.8
+        }
+      ],
+      "baseline": {
+        "technologyIndex": 98.5,
+        "aerospaceReadiness": 0.312,
+        "equipmentModernizationRate": 0.68,
+        "defenseReadinessIndex": 57.2,
+        "defenseCapitalStock": 4800000000000,
+        "educationIndex": 60.5
+      },
+      "effects": [
+        "装备现代化与航空工业就绪度提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.securityTarget",
+          "operation": "add",
+          "value": 3,
+          "durationMonths": 84
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.01
+        }
+      ]
+    },
+    {
+      "id": "olympics_summer",
+      "name": "夏季奥运会",
+      "category": "软实力",
+      "description": "城市化、基建、财政与国际声誉达到承办夏季奥运会的国力门槛。",
+      "historicalHint": {
+        "year": 2008,
+        "month": 8
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 60,
+      "metrics": [
+        {
+          "id": "urbanizationRate",
+          "weight": 1.3
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 1.3
+        },
+        {
+          "id": "globalReputation",
+          "weight": 1.1
+        },
+        {
+          "id": "happinessIndex",
+          "weight": 0.9
+        },
+        {
+          "id": "foreignExchangeReserves",
+          "weight": 1
+        },
+        {
+          "id": "openness",
+          "weight": 0.9
+        },
+        {
+          "id": "educationIndex",
+          "weight": 0.7
+        }
+      ],
+      "baseline": {
+        "urbanizationRate": 0.499,
+        "infrastructureIndex": 52.3,
+        "globalReputation": 52.4,
+        "happinessIndex": 70.1,
+        "foreignExchangeReserves": 420098317054,
+        "openness": 0.438,
+        "educationIndex": 63.9
+      },
+      "effects": [
+        "国际声誉与城市服务软提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 5,
+          "durationMonths": 60
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.015
+        },
+        {
+          "target": "capital.privateInvestment",
+          "operation": "multiply",
+          "value": 0.995
+        }
+      ]
+    },
+    {
+      "id": "hsr_network",
+      "name": "高铁成网",
+      "category": "超级基建",
+      "description": "铁路装备、电力与城市化达到高速铁路成网门槛。",
+      "historicalHint": {
+        "year": 2012,
+        "month": 12
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 72,
+      "metrics": [
+        {
+          "id": "infrastructureIndex",
+          "weight": 1.4
+        },
+        {
+          "id": "logisticsEfficiencyIndex",
+          "weight": 1.2
+        },
+        {
+          "id": "urbanizationRate",
+          "weight": 1.1
+        },
+        {
+          "id": "technologyIndex",
+          "weight": 0.9
+        },
+        {
+          "id": "railNetworkKm",
+          "weight": 1.1
+        },
+        {
+          "id": "educationIndex",
+          "weight": 0.7
+        }
+      ],
+      "baseline": {
+        "infrastructureIndex": 55.2,
+        "logisticsEfficiencyIndex": 45.069,
+        "urbanizationRate": 0.539,
+        "technologyIndex": 100,
+        "railNetworkKm": 152956,
+        "educationIndex": 67.3
+      },
+      "effects": [
+        "物流效率与城市化惯性提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 1,
+          "durationMonths": 48
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.016
+        }
+      ]
+    },
+    {
+      "id": "aircraft_carrier",
+      "name": "航空母舰服役",
+      "category": "航空海军",
+      "description": "造船、航空、港口与国防资本达到航母服役门槛。",
+      "historicalHint": {
+        "year": 2012,
+        "month": 9
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 72,
+      "metrics": [
+        {
+          "id": "defenseCapitalStock",
+          "weight": 1.3
+        },
+        {
+          "id": "equipmentModernizationRate",
+          "weight": 1.2
+        },
+        {
+          "id": "defenseReadinessIndex",
+          "weight": 1.1
+        },
+        {
+          "id": "aerospaceReadiness",
+          "weight": 1.2
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 1
+        },
+        {
+          "id": "foreignExchangeReserves",
+          "weight": 0.8
+        }
+      ],
+      "baseline": {
+        "defenseCapitalStock": 12939332980559,
+        "equipmentModernizationRate": 0.694,
+        "defenseReadinessIndex": 59.8,
+        "aerospaceReadiness": 0.32,
+        "infrastructureIndex": 55.2,
+        "foreignExchangeReserves": 1021744140904
+      },
+      "effects": [
+        "海军投送与安全目标提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.securityTarget",
+          "operation": "add",
+          "value": 6,
+          "durationMonths": 120
+        },
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 3,
+          "durationMonths": 72
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.018
+        },
+        {
+          "target": "capital.privateInvestment",
+          "operation": "multiply",
+          "value": 0.99
+        }
+      ]
+    },
+    {
+      "id": "poverty_eradication",
+      "name": "脱贫攻坚",
+      "category": "社会发展",
+      "description": "贫困率、人均发展与民生能力达到消除绝对贫困的史实锚点。",
+      "historicalHint": {
+        "year": 2020,
+        "month": 12
+      },
+      "prerequisiteIds": [],
+      "allowsBreakthrough": true,
+      "breakthroughDurationMonths": 60,
+      "metrics": [
+        {
+          "id": "povertyRate",
+          "weight": 1.6,
+          "invert": true
+        },
+        {
+          "id": "educationIndex",
+          "weight": 1
+        },
+        {
+          "id": "happinessIndex",
+          "weight": 1
+        },
+        {
+          "id": "urbanizationRate",
+          "weight": 0.9
+        },
+        {
+          "id": "infrastructureIndex",
+          "weight": 0.9
+        },
+        {
+          "id": "stabilityIndex",
+          "weight": 0.8
+        }
+      ],
+      "baseline": {
+        "povertyRate": 0.22,
+        "educationIndex": 73.6,
+        "happinessIndex": 76.4,
+        "urbanizationRate": 0.613,
+        "infrastructureIndex": 60,
+        "stabilityIndex": 77
+      },
+      "effects": [
+        "民生稳定与社会认同提升"
+      ],
+      "completionModifiers": [
+        {
+          "target": "diplomacy.reputationTarget",
+          "operation": "add",
+          "value": 1,
+          "durationMonths": 48
+        }
+      ],
+      "breakthroughModifiers": [
+        {
+          "target": "fiscal.spending",
+          "operation": "multiply",
+          "value": 1.012
+        }
+      ]
+    }
+  ]
+}

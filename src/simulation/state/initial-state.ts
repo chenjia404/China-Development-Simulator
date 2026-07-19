@@ -1,4 +1,5 @@
 import { createGameDate } from "../core/time";
+import { createEmptyAchievementsState } from "../events/national-achievements";
 import { SAVE_SCHEMA_VERSION, SIMULATION_VERSION } from "../save/schema";
 import type {
   FiscalBudget,
@@ -352,6 +353,7 @@ export function createInitialGameState(
       policyProgress: {},
       projects: [],
       modifiers: [],
+      achievements: createEmptyAchievementsState(),
       historicalEventDecisionMode,
       pendingHistoricalEventId: null,
       famineMortality: createEmptyFamineMortalityAccount(),

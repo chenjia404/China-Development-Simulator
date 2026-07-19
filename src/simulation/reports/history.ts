@@ -4,6 +4,7 @@ import type { GameState } from "../state/game-state";
 import type { AnnualSnapshot, MonthlySnapshot } from "../state/history-state";
 import { eventName } from "../events/event-engine";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
+import { ensureAchievementsState } from "../events/national-achievements";
 
 const MAX_MONTHLY_HISTORY = 120;
 
@@ -45,6 +46,7 @@ function calculateScore(state: GameState): number {
 
 export function recordHistory(state: GameState): void {
   const { nation } = state;
+  ensureAchievementsState(nation);
   const monthly: MonthlySnapshot = {
     year: nation.date.year,
     month: nation.date.month,
@@ -217,6 +219,9 @@ export function recordHistory(state: GameState): void {
           if (event.outcome === "enacted_late") return `延后实施：${event.name}`;
           return event.name;
         }),
+      ...nation.achievements.unlocked
+        .filter((achievement) => achievement.year === nation.date.year)
+        .map((achievement) => `成就解锁：${achievement.name}`),
       ...nation.modifiers
         .filter(
           (modifier) => !nation.history.historicalEvents.some(

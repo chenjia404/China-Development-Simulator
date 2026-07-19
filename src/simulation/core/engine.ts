@@ -31,6 +31,10 @@ import { ensureDomesticDemandState } from "../economy/domestic-demand";
 import { setForeignAidProgram } from "../diplomacy/foreign-aid";
 import { startSinoUSNormalization } from "../diplomacy/sino-us-normalization";
 import {
+  ensureAchievementsState,
+  startAchievementBreakthrough,
+} from "../events/national-achievements";
+import {
   clearPendingFamineMortalityReport,
   dismissFamineMortalityReport,
   ensureFamineMortalityAccount,
@@ -110,6 +114,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureSecurityDefenseState(this.state.nation);
     ensureInstitutionCausalityState(this.state.nation);
     ensureIndustrialPolicyState(this.state.nation);
+    ensureAchievementsState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -161,6 +166,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureSecurityDefenseState(this.state.nation);
         ensureInstitutionCausalityState(this.state.nation);
         ensureIndustrialPolicyState(this.state.nation);
+        ensureAchievementsState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
@@ -222,6 +228,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "START_SINO_US_NORMALIZATION":
         startSinoUSNormalization(this.state);
+        break;
+      case "START_ACHIEVEMENT_BREAKTHROUGH":
+        startAchievementBreakthrough(this.state, command.achievementId);
         break;
       case "DISMISS_FAMINE_MORTALITY_REPORT":
         dismissFamineMortalityReport(this.state.nation);

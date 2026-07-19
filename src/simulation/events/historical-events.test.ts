@@ -14,6 +14,20 @@ import {
   historicalEventDefinitions,
 } from "./historical-event-engine";
 import type { GameState } from "../state/game-state";
+import type { SimulationEngine } from "../core/engine";
+
+/** 交互模式下推进多月时顺手确认饥荒死亡报告，避免月度管线被卡住。 */
+function advanceMonthsDismissingFamineReports(
+  engine: SimulationEngine,
+  months: number,
+): void {
+  for (let month = 0; month < months; month += 1) {
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    if (engine.getState().nation.famineMortality?.pendingReport) {
+      engine.dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+    }
+  }
+}
 
 describe("确定性历史事件", () => {
   it("事件目录具有唯一编号、有效日期和详细影响说明", () => {
@@ -833,7 +847,7 @@ describe("确定性历史事件", () => {
         eventId: "albania_aid_after_soviet_cutoff_1961",
         choiceId,
       });
-      engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsAfter });
+      advanceMonthsDismissingFamineReports(engine, monthsAfter);
       return engine.getState();
     };
 
@@ -926,7 +940,7 @@ describe("确定性历史事件", () => {
       });
       let total = 0;
       for (let month = 0; month < 36; month += 1) {
-        engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+        advanceMonthsDismissingFamineReports(engine, 1);
         const diplomacy = engine.getState().nation.diplomacy;
         const rate =
           diplomacy.annualForeignAidUSD > 0
@@ -955,7 +969,7 @@ describe("确定性历史事件", () => {
         eventId: "albania_aid_after_soviet_cutoff_1961",
         choiceId,
       });
-      engine.dispatch({ type: "ADVANCE_MONTHS", months });
+      advanceMonthsDismissingFamineReports(engine, months);
       return engine.getState();
     };
     const annualReserveAdj = (state: GameState) =>

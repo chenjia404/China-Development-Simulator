@@ -832,6 +832,29 @@ export interface ProjectState {
   progress: number;
 }
 
+export interface AchievementUnlockRecord {
+  id: string;
+  name: string;
+  year: number;
+  month: number;
+  scoreAtUnlock: number;
+  mode: "natural" | "breakthrough";
+}
+
+export interface AchievementBreakthroughState {
+  achievementId: string;
+  startedYear: number;
+  startedMonth: number;
+  progressMonths: number;
+  requiredMonths: number;
+  scoreAtStart: number;
+}
+
+export interface AchievementsState {
+  unlocked: AchievementUnlockRecord[];
+  activeBreakthroughs: AchievementBreakthroughState[];
+}
+
 export interface NationState {
   id: "china";
   name: "中国";
@@ -866,6 +889,8 @@ export interface NationState {
   policyProgress: Record<string, number>;
   projects: ProjectState[];
   modifiers: ModifierState[];
+  /** 国家成就：能力分解锁与集中突破进度。 */
+  achievements: AchievementsState;
   historicalEventDecisionMode: "automatic" | "interactive";
   pendingHistoricalEventId: string | null;
   /** 三年困难（1959–1961）超额死亡账户与待确认报告。 */

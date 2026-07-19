@@ -29,6 +29,8 @@ export const historicalModifierLabels: Readonly<Record<string, string>> = {
   "economy.infrastructureInvestment": "基础设施投资",
   "economy.institutionalEfficiencyTarget": "制度效率目标",
   "economy.structuralProductivityGrowth": "结构性生产率增长",
+  "society.happiness": "幸福度目标",
+  "society.stability": "社会稳定目标",
   "resources.foodSupply": "粮食供应",
   "resources.energySupply": "能源供应",
   "population.birthRate": "出生率",

@@ -1,5 +1,6 @@
 import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
+import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 
 export function updateWellbeing(nation: NationState): void {
@@ -55,16 +56,20 @@ export function updateWellbeing(nation: NationState): void {
     Math.max(0, 1 - resources.foodSupplyRatio) * 0.6 +
     Math.max(0, 1 - resources.energySupplyRatio) * 0.2;
   const targetHappiness = clamp(
-    100 *
-      (incomeScore * 0.2 +
-        (1 - labor.unemploymentRate) * 0.16 +
-        health.index / 100 * 0.16 +
-        education.index / 100 * 0.12 +
-        (1 - society.povertyRate) * 0.14 +
-        Math.min(resources.foodSupplyRatio, 1) * 0.12 +
-        society.housingIndex / 100 * 0.1) -
-      inflationPenalty * 18 -
-      shortagePenalty * 20,
+    applyModifiers(
+      nation,
+      "society.happiness",
+      100 *
+        (incomeScore * 0.2 +
+          (1 - labor.unemploymentRate) * 0.16 +
+          health.index / 100 * 0.16 +
+          education.index / 100 * 0.12 +
+          (1 - society.povertyRate) * 0.14 +
+          Math.min(resources.foodSupplyRatio, 1) * 0.12 +
+          society.housingIndex / 100 * 0.1) -
+        inflationPenalty * 18 -
+        shortagePenalty * 20,
+    ),
     0,
     100,
   );
@@ -74,10 +79,14 @@ export function updateWellbeing(nation: NationState): void {
     0.04,
   );
   const targetStability = clamp(
-    society.happinessIndex * 0.55 +
-      (1 - labor.unemploymentRate) * 25 +
-      (1 - society.povertyRate) * 20 -
-      inflationPenalty * 20,
+    applyModifiers(
+      nation,
+      "society.stability",
+      society.happinessIndex * 0.55 +
+        (1 - labor.unemploymentRate) * 25 +
+        (1 - society.povertyRate) * 20 -
+        inflationPenalty * 20,
+    ),
     0,
     100,
   );

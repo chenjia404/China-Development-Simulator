@@ -29,6 +29,7 @@ export type SectionId =
   | "industry"
   | "infrastructure"
   | "policies"
+  | "achievements"
   | "diplomacy"
   | "history"
   | "international"
@@ -58,6 +59,7 @@ interface SimulationStore {
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   dismissFamineMortalityReport(): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
+  startAchievementBreakthrough(achievementId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
   setTechnologyIndustryPath(pathId: TechnologyIndustryPathId): Promise<void>;
   setIndustrialPolicy(
@@ -209,6 +211,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     await get().dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId,
+    });
+  },
+
+  async startAchievementBreakthrough(achievementId) {
+    await get().dispatch({
+      type: "START_ACHIEVEMENT_BREAKTHROUGH",
+      achievementId,
     });
   },
 

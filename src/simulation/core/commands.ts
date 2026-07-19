@@ -99,6 +99,11 @@ export interface StartSinoUSNormalizationCommand {
   type: "START_SINO_US_NORMALIZATION";
 }
 
+export interface StartAchievementBreakthroughCommand {
+  type: "START_ACHIEVEMENT_BREAKTHROUGH";
+  achievementId: string;
+}
+
 export interface DismissFamineMortalityReportCommand {
   type: "DISMISS_FAMINE_MORTALITY_REPORT";
 }
@@ -120,5 +125,6 @@ export type SimulationCommand =
   | SetTechnologyIndustryPathCommand
   | SetForeignAidProgramCommand
   | StartSinoUSNormalizationCommand
+  | StartAchievementBreakthroughCommand
   | DismissFamineMortalityReportCommand
   | ImportGameCommand;

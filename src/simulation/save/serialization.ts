@@ -30,6 +30,7 @@ import { ensureSecurityDefenseState } from "../security/defense-security";
 import { ensureInstitutionCausalityState } from "../institutions/institution-causality";
 import { ensureIndustrialPolicyState } from "../policies/industrial-policy";
 import { ensureFamineMortalityAccount } from "../population/famine-mortality-account";
+import { ensureAchievementsState } from "../events/national-achievements";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -93,5 +94,6 @@ export function deserializeGameState(serialized: string): GameState {
   ensureSecurityDefenseState(state.nation);
   ensureInstitutionCausalityState(state.nation);
   ensureIndustrialPolicyState(state.nation);
+  ensureAchievementsState(state.nation);
   return state;
 }

@@ -37,6 +37,8 @@ import {
   getHistoricalInitiativeStatus,
   historicalEventDefinitions,
   historicalInitiativeDefinitions,
+  getNationalAchievementStatus,
+  nationalAchievementDefinitions,
   isComparisonTargetId,
   maximumActivePolicies,
   nationalPolicyDefinitions,
@@ -90,6 +92,7 @@ const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "industry", label: "工业", mark: "工" },
   { id: "infrastructure", label: "基础设施", mark: "基" },
   { id: "policies", label: "国策中心", mark: "策" },
+  { id: "achievements", label: "国家成就", mark: "就" },
   { id: "diplomacy", label: "外交事务", mark: "外" },
   { id: "history", label: "历史事件", mark: "史" },
   { id: "international", label: "国际", mark: "世" },
@@ -652,7 +655,7 @@ function InstitutionCausalityPanel({ game }: { game: GameState }) {
 
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
-  const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
+  const data: Record<Exclude<SectionId, "nation" | "policies" | "achievements" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总，受内外需求对产能利用的滞后影响"], ["内需规模", formatLarge(n.economy.domesticDemand), `约为名义 GDP 的 ${formatPercent(n.economy.domesticDemandShare)}`], ["居民消费", formatLarge(n.economy.householdConsumption), `消费倾向 ${formatPercent(n.economy.consumptionPropensity)}`], ["社保转移收入", formatLarge(n.economy.socialProtectionIncome), "降低预防性储蓄，但不直接计入 GDP"], ["居民可支配收入", formatLarge(n.economy.householdDisposableIncome), "税后收入、侨汇与社保转移的综合结果"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
     fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息；援外为展示归因，不单独叠加"], ["对外援助", formatLarge(n.fiscal.foreignAidExpenditure), "与年度承诺同口径，不增减财政总支出"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)}`]],
@@ -1160,6 +1163,149 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
                 onClick={() => enactInitiative(initiative.id, initiative.name)}
               >
                 {initiativeActionLabel}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+const achievementMetricLabels: Record<string, string> = {
+  technologyIndex: "科技指数",
+  educationIndex: "教育指数",
+  infrastructureIndex: "基建指数",
+  defenseReadinessIndex: "战备指数",
+  defenseCapitalStock: "国防资本",
+  equipmentModernizationRate: "装备现代化",
+  aerospaceReadiness: "航天产业就绪度",
+  urbanizationRate: "城市化",
+  povertyRate: "贫困率",
+  happinessIndex: "幸福度",
+  stabilityIndex: "稳定度",
+  globalReputation: "国际声誉",
+  foreignExchangeReserves: "外汇储备",
+  openness: "开放度",
+  logisticsEfficiencyIndex: "物流效率",
+  railNetworkKm: "铁路里程",
+  institutionalEfficiency: "制度效率",
+};
+
+function AchievementsSection({ game, busy }: { game: GameState; busy: boolean }) {
+  const startAchievementBreakthrough = useSimulationStore(
+    (store) => store.startAchievementBreakthrough,
+  );
+  const unlockedCount = game.nation.achievements?.unlocked.length ?? 0;
+  const startBreakthrough = (achievementId: string, name: string) => {
+    const confirmed = window.confirm(
+      `确定对“${name}”启动集中突破吗？建设期会挤出财政并写入存档。`,
+    );
+    if (confirmed) void startAchievementBreakthrough(achievementId);
+  };
+
+  return (
+    <section className="panel detail-page policy-page">
+      <div className="detail-hero policy-hero">
+        <span className="eyebrow">能力分解锁</span>
+        <h2>国家成就</h2>
+        <p>
+          以史实锚点年的能力指标为基准计算能力分。分数达到 100% 即可解锁；相关能力全面占优时会更早达成。
+          接近门槛时可启动集中突破，以财政代价缩短工期。
+        </p>
+        <div className="selection-count">
+          <strong>{unlockedCount}</strong> / {nationalAchievementDefinitions.length} 项已解锁
+        </div>
+      </div>
+      <div className="initiative-grid">
+        {nationalAchievementDefinitions.map((achievement) => {
+          const status = getNationalAchievementStatus(game, achievement.id);
+          const hint = achievement.historicalHint;
+          const headLabel = status.unlocked
+            ? "已解锁"
+            : status.breakthrough
+              ? "突破中"
+              : status.canBreakthrough
+                ? "可突破"
+                : "进行中";
+          return (
+            <article
+              key={achievement.id}
+              className={`initiative-card ${status.canBreakthrough ? "is-available" : ""} ${status.unlocked ? "is-completed" : ""}`}
+            >
+              <div className="initiative-card-head">
+                <span>{headLabel}</span>
+                <small>
+                  {achievement.category} · 史实 {hint.year}.{hint.month}
+                </small>
+              </div>
+              <h3>{achievement.name}</h3>
+              <p>{achievement.description}</p>
+              <div className="initiative-facts">
+                <span>能力分 {(status.score * 100).toFixed(1)}%</span>
+                {status.unlockRecord ? (
+                  <span>
+                    {status.unlockRecord.year}.{status.unlockRecord.month}
+                    {status.unlockRecord.mode === "breakthrough" ? " 集中突破" : " 自然达成"}
+                  </span>
+                ) : null}
+                {status.breakthrough ? (
+                  <span>
+                    进度 {status.breakthrough.progressMonths}/{status.breakthrough.requiredMonths} 月
+                  </span>
+                ) : null}
+              </div>
+              <div className="initiative-effects">
+                <strong>关键指标</strong>
+                {status.metrics.slice(0, 4).map((metric) => (
+                  <span key={metric.id}>
+                    {achievementMetricLabels[metric.id] ?? metric.id}
+                    {" "}
+                    {(metric.ratio * 100).toFixed(0)}%
+                  </span>
+                ))}
+              </div>
+              <div className="initiative-effects">
+                <strong>效果</strong>
+                {achievement.effects.map((effect) => (
+                  <span key={effect}>{effect}</span>
+                ))}
+              </div>
+              {status.unlocked ? (
+                <div className="initiative-result">
+                  <strong>已写入国家记录</strong>
+                  <span>
+                    {status.unlockRecord?.year} 年 {status.unlockRecord?.month} 月解锁
+                  </span>
+                </div>
+              ) : status.blockers.length > 0 ? (
+                <div className="initiative-blockers">
+                  <strong>尚缺条件</strong>
+                  <ul>{status.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>
+                </div>
+              ) : status.breakthrough ? (
+                <div className="initiative-ready">集中突破进行中，按月推进工程进度。</div>
+              ) : status.canBreakthrough ? (
+                <div className="initiative-ready">能力已接近门槛，可启动集中突破缩短工期。</div>
+              ) : (
+                <div className="initiative-ready">继续提升相关能力，达到 100% 后自动解锁。</div>
+              )}
+              <button
+                disabled={busy || !status.canBreakthrough}
+                title={
+                  !status.canBreakthrough && !status.unlocked
+                    ? status.blockers.join("；") || "当前不可集中突破"
+                    : undefined
+                }
+                onClick={() => startBreakthrough(achievement.id, achievement.name)}
+              >
+                {status.unlocked
+                  ? "已达成"
+                  : status.breakthrough
+                    ? "突破推进中"
+                    : achievement.allowsBreakthrough
+                      ? "启动集中突破"
+                      : "仅能力解锁"}
               </button>
             </article>
           );
@@ -2363,6 +2509,7 @@ export function SimulatorDashboard() {
           <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
+          {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}
           {activeSection === "technology" ? <TechnologySection game={game} busy={busy} /> : null}
           {activeSection === "industry" ? <IndustrySection game={game} busy={busy} /> : null}
           {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
@@ -2370,7 +2517,7 @@ export function SimulatorDashboard() {
           {activeSection === "international" ? <InternationalSection game={game} /> : null}
           {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
           {activeSection === "settings" ? <SettingsSection game={game} /> : null}
-          {!(["nation", "technology", "industry", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+          {!(["nation", "technology", "industry", "policies", "achievements", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
       {game.nation.pendingHistoricalEventId ? (
