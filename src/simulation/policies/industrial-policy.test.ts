@@ -3,14 +3,17 @@ import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
 import {
   calculateIndustrialPolicyAggregateEffects,
+  calculateSupportAllocationShare,
   industrialPolicyEffect,
   industrialPolicyCategoryIds,
+  industrialPolicyCategoryParameters,
   setIndustrialPolicyStance,
   updateIndustrialPolicy,
   updateIndustrialPolicyTransition,
   validateIndustrialPolicyConfiguration,
 } from "./industrial-policy";
 import { calculateFiscalSpending } from "../fiscal/spending";
+import industrialPolicyConfig from "../../data/config/industrial-policies.json";
 
 describe("产业政策状态与命令", () => {
   it("配置完整覆盖十一类工业且初始状态全部中性", () => {
@@ -129,13 +132,13 @@ describe("产业政策状态与命令", () => {
     expect(nation.industrialPolicy.annualFiscalCost).toBeGreaterThan(0);
   });
 
-  it("同时扶持过多行业会稀释行政能力并扩大财政和错配代价", () => {
+  it("同时扶持过多行业会均分优先配额并封顶扶持财政", () => {
     const focused = createInitialGameState(1956).nation;
     const broad = structuredClone(focused);
     for (const nation of [focused, broad]) {
-      nation.economy.institutionalEfficiency = 0.45;
-      nation.institutions.stateCapacity = 0.45;
-      nation.institutions.localImplementationCapacity = 0.45;
+      nation.economy.institutionalEfficiency = 0;
+      nation.institutions.stateCapacity = 0;
+      nation.institutions.localImplementationCapacity = 0;
       for (const industry of Object.values(nation.industries)) {
         industry.technologyReadiness = 0.65;
       }
@@ -149,15 +152,96 @@ describe("产业政策状态与命令", () => {
       updateIndustrialPolicy(broad);
     }
 
+    const focusedShare = calculateSupportAllocationShare(focused);
+    const broadShare = calculateSupportAllocationShare(broad);
+    expect(focusedShare.supportCapacity).toBeCloseTo(2, 8);
+    expect(focusedShare.allocationShare).toBe(1);
+    expect(broadShare.allocationShare).toBeCloseTo(2 / 11, 8);
     expect(broad.industrialPolicy.administrativeEffectiveness)
       .toBeLessThan(focused.industrialPolicy.administrativeEffectiveness);
     expect(industrialPolicyEffect(broad, "electronics_communications").effectiveness)
       .toBeLessThan(
         industrialPolicyEffect(focused, "electronics_communications").effectiveness,
       );
+
+    const supportRate = industrialPolicyConfig.stances.support.annualFiscalCostRate;
+    let rawBroad = 0;
+    for (const industryId of industrialPolicyCategoryIds) {
+      rawBroad += broad.industries[industryId].valueAdded *
+        supportRate *
+        industrialPolicyCategoryParameters(industryId).supportCostMultiplier;
+    }
     expect(broad.industrialPolicy.annualFiscalCost)
-      .toBeGreaterThan(focused.industrialPolicy.annualFiscalCost);
+      .toBeCloseTo(rawBroad * broadShare.allocationShare, 6);
+    expect(broad.industrialPolicy.annualFiscalCost).toBeLessThan(rawBroad * 0.99);
     expect(broad.industrialPolicy.distortionIndex)
       .toBeGreaterThan(focused.industrialPolicy.distortionIndex);
+  });
+
+  it("限制不占用优先扶持配额，扶持与限制并存时份额只看扶持负荷", () => {
+    const suppressOnly = createInitialGameState(1957).nation;
+    suppressOnly.economy.institutionalEfficiency = 0;
+    suppressOnly.institutions.stateCapacity = 0;
+    suppressOnly.institutions.localImplementationCapacity = 0;
+    setIndustrialPolicyStance(suppressOnly, "basic_materials", "suppress");
+    for (let month = 0; month < 12; month += 1) updateIndustrialPolicy(suppressOnly);
+    const suppressShare = calculateSupportAllocationShare(suppressOnly);
+    expect(suppressShare.supportLoad).toBe(0);
+    expect(suppressShare.allocationShare).toBe(1);
+    expect(suppressOnly.industrialPolicy.administrativeEffectiveness).toBe(1);
+
+    const mixed = createInitialGameState(1958).nation;
+    mixed.economy.institutionalEfficiency = 0;
+    mixed.institutions.stateCapacity = 0;
+    mixed.institutions.localImplementationCapacity = 0;
+    for (const industry of Object.values(mixed.industries)) {
+      industry.technologyReadiness = 0.7;
+    }
+    setIndustrialPolicyStance(mixed, "electronics_communications", "support");
+    setIndustrialPolicyStance(mixed, "precision_medical", "support");
+    setIndustrialPolicyStance(mixed, "aerospace_advanced", "support");
+    setIndustrialPolicyStance(mixed, "basic_materials", "suppress");
+    for (const industryId of [
+      "electronics_communications",
+      "precision_medical",
+      "aerospace_advanced",
+    ] as const) {
+      mixed.industrialPolicy.categories[industryId].effectiveIntensity = 1;
+    }
+    mixed.industrialPolicy.categories.basic_materials.effectiveIntensity = -1;
+    const mixedShare = calculateSupportAllocationShare(mixed);
+    expect(mixedShare.supportLoad).toBeCloseTo(3, 8);
+    expect(mixedShare.allocationShare).toBeCloseTo(2 / 3, 8);
+  });
+
+  it("制度极差时扶一与扶四的单行业有效性约呈二比一", () => {
+    const focused = createInitialGameState(1959).nation;
+    const broad = structuredClone(focused);
+    const supportTargets = [
+      "electronics_communications",
+      "precision_medical",
+      "aerospace_advanced",
+      "electrical_equipment",
+    ] as const;
+    for (const nation of [focused, broad]) {
+      nation.economy.institutionalEfficiency = 0;
+      nation.institutions.stateCapacity = 0;
+      nation.institutions.localImplementationCapacity = 0;
+      for (const industry of Object.values(nation.industries)) {
+        industry.technologyReadiness = 0.8;
+      }
+    }
+    setIndustrialPolicyStance(focused, "electronics_communications", "support");
+    focused.industrialPolicy.categories.electronics_communications.effectiveIntensity = 1;
+    for (const industryId of supportTargets) {
+      setIndustrialPolicyStance(broad, industryId, "support");
+      broad.industrialPolicy.categories[industryId].effectiveIntensity = 1;
+    }
+
+    const focusedEffect = industrialPolicyEffect(focused, "electronics_communications");
+    const broadEffect = industrialPolicyEffect(broad, "electronics_communications");
+    expect(calculateSupportAllocationShare(focused).allocationShare).toBe(1);
+    expect(calculateSupportAllocationShare(broad).allocationShare).toBeCloseTo(0.5, 8);
+    expect(broadEffect.effectiveness / focusedEffect.effectiveness).toBeCloseTo(0.5, 6);
   });
 });

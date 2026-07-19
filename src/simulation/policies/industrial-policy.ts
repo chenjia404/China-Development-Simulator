@@ -45,6 +45,12 @@ export interface IndustrialPolicyAggregateEffects {
   supplyChainConstraint: number;
 }
 
+export interface SupportAllocationShare {
+  supportLoad: number;
+  supportCapacity: number;
+  allocationShare: number;
+}
+
 const neutralIndustrialPolicyEffect: IndustrialPolicyEffect = {
   outputWeightMultiplier: 1,
   productivityMultiplier: 1,
@@ -209,6 +215,13 @@ export function validateIndustrialPolicyConfiguration(): string[] {
       errors.push(`${stance}产业政策过渡期必须为正数`);
     }
   }
+  const allocation = industrialPolicyConfig.supportAllocation;
+  if (!allocation || !(allocation.baseFullyEffectiveIndustries > 0)) {
+    errors.push("优先扶持配额基数必须为正数");
+  }
+  if (!allocation || !(allocation.institutionalCapacityScale >= 0)) {
+    errors.push("优先扶持配额制度扩容系数不可为负");
+  }
   return errors;
 }
 
@@ -282,23 +295,27 @@ export function industrialPolicyCategoryParameters(
   ] as IndustrialPolicyCategoryParameters;
 }
 
-function administrativeEffectiveness(nation: NationState): number {
-  const activeLoad = Object.values(nation.industrialPolicy.categories).reduce(
-    (sum, policy) => sum + Math.abs(policy.effectiveIntensity),
+/**
+ * 按当前扶持强度即时计算优先扶持配额份额。限制强度不占用配额。
+ */
+export function calculateSupportAllocationShare(
+  nation: NationState,
+): SupportAllocationShare {
+  const supportLoad = industrialPolicyCategoryIds.reduce(
+    (sum, industryId) =>
+      sum + Math.max(0, nation.industrialPolicy.categories[industryId].effectiveIntensity),
     0,
   );
-  const capability = industrialPolicyConfig.administrativeCapacity
+  const institutionMix = nation.economy.institutionalEfficiency * 0.5 +
+    nation.institutions.stateCapacity * 0.3 +
+    nation.institutions.localImplementationCapacity * 0.2;
+  const supportCapacity = industrialPolicyConfig.supportAllocation
     .baseFullyEffectiveIndustries +
-    (
-      nation.economy.institutionalEfficiency * 0.5 +
-      nation.institutions.stateCapacity * 0.3 +
-      nation.institutions.localImplementationCapacity * 0.2
-    ) * industrialPolicyConfig.administrativeCapacity.institutionalCapacityScale;
-  return clamp(
-    activeLoad <= capability ? 1 : capability / Math.max(activeLoad, 1),
-    industrialPolicyConfig.administrativeCapacity.minimumEffectiveness,
-    1,
-  );
+    institutionMix * industrialPolicyConfig.supportAllocation.institutionalCapacityScale;
+  const allocationShare = supportLoad <= 1e-12
+    ? 1
+    : Math.min(1, supportCapacity / supportLoad);
+  return { supportLoad, supportCapacity, allocationShare };
 }
 
 export function industrialPolicyEffect(
@@ -312,7 +329,6 @@ export function industrialPolicyEffect(
   }
   const stance = intensity > 0 ? "support" : "suppress";
   const target = stanceEffect(stance);
-  const administrative = nation.industrialPolicy.administrativeEffectiveness;
   const budgetCapacity = clamp(nation.fiscal.budget.industry / 0.18, 0.15, 1.15);
   const enforcementCapacity = clamp(
     (
@@ -324,9 +340,13 @@ export function industrialPolicyEffect(
     1,
   );
   const readiness = nation.industries[industryId].technologyReadiness;
-  const effectiveness = Math.abs(intensity) * administrative * (
+  const readinessGate = clamp(budgetCapacity * (0.45 + readiness * 0.55), 0.1, 1);
+  const allocationShare = stance === "support"
+    ? calculateSupportAllocationShare(nation).allocationShare
+    : 1;
+  const effectiveness = Math.abs(intensity) * (
     stance === "support"
-      ? clamp(budgetCapacity * (0.45 + readiness * 0.55), 0.1, 1)
+      ? allocationShare * readinessGate
       : enforcementCapacity
   );
   const blend = (value: number) => 1 + (value - 1) * effectiveness;
@@ -374,7 +394,7 @@ export function calculateIndustrialPolicyAggregateEffects(
 }
 
 /**
- * 先推进政策强度，再结算财政承诺、信贷倾斜、错配与就业冲击。
+ * 先推进政策强度，再按优先扶持配额均分结算财政承诺、信贷倾斜、错配与就业冲击。
  * 这些均为后续模块的中间变量，不在此处直接修改产出或GDP。
  */
 export function updateIndustrialPolicy(nation: NationState): void {
@@ -392,9 +412,10 @@ export function updateIndustrialPolicy(nation: NationState): void {
     return;
   }
   updateIndustrialPolicyTransition(nation);
-  const administrative = administrativeEffectiveness(nation);
-  nation.industrialPolicy.administrativeEffectiveness = administrative;
-  let annualFiscalCost = 0;
+  const { allocationShare } = calculateSupportAllocationShare(nation);
+  nation.industrialPolicy.administrativeEffectiveness = allocationShare;
+  let rawSupportFiscal = 0;
+  let suppressFiscal = 0;
   let creditBias = 0;
   let distortion = 0;
   let laborDisplacement = 0;
@@ -408,9 +429,15 @@ export function updateIndustrialPolicy(nation: NationState): void {
     const parameters = industrialPolicyCategoryParameters(industryId);
     const effect = industrialPolicyEffect(nation, industryId);
     const share = nation.industries[industryId].outputShare;
-    annualFiscalCost += nation.industries[industryId].valueAdded *
-      target.annualFiscalCostRate * Math.abs(intensity) *
-      parameters.supportCostMultiplier * (0.7 + administrative * 0.3);
+    const rawFiscal = nation.industries[industryId].valueAdded *
+      target.annualFiscalCostRate *
+      Math.abs(intensity) *
+      parameters.supportCostMultiplier;
+    if (stance === "support") {
+      rawSupportFiscal += rawFiscal;
+    } else {
+      suppressFiscal += rawFiscal;
+    }
     creditBias += share * effect.creditBias;
     distortion += share * target.distortionRate * Math.abs(intensity) *
       (stance === "support" ? 1.35 - effect.effectiveness * 0.35 : 1);
@@ -421,7 +448,10 @@ export function updateIndustrialPolicy(nation: NationState): void {
         Math.abs(intensity) * effect.effectiveness * 0.12;
     }
   }
-  nation.industrialPolicy.annualFiscalCost = Math.max(0, annualFiscalCost);
+  nation.industrialPolicy.annualFiscalCost = Math.max(
+    0,
+    rawSupportFiscal * allocationShare + suppressFiscal,
+  );
   nation.industrialPolicy.creditAllocationBias = clamp(creditBias, -0.35, 0.25);
   nation.industrialPolicy.distortionIndex = clamp(distortion, 0, 0.2);
   nation.industrialPolicy.laborDisplacementPressure = clamp(

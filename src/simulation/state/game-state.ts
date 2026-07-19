@@ -166,6 +166,7 @@ export interface IndustrialPolicyState {
   creditAllocationBias: number;
   distortionIndex: number;
   laborDisplacementPressure: number;
+  /** 优先扶持配额份额（0–1）；由扶持强度之和与制度容量结算，限制不占用。存档字段名保持兼容。 */
   administrativeEffectiveness: number;
   supplyChainConstraint: number;
 }

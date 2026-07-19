@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "description": "产业政策通过财政、信贷、投资、研发、出口、能源和劳动力重配影响十一类工业，不直接修改GDP。",
+    "description": "产业政策通过财政、信贷、投资、研发、出口、能源和劳动力重配影响十一类工业；扶持按优先配额均分，不直接修改GDP。",
     "sources": [
       "国家统计局高技术制造业与战略性新兴产业分类",
       "项目既有工业细分与科技树传导口径"
@@ -12,10 +12,9 @@
     "neutral": 18,
     "suppress": 12
   },
-  "administrativeCapacity": {
+  "supportAllocation": {
     "baseFullyEffectiveIndustries": 2,
-    "institutionalCapacityScale": 4,
-    "minimumEffectiveness": 0.35
+    "institutionalCapacityScale": 4
   },
   "stances": {
     "support": {

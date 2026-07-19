@@ -53,6 +53,7 @@ import {
   technologyResearchRequirements,
   technologyTreeDefinitions,
   industrialCategoryDefinitions,
+  calculateSupportAllocationShare,
   industrialPolicyChangeCooldownRemaining,
   industrialPolicyEffect,
   foreignAidProgramCooldownRemaining,
@@ -697,7 +698,7 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
     stance: IndustrialPolicyStance,
   ) => {
     const message = stance === "support"
-      ? `确定扶持“${industryName}”吗？政策将逐步改善投资、科研、生产率和出口，但会占用财政与信贷资源，并可能积累产业错配。`
+      ? `确定扶持“${industryName}”吗？政策将逐步改善投资、科研、生产率和出口；扶持行业越多，优先财政配额越均分，单行业加成越低且总成本近似封顶，同时可能积累产业错配。`
       : stance === "suppress"
         ? `确定限制“${industryName}”吗？政策将压低投资、产出和出口，并可能造成失业与供应链冲击。`
         : `确定把“${industryName}”恢复为中性产业政策吗？既有政策强度将逐步退出。`;
@@ -705,6 +706,7 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
       void setIndustrialPolicy(industryId, stance);
     }
   };
+  const supportAllocation = calculateSupportAllocationShare(nation);
   return (
     <section className="panel detail-page industry-page">
       <div className="detail-hero industry-hero">
@@ -718,7 +720,16 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
         <MetricCard label="高技术工业" value={formatPercent(metrics.highTechnologyShare)} detail="化工医药、电气电子、精密医疗和高端装备" tone="gold" />
         <MetricCard label="工业品出口" value={`$${formatLarge(industrialExports)}`} detail={`占总出口 ${formatPercent(metrics.industrialExportShare)}`} tone="red" />
         <MetricCard label="产业政策财政成本" value={formatLarge(nation.industrialPolicy.annualFiscalCost)} detail="年度承诺，进入政府支出与赤字闭环" tone="gold" />
-        <MetricCard label="行政执行有效性" value={formatPercent(nation.industrialPolicy.administrativeEffectiveness)} detail="同时干预过多行业会稀释执行能力" tone="blue" />
+        <MetricCard
+          label="优先扶持份额"
+          value={supportAllocation.supportLoad <= 1e-12
+            ? "未占用"
+            : formatPercent(supportAllocation.allocationShare)}
+          detail={supportAllocation.supportLoad <= 1e-12
+            ? "当前无扶持占用优先财政配额；限制不占用该配额"
+            : "被扶持行业共同分摊优先财政配额；越多则单行业加成越低，总成本近似封顶"}
+          tone="blue"
+        />
         <MetricCard label="供应链约束" value={formatPercent(nation.industrialPolicy.supplyChainConstraint)} detail="限制上游关键行业会传导至全部工业" tone={nation.industrialPolicy.supplyChainConstraint < 0.98 ? "red" : "green"} />
         <MetricCard label="产业错配指数" value={formatPercent(nation.industrialPolicy.distortionIndex)} detail={`就业调整压力 ${formatPercent(nation.industrialPolicy.laborDisplacementPressure)}`} tone={nation.industrialPolicy.distortionIndex > 0.03 ? "red" : "green"} />
       </div>
@@ -794,6 +805,9 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
                     ? `政策调整冷却还剩 ${cooldown} 个月`
                     : "每次调整后六个月内不能再次修改"}
                 </small>
+                {policy.effectiveIntensity > 1e-12 ? (
+                  <small>配额份额 {formatPercent(supportAllocation.allocationShare)}</small>
+                ) : null}
                 <p>
                   当前传导：份额 ×{policyEffect.outputWeightMultiplier.toFixed(2)} ·
                   投资 ×{policyEffect.investmentMultiplier.toFixed(2)} ·

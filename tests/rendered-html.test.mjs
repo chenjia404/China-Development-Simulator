@@ -121,7 +121,8 @@ test("客户端可逐行业选择扶持、中性或限制政策并查看代价",
   assert.ok(dashboardFile, "应生成模拟器客户端代码块");
   const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
   assert.match(source, /产业政策财政成本/);
-  assert.match(source, /行政执行有效性/);
+  assert.match(source, /优先扶持份额/);
+  assert.match(source, /配额份额/);
   assert.match(source, /供应链约束/);
   assert.match(source, /产业错配指数/);
   assert.match(source, /产业政策：/);
