@@ -594,7 +594,7 @@ export function updateForeignExchange(state: GameState): void {
       nation.economy.capitalStock = totalCapital;
     }
   }
-  let nextExternalDebt = clamp(
+  const nextExternalDebt = clamp(
     openingExternalDebt +
       annualExternalBorrowing / 12 -
       paidMonthlyPrincipal +
