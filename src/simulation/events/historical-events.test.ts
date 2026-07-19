@@ -9,6 +9,7 @@ import { applyModifiers } from "./modifiers";
 import { createInitialGameState } from "../state/initial-state";
 import {
   checkHistoricalEvents,
+  getHistoricalEventAxes,
   getHistoricalEventChoices,
   historicalEventDefinitions,
 } from "./historical-event-engine";
@@ -545,8 +546,11 @@ describe("确定性历史事件", () => {
         (modifier) => modifier.target === "resources.foodSupply",
       )?.value,
     ).toBeCloseTo(0.9688, 6);
-    const acceptAid = choices.find((choice) => choice.id === "accept_foreign_aid");
-    expect(acceptAid?.durationMonths).toBe(16);
+    const acceptAid = choices.find(
+      (choice) => choice.id === "continue_grain_exports+accept_foreign_aid",
+    );
+    // 组合持续期取各轴最大：救济轴缩放后约 16 月，贸易轴史实危机仍为 24 月。
+    expect(acceptAid?.durationMonths).toBe(24);
     expect(
       acceptAid?.modifiers.find(
         (modifier) => modifier.target === "population.deathRate",
@@ -555,21 +559,21 @@ describe("确定性历史事件", () => {
   });
 
   it("三年经济困难可接受外国援助并减少死亡与经济冲击", () => {
-    const choices = getHistoricalEventChoices("three_year_difficulties_1959");
-    expect(choices.map((choice) => choice.id)).toEqual([
-      "historical_path",
-      "limit_grain_exports",
-      "ban_grain_exports_and_import",
-      "domestic_emergency_relief",
-      "accept_foreign_aid",
+    const axes = getHistoricalEventAxes("three_year_difficulties_1959");
+    expect(axes.map((axis) => axis.id)).toEqual([
+      "grain_trade",
+      "crisis_relief",
     ]);
-    const aidChoice = choices.find(
-      (choice) => choice.id === "accept_foreign_aid",
+    const choices = getHistoricalEventChoices("three_year_difficulties_1959");
+    expect(choices).toHaveLength(9);
+    expect(choices.some((choice) => choice.id === "historical_path")).toBe(
+      true,
     );
-    expect(aidChoice).toMatchObject({
-      name: "接受外国粮食与医疗援助",
-      durationMonths: 24,
-    });
+    const aidChoice = choices.find(
+      (choice) => choice.id === "continue_grain_exports+accept_foreign_aid",
+    );
+    expect(aidChoice?.name).toContain("接受外国粮食与医疗援助");
+    expect(aidChoice?.durationMonths).toBe(36);
     expect(
       aidChoice?.modifiers.find(
         (modifier) => modifier.target === "population.deathRate",
@@ -577,7 +581,9 @@ describe("确定性历史事件", () => {
     ).toBe(1.006);
     expect(
       aidChoice?.modifiers
-        .filter((modifier) => modifier.target.startsWith("diplomacy.relationTarget."))
+        .filter((modifier) =>
+          modifier.target.startsWith("diplomacy.relationTarget.")
+        )
         .map((modifier) => modifier.target),
     ).toEqual([
       "diplomacy.relationTarget.russia",
@@ -622,37 +628,43 @@ describe("确定性历史事件", () => {
     expect(relation(aided, "japan")).toBeCloseTo(relation(historical, "japan"));
   });
 
-  it("三年困难可限制或禁止粮食出口并按史实贸易量级形成取舍", () => {
+  it("三年困难可限制或禁止粮食出口，并可与外国援助组合", () => {
     const choices = getHistoricalEventChoices("three_year_difficulties_1959");
-    const limit = choices.find((choice) => choice.id === "limit_grain_exports");
+    const limit = choices.find(
+      (choice) => choice.id === "limit_grain_exports+no_additional_relief",
+    );
     const ban = choices.find(
-      (choice) => choice.id === "ban_grain_exports_and_import",
+      (choice) =>
+        choice.id === "ban_grain_exports_and_import+no_additional_relief",
     );
-    expect(limit).toMatchObject({
-      name: "大幅限制粮食出口",
-      durationMonths: 36,
-    });
-    expect(ban).toMatchObject({
-      name: "禁止粮食出口并提前进口",
-      durationMonths: 36,
-    });
+    const banWithAid = choices.find(
+      (choice) =>
+        choice.id === "ban_grain_exports_and_import+accept_foreign_aid",
+    );
+    expect(limit?.name).toContain("大幅限制粮食出口");
+    expect(ban?.name).toContain("禁止粮食出口并提前进口");
+    expect(banWithAid?.name).toContain("接受外国粮食与医疗援助");
     expect(
-      limit?.modifiers.find((modifier) => modifier.target === "resources.foodSupply")
-        ?.value,
-    ).toBe(0.94);
-    expect(
-      ban?.modifiers.find((modifier) => modifier.target === "resources.foodSupply")
-        ?.value,
-    ).toBe(0.962);
-    expect(
-      ban?.modifiers.find(
-        (modifier) => modifier.target === "trade.capitalGoodsImportCoverage",
+      banWithAid?.modifiers.find(
+        (modifier) => modifier.target === "resources.foodSupply",
       )?.value,
-    ).toBeLessThan(
-      limit?.modifiers.find(
-        (modifier) => modifier.target === "trade.capitalGoodsImportCoverage",
-      )?.value ?? 1,
-    );
+    ).toBeCloseTo(1 - (1 - 0.962) * (1 - 0.985), 8);
+    expect(
+      banWithAid?.modifiers.find(
+        (modifier) => modifier.target === "population.deathRate",
+      )?.value,
+    ).toBeCloseTo(1 + (1.011 - 1) * (1.006 - 1), 8);
+    expect(
+      banWithAid?.modifiers.find(
+        (modifier) =>
+          modifier.target === "trade.capitalGoodsImportCoverage",
+      )?.value,
+    ).toBe(0.978);
+    expect(
+      banWithAid?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.canada",
+      )?.value,
+    ).toBe(44);
 
     const runChoice = (choiceId: string) => {
       const engine = createSimulationEngine(
@@ -671,27 +683,40 @@ describe("确定性历史事件", () => {
     const limited = runChoice("limit_grain_exports");
     const banned = runChoice("ban_grain_exports_and_import");
     const aided = runChoice("accept_foreign_aid");
+    const bannedAndAided = runChoice(
+      "ban_grain_exports_and_import+accept_foreign_aid",
+    );
+    const relieved = runChoice("domestic_emergency_relief");
     const relation = (state: typeof historical, countryId: string) =>
       state.world.countries.find((country) => country.id === countryId)
         ?.relationWithChina ?? Number.NaN;
 
-    // 史实继续出口最差；限制好于史实；禁止出口并提前进口更好，但仍弱于全面接受外援。
     expect(limited.nation.resources.foodSupplyRatio).toBeGreaterThan(
       historical.nation.resources.foodSupplyRatio,
     );
-    expect(banned.nation.resources.foodSupplyRatio).toBeGreaterThan(
-      limited.nation.resources.foodSupplyRatio,
-    );
-    expect(aided.nation.resources.foodSupplyRatio).toBeGreaterThan(
-      banned.nation.resources.foodSupplyRatio,
-    );
-    const relieved = runChoice("domestic_emergency_relief");
-    // 限制出口弱于全面国内赈济；禁止出口并提前进口强于国内赈济、仍弱于外援。
     expect(relieved.nation.resources.foodSupplyRatio).toBeGreaterThan(
       limited.nation.resources.foodSupplyRatio,
     );
     expect(banned.nation.resources.foodSupplyRatio).toBeGreaterThan(
       relieved.nation.resources.foodSupplyRatio,
+    );
+    expect(aided.nation.resources.foodSupplyRatio).toBeGreaterThan(
+      banned.nation.resources.foodSupplyRatio,
+    );
+    expect(bannedAndAided.nation.resources.foodSupplyRatio).toBeGreaterThan(
+      aided.nation.resources.foodSupplyRatio,
+    );
+    expect(bannedAndAided.nation.population.monthlyDeaths).toBeLessThan(
+      aided.nation.population.monthlyDeaths,
+    );
+    expect(bannedAndAided.nation.trade.capitalGoodsImportCoverage).toBeLessThan(
+      aided.nation.trade.capitalGoodsImportCoverage,
+    );
+    expect(relation(bannedAndAided, "russia")).toBeGreaterThan(
+      relation(banned, "russia"),
+    );
+    expect(relation(bannedAndAided, "canada")).toBeGreaterThan(
+      relation(aided, "canada"),
     );
     expect(banned.nation.population.monthlyDeaths).toBeLessThan(
       limited.nation.population.monthlyDeaths,

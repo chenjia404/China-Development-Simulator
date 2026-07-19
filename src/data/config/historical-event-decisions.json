@@ -199,85 +199,120 @@
   },
   {
     "eventId": "three_year_difficulties_1959",
-    "choices": [
+    "axes": [
       {
-        "id": "limit_grain_exports",
-        "name": "大幅限制粮食出口",
-        "description": "面对春荒与征购告急，把 1959—1960 年史实约 416 万吨、272 万吨的出口规模削减大约一半，优先保国内城镇配给和重灾区调运；仍保留有限出口换取急需外汇与盟友供货，但放弃“继续高额净出口”的史实取向。此路线弱于系统性国内赈济，因为它不重开自留地与真实产量纠偏。",
-        "effects": [
-          "国内粮食可得性高于史实继续出口",
-          "死亡率冲击轻于史实，但仍重于全面国内赈济",
-          "出口换汇与农产出口竞争力下降",
-          "资本品用汇略受挤压"
-        ],
-        "durationMonths": 36,
-        "modifiers": [
-          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.94 },
-          { "target": "population.deathRate", "operation": "multiply", "value": 1.02 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 0.98 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.978 },
-          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.992 },
-          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.994 },
-          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
+        "id": "grain_trade",
+        "name": "粮食贸易取向",
+        "description": "对照 1959—1962 年粮食进出口量级，决定是否继续高额净出口。",
+        "options": [
+          {
+            "id": "continue_grain_exports",
+            "name": "继续史实高额粮食出口",
+            "description": "短缺加深时仍按史实出口换汇与设备：1959 年约 416 万吨、1960 年约 272 万吨净出口；直至 1961—1962 年才大规模净进口。",
+            "effects": [
+              "史实粮食贸易取向",
+              "国内短缺最严重",
+              "保留出口换汇能力"
+            ],
+            "durationMonths": 36,
+            "isHistoricalDefault": true,
+            "useEventModifiers": true,
+            "modifiers": []
+          },
+          {
+            "id": "limit_grain_exports",
+            "name": "大幅限制粮食出口",
+            "description": "把 1959—1960 年出口规模约对半削减，优先保城镇配给和重灾区调运；仍保留有限出口换取急需外汇。",
+            "effects": [
+              "国内粮食可得性高于继续高额出口",
+              "出口换汇与农产出口竞争力下降",
+              "资本品用汇略受挤压"
+            ],
+            "durationMonths": 36,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.94 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.02 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.98 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.978 },
+              { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.992 },
+              { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.994 },
+              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
+            ]
+          },
+          {
+            "id": "ban_grain_exports_and_import",
+            "name": "禁止粮食出口并提前进口",
+            "description": "停止高额净出口，并提前启动加澳等国商业购粮，把史实 1961—1962 年净进口（约 445/389 万吨）部分前移到危机高峰期。",
+            "effects": [
+              "把约等于年产量 2% 的净出口粮源留在国内",
+              "提前进口抬升粮食供应",
+              "外汇转向购粮，资本品用汇承压",
+              "对加拿大、澳大利亚贸易关系改善"
+            ],
+            "durationMonths": 36,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.962 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.011 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.985 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.982 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.018 },
+              { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.985 },
+              { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.978 },
+              { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 16 },
+              { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 14 },
+              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
+            ]
+          }
         ]
       },
       {
-        "id": "ban_grain_exports_and_import",
-        "name": "禁止粮食出口并提前进口",
-        "description": "在 1959 年初即停止高额粮食净出口，并提前启动加拿大、澳大利亚等国的商业粮食采购，把史实上 1961—1962 年才出现的大规模净进口（约 445 万吨、389 万吨）部分前移到危机高峰期；国内口粮压力显著缓和，但外汇和资本品进口能力承压，不宜再沿用“丰收出口”宣传。贸易转向购粮，弱于接受国际人道援助的综合救济效果。",
-        "effects": [
-          "把约等于年产量 2% 的净出口粮源留在国内",
-          "叠加提前进口进一步抬升粮食供应",
-          "死亡率冲击明显轻于史实与仅限出口，仍弱于全面外援",
-          "外汇转向购粮，资本品用汇与出口竞争力下降",
-          "对加拿大、澳大利亚贸易关系改善"
-        ],
-        "durationMonths": 36,
-        "modifiers": [
-          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.962 },
-          { "target": "population.deathRate", "operation": "multiply", "value": 1.011 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 0.985 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.982 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.018 },
-          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.985 },
-          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.978 },
-          { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 16 },
-          { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 14 },
-          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
-        ]
-      },
-      {
-        "id": "domestic_emergency_relief",
-        "name": "国内紧急赈济与政策纠偏",
-        "description": "压缩非必要建设，跨地区调运粮食并恢复基层自留地和真实产量统计，以更高财政投入和行政调整逐步缓解危机。",
-        "effects": ["粮食和死亡率冲击部分缓解", "工农业生产逐步恢复", "财政负担明显增加", "制度纠偏能力改善"],
-        "durationMonths": 30,
-        "modifiers": [
-          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95 },
-          { "target": "population.deathRate", "operation": "multiply", "value": 1.015 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 0.975 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.045 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.01 }
-        ]
-      },
-      {
-        "id": "accept_foreign_aid",
-        "name": "接受外国粮食与医疗援助",
-        "description": "接受苏联的运输与医疗协作、加拿大和澳大利亚的粮食支持，并通过美国参与的国际人道渠道补充药品和救济物资；优先保障高风险地区和弱势人口，同时承担援助协调、分配与对外沟通成本。",
-        "effects": ["粮食短缺大幅缓解", "死亡率冲击显著下降", "工农业收缩减轻", "苏联、加拿大、澳大利亚和美国关系逐步改善", "国际声誉改善但财政协调支出增加"],
-        "durationMonths": 24,
-        "modifiers": [
-          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
-          { "target": "population.deathRate", "operation": "multiply", "value": 1.006 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 0.99 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
-          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
-          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 36 },
-          { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 28 },
-          { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 24 },
-          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 18 }
+        "id": "crisis_relief",
+        "name": "救济与纠偏",
+        "description": "在粮食贸易取向之外，是否追加国内赈济或接受外国援助。可与贸易取向组合。",
+        "options": [
+          {
+            "id": "no_additional_relief",
+            "name": "不追加专项救济",
+            "description": "不另开国际人道援助或大规模国内赈济专项，危机后果主要由粮食贸易取向决定。",
+            "effects": ["不追加专项救济成本", "危机缓和完全依赖贸易取向"],
+            "durationMonths": 36,
+            "isHistoricalDefault": true,
+            "modifiers": []
+          },
+          {
+            "id": "domestic_emergency_relief",
+            "name": "国内紧急赈济与政策纠偏",
+            "description": "压缩非必要建设，跨地区调运粮食并恢复基层自留地和真实产量统计。",
+            "effects": ["粮食和死亡率冲击部分缓解", "财政负担明显增加", "制度纠偏能力改善"],
+            "durationMonths": 30,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.015 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.975 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.045 },
+              { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.01 }
+            ]
+          },
+          {
+            "id": "accept_foreign_aid",
+            "name": "接受外国粮食与医疗援助",
+            "description": "接受苏联运输与医疗协作、加澳粮食支持及美国参与的国际人道渠道；可与禁止出口并提前进口同时选择。",
+            "effects": ["粮食短缺大幅缓解", "死亡率冲击显著下降", "苏加澳美关系改善", "财政协调支出增加"],
+            "durationMonths": 24,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.006 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.99 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+              { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 36 },
+              { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 28 },
+              { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 24 },
+              { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 18 }
+            ]
+          }
         ]
       }
     ]

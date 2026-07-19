@@ -30,7 +30,10 @@ import {
   getInternationalOrganizationStatus,
   internationalOrganizations,
   getHistoricalEvent,
+  getHistoricalEventAxes,
+  getHistoricalEventChoice,
   getHistoricalEventChoices,
+  composeHistoricalEventAxisChoice,
   getHistoricalInitiativeStatus,
   historicalEventDefinitions,
   historicalInitiativeDefinitions,
@@ -1632,8 +1635,24 @@ function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolea
   );
   const pendingId = game.nation.pendingHistoricalEventId;
   const event = pendingId ? getHistoricalEvent(pendingId) : undefined;
+  const axes = event ? getHistoricalEventAxes(event, game.nation) : [];
   const choices = event ? getHistoricalEventChoices(event, game.nation) : [];
+  const [axisSelections, setAxisSelections] = useState(() =>
+    axes.map((axis) =>
+      (axis.options.find((option) => option.isHistoricalDefault) ??
+        axis.options[0]).id
+    ),
+  );
+
   if (!event) return null;
+
+  const preview = axes.length > 0
+    ? composeHistoricalEventAxisChoice(event, axisSelections, game.nation)
+    : undefined;
+  const confirmAxisChoice = () => {
+    if (!preview) return;
+    void resolveHistoricalEvent(event.id, preview.id);
+  };
 
   return (
     <div className="historical-decision-overlay">
@@ -1653,40 +1672,133 @@ function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolea
             {historicalImpactLabels[event.impact]}
           </span>
         </header>
-        <div className="historical-choice-grid">
-          {choices.map((choice) => (
-            <article
-              className={`${choice.isHistoricalPath ? "historical-choice is-historical" : "historical-choice"} ${choice.outcome === "prevented" ? "prevents-event" : ""}`}
-              key={choice.id}
-            >
-              <div className="historical-choice-head">
-                <span>{choice.outcome === "prevented" ? "阻止事件" : choice.isHistoricalPath ? "史实方案" : "可选路线"}</span>
-                <small>持续 {formatEventDuration(choice.durationMonths)}</small>
+        {axes.length > 0 ? (
+          <>
+            <div className="historical-axis-board">
+              {axes.map((axis, axisIndex) => (
+                <section className="historical-axis-panel" key={axis.id}>
+                  <header>
+                    <span className="eyebrow">第 {axisIndex + 1} 轴</span>
+                    <h3>{axis.name}</h3>
+                    {axis.description ? <p>{axis.description}</p> : null}
+                  </header>
+                  <div className="historical-choice-grid historical-axis-options">
+                    {axis.options.map((option) => {
+                      const selected = axisSelections[axisIndex] === option.id;
+                      return (
+                        <article
+                          className={`historical-choice ${selected ? "is-selected" : ""} ${option.isHistoricalDefault ? "is-historical" : ""}`}
+                          key={option.id}
+                        >
+                          <div className="historical-choice-head">
+                            <span>
+                              {option.isHistoricalDefault ? "史实默认" : "可选"}
+                            </span>
+                            <small>持续 {formatEventDuration(option.durationMonths)}</small>
+                          </div>
+                          <h3>{option.name}</h3>
+                          <p>{option.description}</p>
+                          <div className="historical-choice-effects">
+                            {option.effects.map((effect) => (
+                              <span key={effect}>{effect}</span>
+                            ))}
+                          </div>
+                          <div className="historical-choice-modifiers">
+                            <strong>模型传导</strong>
+                            <div>
+                              {option.modifiers.length === 0
+                                ? <span>无额外 Modifier</span>
+                                : option.modifiers.map((modifier, index) => (
+                                  <span key={`${modifier.target}:${index}`}>
+                                    {formatHistoricalModifier(modifier)}
+                                  </span>
+                                ))}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() =>
+                              setAxisSelections((current) =>
+                                current.map((value, index) =>
+                                  index === axisIndex ? option.id : value
+                                )
+                              )}
+                          >
+                            {selected ? "已选择" : `选择：${option.name}`}
+                          </button>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+            {preview ? (
+              <div className="historical-axis-preview">
+                <div>
+                  <span className="eyebrow">组合预览</span>
+                  <strong>{preview.name}</strong>
+                  <p>{preview.description}</p>
+                  <div className="historical-choice-modifiers">
+                    <strong>合并后传导（持续 {formatEventDuration(preview.durationMonths)}）</strong>
+                    <div>
+                      {preview.modifiers.map((modifier, index) => (
+                        <span key={`${modifier.target}:${index}`}>
+                          {formatHistoricalModifier(modifier)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  disabled={busy || axisSelections.length !== axes.length}
+                  onClick={confirmAxisChoice}
+                >
+                  {busy ? "正在执行…" : `确认组合：${preview.name}`}
+                </button>
               </div>
-              <h3>{choice.name}</h3>
-              <p>{choice.description}</p>
-              <div className="historical-choice-effects">
-                {choice.effects.map((effect) => <span key={effect}>{effect}</span>)}
-              </div>
-              <div className="historical-choice-modifiers">
-                <strong>模型传导</strong>
-                <div>{choice.modifiers.map((modifier, index) => (
-                  <span key={`${modifier.target}:${index}`}>
-                    {formatHistoricalModifier(modifier)}
-                  </span>
-                ))}</div>
-              </div>
-              <button
-                disabled={busy}
-                onClick={() => void resolveHistoricalEvent(event.id, choice.id)}
+            ) : null}
+          </>
+        ) : (
+          <div className="historical-choice-grid">
+            {choices.map((choice) => (
+              <article
+                className={`${choice.isHistoricalPath ? "historical-choice is-historical" : "historical-choice"} ${choice.outcome === "prevented" ? "prevents-event" : ""}`}
+                key={choice.id}
               >
-                {busy ? "正在执行…" : `选择：${choice.name}`}
-              </button>
-            </article>
-          ))}
-        </div>
+                <div className="historical-choice-head">
+                  <span>{choice.outcome === "prevented" ? "阻止事件" : choice.isHistoricalPath ? "史实方案" : "可选路线"}</span>
+                  <small>持续 {formatEventDuration(choice.durationMonths)}</small>
+                </div>
+                <h3>{choice.name}</h3>
+                <p>{choice.description}</p>
+                <div className="historical-choice-effects">
+                  {choice.effects.map((effect) => <span key={effect}>{effect}</span>)}
+                </div>
+                <div className="historical-choice-modifiers">
+                  <strong>模型传导</strong>
+                  <div>{choice.modifiers.map((modifier, index) => (
+                    <span key={`${modifier.target}:${index}`}>
+                      {formatHistoricalModifier(modifier)}
+                    </span>
+                  ))}</div>
+                </div>
+                <button
+                  disabled={busy}
+                  onClick={() => void resolveHistoricalEvent(event.id, choice.id)}
+                >
+                  {busy ? "正在执行…" : `选择：${choice.name}`}
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
         <p className="historical-decision-note">
-          决策将写入存档且不可撤销。选择后本月仍未结算，可继续推进时间。
+          {axes.length > 0
+            ? "请在各轴各选一项后确认组合；禁止出口并提前进口可与接受外国援助同时生效。决策写入存档后不可撤销。"
+            : "决策将写入存档且不可撤销。选择后本月仍未结算，可继续推进时间。"}
         </p>
       </section>
     </div>
@@ -1740,9 +1852,7 @@ function HistoricalEventsSection({ game }: { game: GameState }) {
         {visibleEvents.map((event) => {
           const record = recordsById.get(event.id);
           const selectedChoice = record
-            ? getHistoricalEventChoices(event, game.nation).find(
-                (choice) => choice.id === record.choiceId,
-              )
+            ? getHistoricalEventChoice(event, record.choiceId, game.nation)
             : undefined;
           const occurred = occurredIds.has(event.id);
           const active = activeIds.has(event.id);
@@ -2138,7 +2248,13 @@ export function SimulatorDashboard() {
           {!(["nation", "technology", "industry", "policies", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
-      <HistoricalDecisionModal game={game} busy={busy} />
+      {game.nation.pendingHistoricalEventId ? (
+        <HistoricalDecisionModal
+          key={game.nation.pendingHistoricalEventId}
+          game={game}
+          busy={busy}
+        />
+      ) : null}
     </main>
   );
 }

@@ -70,9 +70,30 @@ export interface HistoricalEventChoice {
   foreignAidAdjustment?: HistoricalEventForeignAidAdjustment;
 }
 
+export interface HistoricalEventAxisOption {
+  id: string;
+  name: string;
+  description: string;
+  effects: string[];
+  durationMonths: number;
+  modifiers: HistoricalEventModifierDefinition[];
+  isHistoricalDefault?: boolean;
+  useEventModifiers?: boolean;
+  outcome?: HistoricalEventOutcome;
+  foreignAidAdjustment?: HistoricalEventForeignAidAdjustment;
+}
+
+export interface HistoricalEventAxisDefinition {
+  id: string;
+  name: string;
+  description?: string;
+  options: HistoricalEventAxisOption[];
+}
+
 interface HistoricalEventDecisionDefinition {
   eventId: string;
-  choices: Array<Omit<HistoricalEventChoice, "isHistoricalPath">>;
+  choices?: Array<Omit<HistoricalEventChoice, "isHistoricalPath">>;
+  axes?: HistoricalEventAxisDefinition[];
 }
 
 interface HistoricalEventDependencyDefinition {
@@ -308,6 +329,281 @@ function contextualizeHistoricalChoice(
   };
 }
 
+type HistoricalModifierMergeMode = "overlay" | "stack";
+
+/** 覆盖式：史实贸易底座与救济并存时，重叠 target 取更优缓解、贸易代价取更严。 */
+function mergeMultiplyOverlay(target: string, left: number, right: number): number {
+  if (
+    target === "trade.capitalGoodsImportCoverage" ||
+    target === "trade.exportCompetitiveness"
+  ) {
+    return Math.min(left, right);
+  }
+  if (target === "population.deathRate") {
+    return Math.min(left, right);
+  }
+  if (target === "fiscal.spending") {
+    return Math.max(left, right);
+  }
+  return Math.max(left, right);
+}
+
+/**
+ * 叠乘式：两轴均为备选方案时，互补冲击按独立效应叠加。
+ * 粮食等保留率用软或：1-(1-a)(1-b)；死亡率超额相乘；用汇等代价相乘。
+ */
+function mergeMultiplyStack(target: string, left: number, right: number): number {
+  if (target === "population.deathRate") {
+    return 1 + (left - 1) * (right - 1);
+  }
+  if (
+    target === "trade.capitalGoodsImportCoverage" ||
+    target === "trade.exportCompetitiveness"
+  ) {
+    return left * right;
+  }
+  if (target === "fiscal.spending") {
+    return left + right - 1;
+  }
+  if (left <= 1 && right <= 1) {
+    return 1 - (1 - left) * (1 - right);
+  }
+  if (left >= 1 && right >= 1) {
+    return left * right;
+  }
+  return Math.max(left, right);
+}
+
+function composeHistoricalModifiers(
+  packages: HistoricalEventModifierDefinition[][],
+  mode: HistoricalModifierMergeMode = "overlay",
+): HistoricalEventModifierDefinition[] {
+  const merged = new Map<string, HistoricalEventModifierDefinition>();
+  for (const pack of packages) {
+    for (const modifier of pack) {
+      const key = [
+        modifier.target,
+        modifier.operation,
+        modifier.delayMonths ?? 0,
+        modifier.durationMonths ?? "",
+      ].join("|");
+      const existing = merged.get(key);
+      if (!existing) {
+        merged.set(key, { ...modifier });
+        continue;
+      }
+      if (modifier.operation === "add") {
+        existing.value = mode === "stack"
+          ? existing.value + modifier.value
+          : Math.max(existing.value, modifier.value);
+      } else if (modifier.operation === "multiply") {
+        existing.value = mode === "stack"
+          ? mergeMultiplyStack(modifier.target, existing.value, modifier.value)
+          : mergeMultiplyOverlay(modifier.target, existing.value, modifier.value);
+      }
+    }
+  }
+  return [...merged.values()];
+}
+
+const threeYearLegacyChoiceAliases: Record<string, string[]> = {
+  accept_foreign_aid: ["continue_grain_exports", "accept_foreign_aid"],
+  domestic_emergency_relief: ["continue_grain_exports", "domestic_emergency_relief"],
+  limit_grain_exports: ["limit_grain_exports", "no_additional_relief"],
+  ban_grain_exports_and_import: [
+    "ban_grain_exports_and_import",
+    "no_additional_relief",
+  ],
+};
+
+function getDecisionDefinition(eventId: string) {
+  return historicalDecisionDefinitions.find(
+    (definition) => definition.eventId === eventId,
+  );
+}
+
+export function getHistoricalEventAxes(
+  eventOrId: HistoricalEventDefinition | string,
+  nation?: NationState,
+): HistoricalEventAxisDefinition[] {
+  const baseEvent = typeof eventOrId === "string"
+    ? getHistoricalEvent(eventOrId)
+    : eventOrId;
+  if (!baseEvent) return [];
+  const bespoke = getDecisionDefinition(baseEvent.id);
+  if (!bespoke?.axes?.length) return [];
+  const scales = historicalDependencyScales(baseEvent, nation);
+  const event = contextualizeHistoricalEvent(baseEvent, nation);
+  return bespoke.axes.map((axis) => ({
+    ...axis,
+    options: axis.options.map((option) => {
+      const modifiers = option.useEventModifiers
+        ? event.modifiers.map((modifier) => ({ ...modifier }))
+        : option.modifiers.map((modifier) => ({ ...modifier }));
+      const scaled = contextualizeHistoricalChoice(
+        {
+          id: option.id,
+          name: option.name,
+          description: option.description,
+          effects: [...option.effects],
+          durationMonths: option.durationMonths,
+          modifiers,
+          outcome: option.outcome,
+          foreignAidAdjustment: option.foreignAidAdjustment
+            ? { ...option.foreignAidAdjustment }
+            : undefined,
+        },
+        option.useEventModifiers ? null : scales,
+      );
+      // 史实贸易默认用已 contextualize 的事件本体 modifiers；其余选项再套 dependency 缩放。
+      const finalModifiers = option.useEventModifiers
+        ? modifiers
+        : scaled.modifiers;
+      const finalDuration = option.useEventModifiers
+        ? event.durationMonths
+        : scaled.durationMonths;
+      return {
+        ...option,
+        modifiers: finalModifiers,
+        durationMonths: finalDuration,
+        foreignAidAdjustment: scaled.foreignAidAdjustment,
+      };
+    }),
+  }));
+}
+
+function cartesianAxisOptions(
+  axes: HistoricalEventAxisDefinition[],
+): HistoricalEventAxisOption[][] {
+  return axes.reduce<HistoricalEventAxisOption[][]>(
+    (groups, axis) => {
+      if (groups.length === 0) {
+        return axis.options.map((option) => [option]);
+      }
+      return groups.flatMap((group) =>
+        axis.options.map((option) => [...group, option])
+      );
+    },
+    [],
+  );
+}
+
+export function composeHistoricalEventAxisChoice(
+  eventOrId: HistoricalEventDefinition | string,
+  optionIds: string[],
+  nation?: NationState,
+): HistoricalEventChoice | undefined {
+  const baseEvent = typeof eventOrId === "string"
+    ? getHistoricalEvent(eventOrId)
+    : eventOrId;
+  if (!baseEvent) return undefined;
+  const axes = getHistoricalEventAxes(baseEvent, nation);
+  if (axes.length === 0) return undefined;
+  if (optionIds.length !== axes.length) return undefined;
+  const selected: HistoricalEventAxisOption[] = [];
+  for (const [index, axis] of axes.entries()) {
+    const option = axis.options.find((candidate) => candidate.id === optionIds[index]);
+    if (!option) return undefined;
+    selected.push(option);
+  }
+  const allHistorical = selected.every((option, index) => {
+    const defaults = axes[index].options.find((candidate) =>
+      candidate.isHistoricalDefault
+    ) ?? axes[index].options[0];
+    return option.id === defaults.id;
+  });
+  const event = contextualizeHistoricalEvent(baseEvent, nation);
+  // 含史实贸易底座时用覆盖合并，避免“继续出口+外援”把底座冲击软叠成近乎消除；
+  // 两轴均为备选（如禁出口+外援）时用叠乘，使粮食等互补收益真正高于单轴。
+  const mergeMode: HistoricalModifierMergeMode = selected.some(
+    (option) => option.useEventModifiers,
+  )
+    ? "overlay"
+    : "stack";
+  const modifiers = composeHistoricalModifiers(
+    selected.map((option) => option.modifiers),
+    mergeMode,
+  );
+  const durationMonths = Math.max(
+    ...selected.map((option) => option.durationMonths),
+    1,
+  );
+  const foreignAidAdjustment = selected
+    .map((option) => option.foreignAidAdjustment)
+    .find((adjustment) => adjustment != null);
+  return {
+    id: allHistorical ? "historical_path" : optionIds.join("+"),
+    name: allHistorical
+      ? "遵循历史路径"
+      : selected.map((option) => option.name).join(" + "),
+    description: allHistorical
+      ? `按史实推进“${event.name}”，完整承受其阶段性收益、代价与持续影响。`
+      : selected.map((option) => option.description).join(" "),
+    effects: allHistorical
+      ? [...event.effects]
+      : selected.flatMap((option) => option.effects),
+    durationMonths: allHistorical ? event.durationMonths : durationMonths,
+    modifiers: allHistorical
+      ? event.modifiers.map((modifier) => ({ ...modifier }))
+      : modifiers,
+    isHistoricalPath: allHistorical,
+    outcome: selected.find((option) => option.outcome)?.outcome ?? "occurred",
+    foreignAidAdjustment: allHistorical
+      ? (event.foreignAidAdjustment
+        ? { ...event.foreignAidAdjustment }
+        : undefined)
+      : (foreignAidAdjustment ? { ...foreignAidAdjustment } : undefined),
+  };
+}
+
+function expandAxisChoiceId(
+  eventId: string,
+  choiceId: string,
+): string[] | null {
+  const axes = getDecisionDefinition(eventId)?.axes;
+  if (!axes?.length) return null;
+  if (choiceId === "historical_path") {
+    return axes.map((axis) =>
+      (axis.options.find((option) => option.isHistoricalDefault) ??
+        axis.options[0]).id
+    );
+  }
+  if (choiceId.includes("+")) {
+    return choiceId.split("+");
+  }
+  const aliased = threeYearLegacyChoiceAliases[choiceId];
+  if (aliased) return aliased;
+  // 单轴遗留 id：补齐其余轴的历史默认。
+  const matchedAxisIndex = axes.findIndex((axis) =>
+    axis.options.some((option) => option.id === choiceId)
+  );
+  if (matchedAxisIndex < 0) return null;
+  return axes.map((axis, index) => {
+    if (index === matchedAxisIndex) return choiceId;
+    return (
+      axis.options.find((option) => option.isHistoricalDefault) ?? axis.options[0]
+    ).id;
+  });
+}
+
+export function getHistoricalEventChoice(
+  eventOrId: HistoricalEventDefinition | string,
+  choiceId: string,
+  nation?: NationState,
+): HistoricalEventChoice | undefined {
+  const baseEvent = typeof eventOrId === "string"
+    ? getHistoricalEvent(eventOrId)
+    : eventOrId;
+  if (!baseEvent) return undefined;
+  const axisOptionIds = expandAxisChoiceId(baseEvent.id, choiceId);
+  if (axisOptionIds) {
+    return composeHistoricalEventAxisChoice(baseEvent, axisOptionIds, nation);
+  }
+  return getHistoricalEventChoices(baseEvent, nation).find(
+    (candidate) => candidate.id === choiceId,
+  );
+}
+
 export function getHistoricalEventChoices(
   eventOrId: HistoricalEventDefinition | string,
   nation?: NationState,
@@ -316,6 +612,17 @@ export function getHistoricalEventChoices(
     ? getHistoricalEvent(eventOrId)
     : eventOrId;
   if (!baseEvent) return [];
+  const axes = getHistoricalEventAxes(baseEvent, nation);
+  if (axes.length > 0) {
+    return cartesianAxisOptions(axes).map((selected) => {
+      const composed = composeHistoricalEventAxisChoice(
+        baseEvent,
+        selected.map((option) => option.id),
+        nation,
+      );
+      return composed!;
+    });
+  }
   const scales = historicalDependencyScales(baseEvent, nation);
   const event = contextualizeHistoricalEvent(baseEvent, nation);
   const historicalChoice: HistoricalEventChoice = {
@@ -331,10 +638,8 @@ export function getHistoricalEventChoices(
       ? { ...event.foreignAidAdjustment }
       : undefined,
   };
-  const bespoke = historicalDecisionDefinitions.find(
-    (definition) => definition.eventId === event.id,
-  );
-  const alternatives = bespoke
+  const bespoke = getDecisionDefinition(event.id);
+  const alternatives = bespoke?.choices?.length
     ? bespoke.choices.map((choice) =>
       contextualizeHistoricalChoice(choice, scales)
     )
@@ -508,9 +813,12 @@ export function resolveHistoricalEvent(
   if (event.year !== nation.date.year || event.month !== nation.date.month) {
     throw new Error("历史事件决策日期与当前模拟时间不一致");
   }
-  const choice = getHistoricalEventChoices(event, nation).find(
-    (candidate) => candidate.id === choiceId,
-  );
+  const axisOptionIds = expandAxisChoiceId(eventId, choiceId);
+  const choice = axisOptionIds
+    ? composeHistoricalEventAxisChoice(event, axisOptionIds, nation)
+    : getHistoricalEventChoices(event, nation).find(
+      (candidate) => candidate.id === choiceId,
+    );
   if (!choice) throw new Error(`未知历史事件方案：${choiceId}`);
   return applyChoice(nation, event, choice);
 }
