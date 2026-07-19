@@ -31,21 +31,46 @@
     ]
   },
   {
+    "eventId": "soviet_economic_loan_1950",
+    "choices": [
+      {
+        "id": "reduced_soviet_economic_loan",
+        "name": "压缩经济贷款规模",
+        "description": "只接受部分设备与器材贷款，降低外债敞口，同时接受工业化启动较慢、关键设备进口更依赖自有外汇的代价。",
+        "effects": ["外债规模明显缩小", "生产性设备融资有限", "工业化起步更依赖内源积累"],
+        "durationMonths": 60,
+        "modifiers": [
+          { "target": "trade.externalBorrowing", "operation": "add", "value": 30000000 }
+        ]
+      },
+      {
+        "id": "refuse_soviet_economic_loan",
+        "name": "拒绝苏联经济贷款",
+        "description": "不签署三亿美元经济贷款协定，避免相应外债，但放弃协定提供的机器设备融资渠道。",
+        "effects": ["不形成该笔经济借款", "放弃协定项下设备融资", "早期工业化设备用汇更紧"],
+        "durationMonths": 24,
+        "modifiers": [],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
     "eventId": "korean_war_1950",
     "choices": [
       {
         "id": "oppose_korean_war",
-        "name": "反对朝鲜战争并阻止冲突",
-        "description": "明确反对以武力改变半岛现状，通过对朝施压、与苏联协调并推动国际斡旋阻止战争爆发；避免人员伤亡、军事物资外债和战时动员，把原本受挤出的财政与资本品外汇用于交通、设备和民用生产，同时改善与韩国、美国及主要西方国家的关系，但会承受对苏关系降温的外交代价。",
-        "effects": ["朝鲜战争不会爆发", "避免战争伤亡、军事外债与国防财政冲击", "财政和资本品外汇转向经济建设", "对韩、对美关系显著改善", "英国、法国、加拿大、澳大利亚和日本关系逐步改善", "对苏关系中期降温", "贸易封锁风险下降"],
+        "name": "事前外交劝阻并阻止开战",
+        "description": "在半岛冲突爆发前，通过国际外交、对朝施压与对苏协调，劝阻金日成发动偷袭式开战，使战争得以避免。当年国内多数意见本不支持参战；冲突取消后，原本可能被战争挤占的财政能力与资本品外汇转为交通、设备和民用生产，韩国、美国及主要西方国家关系目标改善，同时因拦下苏朝方向军事冒险而承受对苏关系中期降温。",
+        "effects": ["开战前劝阻半岛冲突爆发", "避免偷袭开战及后续参战代价", "国内建设获得和平红利", "对韩、对美及主要西方国家关系改善", "对苏关系中期降温", "贸易封锁风险下降"],
         "durationMonths": 24,
         "modifiers": [
-          { "target": "fiscal.spending", "operation": "multiply", "value": 0.99 },
-          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.02 },
-          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.08, "durationMonths": 60 },
-          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.03, "durationMonths": 60 },
-          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.04, "durationMonths": 60 },
-          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.12, "durationMonths": 60 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.985 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.04 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.12, "durationMonths": 84 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.05, "durationMonths": 84 },
+          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.06, "durationMonths": 84 },
+          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.16, "durationMonths": 84 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00035, "durationMonths": 240 },
           { "target": "diplomacy.reputationTarget", "operation": "add", "value": 5, "durationMonths": 60 },
           { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 50, "durationMonths": 120 },
           { "target": "diplomacy.relationTarget.south_korea", "operation": "add", "value": 60, "durationMonths": 120 },
@@ -70,8 +95,8 @@
           { "target": "sector.secondary.output", "operation": "multiply", "value": 1.006 },
           { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.99 },
           { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 },
-          { "target": "trade.externalBorrowing", "operation": "add", "value": 120000000 },
-          { "target": "trade.externalBorrowingNonReserveUse", "operation": "add", "value": 120000000 },
+          { "target": "trade.externalBorrowing", "operation": "add", "value": 2169000000 },
+          { "target": "trade.externalBorrowingNonReserveUse", "operation": "add", "value": 2169000000 },
           { "target": "trade.externalDebtInterestRate", "operation": "override", "value": 0.01 },
           { "target": "trade.externalDebtPrincipalRepaymentRate", "operation": "override", "value": 0 },
           { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.98 },
@@ -114,19 +139,20 @@
         "name": "保留混合所有制",
         "description": "通过税收、信贷、劳工和行业监管引导私营工商业，保留混合所有制竞争以及企业原有的技术、人才与国内外客户网络，以较弱的财政控制换取长期活力。",
         "effects": ["民间投资与企业家能力继续积累", "消费品、工业技术和出口网络更活跃", "财政可控收入短期减少"],
-        "durationMonths": 60,
+        "durationMonths": 120,
         "modifiers": [
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.01 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.025 },
-          { "target": "fiscal.revenue", "operation": "multiply", "value": 0.99 },
-          { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 1.025 },
-          { "target": "industry.general_machinery.productivity", "operation": "multiply", "value": 1.015 },
-          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
-          { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0015, "durationMonths": 36 },
-          { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0018, "durationMonths": 48 },
-          { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0014, "durationMonths": 48 },
-          { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0018, "durationMonths": 48 }
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.02 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.05 },
+          { "target": "fiscal.revenue", "operation": "multiply", "value": 0.992 },
+          { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 1.04 },
+          { "target": "industry.general_machinery.productivity", "operation": "multiply", "value": 1.03 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.05 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0004, "durationMonths": 240 },
+          { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.002, "durationMonths": 60 },
+          { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0024, "durationMonths": 72 },
+          { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.002, "durationMonths": 72 },
+          { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0024, "durationMonths": 72 }
         ]
       }
     ]
@@ -141,12 +167,12 @@
         "effects": ["避免高指标运动和无效产能", "保护农业、资本和正常统计秩序", "教育科研与民间投资保持连续", "形成可延续的组织知识和全要素生产率存量", "后续粮食危机风险显著下降"],
         "durationMonths": 252,
         "modifiers": [
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.14, "durationMonths": 504 },
-          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08, "durationMonths": 504 },
-          { "target": "education.efficiency", "operation": "multiply", "value": 1.1, "durationMonths": 504 },
-          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.16, "durationMonths": 504 },
-          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00065, "durationMonths": 504 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.06, "durationMonths": 504 }
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.2, "durationMonths": 504 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.12, "durationMonths": 504 },
+          { "target": "education.efficiency", "operation": "multiply", "value": 1.14, "durationMonths": 504 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.24, "durationMonths": 504 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.001, "durationMonths": 504 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.1, "durationMonths": 504 }
         ],
         "outcome": "prevented"
       },
@@ -176,9 +202,10 @@
         "effects": ["人民公社化不会发生", "家庭生产与基层真实统计得到保留", "农业剩余支持消费和民间投资", "家庭经营知识和配置效率沉淀为长期生产率", "后续粮食危机风险显著下降"],
         "durationMonths": 252,
         "modifiers": [
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.08, "durationMonths": 504 },
-          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00045, "durationMonths": 504 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.1, "durationMonths": 504 }
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.12, "durationMonths": 504 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00075, "durationMonths": 504 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.14, "durationMonths": 504 },
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.02, "durationMonths": 120 }
         ],
         "outcome": "prevented"
       },
@@ -405,19 +432,19 @@
         "effects": ["避免长期财政和民用投资挤出", "沿海及居民经济配置效率提高", "内陆基础设施与工业集聚减弱", "国防纵深和战备安全明显降低"],
         "durationMonths": 192,
         "modifiers": [
-          { "target": "diplomacy.securityTarget", "operation": "add", "value": -12 },
-          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.0 },
-          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.015 },
-          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 0.97 },
-          { "target": "resources.energySupply", "operation": "multiply", "value": 0.99 },
-          { "target": "technology.researchOutput", "operation": "multiply", "value": 0.99 },
-          { "target": "urban.migration", "operation": "multiply", "value": 0.98 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 0.99 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 1.005 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.005 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.012 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.02 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.008 }
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": -8 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.02 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.03 },
+          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.01 },
+          { "target": "resources.energySupply", "operation": "multiply", "value": 1.01 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.01 },
+          { "target": "urban.migration", "operation": "multiply", "value": 0.995 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.995 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 1.008 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.018 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.035 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.012 }
         ],
         "outcome": "prevented"
       }
@@ -453,15 +480,15 @@
         "effects": ["人才培养与科研积累保持连续", "企业管理和服务体系稳定", "知识资本沉淀为长期全要素生产率", "投资效率与民间投资改善", "制度化治理需要短期协调支出"],
         "durationMonths": 144,
         "modifiers": [
-          { "target": "education.efficiency", "operation": "multiply", "value": 1.25 },
-          { "target": "education.researchCohortFormation", "operation": "multiply", "value": 1.08 },
-          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.28 },
-          { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.22 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.12 },
-          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.08 },
-          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.00065 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.1 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
+          { "target": "education.efficiency", "operation": "multiply", "value": 1.35 },
+          { "target": "education.researchCohortFormation", "operation": "multiply", "value": 1.12 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.38 },
+          { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.28 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.18 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.14 },
+          { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.0011 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.16 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
         ],
         "outcome": "prevented"
       }

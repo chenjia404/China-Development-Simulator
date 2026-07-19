@@ -39,6 +39,22 @@ function comparableGDP(state: GameState): number {
   );
 }
 
+function maximumExternalDebtRatio(year: number): number {
+  const config = foreignExchangeConfig as {
+    maximumExternalDebtToComparableGDP: number;
+    earlyMaximumExternalDebtToComparableGDP?: number;
+    earlyExternalDebtCapEndYear?: number;
+  };
+  if (
+    typeof config.earlyMaximumExternalDebtToComparableGDP === "number" &&
+    typeof config.earlyExternalDebtCapEndYear === "number" &&
+    year <= config.earlyExternalDebtCapEndYear
+  ) {
+    return config.earlyMaximumExternalDebtToComparableGDP;
+  }
+  return config.maximumExternalDebtToComparableGDP;
+}
+
 function remittanceAccessMultiplier(state: GameState): number {
   const { nation } = state;
   const averageRelation = safeDivide(
@@ -396,7 +412,7 @@ export function updateForeignExchange(state: GameState): void {
       );
   const debtCapacity = Math.max(
     0,
-    comparable * foreignExchangeConfig.maximumExternalDebtToComparableGDP -
+    comparable * maximumExternalDebtRatio(nation.date.year) -
       nation.trade.externalDebt,
   );
   const marketBorrowing = Math.min(
@@ -429,15 +445,38 @@ export function updateForeignExchange(state: GameState): void {
   const annualProductiveBorrowing =
     annualExternalBorrowing - annualNonReserveBorrowingUse;
 
+  let residualDebtInjection = 0;
+  if (
+    nation.date.year ===
+      foreignExchangeConfig.historicalResidualDebtStartYear &&
+    nation.date.month ===
+      foreignExchangeConfig.historicalResidualDebtStartMonth &&
+    nation.trade.externalDebt <
+      foreignExchangeConfig.historicalResidualExternalDebtUsd
+  ) {
+    residualDebtInjection =
+      foreignExchangeConfig.historicalResidualExternalDebtUsd -
+      nation.trade.externalDebt;
+    nation.trade.externalDebt =
+      foreignExchangeConfig.historicalResidualExternalDebtUsd;
+  }
+
   const openingExternalDebt = nation.trade.externalDebt;
   const openingDebtRatio = safeDivide(openingExternalDebt, comparable);
+  const inSovietLoanInterestWindow =
+    nation.date.year < foreignExchangeConfig.sovietLoanInterestEndYear ||
+    (nation.date.year === foreignExchangeConfig.sovietLoanInterestEndYear &&
+      nation.date.month <= foreignExchangeConfig.sovietLoanInterestEndMonth);
+  const defaultExternalDebtInterestRate = inSovietLoanInterestWindow
+    ? foreignExchangeConfig.sovietLoanInterestRate
+    : foreignExchangeConfig.baseExternalDebtInterestRate +
+      openingDebtRatio * foreignExchangeConfig.externalDebtRiskPremium +
+      (1 - nation.economy.institutionalEfficiency) * 0.01;
   const externalDebtInterestRate = clamp(
     applyModifiers(
       nation,
       "trade.externalDebtInterestRate",
-      foreignExchangeConfig.baseExternalDebtInterestRate +
-        openingDebtRatio * foreignExchangeConfig.externalDebtRiskPremium +
-        (1 - nation.economy.institutionalEfficiency) * 0.01,
+      defaultExternalDebtInterestRate,
     ),
     0.01,
     0.18,
@@ -455,11 +494,48 @@ export function updateForeignExchange(state: GameState): void {
   );
   const plannedMonthlyInterest =
     openingExternalDebt * externalDebtInterestRate / 12;
-  const plannedMonthlyPrincipal = nation.date.year ===
+  const residualFloor =
+    foreignExchangeConfig.historicalResidualExternalDebtUsd;
+  const isFinalClearanceMonth =
+    nation.date.year ===
       foreignExchangeConfig.historicalExternalDebtClearanceYear &&
-      nation.date.month === 1
-    ? openingExternalDebt
-    : openingExternalDebt * annualPrincipalRepaymentRate / 12;
+    nation.date.month ===
+      foreignExchangeConfig.historicalExternalDebtClearanceMonth;
+  const isFormalClearanceMonth =
+    nation.date.year ===
+      foreignExchangeConfig.historicalFormalDebtClearanceYear &&
+    nation.date.month ===
+      foreignExchangeConfig.historicalFormalDebtClearanceMonth;
+  const afterResidualDebtStart =
+    nation.date.year >
+      foreignExchangeConfig.historicalResidualDebtStartYear ||
+    (nation.date.year ===
+      foreignExchangeConfig.historicalResidualDebtStartYear &&
+      nation.date.month >=
+        foreignExchangeConfig.historicalResidualDebtStartMonth);
+  const beforeFinalClearanceMonth =
+    nation.date.year <
+      foreignExchangeConfig.historicalExternalDebtClearanceYear ||
+    (nation.date.year ===
+      foreignExchangeConfig.historicalExternalDebtClearanceYear &&
+      nation.date.month <
+        foreignExchangeConfig.historicalExternalDebtClearanceMonth);
+  let plannedMonthlyPrincipal =
+    openingExternalDebt * annualPrincipalRepaymentRate / 12;
+  if (isFinalClearanceMonth) {
+    plannedMonthlyPrincipal = openingExternalDebt;
+  } else if (isFormalClearanceMonth) {
+    plannedMonthlyPrincipal = Math.max(
+      0,
+      openingExternalDebt - residualFloor,
+    );
+  } else if (afterResidualDebtStart && beforeFinalClearanceMonth) {
+    // 残债注入后至最终清偿前，不得把贸易/蔗糖残债层继续摊还到底。
+    plannedMonthlyPrincipal = Math.min(
+      plannedMonthlyPrincipal,
+      Math.max(0, openingExternalDebt - residualFloor),
+    );
+  }
   const reservesBeforeDebtService = Math.max(
     0,
     nation.trade.foreignExchangeReserves +
@@ -469,22 +545,65 @@ export function updateForeignExchange(state: GameState): void {
     plannedMonthlyInterest,
     reservesBeforeDebtService,
   );
-  const paidMonthlyPrincipal = Math.min(
+  const reserveConstrainedPrincipal = Math.min(
     plannedMonthlyPrincipal,
     reservesBeforeDebtService - paidMonthlyInterest,
   );
-  const unpaidMonthlyInterest =
-    plannedMonthlyInterest - paidMonthlyInterest;
-  const nextExternalDebt = clamp(
+  // 对苏贷款窗口内，以及史实清偿节点：允许以出口实货结算冲销外储不足的本金。
+  const allowGoodsSettlement =
+    inSovietLoanInterestWindow ||
+    isFinalClearanceMonth ||
+    isFormalClearanceMonth;
+  const paidMonthlyPrincipal = allowGoodsSettlement
+    ? plannedMonthlyPrincipal
+    : reserveConstrainedPrincipal;
+  const reservePrincipalOutflow = reserveConstrainedPrincipal;
+  const unpaidMonthlyInterest = Math.max(
+    0,
+    plannedMonthlyInterest - paidMonthlyInterest,
+  );
+  // 对苏贷款窗口内，无力以外储支付的利息按出口实货结算，避免无外汇时本金雪球化。
+  const interestSettlementWriteOff = inSovietLoanInterestWindow
+    ? unpaidMonthlyInterest
+    : 0;
+  const capitalizedUnpaidInterest = inSovietLoanInterestWindow
+    ? 0
+    : unpaidMonthlyInterest;
+  const principalSettlementWriteOff = Math.max(
+    0,
+    paidMonthlyPrincipal - reservePrincipalOutflow,
+  );
+  const settlementWriteOff =
+    principalSettlementWriteOff + interestSettlementWriteOff;
+  if (settlementWriteOff > 0) {
+    const capitalCharge = Math.min(
+      nation.economy.capitalStock * 0.08,
+      settlementWriteOff *
+        foreignExchangeConfig.historicalDebtWriteOffCapitalChargeRate,
+    );
+    if (capitalCharge > 0 && nation.economy.capitalStock > 0) {
+      const remainingRatio = Math.max(
+        0,
+        1 - capitalCharge / nation.economy.capitalStock,
+      );
+      let totalCapital = 0;
+      for (const sector of Object.values(nation.sectors)) {
+        sector.capitalStock = Math.max(0, sector.capitalStock * remainingRatio);
+        totalCapital += sector.capitalStock;
+      }
+      nation.economy.capitalStock = totalCapital;
+    }
+  }
+  let nextExternalDebt = clamp(
     openingExternalDebt +
       annualExternalBorrowing / 12 -
       paidMonthlyPrincipal +
-      unpaidMonthlyInterest,
+      capitalizedUnpaidInterest,
     0,
-    comparable * foreignExchangeConfig.maximumExternalDebtToComparableGDP,
+    comparable * maximumExternalDebtRatio(nation.date.year),
   );
   const nextReserves = clamp(
-    reservesBeforeDebtService - paidMonthlyInterest - paidMonthlyPrincipal,
+    reservesBeforeDebtService - paidMonthlyInterest - reservePrincipalOutflow,
     0,
     comparable * foreignExchangeConfig.maximumReserveToComparableGDP,
   );
@@ -495,13 +614,18 @@ export function updateForeignExchange(state: GameState): void {
   nation.trade.externalDebt = nextExternalDebt;
   nation.trade.externalDebtToGDP = safeDivide(nextExternalDebt, comparable);
   nation.trade.externalDebtInterestRate = externalDebtInterestRate;
+  // 含出口实货冲销的本息，供国际收支其他投资账户与存量变化对齐。
   nation.trade.annualExternalDebtService =
-    (paidMonthlyInterest + paidMonthlyPrincipal) * 12;
+    (paidMonthlyInterest +
+      interestSettlementWriteOff +
+      paidMonthlyPrincipal) *
+    12;
   nation.trade.externalDebtServiceRatio = safeDivide(
     nation.trade.annualExternalDebtService,
     comparableExports,
   );
-  nation.trade.monthlyExternalBorrowing = annualExternalBorrowing / 12;
+  nation.trade.monthlyExternalBorrowing =
+    annualExternalBorrowing / 12 + residualDebtInjection;
   nation.trade.capitalGoodsForeignExchangeNeed = capitalGoodsNeed;
   nation.trade.capitalGoodsImportShare = capitalGoodsImportShare;
   nation.trade.capitalGoodsImportCoverage = clamp(

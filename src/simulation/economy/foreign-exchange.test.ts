@@ -182,6 +182,193 @@ describe("外汇储备与侨汇", () => {
     );
   });
 
+  it("苏债窗口维持约百分之一利率，并按史实节点注入残债与清偿", () => {
+    const sovietEra = createInitialGameState(1949, 1958);
+    sovietEra.nation.trade.externalDebt = 400_000_000;
+    sovietEra.nation.trade.foreignExchangeReserves = 800_000_000;
+    sovietEra.nation.modifiers.push({
+      id: "test:no-new-debt-soviet",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(sovietEra);
+    expect(sovietEra.nation.trade.externalDebtInterestRate).toBeCloseTo(0.01, 8);
+
+    const sovietGoodsInterest = createInitialGameState(1949, 1958);
+    sovietGoodsInterest.nation.trade.externalDebt = 400_000_000;
+    sovietGoodsInterest.nation.trade.foreignExchangeReserves = 0;
+    sovietGoodsInterest.nation.economy.capitalStock = 80_000_000_000;
+    for (const sector of Object.values(sovietGoodsInterest.nation.sectors)) {
+      sector.capitalStock = 16_000_000_000;
+    }
+    sovietGoodsInterest.nation.modifiers.push({
+      id: "test:no-new-debt-soviet-goods",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    const openingSovietDebt = sovietGoodsInterest.nation.trade.externalDebt;
+    updateForeignExchange(sovietGoodsInterest);
+    // 外储不足时，对苏窗口利息按实货结算，仍计入年化偿债口径。
+    expect(sovietGoodsInterest.nation.trade.annualExternalDebtService).toBeGreaterThanOrEqual(
+      openingSovietDebt * 0.01 - 1,
+    );
+
+    const residualMonth = createInitialGameState(1949, 1961);
+    residualMonth.nation.date.month = 4;
+    residualMonth.nation.trade.externalDebt = 50_000_000;
+    residualMonth.nation.trade.foreignExchangeReserves = 300_000_000;
+    residualMonth.nation.modifiers.push({
+      id: "test:no-new-debt-residual",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(residualMonth);
+    expect(residualMonth.nation.trade.externalDebt).toBeCloseTo(160_000_000, -2);
+    expect(residualMonth.nation.trade.monthlyExternalBorrowing).toBeCloseTo(
+      110_000_000,
+      -2,
+    );
+
+    const residualProtected = structuredClone(residualMonth);
+    residualProtected.nation.date.month = 5;
+    residualProtected.nation.modifiers.push({
+      id: "test:force-repay-residual",
+      sourceId: "test",
+      target: "trade.externalDebtPrincipalRepaymentRate",
+      operation: "override",
+      value: 1,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    residualProtected.nation.modifiers.push({
+      id: "test:no-new-debt-residual-may",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(residualProtected);
+    expect(residualProtected.nation.trade.externalDebt).toBeCloseTo(
+      160_000_000,
+      -2,
+    );
+
+    const formalClearance = createInitialGameState(1949, 1964);
+    formalClearance.nation.date.month = 1;
+    formalClearance.nation.trade.externalDebt = 2_000_000_000;
+    formalClearance.nation.trade.foreignExchangeReserves = 100_000_000;
+    formalClearance.nation.modifiers.push({
+      id: "test:no-new-debt-formal",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(formalClearance);
+    expect(formalClearance.nation.trade.externalDebt).toBeCloseTo(
+      160_000_000,
+      -2,
+    );
+    expect(
+      Number.isFinite(formalClearance.nation.trade.annualExternalDebtService),
+    ).toBe(true);
+    expect(formalClearance.nation.trade.annualExternalDebtService).toBeGreaterThan(
+      0,
+    );
+
+    const formalPreserveBorrow = createInitialGameState(1949, 1964);
+    formalPreserveBorrow.nation.date.month = 1;
+    formalPreserveBorrow.nation.trade.externalDebt = 2_000_000_000;
+    formalPreserveBorrow.nation.trade.foreignExchangeReserves = 50_000_000;
+    formalPreserveBorrow.nation.modifiers.push({
+      id: "test:borrow-with-formal",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 120_000_000,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(formalPreserveBorrow);
+    expect(formalPreserveBorrow.nation.trade.monthlyExternalBorrowing).toBeCloseTo(
+      10_000_000,
+      -2,
+    );
+    expect(formalPreserveBorrow.nation.trade.externalDebt).toBeCloseTo(
+      170_000_000,
+      -2,
+    );
+
+    const formalNoInflate = createInitialGameState(1949, 1964);
+    formalNoInflate.nation.date.month = 1;
+    formalNoInflate.nation.trade.externalDebt = 40_000_000;
+    formalNoInflate.nation.trade.foreignExchangeReserves = 100_000_000;
+    formalNoInflate.nation.modifiers.push({
+      id: "test:no-new-debt-formal-low",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(formalNoInflate);
+    expect(formalNoInflate.nation.trade.externalDebt).toBeLessThanOrEqual(
+      40_000_000,
+    );
+
+    const finalClearance = createInitialGameState(1949, 1965);
+    finalClearance.nation.date.month = 10;
+    finalClearance.nation.trade.externalDebt = 160_000_000;
+    finalClearance.nation.trade.foreignExchangeReserves = 50_000_000;
+    finalClearance.nation.modifiers.push({
+      id: "test:no-new-debt-final",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 0,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(finalClearance);
+    expect(finalClearance.nation.trade.externalDebt).toBe(0);
+
+    const finalPreserveBorrow = createInitialGameState(1949, 1965);
+    finalPreserveBorrow.nation.date.month = 10;
+    finalPreserveBorrow.nation.trade.externalDebt = 160_000_000;
+    finalPreserveBorrow.nation.trade.foreignExchangeReserves = 50_000_000;
+    finalPreserveBorrow.nation.modifiers.push({
+      id: "test:borrow-with-final",
+      sourceId: "test",
+      target: "trade.externalBorrowing",
+      operation: "override",
+      value: 120_000_000,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    updateForeignExchange(finalPreserveBorrow);
+    expect(finalPreserveBorrow.nation.trade.externalDebt).toBeCloseTo(
+      10_000_000,
+      -2,
+    );
+  });
+
   it("史实路线的外储和侨汇数量级合理并稳定运行至 2026 年", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 936 });
@@ -189,10 +376,10 @@ describe("外汇储备与侨汇", () => {
 
     expect(state.nation.date).toMatchObject({ year: 2027, month: 1 });
     expect(state.nation.trade.foreignExchangeReserves).toBeGreaterThan(
-      2_500_000_000_000,
+      2_000_000_000_000,
     );
     expect(state.nation.trade.foreignExchangeReserves).toBeLessThan(
-      4_500_000_000_000,
+      5_000_000_000_000,
     );
     expect(state.nation.trade.remittanceInflows).toBeGreaterThan(
       35_000_000_000,

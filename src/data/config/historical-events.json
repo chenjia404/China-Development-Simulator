@@ -15,6 +15,20 @@
     ]
   },
   {
+    "id": "soviet_economic_loan_1950",
+    "name": "苏联对华经济贷款协定",
+    "year": 1950,
+    "month": 2,
+    "category": "对外经济",
+    "impact": "mixed",
+    "description": "中苏签订约三亿美元经济贷款协定，用于偿付苏联交付的机器设备与器材。贷款按约五年分批拨付，年息约百分之一，形成可用于生产建设的外债，但需在随后年份以外汇和出口偿付。",
+    "effects": ["获得生产性设备融资", "形成约三亿美元经济借款", "后续需按约百分之一利率偿债"],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "trade.externalBorrowing", "operation": "add", "value": 60000000 }
+    ]
+  },
+  {
     "id": "unified_finance_1950",
     "name": "统一国家财政经济",
     "year": 1950,
@@ -52,7 +66,7 @@
     "category": "外部冲击",
     "impact": "mixed",
     "description": "朝鲜半岛爆发全面战争，中国随后进行大规模军事动员并参战。战争造成军民伤亡、长期国防财政负担和用于购买苏联军事装备的外债，美西方贸易封锁又挤压有限外汇；同时国防工业、后勤体系和部分军事技术受到动员刺激。",
-    "effects": ["战争伤亡增加", "国防财政支出上升", "约八亿美元军事物资贷款形成外债", "民用投资、资本品用汇、服务业与对外贸易受损", "国防工业和军事科研加速", "对美关系恶化、对苏关系加强"],
+    "effects": ["战争伤亡增加", "国防财政支出上升", "约十四点五亿美元军事物资贷款形成外债", "民用投资、资本品用汇、服务业与对外贸易受损", "国防工业和军事科研加速", "对美关系恶化、对苏关系加强"],
     "durationMonths": 37,
     "modifiers": [
       { "target": "population.deathRate", "operation": "multiply", "value": 1.008 },
@@ -60,8 +74,8 @@
       { "target": "sector.secondary.output", "operation": "multiply", "value": 1.006 },
       { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.965 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
-      { "target": "trade.externalBorrowing", "operation": "add", "value": 260000000 },
-      { "target": "trade.externalBorrowingNonReserveUse", "operation": "add", "value": 260000000 },
+      { "target": "trade.externalBorrowing", "operation": "add", "value": 4700000000 },
+      { "target": "trade.externalBorrowingNonReserveUse", "operation": "add", "value": 4700000000 },
       { "target": "trade.externalDebtInterestRate", "operation": "override", "value": 0.01 },
       { "target": "trade.externalDebtPrincipalRepaymentRate", "operation": "override", "value": 0 },
       { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.94 },
@@ -219,10 +233,10 @@
     ],
     "durationMonths": 48,
     "modifiers": [
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.9 },
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.955, "delayMonths": 12, "durationMonths": 24 },
-      { "target": "population.deathRate", "operation": "multiply", "value": 1.03, "durationMonths": 36 },
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.97, "durationMonths": 36 }
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.92 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.96, "delayMonths": 12, "durationMonths": 24 },
+      { "target": "population.deathRate", "operation": "multiply", "value": 1.022, "durationMonths": 36 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 }
     ]
   },
   {
@@ -232,14 +246,14 @@
     "month": 1,
     "category": "宏观调控",
     "impact": "positive",
-    "description": "国民经济进入调整期，压缩过度扩张的建设规模，恢复农业和轻工业，改善基本生活资料供给。恢复是渐进的，短期内尚难回到困难前的产量水平。",
-    "effects": ["农业与粮食逐步恢复", "过热工业投资收缩", "宏观秩序改善"],
-    "durationMonths": 42,
+    "description": "国民经济进入调整期，压缩过度扩张的建设规模，恢复农业和轻工业，改善基本生活资料供给。史实上 1963—1965 年工农业产出明显回升，恢复是渐进的。",
+    "effects": ["农业与粮食逐步恢复", "轻工业与必要工业产能回升", "过热重工业投资收缩", "宏观秩序改善"],
+    "durationMonths": 48,
     "modifiers": [
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.025 },
-      { "target": "sector.primary.output", "operation": "multiply", "value": 1.02 },
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
-      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.02 }
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.04 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.008 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.025 }
     ]
   },
   {
@@ -638,9 +652,10 @@
     "impact": "mixed",
     "description": "去产能、去库存、去杠杆、降成本和补短板逐步推进，传统工业扩张放缓，资源效率和技术升级得到强化。",
     "effects": ["落后产能收缩", "能源效率改善", "科研与产业升级加快"],
-    "durationMonths": 60,
+    "durationMonths": 96,
     "modifiers": [
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.99 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.975 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.035 },
       { "target": "resources.energySupply", "operation": "multiply", "value": 1.025 },
       { "target": "technology.researchOutput", "operation": "multiply", "value": 1.025 }
     ]
@@ -656,8 +671,9 @@
     "effects": ["服务业和工业短期收缩", "财政与医疗压力上升", "数字化转型加快"],
     "durationMonths": 18,
     "modifiers": [
-      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.9 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.92 },
       { "target": "sector.secondary.output", "operation": "multiply", "value": 0.96 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.04, "delayMonths": 18, "durationMonths": 48 },
       { "target": "fiscal.revenue", "operation": "multiply", "value": 0.94 },
       { "target": "population.deathRate", "operation": "multiply", "value": 1.025 },
       { "target": "technology.researchOutput", "operation": "multiply", "value": 1.02 }
@@ -674,7 +690,7 @@
     "effects": ["出生率逐步下降", "短期抚养压力缓解", "长期老龄化风险上升"],
     "durationMonths": 108,
     "modifiers": [
-      { "target": "population.birthRate", "operation": "multiply", "value": 0.98 }
+      { "target": "population.birthRate", "operation": "multiply", "value": 0.97 }
     ]
   },
   {
@@ -686,9 +702,9 @@
     "impact": "mixed",
     "description": "独生子女倡议和更严格的人口控制措施在各地逐步实施，生育率明显下行。资源和公共服务压力降低，但人口老龄化与劳动力收缩风险不断累积。",
     "effects": ["出生率明显下降", "教育医疗人均资源改善", "老龄化与劳动力风险上升"],
-    "durationMonths": 240,
+    "durationMonths": 420,
     "modifiers": [
-      { "target": "population.birthRate", "operation": "multiply", "value": 0.96 }
+      { "target": "population.birthRate", "operation": "multiply", "value": 0.92 }
     ]
   },
   {
@@ -702,7 +718,7 @@
     "effects": ["出生率短期回升", "家庭养育成本增加", "老龄化压力边际缓解"],
     "durationMonths": 60,
     "modifiers": [
-      { "target": "population.birthRate", "operation": "multiply", "value": 1.02 }
+      { "target": "population.birthRate", "operation": "multiply", "value": 0.995 }
     ]
   },
   {
@@ -716,7 +732,7 @@
     "effects": ["生育限制进一步放宽", "公共服务需求增加", "政策效果存在明显滞后"],
     "durationMonths": 60,
     "modifiers": [
-      { "target": "population.birthRate", "operation": "multiply", "value": 1.015 }
+      { "target": "population.birthRate", "operation": "multiply", "value": 1.002 }
     ]
   },
   {

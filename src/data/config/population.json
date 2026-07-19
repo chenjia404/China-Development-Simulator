@@ -1,7 +1,7 @@
 {
-  "baseAnnualBirthRate": 0.054,
+  "baseAnnualBirthRate": 0.0558,
   "minimumAnnualBirthRate": 0.005,
-  "maximumAnnualBirthRate": 0.055,
+  "maximumAnnualBirthRate": 0.059,
   "baseAnnualDeathRate": 0.019,
   "minimumAnnualDeathRate": 0.004,
   "maximumAnnualDeathRate": 0.08,

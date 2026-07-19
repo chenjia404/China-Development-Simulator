@@ -1,28 +1,29 @@
-{
+﻿{
   "metadata": {
-    "description": "当年价人民币、现价美元人均GDP与国际GDP比较口径的历史折算锚点。折算只用于统计展示、国际比较和排名，不改变实际产出。",
+    "description": "当年价人民币、现价美元人均GDP与国际GDP比较口径的历史折算锚点。折算只用于统计展示、国际比较和排名，不改变实际产出。worldGDPComparisonFactors 按世界银行中国名义美元GDP（NY.GDP.MKTP.CD）反推；worldPeerNominalGDPScaleFactors 将轻量世界国家名义GDP统一缩放到与该口径可比，使史实路线总量排名贴近公开全球名次。",
     "sources": [
       "https://www.stats.gov.cn/sj/ndsj/2012/html/B0104C.HTM",
       "https://www.stats.gov.cn/sj/ndsj/2010/html/Z2606C.HTM",
       "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1901004.html",
       "https://www.stats.gov.cn/xxgk/sjfb/tjgb2020/202602/t20260228_1962662.html",
       "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=CN",
+      "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD?locations=CN",
       "https://www.edb.gov.hk/attachment/en/curriculum-development/kla/pshe/references-and-resources/ces/support_materials_S3/M3.2%20%28Part1%29%20Economic%20performance%20of%20our%20country_e_2023%20Dec_clean.pdf"
     ]
   },
   "currentPriceGDPPerCapitaFactors": [
     { "year": 1949, "factor": 1.0 },
-    { "year": 1978, "factor": 0.7048683322094115 },
-    { "year": 1990, "factor": 1.1565301969078616 },
-    { "year": 2000, "factor": 2.0416921642575065 },
+    { "year": 1978, "factor": 0.6542 },
+    { "year": 1990, "factor": 1.0565 },
+    { "year": 2000, "factor": 1.937 },
     { "year": 2020, "factor": 5.289895308745692 },
     { "year": 2026, "factor": 5.150396365080562 }
   ],
   "currentUSDGDPPerCapitaFactors": [
     { "year": 1949, "factor": 0.22 },
-    { "year": 1978, "factor": 0.2899025397827159 },
-    { "year": 1990, "factor": 0.22406013851286735 },
-    { "year": 2000, "factor": 0.2518208253497551 },
+    { "year": 1978, "factor": 0.2691 },
+    { "year": 1990, "factor": 0.2047 },
+    { "year": 2000, "factor": 0.2389 },
     { "year": 2020, "factor": 0.77144 },
     { "year": 2026, "factor": 0.71315 }
   ],
@@ -34,10 +35,21 @@
   ],
   "rankSensitivityPerIncomeDoubling": 12,
   "worldGDPComparisonFactors": [
-    { "year": 1949, "factor": 1.0 },
-    { "year": 1978, "factor": 0.46815353313850444 },
-    { "year": 1990, "factor": 0.195498080643164 },
-    { "year": 2000, "factor": 0.2645 },
-    { "year": 2026, "factor": 0.225889938495 }
+    { "year": 1949, "factor": 0.22 },
+    { "year": 1978, "factor": 0.1535 },
+    { "year": 1990, "factor": 0.0903 },
+    { "year": 2000, "factor": 0.0851 },
+    { "year": 2010, "factor": 0.1492 },
+    { "year": 2020, "factor": 0.184 },
+    { "year": 2026, "factor": 0.1534 }
+  ],
+  "worldPeerNominalGDPScaleFactors": [
+    { "year": 1949, "factor": 0.4 },
+    { "year": 1978, "factor": 0.3593 },
+    { "year": 1990, "factor": 0.5005 },
+    { "year": 2000, "factor": 0.3352 },
+    { "year": 2010, "factor": 0.4839 },
+    { "year": 2020, "factor": 0.8028 },
+    { "year": 2026, "factor": 0.7883 }
   ]
 }

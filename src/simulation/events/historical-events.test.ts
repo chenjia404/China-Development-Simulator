@@ -123,7 +123,7 @@ describe("确定性历史事件", () => {
     expect(engine.getState().nation.history.historicalEvents[0]).toMatchObject({
       choiceId: "preserve_mixed_ownership",
       choiceName: "保留混合所有制",
-      durationMonths: 60,
+      durationMonths: 120,
     });
     expect(
       applyModifiers(
@@ -131,7 +131,7 @@ describe("确定性历史事件", () => {
         "capital.privateInvestment",
         100,
       ),
-    ).toBeCloseTo(102.5);
+    ).toBeCloseTo(105);
 
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
     expect(engine.getState().nation.date).toMatchObject({ year: 1956, month: 2 });
@@ -327,7 +327,7 @@ describe("确定性历史事件", () => {
     }
   });
 
-  it("朝鲜战争军事贷款在战争期累积，并于1964年用外汇清偿", () => {
+  it("朝鲜战争军事贷款在战争期累积，1964年保留残债并于1965年清偿", () => {
     const state = createInitialGameState(1950, 1950, "interactive");
     state.nation.date.month = 6;
     const engine = createSimulationEngine(state);
@@ -347,17 +347,36 @@ describe("确定性历史事件", () => {
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 37 });
 
     expect(engine.getState().nation.trade.externalDebt).toBeGreaterThan(
-      750_000_000,
+      14_000_000_000,
     );
     expect(engine.getState().nation.trade.externalDebt).toBeLessThan(
-      850_000_000,
+      15_000_000_000,
     );
 
-    const monthsTo1964 =
+    const monthsToEnd1964 =
       (1964 - engine.getState().nation.date.year) * 12 +
-      (2 - engine.getState().nation.date.month);
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsTo1964 });
-    expect(engine.getState().nation.date).toMatchObject({ year: 1964, month: 2 });
+      (12 - engine.getState().nation.date.month) +
+      1;
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsToEnd1964 });
+    expect(engine.getState().nation.date).toMatchObject({
+      year: 1965,
+      month: 1,
+    });
+    expect(engine.getState().nation.trade.externalDebt).toBeGreaterThanOrEqual(
+      120_000_000,
+    );
+    expect(engine.getState().nation.trade.externalDebt).toBeLessThanOrEqual(
+      200_000_000,
+    );
+
+    const monthsToClearance =
+      (1965 - engine.getState().nation.date.year) * 12 +
+      (11 - engine.getState().nation.date.month);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsToClearance });
+    expect(engine.getState().nation.date).toMatchObject({
+      year: 1965,
+      month: 11,
+    });
     expect(engine.getState().nation.trade.externalDebt).toBeLessThan(1_000_000);
   });
 
@@ -419,8 +438,9 @@ describe("确定性历史事件", () => {
     expect(focused.nation.diplomacy.securityIndex).toBeGreaterThan(
       canceled.nation.diplomacy.securityIndex,
     );
-    expect(historical.nation.economy.infrastructureIndex).toBeGreaterThan(
-      canceled.nation.economy.infrastructureIndex,
+    // 取消三线把资源留在民用与既有工业区，基建指数可高于全面铺开的史实路线。
+    expect(canceled.nation.economy.infrastructureIndex).toBeGreaterThan(
+      historical.nation.economy.infrastructureIndex,
     );
     expect(
       historical.nation.fiscal.expenditure /
@@ -504,7 +524,7 @@ describe("确定性历史事件", () => {
         "economy.structuralProductivityGrowth",
         0,
       ),
-    ).toBeCloseTo(0.00065);
+    ).toBeCloseTo(0.001);
   });
 
   it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {
@@ -547,14 +567,14 @@ describe("确定性历史事件", () => {
           modifier.target === "resources.foodSupply" &&
           (modifier.delayMonths ?? 0) === 0,
       )?.value,
-    ).toBeCloseTo(1 + (0.9 - 1) * 0.65 * 0.8, 6);
+    ).toBeCloseTo(1 + (0.92 - 1) * 0.65 * 0.8, 6);
     expect(
       historicalPath.modifiers.find(
         (modifier) =>
           modifier.target === "resources.foodSupply" &&
           modifier.delayMonths === 12,
       )?.value,
-    ).toBeCloseTo(1 + (0.955 - 1) * 0.65 * 0.8, 6);
+    ).toBeCloseTo(1 + (0.96 - 1) * 0.65 * 0.8, 6);
     const acceptAid = choices.find(
       (choice) => choice.id === "continue_grain_exports+accept_foreign_aid",
     );
@@ -1029,7 +1049,7 @@ describe("确定性历史事件", () => {
       protectedInstitutions?.modifiers.find(
         (modifier) => modifier.target === "education.efficiency",
       )?.value,
-    ).toBe(1.25);
+    ).toBe(1.35);
     expect(
       historicalPath?.modifiers.find(
         (modifier) => modifier.target === "technology.treeResearchProgress",
@@ -1059,7 +1079,7 @@ describe("确定性历史事件", () => {
       protectedInstitutions?.modifiers.find(
         (modifier) => modifier.target === "technology.treeResearchProgress",
       )?.value,
-    ).toBe(1.22);
+    ).toBe(1.28);
     expect(
       protectedInstitutions?.modifiers.some(
         (modifier) => modifier.target === "capital.investmentEfficiency",
@@ -1077,7 +1097,7 @@ describe("确定性历史事件", () => {
         (modifier) =>
           modifier.target === "economy.structuralProductivityGrowth",
       )?.value,
-    ).toBe(0.00065);
+    ).toBe(0.0011);
 
     const runChoice = (choiceId: string, months = 12) => {
       const state = createInitialGameState(1966, 1966, "interactive");

@@ -24,6 +24,13 @@ const currentUSDAnchors =
   historicalEconomicAnchors.currentUSDGDPPerCapitaFactors as ConversionAnchor[];
 const worldComparisonAnchors =
   historicalEconomicAnchors.worldGDPComparisonFactors as ConversionAnchor[];
+const worldPeerNominalGDPScaleAnchors =
+  (historicalEconomicAnchors as {
+    worldPeerNominalGDPScaleFactors?: ConversionAnchor[];
+  }).worldPeerNominalGDPScaleFactors ?? [
+    { year: 1949, factor: 1 },
+    { year: 2026, factor: 1 },
+  ];
 const globalRankAnchors =
   historicalEconomicAnchors.globalGDPPerCapitaRankAnchors as GlobalRankAnchor[];
 
@@ -109,7 +116,7 @@ export function calculateGlobalGDPPerCapitaStanding(
   };
 }
 
-/** 将中国游戏内不变价 GDP 折算到与世界轻量模型一致的比较尺度。 */
+/** 将中国游戏内不变价 GDP 折算到与世界银行名义美元口径一致的国际比较尺度。 */
 export function calculateWorldComparableGDP(
   realGDP: number,
   worldPriceLevel: number,
@@ -117,6 +124,14 @@ export function calculateWorldComparableGDP(
 ): number {
   return Math.max(0, realGDP) * Math.max(0, worldPriceLevel) *
     interpolateFactor(worldComparisonAnchors, year);
+}
+
+/**
+ * 轻量世界国家名义 GDP 相对世界银行中国名义口径的统一缩放。
+ * 用于排名与影响力份额，不改写各国内部产出状态。
+ */
+export function calculateWorldPeerNominalGDPScale(year: number): number {
+  return Math.max(0, interpolateFactor(worldPeerNominalGDPScaleAnchors, year));
 }
 
 export function ensureHistoricalAccountingState(state: GameState): void {

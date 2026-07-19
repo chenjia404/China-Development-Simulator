@@ -6,7 +6,7 @@
       "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=KR",
       "https://sri.kostat.go.kr/boardDownload.es?bid=11772&list_no=347950&seq=1"
     ],
-    "modelingNote": "目标用于校验资本形成、出口再投资、出口学习、职业教育和产业升级的联合传导；允许汇率、人口规模和玩家历史决策造成偏离。"
+    "modelingNote": "目标用于校验资本形成、出口再投资、出口学习、职业教育和产业升级的联合传导。审计时以「追赶路线不变价人均 / 世界模型韩国不变价人均 × 本表世行韩国现价美元人均」作可比收入，避免误用中国史实美元折算因子；允许汇率口径、人口规模和玩家历史决策造成偏离。"
   },
   "years": [
     { "year": 1960, "currentUSDGDPPerCapita": 158.84 },

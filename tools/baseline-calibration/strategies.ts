@@ -62,11 +62,37 @@ function historicalDecision(year: number): AnnualDecision {
         : ["industry_priority", "expand_opening"],
     };
   }
+  if (year < 2012) {
+    return {
+      budget: {
+        ...balancedBudget,
+        agriculture: 0.055,
+        industry: 0.16,
+        infrastructure: 0.18,
+        education: 0.16,
+        health: 0.11,
+        research: 0.1,
+        administration: 0.055,
+      },
+      // 入世后逐步淡出工业优先，避免 2010s 二产资本份额持续偏高。
+      policyIds: year < 2005
+        ? ["expand_opening", "technology_priority", "industry_priority"]
+        : ["expand_opening", "technology_priority"],
+    };
+  }
   return {
-    budget: { ...balancedBudget, agriculture: 0.055, industry: 0.16, infrastructure: 0.18, education: 0.16, health: 0.11, research: 0.1, administration: 0.055 },
-    policyIds: year < 2012
-      ? ["expand_opening", "technology_priority", "industry_priority"]
-      : ["expand_opening", "technology_priority"],
+    budget: {
+      ...balancedBudget,
+      agriculture: 0.05,
+      industry: 0.13,
+      infrastructure: 0.16,
+      education: 0.17,
+      health: 0.12,
+      research: 0.11,
+      welfare: 0.1,
+      administration: 0.05,
+    },
+    policyIds: ["expand_opening", "technology_priority", "livelihood_priority"],
   };
 }
 
@@ -74,14 +100,14 @@ function koreanCatchUpDecision(year: number): AnnualDecision {
   if (year > 2000) {
     return {
       budget: {
-        education: 0.17,
-        health: 0.12,
-        agriculture: 0.04,
-        industry: 0.13,
+        education: 0.18,
+        health: 0.11,
+        agriculture: 0.03,
+        industry: 0.14,
         infrastructure: 0.15,
-        research: 0.14,
+        research: 0.15,
         housing: 0.06,
-        welfare: 0.08,
+        welfare: 0.07,
         defense: 0.05,
         administration: 0.06,
       },
@@ -89,24 +115,24 @@ function koreanCatchUpDecision(year: number): AnnualDecision {
         "technology_priority",
         "education_priority",
         "expand_opening",
+        "industrial_upgrading",
         "green_development",
-        "livelihood_priority",
       ],
     };
   }
-  if (year < 1973) {
+  if (year < 1962) {
     return {
       budget: {
-        education: 0.18,
+        education: 0.19,
         health: 0.05,
-        agriculture: 0.08,
-        industry: 0.24,
+        agriculture: 0.07,
+        industry: 0.25,
         infrastructure: 0.2,
-        research: 0.05,
+        research: 0.06,
         housing: 0.03,
-        welfare: 0.04,
+        welfare: 0.03,
         defense: 0.06,
-        administration: 0.07,
+        administration: 0.06,
       },
       policyIds: [
         "developmental_finance",
@@ -117,14 +143,37 @@ function koreanCatchUpDecision(year: number): AnnualDecision {
       ],
     };
   }
+  if (year < 1973) {
+    return {
+      budget: {
+        education: 0.18,
+        health: 0.05,
+        agriculture: 0.06,
+        industry: 0.24,
+        infrastructure: 0.2,
+        research: 0.08,
+        housing: 0.03,
+        welfare: 0.03,
+        defense: 0.06,
+        administration: 0.07,
+      },
+      policyIds: [
+        "developmental_finance",
+        "vocational_technical_education",
+        "export_oriented",
+        "export_industrial_zones",
+        "industrial_upgrading",
+      ],
+    };
+  }
   return {
     budget: {
-      education: 0.16,
+      education: 0.17,
       health: 0.07,
-      agriculture: 0.05,
+      agriculture: 0.04,
       industry: 0.23,
-      infrastructure: 0.2,
-      research: 0.12,
+      infrastructure: 0.19,
+      research: 0.13,
       housing: 0.03,
       welfare: 0.04,
       defense: 0.05,
@@ -133,7 +182,7 @@ function koreanCatchUpDecision(year: number): AnnualDecision {
     policyIds: [
       "developmental_finance",
       "vocational_technical_education",
-      "expand_opening",
+      "export_oriented",
       "export_industrial_zones",
       "industrial_upgrading",
     ],
@@ -340,7 +389,8 @@ export function getHistoricalEventChoice(
     industry_wide_joint_ownership_1956: "preserve_mixed_ownership",
     great_leap_forward_1958: "avoid_great_leap",
     peoples_communes_1958: "avoid_communes",
-    three_year_difficulties_1959: "accept_foreign_aid",
+    three_year_difficulties_1959:
+      "ban_grain_exports_and_import+accept_foreign_aid",
     third_front_construction_1964: "cancel_third_front",
     cultural_revolution_disruption_1966: "protect_institutions",
   }[eventId] ?? "historical_path";

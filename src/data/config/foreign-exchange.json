@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "description": "外汇储备、侨汇、资本品用汇与外债的长期参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。",
+    "description": "外汇储备、侨汇、资本品用汇与外债的长期参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。史实对苏还债以农产品、矿产品与轻工出口为主，historicalDebtWriteOffCapitalChargeRate 表示实货冲销中转化为资本存量损失的比例，应显著小于 1。",
     "sources": [
       "https://www.safe.gov.cn/safe/whcb/",
       "https://data.worldbank.org/indicator/BX.TRF.PWKR.CD.DT?locations=CN",
@@ -27,11 +27,23 @@
   "initialExternalDebt": 0,
   "baseExternalDebtInterestRate": 0.025,
   "externalDebtRiskPremium": 0.08,
+  "sovietLoanInterestRate": 0.01,
+  "sovietLoanInterestEndYear": 1965,
+  "sovietLoanInterestEndMonth": 10,
   "baseAnnualPrincipalRepaymentRate": 0.055,
-  "earlyAnnualPrincipalRepaymentRate": 0.14,
-  "earlyRepaymentEndYear": 1964,
-  "historicalExternalDebtClearanceYear": 1964,
+  "earlyAnnualPrincipalRepaymentRate": 0.11,
+  "earlyRepaymentEndYear": 1965,
+  "historicalFormalDebtClearanceYear": 1964,
+  "historicalFormalDebtClearanceMonth": 1,
+  "historicalExternalDebtClearanceYear": 1965,
+  "historicalExternalDebtClearanceMonth": 10,
+  "historicalResidualExternalDebtUsd": 160000000,
+  "historicalResidualDebtStartYear": 1961,
+  "historicalResidualDebtStartMonth": 4,
+  "historicalDebtWriteOffCapitalChargeRate": 0.18,
   "maximumExternalDebtToComparableGDP": 0.2,
+  "earlyMaximumExternalDebtToComparableGDP": 0.55,
+  "earlyExternalDebtCapEndYear": 1978,
   "maximumAnnualMarketBorrowingToGDP": 0.002,
   "marketBorrowingStartYear": 1978,
   "capitalGoodsImportShareMinimum": 0.12,
@@ -46,10 +58,10 @@
     { "year": 1978, "share": 0.005 },
     { "year": 1990, "share": 0.04 },
     { "year": 2000, "share": 0.045 },
-    { "year": 2010, "share": 0.35 },
+    { "year": 2010, "share": 0.4 },
     { "year": 2014, "share": 0.28 },
-    { "year": 2024, "share": 0.11 },
-    { "year": 2026, "share": 0.11 }
+    { "year": 2024, "share": 0.17 },
+    { "year": 2026, "share": 0.16 }
   ],
   "remittanceGDPShareAnchors": [
     { "year": 1949, "share": 0.0016 },
@@ -60,7 +72,7 @@
     { "year": 1995, "share": 0.0022 },
     { "year": 2005, "share": 0.0035 },
     { "year": 2010, "share": 0.003 },
-    { "year": 2024, "share": 0.0017 },
-    { "year": 2026, "share": 0.0017 }
+    { "year": 2024, "share": 0.0025 },
+    { "year": 2026, "share": 0.0024 }
   ]
 }

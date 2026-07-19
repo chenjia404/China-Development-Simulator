@@ -3,6 +3,7 @@ import type { GameState } from "../state/game-state";
 import {
   calculateGlobalGDPPerCapitaStanding,
   calculateWorldComparableGDP,
+  calculateWorldPeerNominalGDPScale,
 } from "../economy/historical-accounting";
 
 export function calculateRank<T extends { id: string }>(
@@ -46,16 +47,22 @@ export function calculateWorldRankings(state: GameState): void {
     state.nation.date.year,
   );
   state.nation.economy.internationalComparableGDP = chinaComparableGDP;
-  const foreignCountries: RankingCountry[] = state.world.countries.map((country) => ({
-    id: country.id,
-    nominalGDP: country.nominalGDP,
-    nominalGDPPerCapita: safeDivide(country.nominalGDP, country.population),
-    technology: country.technologyIndex,
-    education: country.educationIndex,
-    lifeExpectancy: country.lifeExpectancy,
-    happiness: country.happinessIndex,
-    influence: country.internationalInfluence,
-  }));
+  const peerNominalScale = calculateWorldPeerNominalGDPScale(
+    state.nation.date.year,
+  );
+  const foreignCountries: RankingCountry[] = state.world.countries.map((country) => {
+    const nominalGDP = country.nominalGDP * peerNominalScale;
+    return {
+      id: country.id,
+      nominalGDP,
+      nominalGDPPerCapita: safeDivide(nominalGDP, country.population),
+      technology: country.technologyIndex,
+      education: country.educationIndex,
+      lifeExpectancy: country.lifeExpectancy,
+      happiness: country.happinessIndex,
+      influence: country.internationalInfluence,
+    };
+  });
   const worldNominalGDP = foreignCountries.reduce(
     (sum, country) => sum + country.nominalGDP,
     chinaComparableGDP,
