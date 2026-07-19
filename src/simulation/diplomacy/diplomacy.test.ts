@@ -212,9 +212,12 @@ describe("外交与国际贸易", () => {
     const tooEarly = createInitialGameState(1949);
     expect(
       getInternationalOrganizationStatus(tooEarly, "world_trade_organization").blockers,
-    ).toContain("最早可在 1995 年取得资格");
+    ).not.toContain("最早可在 1995 年取得资格");
+    expect(
+      getInternationalOrganizationStatus(tooEarly, "world_trade_organization").blockers,
+    ).toContain("需先完成提交恢复关贸总协定缔约方地位申请");
 
-    const missingApplication = createInitialGameState(1995, 1995);
+    const missingApplication = createInitialGameState(1985, 1985);
     missingApplication.nation.internationalInfluence = 50;
     missingApplication.nation.trade.openness = 0.5;
     missingApplication.nation.diplomacy.diplomaticPoints = 100;
@@ -229,7 +232,7 @@ describe("外交与国际贸易", () => {
       ).blockers,
     ).toContain("需先完成提交恢复关贸总协定缔约方地位申请");
 
-    const eligible = createInitialGameState(1986, 1986);
+    const eligible = createInitialGameState(1982, 1982);
     enactHistoricalEventEarly(
       eligible.nation,
       "gatt_accession_application_1986",
@@ -237,9 +240,9 @@ describe("外交与国际贸易", () => {
       "测试复关进程前置条件",
       [],
     );
-    eligible.nation.date.year = 1995;
+    eligible.nation.date.year = 1987;
     eligible.nation.date.month = 1;
-    eligible.nation.date.elapsedMonths = (1995 - 1949) * 12;
+    eligible.nation.date.elapsedMonths = (1987 - 1949) * 12;
     eligible.nation.internationalInfluence = 50;
     eligible.nation.trade.openness = 0.5;
     eligible.nation.diplomacy.diplomaticPoints = 100;
@@ -262,7 +265,7 @@ describe("外交与国际贸易", () => {
     expect(joined.nation.diplomacy.diplomaticPoints).toBe(100);
     expect(joined.nation.history.historicalEvents.at(-1)).toMatchObject({
       id: "wto_accession_2001",
-      year: 1995,
+      year: 1987,
       scheduledYear: 2001,
       outcome: "enacted_early",
     });

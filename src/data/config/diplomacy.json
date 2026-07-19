@@ -73,9 +73,9 @@
     {
       "id": "world_trade_organization",
       "name": "世界贸易组织",
-      "description": "接入多边贸易规则，扩大市场准入并提高外资信心。",
+      "description": "完成复关谈判并取得足够国际支持后接入多边贸易规则，扩大市场准入并提高外资信心；不设置固定最早年份。",
       "automatic": true,
-      "availableYear": 1995,
+      "availableYear": 1949,
       "cost": 0,
       "minimumInfluence": 25,
       "minimumOpenness": 0.35,

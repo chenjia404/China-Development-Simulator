@@ -760,9 +760,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     "审计复关进程前置条件",
     [],
   );
-  wtoSupportState.nation.date.year = 1995;
+  wtoSupportState.nation.date.year = 1991;
   wtoSupportState.nation.date.month = 1;
-  wtoSupportState.nation.date.elapsedMonths = (1995 - 1949) * 12;
+  wtoSupportState.nation.date.elapsedMonths = (1991 - 1949) * 12;
   wtoSupportState.nation.internationalInfluence = 50;
   wtoSupportState.nation.trade.openness = 0.5;
   wtoSupportState.nation.diplomacy.diplomaticPoints = 100;
