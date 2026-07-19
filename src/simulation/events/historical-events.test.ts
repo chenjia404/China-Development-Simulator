@@ -10,6 +10,7 @@ import { createInitialGameState } from "../state/initial-state";
 import {
   checkHistoricalEvents,
   getHistoricalEventAxes,
+  getHistoricalEventChoice,
   getHistoricalEventChoices,
   historicalEventDefinitions,
 } from "./historical-event-engine";
@@ -539,6 +540,77 @@ describe("确定性历史事件", () => {
         0,
       ),
     ).toBeCloseTo(0.001);
+  });
+
+  it("人民公社史实路径按劳动、管理与副业偏强冲击压制农业与粮食", () => {
+    const historicalChoice = getHistoricalEventChoice(
+      "peoples_communes_1958",
+      "historical_path",
+    );
+    expect(historicalChoice?.durationMonths).toBe(36);
+    expect(
+      historicalChoice?.modifiers.find(
+        (modifier) =>
+          modifier.target === "sector.primary.output" &&
+          modifier.delayMonths === 6,
+      ),
+    ).toMatchObject({ value: 0.93, durationMonths: 10 });
+    expect(
+      historicalChoice?.modifiers.find(
+        (modifier) =>
+          modifier.target === "economy.institutionalEfficiencyTarget",
+      )?.value,
+    ).toBe(0.95);
+    expect(
+      historicalChoice?.modifiers.find(
+        (modifier) => modifier.target === "capital.investmentEfficiency",
+      )?.value,
+    ).toBe(0.97);
+    expect(
+      historicalChoice?.modifiers.find(
+        (modifier) => modifier.target === "capital.privateInvestment",
+      )?.value,
+    ).toBe(0.85);
+    expect(
+      historicalChoice?.modifiers.find(
+        (modifier) =>
+          modifier.target === "resources.foodSupply" &&
+          modifier.delayMonths === 5,
+      ),
+    ).toMatchObject({ value: 0.95, durationMonths: 10 });
+    expect(
+      historicalChoice?.modifiers.find(
+        (modifier) =>
+          modifier.target === "economy.structuralProductivityGrowth",
+      ),
+    ).toMatchObject({ value: -0.00005, durationMonths: 72 });
+
+    const runChoice = (choiceId: string) => {
+      const state = createInitialGameState(1958, 1958, "interactive");
+      state.nation.date.month = 8;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "peoples_communes_1958",
+        choiceId,
+      });
+      // 越过粮供与农业产出的延迟窗口后再比较。
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 8 });
+      return engine.getState();
+    };
+
+    const historical = runChoice("historical_path");
+    const avoided = runChoice("avoid_communes");
+    expect(historical.nation.resources.foodSupplyRatio).toBeLessThan(
+      avoided.nation.resources.foodSupplyRatio,
+    );
+    expect(historical.nation.sectors.primary.output).toBeLessThan(
+      avoided.nation.sectors.primary.output,
+    );
+    expect(historical.nation.economy.institutionalEfficiency).toBeLessThan(
+      avoided.nation.economy.institutionalEfficiency,
+    );
   });
 
   it("避免大跃进和人民公社化会显著减轻三年经济困难", () => {

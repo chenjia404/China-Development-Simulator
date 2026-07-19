@@ -123,4 +123,69 @@ describe("三年困难超额死亡账户", () => {
     expect(report?.accountComplete).toBe(false);
     expect(report?.baselineSource).not.toBe("recorded");
   });
+
+  it("避免双运动并禁出口降征购后超额死亡接近或低于常态，叠外援后不高于常态", () => {
+    const runToReport = (choose: (eventId: string) => string) => {
+      const engine = createSimulationEngine(
+        createInitialGameState(1949, 1949, "interactive"),
+      );
+      for (let guard = 0; guard < 400; guard += 1) {
+        const state = engine.getState();
+        if (state.nation.famineMortality.finalized) {
+          if (state.nation.famineMortality.pendingReport) {
+            engine.dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+          }
+          break;
+        }
+        if (state.nation.pendingHistoricalEventId) {
+          const eventId = state.nation.pendingHistoricalEventId;
+          engine.dispatch({
+            type: "RESOLVE_HISTORICAL_EVENT",
+            eventId,
+            choiceId: choose(eventId),
+          });
+          continue;
+        }
+        engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      }
+      const report = engine.getState().nation.famineMortality.report;
+      expect(report?.accountComplete).toBe(true);
+      return report!;
+    };
+
+    const historical = runToReport(() => "historical_path");
+    const avoidedWithoutAid = runToReport((eventId) =>
+      (
+        {
+          great_leap_forward_1958: "avoid_great_leap",
+          peoples_communes_1958: "avoid_communes",
+          three_year_difficulties_1959:
+            "ban_grain_exports_and_import+no_additional_relief+reduce_procurement_guarantee_ration",
+        } as Record<string, string>
+      )[eventId] ?? "historical_path",
+    );
+    const avoidedWithAid = runToReport((eventId) =>
+      (
+        {
+          great_leap_forward_1958: "avoid_great_leap",
+          peoples_communes_1958: "avoid_communes",
+          three_year_difficulties_1959:
+            "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
+        } as Record<string, string>
+      )[eventId] ?? "historical_path",
+    );
+
+    // 史实仍保留全国性饥荒级超额死亡。
+    expect(historical.excessDeaths).toBeGreaterThan(10_000_000);
+    // 不建公社 + 不大跃进 + 禁出口并进口 + 降征购：大饥荒基本避免（超额≈0或更优）。
+    expect(avoidedWithoutAid.excessDeaths).toBeLessThan(2_000_000);
+    expect(avoidedWithoutAid.excessDeaths).toBeLessThan(
+      historical.excessDeaths * 0.15,
+    );
+    // 再接受外援：相对 1955–1957 常态不产生超额饿死（可≤0）。
+    expect(avoidedWithAid.excessDeaths).toBeLessThanOrEqual(0);
+    expect(avoidedWithAid.excessDeaths).toBeLessThanOrEqual(
+      avoidedWithoutAid.excessDeaths,
+    );
+  });
 });
