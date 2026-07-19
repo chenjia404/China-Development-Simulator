@@ -1822,7 +1822,7 @@ function formatFamineHistoricalHeadline(vsHistorical: number): {
     return {
       badge: "优于史实",
       badgeTone: "positive",
-      headline: `比史实路线少死约 ${formatMortalityPeople(Math.abs(vsHistorical))}`,
+      headline: `比史实路线拯救约 ${formatMortalityPeople(Math.abs(vsHistorical))}`,
       shareLabel: "显著轻于史实路线",
     };
   }
@@ -1896,7 +1896,7 @@ function FamineMortalityReportModal({
             >
               {Math.abs(vsHistorical) < 500_000
                 ? "大致持平"
-                : `${vsHistorical < 0 ? "少死 " : "多死 "}${formatMortalityPeople(Math.abs(vsHistorical))}`}
+                : `${vsHistorical < 0 ? "拯救 " : "多死 "}${formatMortalityPeople(Math.abs(vsHistorical))}`}
             </strong>
             <small>
               {Number.isFinite(shareOfHistorical)
