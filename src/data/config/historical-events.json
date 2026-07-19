@@ -236,6 +236,39 @@
     ]
   },
   {
+    "id": "albania_aid_after_soviet_cutoff_1961",
+    "name": "苏阿断援后对阿尔巴尼亚援助",
+    "year": 1961,
+    "month": 3,
+    "category": "外交",
+    "impact": "mixed",
+    "description": "1961年春苏联中断对阿尔巴尼亚的援助后，阿方向中国求援。尽管国内仍处三年困难与国民经济调整初期，史实路线仍提供了几十万吨粮食、时值约2.5亿元人民币的外汇援款，以及19个成套项目；这一决定巩固对阿关系，但也加重国内粮食、财政与外汇压力，并在中苏分歧背景下承担一定站队成本。",
+    "effects": [
+      "调出几十万吨粮食加剧国内供应压力",
+      "约2.5亿元外汇援款占用资本品进口能力",
+      "推进19个成套项目挤出国内投资与财政空间",
+      "对阿尔巴尼亚关系显著上升",
+      "国际声誉小幅上升",
+      "对苏关系轻微降温"
+    ],
+    "durationMonths": 36,
+    "modifiers": [
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.998 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.004 },
+      { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.997 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.998 },
+      { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.995 },
+      { "target": "diplomacy.relationTarget.albania", "operation": "add", "value": 45 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 3 },
+      { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -8 }
+    ],
+    "foreignAidAdjustment": {
+      "annualRmbDelta": 0,
+      "annualForeignExchangeRmbDelta": 79166666.66666666,
+      "durationMonths": 36
+    }
+  },
+  {
     "id": "third_front_construction_1964",
     "name": "三线建设展开",
     "year": 1964,

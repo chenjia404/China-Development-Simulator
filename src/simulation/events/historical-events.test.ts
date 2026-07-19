@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
+import {
+  foreignAidReserveFlowAdjustment,
+  tickForeignAidEventAdjustment,
+  updateForeignAidProgram,
+} from "../diplomacy/foreign-aid";
 import { applyModifiers } from "./modifiers";
 import { createInitialGameState } from "../state/initial-state";
 import {
@@ -7,6 +12,7 @@ import {
   getHistoricalEventChoices,
   historicalEventDefinitions,
 } from "./historical-event-engine";
+import type { GameState } from "../state/game-state";
 
 describe("确定性历史事件", () => {
   it("事件目录具有唯一编号、有效日期和详细影响说明", () => {
@@ -603,6 +609,256 @@ describe("确定性历史事件", () => {
       );
     }
     expect(relation(aided, "japan")).toBeCloseTo(relation(historical, "japan"));
+  });
+
+  it("苏阿断援后可选择全额、削减或拒绝对阿援助", () => {
+    const choices = getHistoricalEventChoices(
+      "albania_aid_after_soviet_cutoff_1961",
+    );
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "reduced_albania_aid",
+      "refuse_albania_aid",
+    ]);
+    expect(choices[0]).toMatchObject({
+      durationMonths: 36,
+      isHistoricalPath: true,
+    });
+    expect(choices[1]).toMatchObject({
+      name: "削减对阿援助规模",
+      durationMonths: 30,
+    });
+    expect(choices[2]).toMatchObject({
+      name: "拒绝对阿尔巴尼亚援助",
+      outcome: "prevented",
+    });
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "capital.governmentInvestment",
+      )?.value,
+    ).toBe(0.997);
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.albania",
+      )?.value,
+    ).toBe(45);
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "resources.foodSupply",
+      )?.value,
+    ).toBe(0.998);
+    expect(
+      choices[0]?.foreignAidAdjustment,
+    ).toMatchObject({
+      annualRmbDelta: 0,
+      durationMonths: 36,
+    });
+    expect(choices[0]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta)
+      .toBeCloseTo((250_000_000 / 3) * 0.95, 4);
+    expect(choices[1]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta)
+      .toBeCloseTo((125_000_000 / 3) * 0.95, 4);
+    expect(choices[2]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta)
+      .toBe(0);
+    expect(choices[2]?.foreignAidAdjustment?.annualRmbDelta).toBeCloseTo(
+      -250_000_000 / 3,
+      5,
+    );
+
+    const runChoice = (choiceId: string, monthsAfter = 1) => {
+      const state = createInitialGameState(1961, 1961, "interactive");
+      state.nation.date.month = 3;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "albania_aid_after_soviet_cutoff_1961",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "albania_aid_after_soviet_cutoff_1961",
+        choiceId,
+      });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsAfter });
+      return engine.getState();
+    };
+
+    const historical = runChoice("historical_path");
+    const reduced = runChoice("reduced_albania_aid");
+    const refused = runChoice("refuse_albania_aid");
+    const relation = (state: typeof historical, countryId: string) =>
+      state.world.countries.find((country) => country.id === countryId)
+        ?.relationWithChina ?? Number.NaN;
+
+    expect(
+      historical.nation.history.historicalEvents.find(
+        (event) => event.id === "albania_aid_after_soviet_cutoff_1961",
+      ),
+    ).toMatchObject({
+      choiceId: "historical_path",
+      outcome: "occurred",
+    });
+    expect(
+      refused.nation.history.historicalEvents.find(
+        (event) => event.id === "albania_aid_after_soviet_cutoff_1961",
+      ),
+    ).toMatchObject({
+      choiceId: "refuse_albania_aid",
+      outcome: "prevented",
+    });
+
+    expect(historical.nation.resources.foodSupplyRatio).toBeLessThan(
+      reduced.nation.resources.foodSupplyRatio,
+    );
+    expect(reduced.nation.resources.foodSupplyRatio).toBeLessThan(
+      refused.nation.resources.foodSupplyRatio,
+    );
+    expect(relation(historical, "albania")).toBeGreaterThan(
+      relation(reduced, "albania"),
+    );
+    expect(relation(reduced, "albania")).toBeGreaterThan(
+      relation(refused, "albania"),
+    );
+    expect(relation(historical, "russia")).toBeLessThan(
+      relation(refused, "russia"),
+    );
+    expect(relation(historical, "japan")).toBeCloseTo(
+      relation(refused, "japan"),
+    );
+
+    expect(historical.nation.diplomacy.annualForeignAidRMB).toBeCloseTo(
+      630_000_000,
+      -2,
+    );
+    expect(reduced.nation.diplomacy.annualForeignAidRMB).toBeLessThan(
+      historical.nation.diplomacy.annualForeignAidRMB - 30_000_000,
+    );
+    expect(refused.nation.diplomacy.annualForeignAidRMB).toBeLessThan(
+      reduced.nation.diplomacy.annualForeignAidRMB - 30_000_000,
+    );
+    expect(
+      historical.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeGreaterThan(0);
+    expect(
+      reduced.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeGreaterThan(0);
+    expect(
+      refused.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeGreaterThan(0);
+    expect(
+      reduced.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeLessThan(
+      historical.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    );
+    expect(
+      refused.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeLessThan(
+      reduced.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    );
+    expect(refused.nation.diplomacy.cumulativeForeignAidRMB).toBeLessThan(
+      historical.nation.diplomacy.cumulativeForeignAidRMB,
+    );
+
+    // 36 个月累计外汇（人民币等值）差额应接近文案中的 2.5 亿元。
+    const accumulateFxRmb = (choiceId: string) => {
+      const state = createInitialGameState(1961, 1961, "interactive");
+      state.nation.date.month = 3;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "albania_aid_after_soviet_cutoff_1961",
+        choiceId,
+      });
+      let total = 0;
+      for (let month = 0; month < 36; month += 1) {
+        engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+        const diplomacy = engine.getState().nation.diplomacy;
+        const rate =
+          diplomacy.annualForeignAidUSD > 0
+            ? diplomacy.annualForeignAidRMB / diplomacy.annualForeignAidUSD
+            : 2.46;
+        total += diplomacy.annualForeignAidForeignExchangeOutflow / 12 * rate;
+      }
+      return total;
+    };
+    const historicalFx = accumulateFxRmb("historical_path");
+    const reducedFx = accumulateFxRmb("reduced_albania_aid");
+    const refusedFx = accumulateFxRmb("refuse_albania_aid");
+    expect(historicalFx - refusedFx).toBeGreaterThan(230_000_000);
+    expect(historicalFx - refusedFx).toBeLessThan(280_000_000);
+    expect(historicalFx - reducedFx).toBeGreaterThan(100_000_000);
+    expect(historicalFx - reducedFx).toBeLessThan(160_000_000);
+
+    // 第 35/36/37 月外储相对调整：史实路线结束月不得因提前清基线而多扣外汇。
+    const prepareAfterMonths = (choiceId: string, months: number): GameState => {
+      const state = createInitialGameState(1961, 1961, "interactive");
+      state.nation.date.month = 3;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "albania_aid_after_soviet_cutoff_1961",
+        choiceId,
+      });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months });
+      return engine.getState();
+    };
+    const annualReserveAdj = (state: GameState) =>
+      foreignAidReserveFlowAdjustment(state.nation);
+
+    const historicalM35 = prepareAfterMonths("historical_path", 35);
+    expect(
+      historicalM35.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(1);
+    expect(annualReserveAdj(historicalM35)).toBeCloseTo(0, -2);
+
+    // 模拟第 36 月援外结算：递减尚未执行时，外储仍能看到史实基线。
+    updateForeignAidProgram(historicalM35);
+    expect(
+      historicalM35.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(1);
+    expect(annualReserveAdj(historicalM35)).toBeCloseTo(0, -2);
+    expect(
+      historicalM35.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb,
+    ).toBeGreaterThan(0);
+
+    tickForeignAidEventAdjustment(historicalM35.nation);
+    expect(
+      historicalM35.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(0);
+    expect(
+      historicalM35.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb,
+    ).toBe(0);
+
+    const historicalM36 = prepareAfterMonths("historical_path", 36);
+    expect(
+      historicalM36.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(0);
+    expect(
+      historicalM36.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb,
+    ).toBe(0);
+
+    const historicalM37 = prepareAfterMonths("historical_path", 37);
+    expect(
+      historicalM37.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(0);
+    // 第 37 月已无事件专属外汇，相对方案基线的外储调整应回到近零。
+    expect(annualReserveAdj(historicalM37)).toBeCloseTo(0, -2);
+
+    const automatic = createInitialGameState(1961, 1961, "automatic");
+    automatic.nation.date.month = 3;
+    const autoEngine = createSimulationEngine(automatic);
+    autoEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(autoEngine.getState().nation.pendingHistoricalEventId).toBeNull();
+    expect(
+      autoEngine
+        .getState()
+        .nation.history.historicalEvents.find(
+          (event) => event.id === "albania_aid_after_soviet_cutoff_1961",
+        ),
+    ).toMatchObject({
+      choiceId: "historical_path",
+      outcome: "occurred",
+    });
   });
 
   it("不发动文革会长期保护教育、科研、制度和投资传导", () => {

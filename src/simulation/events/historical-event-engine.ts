@@ -3,6 +3,7 @@ import historicalDecisionData from "../../data/config/historical-event-decisions
 import historicalDependencyData from "../../data/config/historical-event-dependencies.json";
 import type { ModifierState, NationState } from "../state/game-state";
 import type { HistoricalEventRecord } from "../state/history-state";
+import { applyForeignAidEventAdjustment } from "../diplomacy/foreign-aid";
 import { addModifier } from "./modifiers";
 
 export type HistoricalEventCategory =
@@ -36,6 +37,12 @@ export interface HistoricalEventModifierDefinition {
   durationMonths?: number;
 }
 
+export interface HistoricalEventForeignAidAdjustment {
+  annualRmbDelta: number;
+  annualForeignExchangeRmbDelta: number;
+  durationMonths: number;
+}
+
 export interface HistoricalEventDefinition {
   id: string;
   name: string;
@@ -48,6 +55,7 @@ export interface HistoricalEventDefinition {
   effects: string[];
   durationMonths: number;
   modifiers: HistoricalEventModifierDefinition[];
+  foreignAidAdjustment?: HistoricalEventForeignAidAdjustment;
 }
 
 export interface HistoricalEventChoice {
@@ -59,6 +67,7 @@ export interface HistoricalEventChoice {
   modifiers: HistoricalEventModifierDefinition[];
   isHistoricalPath: boolean;
   outcome?: HistoricalEventOutcome;
+  foreignAidAdjustment?: HistoricalEventForeignAidAdjustment;
 }
 
 interface HistoricalEventDecisionDefinition {
@@ -243,6 +252,9 @@ export function getHistoricalEventChoices(
     modifiers: event.modifiers.map((modifier) => ({ ...modifier })),
     isHistoricalPath: true,
     outcome: "occurred",
+    foreignAidAdjustment: event.foreignAidAdjustment
+      ? { ...event.foreignAidAdjustment }
+      : undefined,
   };
   const bespoke = historicalDecisionDefinitions.find(
     (definition) => definition.eventId === event.id,
@@ -298,6 +310,11 @@ function applyChoice(
       stackRule: "stack",
     });
   }
+  applyForeignAidEventAdjustment(
+    nation,
+    choice.foreignAidAdjustment,
+    event.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
+  );
   const record: HistoricalEventRecord = {
     id: event.id,
     name: event.name,

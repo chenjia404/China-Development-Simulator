@@ -17,6 +17,7 @@ export const historicalModifierLabels: Readonly<Record<string, string>> = {
   "trade.externalDebtPrincipalRepaymentRate": "外债本金偿还率",
   "diplomacy.reputationTarget": "国际声誉目标",
   "diplomacy.securityTarget": "国家安全环境",
+  "diplomacy.relationTarget.albania": "对阿尔巴尼亚关系",
   "diplomacy.relationTarget.australia": "对澳大利亚关系",
   "diplomacy.relationTarget.canada": "对加拿大关系",
   "diplomacy.relationTarget.france": "对法国关系",

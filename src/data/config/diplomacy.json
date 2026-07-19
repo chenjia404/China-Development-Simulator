@@ -13,7 +13,8 @@
     "russia": 45,
     "india": 15,
     "pakistan": 10,
-    "vietnam": 35
+    "vietnam": 35,
+    "albania": 40
   },
   "actions": {
     "improve_relations": {

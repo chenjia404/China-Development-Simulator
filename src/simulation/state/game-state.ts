@@ -726,6 +726,19 @@ export interface DiplomacyState {
   cumulativeForeignAidUSD: number;
   cumulativeForeignAidRMBThrough1980: number;
   cumulativeForeignAidUSDThrough1980: number;
+  /**
+   * 历史事件相对史实援外基线的年化差额（当年价人民币）。
+   * 正数表示额外援助，负数表示削减或拒绝对已计入基线的份额。
+   */
+  foreignAidEventAnnualRmbAdjustment: number;
+  /** 历史事件专属外汇强度（人民币等值年化），直接进入外汇流出账户。 */
+  foreignAidEventAnnualFxRmbAdjustment: number;
+  /**
+   * 该事件史实路线的专属外汇强度。外储只结算相对该基线的差额，
+   * 避免史实路径把已校准的外汇成本再扣一遍。
+   */
+  foreignAidEventHistoricalFxBaselineRmb: number;
+  foreignAidEventAdjustmentRemainingMonths: number;
   /** 中美建交是可提前启动、也可延迟完成的一次性外交进程。 */
   sinoUSNormalizationStatus: "not_started" | "negotiating" | "established";
   sinoUSNormalizationStartedYear: number | null;

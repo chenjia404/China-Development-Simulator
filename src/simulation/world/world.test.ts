@@ -1,15 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { Mulberry32 } from "../core/random";
 import { createInitialGameState } from "../state/initial-state";
+import { createSimulationEngine } from "../core/engine";
 import { calculateRank, calculateWorldRankings } from "./rankings";
-import { simulateWorldCountries } from "./world-simulation";
+import { ensureWorldCountriesState, worldCountryConfigs } from "./countries";
+import {
+  countryMonthRandomSeed,
+  legacySharedWorldCountryIds,
+  simulateWorldCountries,
+} from "./world-simulation";
 
 describe("世界国家和排名", () => {
-  it("初始化三十个外国经济体并包含需求文档指定国家", () => {
+  it("初始化外国经济体并包含需求文档指定国家与阿尔巴尼亚", () => {
     const state = createInitialGameState(1);
     const ids = new Set(state.world.countries.map((country) => country.id));
 
-    expect(state.world.countries).toHaveLength(31);
+    expect(state.world.countries).toHaveLength(32);
+    expect(state.world.countries.map((country) => country.id)).toEqual(
+      worldCountryConfigs.map((config) => config.id),
+    );
+    expect(legacySharedWorldCountryIds).not.toContain("albania");
+    expect(legacySharedWorldCountryIds).toHaveLength(31);
+    for (const countryId of legacySharedWorldCountryIds) {
+      expect(worldCountryConfigs.some((config) => config.id === countryId)).toBe(
+        true,
+      );
+    }
     for (const id of [
       "usa",
       "japan",
@@ -23,9 +39,103 @@ describe("世界国家和排名", () => {
       "singapore",
       "canada",
       "australia",
+      "albania",
     ]) {
       expect(ids.has(id)).toBe(true);
     }
+  });
+
+  it("旧存档缺少阿尔巴尼亚时会按配置补齐并重排顺序", () => {
+    const state = createInitialGameState(1);
+    const albania = state.world.countries.find(
+      (country) => country.id === "albania",
+    );
+    expect(albania).toBeDefined();
+    state.world.countries = state.world.countries.filter(
+      (country) => country.id !== "albania",
+    );
+    state.world.countries.push(albania!);
+    expect(state.world.countries.at(-1)?.id).toBe("albania");
+    expect(ensureWorldCountriesState(state.world)).toBe(true);
+    expect(state.world.countries.map((country) => country.id)).toEqual(
+      worldCountryConfigs.map((config) => config.id),
+    );
+    expect(ensureWorldCountriesState(state.world)).toBe(false);
+  });
+
+  it("新增阿尔巴尼亚不改变中国随机流与既有世界国家演化", () => {
+    const withAlbania = createInitialGameState(42, 1949, "automatic");
+    const withoutAlbania = createInitialGameState(42, 1949, "automatic");
+    const withEngine = createSimulationEngine(withAlbania);
+    const withoutEngine = createSimulationEngine(withoutAlbania);
+    // 引擎构造会补齐缺失国家，因此必须在创建后再剥离，才能真正验证隔离。
+    withoutEngine.getState().world.countries = withoutEngine
+      .getState()
+      .world.countries.filter((country) => country.id !== "albania");
+    expect(
+      withoutEngine.getState().world.countries.some(
+        (country) => country.id === "albania",
+      ),
+    ).toBe(false);
+    expect(
+      withEngine.getState().world.countries.some(
+        (country) => country.id === "albania",
+      ),
+    ).toBe(true);
+
+    withEngine.dispatch({ type: "ADVANCE_MONTHS", months: 24 });
+    withoutEngine.dispatch({ type: "ADVANCE_MONTHS", months: 24 });
+
+    const withState = withEngine.getState();
+    const withoutState = withoutEngine.getState();
+    expect(withState.randomState).toBe(withoutState.randomState);
+    expect(withoutState.world.countries.some((country) => country.id === "albania"))
+      .toBe(false);
+    // 外交平均关系会因新增国家而变化，不要求中国人口完全一致；
+    // 隔离目标是：共享随机状态与既有世界国家经济路径不变。
+    for (const country of withoutState.world.countries) {
+      const paired = withState.world.countries.find(
+        (item) => item.id === country.id,
+      );
+      expect(paired?.realGDP).toBeCloseTo(country.realGDP, 8);
+      expect(paired?.population).toBeCloseTo(country.population, 8);
+    }
+    expect(legacySharedWorldCountryIds).toEqual([
+      "usa",
+      "japan",
+      "south_korea",
+      "north_korea",
+      "germany",
+      "france",
+      "united_kingdom",
+      "russia",
+      "india",
+      "brazil",
+      "singapore",
+      "canada",
+      "australia",
+      "italy",
+      "spain",
+      "mexico",
+      "indonesia",
+      "turkey",
+      "saudi_arabia",
+      "iran",
+      "south_africa",
+      "argentina",
+      "netherlands",
+      "switzerland",
+      "sweden",
+      "norway",
+      "poland",
+      "egypt",
+      "nigeria",
+      "pakistan",
+      "vietnam",
+    ]);
+    expect(
+      countryMonthRandomSeed(42, "egypt", 1949, 1),
+    ).not.toBe(countryMonthRandomSeed(42, "albania", 1949, 1));
   });
 
   it("顺序排名正确且相同数值不会异常", () => {
@@ -61,9 +171,33 @@ describe("世界国家和排名", () => {
     for (let month = 0; month < 120; month += 1) {
       simulateWorldCountries(first, firstRandom);
       simulateWorldCountries(second, secondRandom);
+      first.nation.date.month += 1;
+      if (first.nation.date.month > 12) {
+        first.nation.date.month = 1;
+        first.nation.date.year += 1;
+      }
+      second.nation.date.month = first.nation.date.month;
+      second.nation.date.year = first.nation.date.year;
     }
 
     expect(second.world).toEqual(first.world);
     expect(first.world.countries.every((country) => country.realGDP > 0)).toBe(true);
+  });
+
+  it("阿尔巴尼亚人口增长阶段避免长期超常增长", () => {
+    const state = createInitialGameState(9);
+    const random = new Mulberry32(9);
+    for (let year = 1949; year <= 2026; year += 1) {
+      for (let month = 1; month <= 12; month += 1) {
+        state.nation.date.year = year;
+        state.nation.date.month = month;
+        simulateWorldCountries(state, random);
+      }
+    }
+    const finalPopulation = state.world.countries.find(
+      (country) => country.id === "albania",
+    )?.population ?? Number.NaN;
+    expect(finalPopulation).toBeGreaterThan(1_800_000);
+    expect(finalPopulation).toBeLessThan(3_500_000);
   });
 });

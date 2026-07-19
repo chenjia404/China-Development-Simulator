@@ -12,7 +12,7 @@
   "cooldownMonths": 60,
   "transitionMonths": 36,
   "countryGroups": {
-    "soviet_aligned": ["russia", "north_korea", "vietnam", "poland"],
+    "soviet_aligned": ["russia", "north_korea", "vietnam", "poland", "albania"],
     "western_markets": ["usa", "japan", "south_korea", "germany", "france", "united_kingdom", "canada", "australia", "italy", "spain", "netherlands", "switzerland", "sweden", "norway"],
     "global_south": ["india", "brazil", "mexico", "indonesia", "turkey", "saudi_arabia", "iran", "south_africa", "argentina", "egypt", "nigeria", "pakistan"],
     "regional_neighbors": ["russia", "north_korea", "south_korea", "japan", "india", "pakistan", "vietnam", "indonesia", "singapore"],

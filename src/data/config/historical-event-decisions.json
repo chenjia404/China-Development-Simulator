@@ -237,6 +237,63 @@
     ]
   },
   {
+    "eventId": "albania_aid_after_soviet_cutoff_1961",
+    "choices": [
+      {
+        "id": "reduced_albania_aid",
+        "name": "削减对阿援助规模",
+        "description": "承认苏阿断援后阿方面临外部真空，但只调出部分粮食、缩减外汇援款与成套项目数量，在巩固有限对阿友谊与保全国内调整空间之间折中取舍。",
+        "effects": [
+          "国内粮食与外汇压力约为史实一半",
+          "财政与投资挤出减轻",
+          "对阿关系与声誉改善弱于史实",
+          "对苏关系降温较轻",
+          "成套项目经验积累有限"
+        ],
+        "durationMonths": 30,
+        "modifiers": [
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.999 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.002 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.9985 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.999 },
+          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.9975 },
+          { "target": "diplomacy.relationTarget.albania", "operation": "add", "value": 22 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 },
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -4 }
+        ],
+        "foreignAidAdjustment": {
+          "annualRmbDelta": -41666666.666666664,
+          "annualForeignExchangeRmbDelta": 39583333.33333333,
+          "durationMonths": 36
+        }
+      },
+      {
+        "id": "refuse_albania_aid",
+        "name": "拒绝对阿尔巴尼亚援助",
+        "description": "以国民经济调整和国内民生为优先，拒绝在困难时期向阿尔巴尼亚调出粮食、外汇和成套项目；国内供给与资本品能力得以保留，但会失去填补苏阿断援真空的政治机会，并对阿关系与国际声誉造成冲击。",
+        "effects": [
+          "避免粮食外调和外汇占用",
+          "国内调整空间略有保留",
+          "对阿尔巴尼亚关系明显恶化",
+          "国际声誉小幅受损"
+        ],
+        "durationMonths": 36,
+        "modifiers": [
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 1.001 },
+          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.002 },
+          { "target": "diplomacy.relationTarget.albania", "operation": "add", "value": -25 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": -2 }
+        ],
+        "outcome": "prevented",
+        "foreignAidAdjustment": {
+          "annualRmbDelta": -83333333.33333333,
+          "annualForeignExchangeRmbDelta": 0,
+          "durationMonths": 36
+        }
+      }
+    ]
+  },
+  {
     "eventId": "third_front_construction_1964",
     "choices": [
       {

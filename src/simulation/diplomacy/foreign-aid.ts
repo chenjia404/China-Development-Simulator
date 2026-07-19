@@ -165,6 +165,10 @@ export function ensureForeignAidState(state: GameState): void {
   diplomacy.cumulativeForeignAidUSD ??= 0;
   diplomacy.cumulativeForeignAidRMBThrough1980 ??= 0;
   diplomacy.cumulativeForeignAidUSDThrough1980 ??= 0;
+  diplomacy.foreignAidEventAnnualRmbAdjustment ??= 0;
+  diplomacy.foreignAidEventAnnualFxRmbAdjustment ??= 0;
+  diplomacy.foreignAidEventHistoricalFxBaselineRmb ??= 0;
+  diplomacy.foreignAidEventAdjustmentRemainingMonths ??= 0;
   state.nation.fiscal.foreignAidExpenditure ??= 0;
   if (needsHistoricalMigration) {
     const totals = historicalTotalsBeforeDate(state.nation);
@@ -295,9 +299,16 @@ function baselineAnnualForeignExchangeOutflow(nation: NationState): number {
 /**
  * 现有史实校准已隐含史实援外成本，因此外储只结算相对史实基线的增减，
  * 避免把同一历史成本重复扣除。暂停援助会释放用汇，扩大援助则额外消耗。
+ * 历史事件专属外汇以史实路线强度为外储基线，削减/拒绝只结算相对差额。
  */
 export function foreignAidReserveFlowAdjustment(nation: NationState): number {
-  return baselineAnnualForeignExchangeOutflow(nation) -
+  const exchangeRate = currentOfficialExchangeRate(nation);
+  const historicalEventFxUsd =
+    nation.diplomacy.foreignAidEventAdjustmentRemainingMonths > 0
+      ? nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb / exchangeRate
+      : 0;
+  return baselineAnnualForeignExchangeOutflow(nation) +
+    historicalEventFxUsd -
     nation.diplomacy.annualForeignAidForeignExchangeOutflow;
 }
 
@@ -334,6 +345,28 @@ export function setForeignAidProgram(
     state.nation.date.elapsedMonths;
 }
 
+export function applyForeignAidEventAdjustment(
+  nation: NationState,
+  adjustment: {
+    annualRmbDelta: number;
+    annualForeignExchangeRmbDelta: number;
+    durationMonths: number;
+  } | undefined,
+  historicalFxBaselineRmb = 0,
+): void {
+  if (!adjustment) return;
+  nation.diplomacy.foreignAidEventAnnualRmbAdjustment =
+    adjustment.annualRmbDelta;
+  nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment =
+    adjustment.annualForeignExchangeRmbDelta;
+  nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb =
+    historicalFxBaselineRmb;
+  nation.diplomacy.foreignAidEventAdjustmentRemainingMonths = Math.max(
+    0,
+    Math.round(adjustment.durationMonths),
+  );
+}
+
 export function updateForeignAidProgram(state: GameState): void {
   ensureForeignAidState(state);
   const { nation } = state;
@@ -349,32 +382,67 @@ export function updateForeignAidProgram(state: GameState): void {
     }
   }
   const { previous, current, progress } = programPair(nation);
-  const annualRMB = interpolate(
+  const programAnnualRMB = interpolate(
     annualCommitmentFor(nation, previous),
     annualCommitmentFor(nation, current),
     progress,
   );
   const exchangeRate = currentOfficialExchangeRate(nation);
-  const annualUSD = annualRMB / exchangeRate;
   const foreignExchangeShare = interpolate(
     previous.foreignExchangeShare,
     current.foreignExchangeShare,
     progress,
   );
+  const eventActive =
+    nation.diplomacy.foreignAidEventAdjustmentRemainingMonths > 0;
+  const eventRmb = eventActive
+    ? nation.diplomacy.foreignAidEventAnnualRmbAdjustment
+    : 0;
+  const eventFxRmb = eventActive
+    ? nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment
+    : 0;
+  // 年度承诺按事件差额调整；统一外汇份额只覆盖一般物资，阿尔巴尼亚等
+  // 专属外汇强度用 annualForeignExchangeRmbDelta 叠加（人民币等值）。
+  const annualRMB = Math.max(0, programAnnualRMB + eventRmb);
+  const annualUSD = annualRMB / exchangeRate;
+  const proportionalFxUsd = annualUSD * foreignExchangeShare;
+  const intensityFxUsd = eventFxRmb / exchangeRate;
+  const annualFxOutflow = Math.max(0, proportionalFxUsd + intensityFxUsd);
   nation.diplomacy.annualForeignAidRMB = annualRMB;
   nation.diplomacy.annualForeignAidUSD = annualUSD;
-  nation.diplomacy.annualForeignAidForeignExchangeOutflow =
-    annualUSD * foreignExchangeShare;
+  nation.diplomacy.annualForeignAidForeignExchangeOutflow = annualFxOutflow;
   nation.diplomacy.cumulativeForeignAidRMB += annualRMB / 12;
   nation.diplomacy.cumulativeForeignAidUSD += annualUSD / 12;
   if (nation.date.year <= 1980) {
     nation.diplomacy.cumulativeForeignAidRMBThrough1980 += annualRMB / 12;
     nation.diplomacy.cumulativeForeignAidUSDThrough1980 += annualUSD / 12;
   }
-  nation.fiscal.foreignAidExpenditure =
+  nation.fiscal.foreignAidExpenditure = Math.max(
+    0,
     nation.economy.nominalGDP * interpolate(
       previous.fiscalShareOfGDP,
       current.fiscalShareOfGDP,
       progress,
-    );
+    ) + eventRmb,
+  );
+  // 剩余月份递减必须在本月 updateForeignExchange 之后执行，否则最后一月
+  // 外储相对基线调整会因提前清空 historicalFxBaseline 而多扣史实外汇。
+}
+
+/**
+ * 在外汇结算完成后递减历史事件援外调整剩余月数。
+ * 必须排在 updateForeignAidProgram 与 updateForeignExchange 之后，
+ * 保证当月（含最后一月）外储仍能读到史实专属外汇基线。
+ */
+export function tickForeignAidEventAdjustment(nation: NationState): void {
+  if (nation.diplomacy.foreignAidEventAdjustmentRemainingMonths <= 0) {
+    return;
+  }
+  nation.diplomacy.foreignAidEventAdjustmentRemainingMonths -= 1;
+  if (nation.diplomacy.foreignAidEventAdjustmentRemainingMonths <= 0) {
+    nation.diplomacy.foreignAidEventAnnualRmbAdjustment = 0;
+    nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment = 0;
+    nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb = 0;
+    nation.diplomacy.foreignAidEventAdjustmentRemainingMonths = 0;
+  }
 }

@@ -315,6 +315,10 @@ export function createInitialGameState(
         cumulativeForeignAidUSD: 0,
         cumulativeForeignAidRMBThrough1980: 0,
         cumulativeForeignAidUSDThrough1980: 0,
+        foreignAidEventAnnualRmbAdjustment: 0,
+        foreignAidEventAnnualFxRmbAdjustment: 0,
+        foreignAidEventHistoricalFxBaselineRmb: 0,
+        foreignAidEventAdjustmentRemainingMonths: 0,
         sinoUSNormalizationStatus: historicalNormalizationAtStart
           ? "established"
           : "not_started",

@@ -96,7 +96,7 @@ describe("外交学说", () => {
         relation(revolutionary, countryId),
       );
     }
-    for (const countryId of ["russia", "north_korea", "vietnam", "poland"]) {
+    for (const countryId of ["russia", "north_korea", "vietnam", "poland", "albania"]) {
       expect(relation(peaceful, countryId)).toBeLessThan(
         relation(revolutionary, countryId),
       );

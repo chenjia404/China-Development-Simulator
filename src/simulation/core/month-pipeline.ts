@@ -29,6 +29,7 @@ import {
   checkAutomaticInternationalOrganizations,
   updateDiplomacy,
 } from "../diplomacy/diplomacy";
+import { tickForeignAidEventAdjustment } from "../diplomacy/foreign-aid";
 import { updateInternationalTrade } from "../economy/trade";
 import { updateForeignExchange } from "../economy/foreign-exchange";
 import { checkHistoricalEvents } from "../events/historical-event-engine";
@@ -81,6 +82,8 @@ export function simulateMonth(
   calculateGDP(state.nation);
   updateInternationalTrade(state);
   updateForeignExchange(state);
+  // 援外事件剩余月数必须在外储结算后递减，避免最后一月提前丢掉史实外汇基线。
+  tickForeignAidEventAdjustment(state.nation);
   calculateFiscalRevenue(state.nation);
   calculateFiscalSpending(state.nation);
   updateNationalAccounts(state.nation);

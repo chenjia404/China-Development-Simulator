@@ -9,6 +9,12 @@ export interface CountryGrowthPhase {
   growthModifier: number;
 }
 
+export interface CountryPopulationPhase {
+  startYear: number;
+  endYear: number;
+  populationGrowth: number;
+}
+
 export interface WorldCountryConfig {
   id: string;
   name: string;
@@ -23,12 +29,13 @@ export interface WorldCountryConfig {
   populationGrowth: number;
   stage: DevelopmentStage;
   phases: CountryGrowthPhase[];
+  populationPhases?: CountryPopulationPhase[];
 }
 
 export const worldCountryConfigs = countryData as WorldCountryConfig[];
 
-export function createInitialWorldState(): WorldState {
-  const countries: WorldCountryState[] = worldCountryConfigs.map((config) => ({
+function createWorldCountryState(config: WorldCountryConfig): WorldCountryState {
+  return {
     id: config.id,
     name: config.name,
     population: config.population,
@@ -51,7 +58,40 @@ export function createInitialWorldState(): WorldState {
     sanctionLevel: 0,
     lastDiplomaticActionMonth: null,
     modifiers: [],
-  }));
+  };
+}
+
+/**
+ * 为旧存档补齐配置中新增的世界国家，并按配置顺序重排，
+ * 避免迁移后与新开局的国家迭代顺序不一致。
+ */
+export function ensureWorldCountriesState(world: WorldState): boolean {
+  const byId = new Map(
+    world.countries.map((country) => [country.id, country] as const),
+  );
+  let changed = false;
+  for (const config of worldCountryConfigs) {
+    if (byId.has(config.id)) continue;
+    byId.set(config.id, createWorldCountryState(config));
+    changed = true;
+  }
+  const knownIds = new Set(worldCountryConfigs.map((config) => config.id));
+  const ordered = worldCountryConfigs.map((config) => byId.get(config.id)!);
+  const extras = world.countries.filter((country) => !knownIds.has(country.id));
+  const next = extras.length > 0 ? [...ordered, ...extras] : ordered;
+  const orderChanged = next.length !== world.countries.length ||
+    next.some((country, index) => country.id !== world.countries[index]?.id);
+  if (orderChanged) {
+    world.countries = next;
+    changed = true;
+  }
+  return changed;
+}
+
+export function createInitialWorldState(): WorldState {
+  const countries: WorldCountryState[] = worldCountryConfigs.map((config) =>
+    createWorldCountryState(config),
+  );
 
   return {
     countries,
