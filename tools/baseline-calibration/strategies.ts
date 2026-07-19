@@ -390,7 +390,7 @@ export function getHistoricalEventChoice(
     great_leap_forward_1958: "avoid_great_leap",
     peoples_communes_1958: "avoid_communes",
     three_year_difficulties_1959:
-      "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
+      "ban_grain_exports_and_import+no_additional_relief+reduce_procurement_guarantee_ration+foreign_aid_500mt",
     third_front_construction_1964: "cancel_third_front",
     cultural_revolution_disruption_1966: "protect_institutions",
   }[eventId] ?? "historical_path";

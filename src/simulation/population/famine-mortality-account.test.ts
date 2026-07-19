@@ -170,7 +170,7 @@ describe("三年困难超额死亡账户", () => {
           great_leap_forward_1958: "avoid_great_leap",
           peoples_communes_1958: "avoid_communes",
           three_year_difficulties_1959:
-            "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
+            "ban_grain_exports_and_import+no_additional_relief+reduce_procurement_guarantee_ration+foreign_aid_500mt",
         } as Record<string, string>
       )[eventId] ?? "historical_path",
     );
@@ -182,7 +182,7 @@ describe("三年困难超额死亡账户", () => {
     expect(avoidedWithoutAid.excessDeaths).toBeLessThan(
       historical.excessDeaths * 0.15,
     );
-    // 再接受外援：相对 1955–1957 常态不产生超额饿死（可≤0）。
+    // 再接受约 500 万吨外援：相对 1955–1957 常态不产生超额饿死（可≤0）。
     expect(avoidedWithAid.excessDeaths).toBeLessThanOrEqual(0);
     expect(avoidedWithAid.excessDeaths).toBeLessThanOrEqual(
       avoidedWithoutAid.excessDeaths,

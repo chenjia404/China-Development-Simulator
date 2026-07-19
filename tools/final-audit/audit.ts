@@ -436,7 +436,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     industry_wide_joint_ownership_1956: "preserve_mixed_ownership",
     ...campaignChoices,
     three_year_difficulties_1959:
-      "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
+      "ban_grain_exports_and_import+no_additional_relief+reduce_procurement_guarantee_ration+foreign_aid_500mt",
     third_front_construction_1964: "cancel_third_front",
     ...culturalRevolutionChoices,
   });
@@ -1875,7 +1875,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "grain-export-crisis-choices",
-      "三年困难贸易、救济与征购三轴可组合；禁止出口、外援与降征购叠乘后粮食与死亡更优并保留工业/用汇代价",
+      "三年困难贸易、国内救济、征购与外援四轴可组合；禁止出口、500万吨外援与降征购叠乘后粮食与死亡更优并保留工业/用汇代价",
       limitedGrainCrisis.nation.resources.foodSupplyRatio >
           historicalCrisis.nation.resources.foodSupplyRatio &&
         domesticReliefCrisis.nation.resources.foodSupplyRatio >

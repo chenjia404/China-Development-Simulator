@@ -294,14 +294,14 @@
       },
       {
         "id": "crisis_relief",
-        "name": "救济与纠偏",
-        "description": "在粮食贸易取向之外，是否追加国内赈济或接受外国援助。可与贸易、征购口粮取向组合。",
+        "name": "国内救济与纠偏",
+        "description": "是否追加国内紧急赈济与基层纠偏。外国粮食援助在独立的外援规模轴中选择，可与本轴组合。",
         "options": [
           {
             "id": "no_additional_relief",
-            "name": "不追加专项救济",
-            "description": "不另开国际人道援助或大规模国内赈济专项，危机后果主要由粮食贸易取向决定。",
-            "effects": ["不追加专项救济成本", "危机缓和完全依赖贸易取向"],
+            "name": "不追加专项国内救济",
+            "description": "不另开大规模国内赈济专项，危机后果主要由贸易、征购与外援取向决定。",
+            "effects": ["不追加国内专项救济成本", "危机缓和依赖贸易、征购与外援轴"],
             "durationMonths": 48,
             "isHistoricalDefault": true,
             "modifiers": []
@@ -320,32 +320,13 @@
               { "target": "fiscal.spending", "operation": "multiply", "value": 1.045 },
               { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.01 }
             ]
-          },
-          {
-            "id": "accept_foreign_aid",
-            "name": "接受外国粮食与医疗援助",
-            "description": "接受苏联运输与医疗协作、加澳粮食支持及美国参与的国际人道渠道；可与禁止出口并提前进口同时选择。",
-            "effects": ["粮食短缺大幅缓解", "死亡率冲击显著下降", "苏加澳美关系改善", "财政协调支出增加"],
-            "durationMonths": 24,
-            "modifiers": [
-              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
-              { "target": "population.deathRate", "operation": "multiply", "value": 1.006, "durationMonths": 36 },
-              { "target": "sector.primary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 },
-              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992, "durationMonths": 36 },
-              { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
-              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
-              { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 36 },
-              { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 28 },
-              { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 24 },
-              { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 18 }
-            ]
           }
         ]
       },
       {
         "id": "procurement_ration",
         "name": "征购与农村口粮",
-        "description": "决定是否继续高额征购，或下调征购并保障农村最低口粮。可与粮食贸易、救济取向自由组合叠乘。",
+        "description": "决定是否继续高额征购，或下调征购并保障农村最低口粮。可与粮食贸易、国内救济与外援规模组合叠乘。",
         "options": [
           {
             "id": "reduce_procurement_guarantee_ration",
@@ -356,7 +337,7 @@
               "粮食短缺冲击明显缓和",
               "城镇工业用粮与建设进度承压",
               "财政支出上升",
-              "可与贸易、救济选项叠加"
+              "可与贸易、国内救济与外援选项叠加"
             ],
             "durationMonths": 36,
             "modifiers": [
@@ -373,7 +354,7 @@
           {
             "id": "continue_high_procurement",
             "name": "维持高额征购与统销",
-            "description": "继续以保障城镇配给和工业化用粮为优先，农村口粮服从统购统销任务；危机后果主要由贸易与救济取向决定。",
+            "description": "继续以保障城镇配给和工业化用粮为优先，农村口粮服从统购统销任务；危机后果主要由贸易、救济与外援取向决定。",
             "effects": [
               "史实高征购取向",
               "农村保留口粮空间最窄",
@@ -382,6 +363,100 @@
             "durationMonths": 36,
             "isHistoricalDefault": true,
             "modifiers": []
+          }
+        ]
+      },
+      {
+        "id": "foreign_aid",
+        "name": "外国粮食援助规模",
+        "description": "是否接受外国粮食与医疗援助，以及援助量级。可与贸易、国内救济、征购口粮自由组合；也可完全不需要外国援助。",
+        "options": [
+          {
+            "id": "no_foreign_aid",
+            "name": "不接受外国援助",
+            "description": "不开放国际人道运粮与医疗援助渠道，危机缓解完全依赖国内贸易、征购与赈济取向。",
+            "effects": [
+              "不承担外援协调成本",
+              "不改善对援助来源国关系",
+              "国内短缺缓和空间更窄"
+            ],
+            "durationMonths": 24,
+            "isHistoricalDefault": true,
+            "modifiers": []
+          },
+          {
+            "id": "foreign_aid_200mt",
+            "name": "接受约 200 万吨外援（保守）",
+            "description": "少数国家、红十字会与侨界紧急援助约 200 万吨粮食当量，附带有限医疗物资；缓饥效果有限。",
+            "effects": [
+              "约 200 万吨粮援",
+              "粮食与死亡率冲击小幅缓解",
+              "对主要接触国关系小幅改善",
+              "财政协调支出略增"
+            ],
+            "durationMonths": 24,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.9625 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.015, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.975, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.98, "durationMonths": 36 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 },
+              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 },
+              { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 14 },
+              { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 11 },
+              { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 10 },
+              { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 7 }
+            ]
+          },
+          {
+            "id": "foreign_aid_500mt",
+            "name": "接受约 500 万吨外援（中等）",
+            "description": "加拿大、澳大利亚、美国等多方共同参与约 500 万吨粮食与医疗援助，接近公开渠道可达的中等规模。",
+            "effects": [
+              "约 500 万吨粮援",
+              "粮食短缺大幅缓解",
+              "死亡率冲击显著下降",
+              "苏加澳美关系改善",
+              "财政协调支出增加"
+            ],
+            "durationMonths": 24,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.006, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992, "durationMonths": 36 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+              { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 36 },
+              { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 28 },
+              { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 24 },
+              { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 18 }
+            ]
+          },
+          {
+            "id": "foreign_aid_1000mt",
+            "name": "接受约 1000 万吨外援（高强度）",
+            "description": "中国正式宣布全国紧急状态并接受大规模国际救援，合计约 1000 万吨粮食当量与配套医疗运力。",
+            "effects": [
+              "约 1000 万吨粮援",
+              "粮食短缺接近消除",
+              "死亡率冲击降至最低",
+              "苏加澳美关系大幅改善",
+              "财政与外交协调成本显著上升"
+            ],
+            "durationMonths": 24,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.9925 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.003, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.995, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.996, "durationMonths": 36 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.04 },
+              { "target": "diplomacy.reputationTarget", "operation": "add", "value": 4 },
+              { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 72 },
+              { "target": "diplomacy.relationTarget.canada", "operation": "add", "value": 56 },
+              { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 48 },
+              { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 36 }
+            ]
           }
         ]
       }

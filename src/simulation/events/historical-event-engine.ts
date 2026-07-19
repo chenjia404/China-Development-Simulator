@@ -413,28 +413,51 @@ function composeHistoricalModifiers(
 const threeYearLegacyChoiceAliases: Record<string, string[]> = {
   accept_foreign_aid: [
     "continue_grain_exports",
-    "accept_foreign_aid",
+    "no_additional_relief",
     "continue_high_procurement",
+    "foreign_aid_500mt",
+  ],
+  foreign_aid_200mt: [
+    "continue_grain_exports",
+    "no_additional_relief",
+    "continue_high_procurement",
+    "foreign_aid_200mt",
+  ],
+  foreign_aid_500mt: [
+    "continue_grain_exports",
+    "no_additional_relief",
+    "continue_high_procurement",
+    "foreign_aid_500mt",
+  ],
+  foreign_aid_1000mt: [
+    "continue_grain_exports",
+    "no_additional_relief",
+    "continue_high_procurement",
+    "foreign_aid_1000mt",
   ],
   domestic_emergency_relief: [
     "continue_grain_exports",
     "domestic_emergency_relief",
     "continue_high_procurement",
+    "no_foreign_aid",
   ],
   limit_grain_exports: [
     "limit_grain_exports",
     "no_additional_relief",
     "continue_high_procurement",
+    "no_foreign_aid",
   ],
   ban_grain_exports_and_import: [
     "ban_grain_exports_and_import",
     "no_additional_relief",
     "continue_high_procurement",
+    "no_foreign_aid",
   ],
   reduce_procurement_guarantee_ration: [
     "continue_grain_exports",
     "no_additional_relief",
     "reduce_procurement_guarantee_ration",
+    "no_foreign_aid",
   ],
 };
 
@@ -613,7 +636,9 @@ function expandAxisChoiceId(
     );
   }
   if (choiceId.includes("+")) {
-    const parts = choiceId.split("+");
+    const parts = choiceId.split("+").map((part) =>
+      part === "accept_foreign_aid" ? "foreign_aid_500mt" : part,
+    );
     if (parts.length === axes.length) return parts;
     const padded = padLegacyThreeYearOptionIds(axes, parts);
     if (padded) return padded;

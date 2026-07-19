@@ -664,7 +664,7 @@ describe("确定性历史事件", () => {
     const acceptAid = choices.find(
       (choice) =>
         choice.id ===
-          "continue_grain_exports+accept_foreign_aid+continue_high_procurement",
+          "continue_grain_exports+no_additional_relief+continue_high_procurement+foreign_aid_500mt",
     );
     // 组合持续期取各轴最大：贸易轴史实危机缩放后为 33 月。
     expect(acceptAid?.durationMonths).toBe(33);
@@ -681,24 +681,47 @@ describe("确定性历史事件", () => {
       "grain_trade",
       "crisis_relief",
       "procurement_ration",
+      "foreign_aid",
     ]);
     const choices = getHistoricalEventChoices("three_year_difficulties_1959");
-    expect(choices).toHaveLength(18);
+    expect(choices).toHaveLength(48);
     expect(choices.some((choice) => choice.id === "historical_path")).toBe(
       true,
     );
     const aidChoice = choices.find(
       (choice) =>
         choice.id ===
-          "continue_grain_exports+accept_foreign_aid+continue_high_procurement",
+          "continue_grain_exports+no_additional_relief+continue_high_procurement+foreign_aid_500mt",
     );
-    expect(aidChoice?.name).toContain("接受外国粮食与医疗援助");
+    expect(aidChoice?.name).toContain("500 万吨");
     expect(aidChoice?.durationMonths).toBe(48);
     expect(
       aidChoice?.modifiers.find(
         (modifier) => modifier.target === "population.deathRate",
       )?.value,
     ).toBe(1.006);
+    const aid200 = choices.find(
+      (choice) =>
+        choice.id ===
+          "continue_grain_exports+no_additional_relief+continue_high_procurement+foreign_aid_200mt",
+    );
+    const aid1000 = choices.find(
+      (choice) =>
+        choice.id ===
+          "continue_grain_exports+no_additional_relief+continue_high_procurement+foreign_aid_1000mt",
+    );
+    expect(aid200?.name).toContain("200 万吨");
+    expect(aid1000?.name).toContain("1000 万吨");
+    expect(
+      aid200?.modifiers.find(
+        (modifier) => modifier.target === "resources.foodSupply",
+      )?.value,
+    ).toBe(0.9625);
+    expect(
+      aid1000?.modifiers.find(
+        (modifier) => modifier.target === "resources.foodSupply",
+      )?.value,
+    ).toBe(0.9925);
     expect(
       aidChoice?.modifiers
         .filter((modifier) =>
@@ -726,7 +749,9 @@ describe("确定性历史事件", () => {
       return engine.getState();
     };
     const historical = runChoice("historical_path");
-    const aided = runChoice("accept_foreign_aid");
+    const aided200 = runChoice("foreign_aid_200mt");
+    const aided = runChoice("foreign_aid_500mt");
+    const aided1000 = runChoice("foreign_aid_1000mt");
     const relation = (state: typeof aided, countryId: string) =>
       state.world.countries.find((country) => country.id === countryId)
         ?.relationWithChina ?? Number.NaN;
@@ -736,6 +761,18 @@ describe("确定性历史事件", () => {
     );
     expect(aided.nation.resources.foodSupplyRatio).toBeGreaterThan(
       historical.nation.resources.foodSupplyRatio,
+    );
+    expect(aided.nation.resources.foodSupplyRatio).toBeGreaterThan(
+      aided200.nation.resources.foodSupplyRatio,
+    );
+    expect(aided1000.nation.resources.foodSupplyRatio).toBeGreaterThan(
+      aided.nation.resources.foodSupplyRatio,
+    );
+    expect(aided1000.nation.population.monthlyDeaths).toBeLessThan(
+      aided.nation.population.monthlyDeaths,
+    );
+    expect(aided.nation.population.monthlyDeaths).toBeLessThan(
+      aided200.nation.population.monthlyDeaths,
     );
     expect(aided.nation.economy.realGDP).toBeGreaterThan(
       historical.nation.economy.realGDP,
@@ -753,33 +790,34 @@ describe("确定性历史事件", () => {
     const limit = choices.find(
       (choice) =>
         choice.id ===
-          "limit_grain_exports+no_additional_relief+continue_high_procurement",
+          "limit_grain_exports+no_additional_relief+continue_high_procurement+no_foreign_aid",
     );
     const ban = choices.find(
       (choice) =>
         choice.id ===
-          "ban_grain_exports_and_import+no_additional_relief+continue_high_procurement",
+          "ban_grain_exports_and_import+no_additional_relief+continue_high_procurement+no_foreign_aid",
     );
     const banWithAid = choices.find(
       (choice) =>
         choice.id ===
-          "ban_grain_exports_and_import+accept_foreign_aid+continue_high_procurement",
+          "ban_grain_exports_and_import+no_additional_relief+continue_high_procurement+foreign_aid_500mt",
     );
     const reduceProcurement = choices.find(
       (choice) =>
         choice.id ===
-          "continue_grain_exports+no_additional_relief+reduce_procurement_guarantee_ration",
+          "continue_grain_exports+no_additional_relief+reduce_procurement_guarantee_ration+no_foreign_aid",
     );
     const banAidReduce = choices.find(
       (choice) =>
         choice.id ===
-          "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
+          "ban_grain_exports_and_import+no_additional_relief+reduce_procurement_guarantee_ration+foreign_aid_500mt",
     );
     expect(limit?.name).toContain("大幅限制粮食出口");
     expect(ban?.name).toContain("禁止粮食出口并提前进口");
-    expect(banWithAid?.name).toContain("接受外国粮食与医疗援助");
+    expect(banWithAid?.name).toContain("500 万吨");
     expect(reduceProcurement?.name).toContain("降低征购并保障农村最低口粮");
     expect(banAidReduce?.name).toContain("降低征购并保障农村最低口粮");
+    expect(banAidReduce?.name).toContain("500 万吨");
     expect(
       banWithAid?.modifiers.find(
         (modifier) => modifier.target === "resources.foodSupply",
@@ -839,10 +877,10 @@ describe("确定性历史事件", () => {
       "reduce_procurement_guarantee_ration",
     );
     const bannedAndAided = runChoice(
-      "ban_grain_exports_and_import+accept_foreign_aid",
+      "ban_grain_exports_and_import+foreign_aid_500mt",
     );
     const bannedAidedReduced = runChoice(
-      "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
+      "ban_grain_exports_and_import+reduce_procurement_guarantee_ration+foreign_aid_500mt",
     );
     const relieved = runChoice("domestic_emergency_relief");
     const relation = (state: typeof historical, countryId: string) =>
