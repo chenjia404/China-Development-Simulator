@@ -125,6 +125,8 @@ test("客户端展示可提前发动的治理、工业化与改革国策", async
   assert.match(source, /提前启动三线建设/);
   assert.match(source, /提前推进城市经济体制改革/);
   assert.match(source, /提前承认私营经济法律地位/);
+  assert.match(source, /提前启动关贸总协定复关申请/);
+  assert.match(source, /国家谈判与涉外法治能力达标/);
   assert.match(source, /无固定年份限制/);
   assert.match(source, /提前实施分税制财政改革/);
   assert.match(source, /国内决策 · 无外交成本/);

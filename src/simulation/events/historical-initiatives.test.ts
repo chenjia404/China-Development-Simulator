@@ -428,6 +428,7 @@ describe("历史转折国策", () => {
     observerState.nation.date.elapsedMonths = (1972 - 1949) * 12;
     observerState.nation.economy.institutionalEfficiency = 0.5;
     observerState.nation.institutions.stateCapacity = 0.5;
+    observerState.nation.institutions.localImplementationCapacity = 0.5;
     observerState.nation.institutions.legalPredictability = 0.5;
     observerState.nation.society.stabilityIndex = 60;
     observerState.nation.trade.openness = 0.22;
@@ -468,11 +469,19 @@ describe("历史转折国策", () => {
     );
 
     const applicationState = supportedObserverEngine.exportState();
-    applicationState.nation.date.year = 1982;
+    applicationState.nation.date.year = 1973;
     applicationState.nation.date.month = 1;
-    applicationState.nation.date.elapsedMonths = (1982 - 1949) * 12;
+    applicationState.nation.date.elapsedMonths = (1973 - 1949) * 12;
     applicationState.world.countries[1].tradeAgreement = true;
     const applicationEngine = createSimulationEngine(applicationState);
+    const applicationStatus = getHistoricalInitiativeStatus(
+      applicationEngine.exportState(),
+      "early_gatt_accession_application",
+    );
+    expect(applicationStatus.blockers.some((blocker) => blocker.includes("最早可在")))
+      .toBe(false);
+    expect(getHistoricalInitiative("early_gatt_accession_application")?.availableFromYear)
+      .toBeUndefined();
     applicationEngine.dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
       initiativeId: "early_gatt_accession_application",

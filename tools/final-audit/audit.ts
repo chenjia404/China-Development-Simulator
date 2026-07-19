@@ -698,6 +698,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   observerState.nation.date.elapsedMonths = (1950 - 1949) * 12;
   observerState.nation.economy.institutionalEfficiency = 0.5;
   observerState.nation.institutions.stateCapacity = 0.5;
+  observerState.nation.institutions.localImplementationCapacity = 0.5;
   observerState.nation.institutions.legalPredictability = 0.5;
   observerState.nation.society.stabilityIndex = 60;
   observerState.nation.trade.openness = 0.22;
@@ -712,9 +713,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     initiativeId: "early_gatt_observer",
   });
   const applicationState = observerEngine.exportState();
-  applicationState.nation.date.year = 1982;
+  applicationState.nation.date.year = 1952;
   applicationState.nation.date.month = 1;
-  applicationState.nation.date.elapsedMonths = (1982 - 1949) * 12;
+  applicationState.nation.date.elapsedMonths = (1952 - 1949) * 12;
   applicationState.world.countries[1].tradeAgreement = true;
   const applicationEngine = createSimulationEngine(applicationState);
   applicationEngine.dispatch({
@@ -754,7 +755,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   }
   const unSupportEngine = createSimulationEngine(unSupportState);
   unSupportEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
-  const wtoSupportState = createInitialGameState(seed, 1986);
+  const wtoSupportState = createInitialGameState(seed, 1952);
   enactHistoricalEventEarly(
     wtoSupportState.nation,
     "gatt_accession_application_1986",
@@ -762,9 +763,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     "审计复关进程前置条件",
     [],
   );
-  wtoSupportState.nation.date.year = 1991;
+  wtoSupportState.nation.date.year = 1957;
   wtoSupportState.nation.date.month = 1;
-  wtoSupportState.nation.date.elapsedMonths = (1991 - 1949) * 12;
+  wtoSupportState.nation.date.elapsedMonths = (1957 - 1949) * 12;
   wtoSupportState.nation.internationalInfluence = 50;
   wtoSupportState.nation.trade.openness = 0.5;
   wtoSupportState.nation.diplomacy.diplomaticPoints = 100;

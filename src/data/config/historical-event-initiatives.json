@@ -443,8 +443,7 @@
     "eventId": "gatt_accession_application_1986",
     "name": "提前启动关贸总协定复关申请",
     "category": "多边贸易",
-    "description": "在取得观察员地位并完成初步规则准备后，正式提交恢复关贸总协定缔约方地位申请，进入外贸体制审议和关税谈判。",
-    "availableFromYear": 1982,
+    "description": "不设固定年份门槛；在取得观察员地位并完成初步规则准备、国家谈判与涉外法治能力达标后，正式提交恢复关贸总协定缔约方地位申请，进入外贸体制审议和关税谈判。",
     "diplomaticPointCost": 18,
     "transitionDurationMonths": 36,
     "requirements": {
@@ -455,6 +454,9 @@
         "gatt_observer_1982": 12
       },
       "minimumInstitutionalEfficiency": 0.44,
+      "minimumStateCapacity": 0.45,
+      "minimumLocalImplementationCapacity": 0.4,
+      "minimumLegalPredictability": 0.42,
       "minimumStability": 52,
       "minimumOpenness": 0.18,
       "minimumReputation": 48,
