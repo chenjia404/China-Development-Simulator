@@ -284,16 +284,17 @@ describe("分享格式化与里程碑", () => {
 
   it("对比卡在有历史锚点年度后生成对标海报", () => {
     const game = createInitialGameState(1949);
-    game.nation.date = { year: 1957, month: 12, elapsedMonths: (1957 - 1949) * 12 + 11 };
+    game.nation.date = { year: 1978, month: 12, elapsedMonths: (1978 - 1949) * 12 + 11 };
     game.nation.history.annual = [
       stubAnnual({
-        year: 1957,
+        year: 1978,
         score: 40,
-        gdpRank: 20,
-        population: 646_530_000,
-        realGDP: 155_000_000_000,
-        realGDPPerCapita: 155_000_000_000 / 646_530_000,
-        currentUSDGDPPerCapita: 90,
+        gdpRank: 8,
+        population: 962_590_000,
+        realGDP: 638_000_000_000,
+        realGDPPerCapita: 660,
+        currentPriceGDPPerCapita: 465,
+        currentUSDGDPPerCapita: 170,
       }),
     ];
 
@@ -304,8 +305,10 @@ describe("分享格式化与里程碑", () => {
     expect(payload.effectiveType).toBe("compare");
     expect(payload.card.type).toBe("compare");
     if (payload.card.type === "compare") {
-      expect(payload.card.year).toBe(1957);
+      expect(payload.card.year).toBe(1978);
       expect(payload.card.targetLabel).toContain("历史");
+      expect(payload.card.hero.label).toBe("GDP（当年价人民币）");
+      expect(payload.card.metrics[0]?.value).toContain("元");
       expect(payload.card.metrics.length).toBeGreaterThanOrEqual(3);
     }
     expect(payload.copyText).toContain("对标");

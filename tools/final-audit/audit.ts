@@ -258,6 +258,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const targetComparisons = comparisonTargetOptions.map((target) =>
     compareSimulationWithTarget(historical.annual, target.id)
   );
+  const historicalCurrentPriceComparison = targetComparisons.find(
+    (comparison) => comparison.targetId === "history",
+  );
   const internationalTargetComparisons = targetComparisons.filter(
     (comparison) => comparison.targetId !== "history",
   );
@@ -1215,6 +1218,15 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       historicalComparisons.length === 8 &&
         historicalRankComparisons.length === 5 &&
         targetComparisons.length === 4 &&
+        historicalCurrentPriceComparison?.valueBasis === "current_cny" &&
+        historicalCurrentPriceComparison.rows.length === 5 &&
+        historicalCurrentPriceComparison.rows.every(
+          (row) =>
+            Number.isFinite(row.gdp.relativeDifference) &&
+            Number.isFinite(row.gdpPerCapita.relativeDifference) &&
+            Number.isFinite(row.gdpUSD?.relativeDifference) &&
+            Number.isFinite(row.gdpPerCapitaUSD?.relativeDifference),
+        ) &&
         internationalTargetComparisons.every(
           (comparison) =>
             comparison.valueBasis === "current_usd" &&
@@ -1238,7 +1250,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         historicalRankComparisons.every(
           (comparison) => Number.isFinite(comparison.gdpRank?.difference),
         ),
-      `历史 ${historicalComparisons.length} 个锚点；韩国、日本、台湾各 ${internationalTargetComparisons.map((comparison) => comparison.rows.length).join("/")} 个现价美元锚点；2026 年预测目标已排除`,
+      `内部不变价历史 ${historicalComparisons.length} 个锚点；用户界面当年价历史 ${historicalCurrentPriceComparison?.rows.length ?? 0} 个锚点；韩国、日本、台湾各 ${internationalTargetComparisons.map((comparison) => comparison.rows.length).join("/")} 个现价美元锚点；2026 年预测目标已排除`,
     ),
     makeCheck(
       "distinct-routes",

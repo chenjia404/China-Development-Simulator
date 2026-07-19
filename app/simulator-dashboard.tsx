@@ -283,25 +283,27 @@ function OverviewComparison({ annual }: { annual: AnnualSnapshot[] }) {
         <div>
           <span className="eyebrow">首页发展对比</span>
           <h2>本局与{comparison.targetLabel}</h2>
-          <p>{latest ? `${latest.year} 年最新可比数据` : "尚未到达可比年份"}</p>
+          <p>{latest ? `${latest.year} 年完整年度对比` : "尚未到达可比年份"}</p>
         </div>
         <ComparisonTargetSelector value={targetId} onChange={setTargetId} />
       </div>
       {latest ? (
         <div className="overview-comparison-grid">
           <div>
-            <span>{usesUSD ? "GDP（现价美元）" : "实际 GDP"}</span>
+            <span>{usesUSD ? "GDP（现价美元）" : "GDP（当年价人民币）"}</span>
             <strong>{currency}{formatLarge(latest.gdp.simulated)}</strong>
             <small className={differenceTone(latest.gdp.relativeDifference)}>
               {comparison.targetLabel} {currency}{formatLarge(latest.gdp.target)} · {differenceLabel(latest.gdp.relativeDifference)}
             </small>
+            {latest.gdpUSD ? <em>按当年汇率：本局 ${formatLarge(latest.gdpUSD.simulated)} · 历史 ${formatLarge(latest.gdpUSD.target)}</em> : null}
           </div>
           <div>
-            <span>{usesUSD ? "人均 GDP（美元）" : "人均 GDP"}</span>
-            <strong>{currency}{formatLarge(latest.gdpPerCapita.simulated)}</strong>
+            <span>{usesUSD ? "人均 GDP（美元）" : "人均 GDP（当年价人民币）"}</span>
+            <strong>{currency}{formatLarge(latest.gdpPerCapita.simulated)}{usesUSD ? "" : " 元"}</strong>
             <small className={differenceTone(latest.gdpPerCapita.relativeDifference)}>
-              {comparison.targetLabel} {currency}{formatLarge(latest.gdpPerCapita.target)} · {differenceLabel(latest.gdpPerCapita.relativeDifference)}
+              {comparison.targetLabel} {currency}{formatLarge(latest.gdpPerCapita.target)}{usesUSD ? "" : " 元"} · {differenceLabel(latest.gdpPerCapita.relativeDifference)}
             </small>
+            {latest.gdpPerCapitaUSD ? <em>按当年汇率：本局 ${formatLarge(latest.gdpPerCapitaUSD.simulated)} · 历史 ${formatLarge(latest.gdpPerCapitaUSD.target)}</em> : null}
           </div>
           <div>
             <span>总人口</span>
@@ -329,7 +331,7 @@ function OverviewComparison({ annual }: { annual: AnnualSnapshot[] }) {
         </div>
       ) : (
         <p className="overview-comparison-empty">
-          推进到 1960 年后即可与{comparison.targetLabel}比较。
+          推进到存在完整当年价数据的年度后即可与{comparison.targetLabel}比较。
         </p>
       )}
       <button
@@ -351,6 +353,9 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
   const growth = previousAnnual && lastAnnual
     ? lastAnnual.realGDP / previousAnnual.realGDP - 1
     : nation.economy.annualRealGDPGrowth;
+  const currentPriceGDP = nation.economy.currentPriceGDPPerCapita *
+    nation.population.total;
+  const currentPeriod = `${nation.date.year} 年 ${nation.date.month} 月`;
 
   return (
     <>
@@ -373,13 +378,11 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
       </div>
       <div className="metrics-grid">
         <MetricCard
-          label="实际 GDP"
-          value={formatLarge(nation.economy.realGDP)}
-          detail={lastAnnual
-            ? `${lastAnnual.year} 年同比 ${formatPercent(growth)}`
-            : `当前折年同比 ${formatPercent(growth)}`}
+          label="GDP（当年价，当前月折年）"
+          value={formatLarge(currentPriceGDP)}
+          detail={`${currentPeriod} · 实际同比 ${formatPercent(growth)}`}
         />
-        <MetricCard label="人均 GDP（现价美元）" value={`$${formatLarge(nation.economy.currentUSDGDPPerCapita)}`} detail={`当年价 ${formatLarge(nation.economy.currentPriceGDPPerCapita)} 元`} tone="gold" />
+        <MetricCard label="人均 GDP（当年价）" value={`${formatLarge(nation.economy.currentPriceGDPPerCapita)} 元`} detail={`按当年汇率约 $${formatLarge(nation.economy.currentUSDGDPPerCapita)} · ${currentPeriod}`} tone="gold" />
         <MetricCard label="总人口" value={formatLarge(nation.population.total)} detail={`城市化 ${formatPercent(nation.society.urbanizationRate)}`} tone="red" />
         <MetricCard label="财政余额" value={formatLarge(nation.fiscal.balance)} detail={`债务率 ${formatPercent(nation.fiscal.debtToGDP)}`} tone={nation.fiscal.balance >= 0 ? "green" : "red"} />
         <MetricCard label="科技指数" value={nation.technology.index.toFixed(1)} detail={`采用率 ${formatPercent(nation.technology.adoptionRate)}`} tone="blue" />
@@ -1888,18 +1891,20 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
     value > 0.0005 ? "is-above" : value < -0.0005 ? "is-below" : "is-matched";
   const renderMetric = (
     metric: TargetComparisonMetric,
-    currency = false,
+    prefix = "",
+    suffix = "",
+    secondary?: TargetComparisonMetric,
   ) => (
     <div className="comparison-metric">
-      <strong>{currency ? "$" : ""}{formatLarge(metric.simulated)}</strong>
+      <strong>{prefix}{formatLarge(metric.simulated)}{suffix}</strong>
       <span>
-        {comparison.targetLabel} {currency ? "$" : ""}
-        {formatLarge(metric.target)}
+        {comparison.targetLabel} {prefix}{formatLarge(metric.target)}{suffix}
       </span>
       <small className={differenceTone(metric.relativeDifference)}>
         偏差 {metric.relativeDifference >= 0 ? "+" : ""}
         {formatPercent(metric.relativeDifference)}
       </small>
+      {secondary ? <em>按当年汇率：本局 ${formatLarge(secondary.simulated)} · 对标 ${formatLarge(secondary.target)}</em> : null}
     </div>
   );
   return (
@@ -1926,16 +1931,26 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
           <div className="historical-comparison-table">
             <div className="comparison-head">
               <span>年份</span>
-              <span>{isInternationalComparison ? "GDP（现价美元）" : "实际 GDP"}</span>
-              <span>{isInternationalComparison ? "人均 GDP（美元）" : "人均 GDP"}</span>
+              <span>{isInternationalComparison ? "GDP（现价美元）" : "GDP（当年价人民币）"}</span>
+              <span>{isInternationalComparison ? "人均 GDP（美元）" : "人均 GDP（当年价人民币）"}</span>
               <span>总人口</span>
               <span>世界经济排名</span>
             </div>
             {comparisons.map((item) => (
               <div className="comparison-row" key={item.year}>
                 <strong>{item.year}</strong>
-                {renderMetric(item.gdp, isInternationalComparison)}
-                {renderMetric(item.gdpPerCapita, isInternationalComparison)}
+                {renderMetric(
+                  item.gdp,
+                  isInternationalComparison ? "$" : "",
+                  "",
+                  item.gdpUSD,
+                )}
+                {renderMetric(
+                  item.gdpPerCapita,
+                  isInternationalComparison ? "$" : "",
+                  isInternationalComparison ? "" : " 元",
+                  item.gdpPerCapitaUSD,
+                )}
                 {renderMetric(item.population)}
                 <div className="comparison-metric comparison-rank">
                   {item.gdpRank ? (
@@ -1968,7 +1983,7 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
             ))}
             {comparisons.length === 0 && (
               <p className="comparison-empty">
-                推进到 1960 年后即可开始与{comparison.targetLabel}比较。
+                推进到存在完整当年价数据的年度后即可开始与{comparison.targetLabel}比较。
               </p>
             )}
           </div>
@@ -1976,10 +1991,10 @@ function StatisticsSection({ game, darkMode }: { game: GameState; darkMode: bool
         <p className="comparison-note">
           {isInternationalComparison
             ? "国家横向对标统一使用同期现价美元；目标排名按同年有数据的世界经济体计算，本局排名来自动态世界模型。对比只用于展示，不会改变模拟结果。"
-            : "历史对比的实际 GDP 与人均 GDP 使用项目统一的 1949 年不变价校准口径；世界经济排名按名义 GDP 总量比较。2026 年预测目标不作为真实历史展示。"}
+            : "中国历史对比统一使用完整年度的当年价人民币，美元按同年口径补充；世界经济排名按现价美元名义 GDP 比较。模型内部不变价只用于实际增长趋势，不作为普通 GDP 展示。2026 年预测目标不作为真实历史展示。"}
         </p>
       </section>
-      <div className="annual-table"><div className="annual-head"><span>年份</span><span>GDP</span><span>人均 GDP</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>${formatLarge(item.currentUSDGDPPerCapita)}<br />{formatLarge(item.currentPriceGDPPerCapita)} 元</span><span>{formatLarge(item.population)}</span><span>指数 {item.technologyIndex.toFixed(1)}<br />产业第 {item.industryTechnologyTier} 层 · {item.completedTechnologyCount} 节点</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div>
+      <div className="annual-table"><div className="annual-head"><span>年份</span><span>实际 GDP（模型不变价）</span><span>人均 GDP（当年价）</span><span>人口</span><span>科技</span><span>外储 / 外债</span><span>侨汇</span><span>排名</span></div>{game.nation.history.annual.slice(-10).reverse().map((item) => <div className="annual-row" key={item.year}><strong>{item.year}</strong><span>{formatLarge(item.realGDP)}</span><span>{formatLarge(item.currentPriceGDPPerCapita)} 元<br />${formatLarge(item.currentUSDGDPPerCapita)}</span><span>{formatLarge(item.population)}</span><span>指数 {item.technologyIndex.toFixed(1)}<br />产业第 {item.industryTechnologyTier} 层 · {item.completedTechnologyCount} 节点</span><span>外储 ${formatLarge(item.foreignExchangeReserves)}<br />外债 ${formatLarge(item.externalDebt)} · 用汇 {formatPercent(item.capitalGoodsImportCoverage, 0)}</span><span>${formatLarge(item.remittanceInflows)}</span><span>总量第 {item.gdpRank}<br />人均第 {item.gdpPerCapitaRank}/{item.gdpPerCapitaRankParticipants}</span></div>)}</div>
     </section>
   );
 }

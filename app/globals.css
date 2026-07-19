@@ -103,6 +103,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .overview-comparison-grid span { display: block; color: var(--muted); font-size: 11px; }
 .overview-comparison-grid strong { display: block; margin: 7px 0 5px; overflow: hidden; font-size: 18px; text-overflow: ellipsis; white-space: nowrap; }
 .overview-comparison-grid small { display: block; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.overview-comparison-grid em { display: block; margin-top: 5px; color: var(--text-secondary); font-size: 11px; font-style: normal; line-height: 1.5; }
 .overview-comparison-grid small.is-above { color: var(--green); }
 .overview-comparison-grid small.is-below { color: var(--red); }
 .overview-comparison-grid small.is-matched { color: var(--blue); }
@@ -538,6 +539,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .comparison-metric strong { font-size: 13px; }
 .comparison-metric span { margin-top: 3px; color: var(--muted); font-size: 11px; }
 .comparison-metric small { width: fit-content; margin-top: 5px; padding: 2px 5px; border-radius: 5px; font-size: 11px; font-style: normal; }
+.comparison-metric em { margin-top: 5px; color: var(--text-secondary); font-size: 10px; font-style: normal; line-height: 1.45; }
 .comparison-metric .is-above { color: var(--green); background: color-mix(in srgb, var(--green) 9%, transparent); }
 .comparison-metric .is-below { color: var(--red); background: color-mix(in srgb, var(--red) 9%, transparent); }
 .comparison-metric .is-matched { color: var(--blue); background: var(--blue-soft); }

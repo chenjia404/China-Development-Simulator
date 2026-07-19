@@ -1,5 +1,6 @@
 import calibrationData from "../../data/config/calibration-targets.json";
 import comparisonTargetData from "../../data/config/comparison-economy-targets.json";
+import historicalCurrentPriceTargets from "../../data/config/historical-current-price-targets.json";
 import type { AnnualSnapshot } from "../state/history-state";
 
 export type ComparisonTargetId =
@@ -31,6 +32,8 @@ export interface TargetComparisonRow {
   year: number;
   gdp: TargetComparisonMetric;
   gdpPerCapita: TargetComparisonMetric;
+  gdpUSD?: TargetComparisonMetric;
+  gdpPerCapitaUSD?: TargetComparisonMetric;
   population: TargetComparisonMetric;
   gdpRank: TargetRankComparison | null;
 }
@@ -38,7 +41,7 @@ export interface TargetComparisonRow {
 export interface TargetComparisonResult {
   targetId: ComparisonTargetId;
   targetLabel: string;
-  valueBasis: "internal_real_1949" | "current_usd";
+  valueBasis: "current_cny" | "current_usd";
   rows: TargetComparisonRow[];
 }
 
@@ -102,6 +105,7 @@ type ComparableAnnualSnapshot = Pick<
   | "year"
   | "realGDP"
   | "realGDPPerCapita"
+  | "currentPriceGDPPerCapita"
   | "currentUSDGDPPerCapita"
   | "population"
   | "gdpRank"
@@ -126,6 +130,17 @@ export const historicalComparisonAnchors: HistoricalComparisonAnchor[] =
         ? target.gdpRank
         : null,
     }));
+
+interface HistoricalCurrentPriceAnchor {
+  year: number;
+  population: number;
+  currentPriceGDPPerCapita: number;
+  currentUSDGDPPerCapita: number;
+  gdpRank: number | null;
+}
+
+export const historicalCurrentPriceComparisonAnchors:
+  HistoricalCurrentPriceAnchor[] = historicalCurrentPriceTargets.years;
 
 /**
  * 只负责把本局年度快照与同年份史实锚点对齐，不会把史实值写回模拟状态。
@@ -183,37 +198,59 @@ function targetMetric(
 }
 
 /**
- * 根据玩家选择生成只读对标数据。国家对标统一使用现价美元，避免跨经济体比较内部不变价数值。
+ * 根据玩家选择生成只读对标数据。中国历史使用当年价人民币并附美元，
+ * 跨经济体对标统一使用现价美元，避免把模型内部不变价误当成普通 GDP。
  */
 export function compareSimulationWithTarget(
   annual: readonly ComparableAnnualSnapshot[],
   targetId: ComparisonTargetId,
 ): TargetComparisonResult {
   if (targetId === "history") {
+    const snapshots = new Map(annual.map((snapshot) => [snapshot.year, snapshot]));
     return {
       targetId,
       targetLabel: "中国真实历史",
-      valueBasis: "internal_real_1949",
-      rows: compareSimulationWithHistory(annual).map((row) => ({
-        year: row.year,
-        gdp: targetMetric(row.realGDP.simulated, row.realGDP.historical),
-        gdpPerCapita: targetMetric(
-          row.realGDPPerCapita.simulated,
-          row.realGDPPerCapita.historical,
-        ),
-        population: targetMetric(
-          row.population.simulated,
-          row.population.historical,
-        ),
-        gdpRank: row.gdpRank === null
-          ? null
-          : {
-              simulated: row.gdpRank.simulated,
-              target: row.gdpRank.historical,
-              difference: row.gdpRank.difference,
-              targetParticipants: null,
-            },
-      })),
+      valueBasis: "current_cny",
+      rows: historicalCurrentPriceComparisonAnchors.flatMap((anchor) => {
+        const snapshot = snapshots.get(anchor.year);
+        if (!snapshot) return [];
+        const simulatedCurrentPriceGDP =
+          snapshot.currentPriceGDPPerCapita * snapshot.population;
+        const historicalCurrentPriceGDP =
+          anchor.currentPriceGDPPerCapita * anchor.population;
+        const simulatedUSDGDP =
+          snapshot.currentUSDGDPPerCapita * snapshot.population;
+        const historicalUSDGDP =
+          anchor.currentUSDGDPPerCapita * anchor.population;
+        return [{
+          year: anchor.year,
+          gdp: targetMetric(
+            simulatedCurrentPriceGDP,
+            historicalCurrentPriceGDP,
+          ),
+          gdpPerCapita: targetMetric(
+            snapshot.currentPriceGDPPerCapita,
+            anchor.currentPriceGDPPerCapita,
+          ),
+          gdpUSD: targetMetric(simulatedUSDGDP, historicalUSDGDP),
+          gdpPerCapitaUSD: targetMetric(
+            snapshot.currentUSDGDPPerCapita,
+            anchor.currentUSDGDPPerCapita,
+          ),
+          population: targetMetric(
+            snapshot.population,
+            anchor.population,
+          ),
+          gdpRank: anchor.gdpRank === null
+            ? null
+            : {
+                simulated: snapshot.gdpRank,
+                target: anchor.gdpRank,
+                difference: snapshot.gdpRank - anchor.gdpRank,
+                targetParticipants: null,
+              },
+        }];
+      }),
     };
   }
 

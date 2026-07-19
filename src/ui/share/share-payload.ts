@@ -169,7 +169,7 @@ export function buildCompareCard(
     year: latest.year,
     usesUSD,
     hero: {
-      label: usesUSD ? "GDP（美元）" : "实际 GDP",
+      label: usesUSD ? "GDP（现价美元）" : "GDP（当年价人民币）",
       value: usesUSD
         ? formatUsdLarge(latest.gdp.simulated)
         : formatLarge(latest.gdp.simulated),
@@ -177,10 +177,10 @@ export function buildCompareCard(
     },
     metrics: [
       {
-        label: usesUSD ? "人均美元" : "人均 GDP",
+        label: usesUSD ? "人均 GDP（美元）" : "人均 GDP（人民币）",
         value: usesUSD
           ? formatUsd(latest.gdpPerCapita.simulated)
-          : formatLarge(latest.gdpPerCapita.simulated),
+          : `${formatLarge(latest.gdpPerCapita.simulated)}元`,
         detail: `对标 ${differenceLabel(latest.gdpPerCapita.relativeDifference)}`,
       },
       {

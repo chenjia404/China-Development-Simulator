@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "description": "中国真实历史的当年价人民币与现价美元展示锚点，仅用于界面对比，不参与实际GDP校准。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2010/html/B0103C.HTM",
+      "https://www.stats.gov.cn/ztjc/zthd/lhfw/2013/images/kxfz.pdf",
+      "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1901004.html",
+      "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD?locations=CN"
+    ]
+  },
+  "years": [
+    { "year": 1978, "population": 962590000, "currentPriceGDPPerCapita": 381, "currentUSDGDPPerCapita": 156.7, "gdpRank": 10 },
+    { "year": 1990, "population": 1143330000, "currentPriceGDPPerCapita": 1644, "currentUSDGDPPerCapita": 318.5, "gdpRank": 11 },
+    { "year": 2000, "population": 1267430000, "currentPriceGDPPerCapita": 7858, "currentUSDGDPPerCapita": 969.2, "gdpRank": 6 },
+    { "year": 2010, "population": 1340910000, "currentPriceGDPPerCapita": 30015, "currentUSDGDPPerCapita": 4550.7, "gdpRank": 2 },
+    { "year": 2020, "population": 1412120000, "currentPriceGDPPerCapita": 72447, "currentUSDGDPPerCapita": 10283.2, "gdpRank": 2 }
+  ]
+}

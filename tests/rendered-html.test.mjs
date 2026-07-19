@@ -173,7 +173,10 @@ test("客户端可选择历史、韩国、日本和台湾进行发展对比", as
   assert.ok(dashboardFile, "应生成模拟器客户端代码块");
   const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
   assert.match(source, /首页发展对比/);
-  assert.match(source, /最新可比数据/);
+  assert.match(source, /完整年度对比/);
+  assert.match(source, /GDP（当年价，当前月折年）/);
+  assert.match(source, /人均 GDP（当年价）/);
+  assert.match(source, /按当年汇率约/);
   assert.match(source, /查看完整年度对比/);
   assert.match(source, /国家发展对比/);
   assert.match(source, /选择经济对比目标/);
@@ -182,6 +185,9 @@ test("客户端可选择历史、韩国、日本和台湾进行发展对比", as
   assert.match(source, /台湾/);
   assert.match(source, /实际 GDP/);
   assert.match(source, /GDP（现价美元）/);
+  assert.match(source, /GDP（当年价人民币）/);
+  assert.match(source, /人均 GDP（当年价人民币）/);
+  assert.match(source, /模型内部不变价只用于实际增长趋势/);
   assert.match(source, /人均 GDP/);
   assert.match(source, /总人口/);
   assert.match(source, /世界经济排名/);
