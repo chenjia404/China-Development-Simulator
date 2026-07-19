@@ -37,6 +37,28 @@
       ]
     },
     {
+      "id": "compulsory_education",
+      "name": "普及九年义务教育",
+      "category": "社会",
+      "description": "由政府保障适龄儿童完成小学和初中教育，重点提高识字、小学与初中覆盖率；需要长期增加财政投入并建立全国与地方执行网络，受教育群体成年后才会逐步转化为人力资本、技术吸收和科研人才。",
+      "transitionMonths": 84,
+      "conflictsWith": ["austerity"],
+      "requirements": {
+        "availableFromYear": 1949,
+        "minimumEducationBudgetShare": 0.12,
+        "minimumStateCapacity": 0.3,
+        "minimumLocalImplementationCapacity": 0.25,
+        "minimumStabilityIndex": 40
+      },
+      "modifiers": [
+        { "target": "education.literacyFormation", "operation": "multiply", "value": 1.18 },
+        { "target": "education.primaryCoverageFormation", "operation": "multiply", "value": 1.2 },
+        { "target": "education.secondaryCoverageFormation", "operation": "multiply", "value": 1.35 },
+        { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.12 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.06 }
+      ]
+    },
+    {
       "id": "technology_priority",
       "name": "科技强国",
       "category": "发展",

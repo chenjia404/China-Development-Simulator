@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { calculateSectorOutput } from "../economy/production";
 import { calculateFiscalRevenue } from "../fiscal/revenue";
+import { calculateFiscalSpending } from "../fiscal/spending";
 import { createInitialGameState } from "../state/initial-state";
 import { updateTechnology } from "../technology/research";
 import {
   applyPolicyModifiers,
   getNationalPolicy,
   maximumActivePolicies,
+  nationalPolicyImplementationRate,
   updatePolicyEnvironment,
   validatePolicySelection,
 } from "./policy-engine";
@@ -62,6 +64,100 @@ describe("国策系统", () => {
     expect(
       applyPolicyModifiers(maturePolicy, "technology.researchOutput", 1),
     ).toBeCloseTo(1.12, 8);
+  });
+
+  it("义务教育可从建国初期筹备，但必须具备预算和执行门槛", () => {
+    const definition = getNationalPolicy("compulsory_education");
+    expect(definition).toMatchObject({
+      name: "普及九年义务教育",
+      transitionMonths: 84,
+      requirements: {
+        availableFromYear: 1949,
+        minimumEducationBudgetShare: 0.12,
+        minimumStateCapacity: 0.3,
+        minimumLocalImplementationCapacity: 0.25,
+        minimumStabilityIndex: 40,
+      },
+    });
+    expect(definition?.modifiers).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        target: "education.secondaryCoverageFormation",
+        operation: "multiply",
+        value: 1.35,
+      }),
+      expect.objectContaining({
+        target: "education.humanCapitalFormation",
+        value: 1.12,
+      }),
+      expect.objectContaining({ target: "fiscal.spending", value: 1.06 }),
+    ]));
+
+    const engine = createSimulationEngine(createInitialGameState(1949));
+    expect(() => engine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["compulsory_education"],
+    })).toThrow("教育预算占比需达到 12%");
+    engine.dispatch({ type: "UPDATE_BUDGET", budget: { education: 0.12 } });
+    expect(() => engine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["compulsory_education"],
+    })).not.toThrow();
+  });
+
+  it("义务教育以更高财政成本逐步提高基础教育、人力资本和科技", () => {
+    const baselineCost = createInitialGameState(1949).nation;
+    const compulsoryCost = structuredClone(baselineCost);
+    baselineCost.fiscal.budget.education = 0.12;
+    compulsoryCost.fiscal.budget.education = 0.12;
+    compulsoryCost.policyProgress.compulsory_education = 1;
+    calculateFiscalSpending(baselineCost);
+    calculateFiscalSpending(compulsoryCost);
+    expect(compulsoryCost.fiscal.expenditure).toBeGreaterThan(
+      baselineCost.fiscal.expenditure,
+    );
+    expect(compulsoryCost.fiscal.balance).toBeLessThan(baselineCost.fiscal.balance);
+
+    const underfunded = structuredClone(compulsoryCost);
+    underfunded.fiscal.budget.education = 0.06;
+    expect(nationalPolicyImplementationRate(compulsoryCost, "compulsory_education"))
+      .toBe(1);
+    expect(nationalPolicyImplementationRate(underfunded, "compulsory_education"))
+      .toBeCloseTo(0.5, 8);
+    expect(
+      applyPolicyModifiers(underfunded, "education.secondaryCoverageFormation", 1),
+    ).toBeLessThan(
+      applyPolicyModifiers(compulsoryCost, "education.secondaryCoverageFormation", 1),
+    );
+    expect(applyPolicyModifiers(underfunded, "fiscal.spending", 1)).toBeCloseTo(
+      applyPolicyModifiers(compulsoryCost, "fiscal.spending", 1),
+      8,
+    );
+
+    const baselineEngine = createSimulationEngine(createInitialGameState(1949));
+    const compulsoryEngine = createSimulationEngine(createInitialGameState(1949));
+    for (const engine of [baselineEngine, compulsoryEngine]) {
+      engine.dispatch({ type: "UPDATE_BUDGET", budget: { education: 0.12 } });
+    }
+    compulsoryEngine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["compulsory_education"],
+    });
+    baselineEngine.dispatch({ type: "ADVANCE_MONTHS", months: 180 });
+    compulsoryEngine.dispatch({ type: "ADVANCE_MONTHS", months: 180 });
+    const baseline = baselineEngine.getState().nation;
+    const compulsory = compulsoryEngine.getState().nation;
+
+    expect(compulsory.fiscal.expenditure).toBeGreaterThan(baseline.fiscal.expenditure);
+    expect(compulsory.education.primaryCoverage).toBeGreaterThan(
+      baseline.education.primaryCoverage,
+    );
+    expect(compulsory.education.secondaryCoverage).toBeGreaterThan(
+      baseline.education.secondaryCoverage,
+    );
+    expect(compulsory.economy.humanCapitalIndex).toBeGreaterThan(
+      baseline.economy.humanCapitalIndex,
+    );
+    expect(compulsory.technology.index).toBeGreaterThan(baseline.technology.index);
   });
 
   it("韩国式追赶国策同时包含资本、技能、出口学习和现实代价", () => {

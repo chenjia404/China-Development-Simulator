@@ -104,6 +104,21 @@ export function updateEducation(nation: NationState): void {
     0.2,
     1,
   );
+  const literacyFormation = clamp(
+    applyPolicyModifiers(nation, "education.literacyFormation", 1),
+    0.5,
+    2,
+  );
+  const primaryCoverageFormation = clamp(
+    applyPolicyModifiers(nation, "education.primaryCoverageFormation", 1),
+    0.5,
+    2,
+  );
+  const secondaryCoverageFormation = clamp(
+    applyPolicyModifiers(nation, "education.secondaryCoverageFormation", 1),
+    0.5,
+    2,
+  );
   education.higherEducationAdmissionCapacity = approach(
     education.higherEducationAdmissionCapacity,
     admissionTarget,
@@ -138,6 +153,7 @@ export function updateEducation(nation: NationState): void {
   education.literacyRate = clamp(
     education.literacyRate +
       literacyInput * educationConfig.literacyEffect * efficiency *
+        literacyFormation *
         (1 - education.literacyRate),
     0,
     1,
@@ -145,6 +161,7 @@ export function updateEducation(nation: NationState): void {
   education.primaryCoverage = clamp(
     education.primaryCoverage +
       primaryInput * educationConfig.primaryEffect * efficiency *
+        primaryCoverageFormation *
         (1 - education.primaryCoverage),
     0,
     1,
@@ -152,6 +169,7 @@ export function updateEducation(nation: NationState): void {
   education.secondaryCoverage = clamp(
     education.secondaryCoverage +
       secondaryInput * educationConfig.secondaryEffect * efficiency *
+        secondaryCoverageFormation *
         (1 - education.secondaryCoverage),
     0,
     1,

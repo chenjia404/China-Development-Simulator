@@ -128,6 +128,12 @@ test("客户端展示可提前发动的治理、工业化与改革国策", async
   assert.match(source, /提前实施分税制财政改革/);
   assert.match(source, /国内决策 · 无外交成本/);
   assert.match(source, /战争、灾害、危机和政治运动仍按事件处理/);
+  assert.match(source, /普及九年义务教育/);
+  assert.match(source, /启动门槛/);
+  assert.match(source, /教育预算至少占财政预算/);
+  assert.match(source, /minimumEducationBudgetShare:.12/);
+  assert.match(source, /受教育群体成年后才会逐步转化为人力资本/);
+  assert.match(source, /财政承诺仍保留/);
 });
 
 test("客户端可选择历史、韩国、日本和台湾进行发展对比", async () => {

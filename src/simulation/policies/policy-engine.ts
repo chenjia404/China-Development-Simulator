@@ -8,6 +8,14 @@ import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
 export type PolicyCategory = "产业" | "社会" | "发展" | "开放" | "财政";
 export type PolicyOperation = "add" | "multiply";
 
+export interface NationalPolicyRequirements {
+  availableFromYear?: number;
+  minimumEducationBudgetShare?: number;
+  minimumStateCapacity?: number;
+  minimumLocalImplementationCapacity?: number;
+  minimumStabilityIndex?: number;
+}
+
 export interface NationalPolicyDefinition {
   id: string;
   name: string;
@@ -15,6 +23,7 @@ export interface NationalPolicyDefinition {
   description: string;
   transitionMonths: number;
   conflictsWith: string[];
+  requirements?: NationalPolicyRequirements;
   modifiers: Array<{
     target: string;
     operation: PolicyOperation;
@@ -30,7 +39,129 @@ export function getNationalPolicy(policyId: string): NationalPolicyDefinition | 
   return nationalPolicyDefinitions.find((policy) => policy.id === policyId);
 }
 
-export function validatePolicySelection(policyIds: string[]): void {
+export function nationalPolicyRequirementDescriptions(
+  policy: NationalPolicyDefinition,
+): string[] {
+  const requirements = policy.requirements;
+  if (!requirements) return [];
+  const descriptions: string[] = [];
+  if (requirements.availableFromYear !== undefined) {
+    descriptions.push(`最早 ${requirements.availableFromYear} 年`);
+  }
+  if (requirements.minimumEducationBudgetShare !== undefined) {
+    descriptions.push(
+      `教育预算至少占财政预算 ${(requirements.minimumEducationBudgetShare * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumStateCapacity !== undefined) {
+    descriptions.push(`国家能力至少 ${(requirements.minimumStateCapacity * 100).toFixed(0)}%`);
+  }
+  if (requirements.minimumLocalImplementationCapacity !== undefined) {
+    descriptions.push(
+      `地方执行能力至少 ${(requirements.minimumLocalImplementationCapacity * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumStabilityIndex !== undefined) {
+    descriptions.push(`社会稳定度至少 ${requirements.minimumStabilityIndex.toFixed(0)}`);
+  }
+  return descriptions;
+}
+
+export function nationalPolicyRequirementBlockers(
+  nation: NationState,
+  policyId: string,
+): string[] {
+  const policy = getNationalPolicy(policyId);
+  if (!policy?.requirements) return [];
+  const requirements = policy.requirements;
+  const blockers: string[] = [];
+  if (
+    requirements.availableFromYear !== undefined &&
+    nation.date.year < requirements.availableFromYear
+  ) {
+    blockers.push(`最早可在 ${requirements.availableFromYear} 年实施`);
+  }
+  if (
+    requirements.minimumEducationBudgetShare !== undefined &&
+    nation.fiscal.budget.education < requirements.minimumEducationBudgetShare
+  ) {
+    blockers.push(
+      `教育预算占比需达到 ${(requirements.minimumEducationBudgetShare * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumStateCapacity !== undefined &&
+    nation.institutions.stateCapacity < requirements.minimumStateCapacity
+  ) {
+    blockers.push(
+      `国家能力需达到 ${(requirements.minimumStateCapacity * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumLocalImplementationCapacity !== undefined &&
+    nation.institutions.localImplementationCapacity <
+      requirements.minimumLocalImplementationCapacity
+  ) {
+    blockers.push(
+      `地方执行能力需达到 ${(requirements.minimumLocalImplementationCapacity * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumStabilityIndex !== undefined &&
+    nation.society.stabilityIndex < requirements.minimumStabilityIndex
+  ) {
+    blockers.push(`社会稳定度需达到 ${requirements.minimumStabilityIndex.toFixed(0)}`);
+  }
+  return blockers;
+}
+
+/**
+ * 计算需要持续公共执行的国策落实率。普通国策保持完整进度；义务教育
+ * 若后续失去预算或治理条件，教育收益会下降，但财政承诺仍按政策进度承担。
+ */
+export function nationalPolicyImplementationRate(
+  nation: NationState,
+  policyId: string,
+): number {
+  const policy = getNationalPolicy(policyId);
+  if (policyId !== "compulsory_education" || !policy?.requirements) return 1;
+  const requirements = policy.requirements;
+  const rates: number[] = [];
+  if (requirements.availableFromYear !== undefined) {
+    rates.push(nation.date.year >= requirements.availableFromYear ? 1 : 0);
+  }
+  if (requirements.minimumEducationBudgetShare !== undefined) {
+    rates.push(
+      nation.fiscal.budget.education /
+        Math.max(requirements.minimumEducationBudgetShare, 0.001),
+    );
+  }
+  if (requirements.minimumStateCapacity !== undefined) {
+    rates.push(
+      nation.institutions.stateCapacity /
+        Math.max(requirements.minimumStateCapacity, 0.001),
+    );
+  }
+  if (requirements.minimumLocalImplementationCapacity !== undefined) {
+    rates.push(
+      nation.institutions.localImplementationCapacity /
+        Math.max(requirements.minimumLocalImplementationCapacity, 0.001),
+    );
+  }
+  if (requirements.minimumStabilityIndex !== undefined) {
+    rates.push(
+      nation.society.stabilityIndex /
+        Math.max(requirements.minimumStabilityIndex, 0.001),
+    );
+  }
+  return clamp(Math.min(...rates, 1), 0, 1);
+}
+
+export function validatePolicySelection(
+  policyIds: string[],
+  nation?: NationState,
+  activePolicyIds: string[] = [],
+): void {
   const unique = [...new Set(policyIds)];
   if (unique.length !== policyIds.length) throw new Error("国策不得重复选择");
   if (unique.length > maximumActivePolicies) {
@@ -42,6 +173,12 @@ export function validatePolicySelection(policyIds: string[]): void {
     const conflict = policy.conflictsWith.find((id) => unique.includes(id));
     if (conflict) {
       throw new Error(`${policy.name}与${getNationalPolicy(conflict)?.name ?? conflict}冲突`);
+    }
+    if (nation && !activePolicyIds.includes(policyId)) {
+      const blockers = nationalPolicyRequirementBlockers(nation, policyId);
+      if (blockers.length > 0) {
+        throw new Error(`${policy.name}尚不可实施：${blockers.join("；")}`);
+      }
     }
   }
 }
@@ -85,6 +222,12 @@ export function applyPolicyModifiers(
     ) {
       progress *= calculateTechnologyTreeMetrics(nation)
         .industrialUpgradeReadiness;
+    }
+    if (
+      policy.id === "compulsory_education" &&
+      target.startsWith("education.")
+    ) {
+      progress *= nationalPolicyImplementationRate(nation, policy.id);
     }
     for (const modifier of policy.modifiers.filter((item) => item.target === target)) {
       if (modifier.operation === "add") value += modifier.value * progress;

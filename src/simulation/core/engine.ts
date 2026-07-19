@@ -153,7 +153,11 @@ class DeterministicSimulationEngine implements SimulationEngine {
         };
         break;
       case "SET_POLICIES":
-        validatePolicySelection(command.policyIds);
+        validatePolicySelection(
+          command.policyIds,
+          this.state.nation,
+          this.state.nation.policies,
+        );
         this.state.nation.policies = [...command.policyIds];
         break;
       case "DIPLOMATIC_ACTION":

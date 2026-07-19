@@ -34,6 +34,9 @@ import {
   isComparisonTargetId,
   maximumActivePolicies,
   nationalPolicyDefinitions,
+  nationalPolicyRequirementBlockers,
+  nationalPolicyRequirementDescriptions,
+  nationalPolicyImplementationRate,
   calculateTechnologyTreeMetrics,
   calculateIndustrialStructureMetrics,
   compareSimulationWithTarget,
@@ -852,6 +855,11 @@ function policyUnavailableReason(game: GameState, policyId: string): string | nu
     return `同时最多实施 ${maximumActivePolicies} 项国策`;
   }
   const policy = nationalPolicyDefinitions.find((item) => item.id === policyId);
+  const requirementBlockers = nationalPolicyRequirementBlockers(
+    game.nation,
+    policyId,
+  );
+  if (requirementBlockers.length > 0) return requirementBlockers.join("；");
   const conflict = nationalPolicyDefinitions.find(
     (selected) =>
       game.nation.policies.includes(selected.id) &&
@@ -955,13 +963,21 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
             .map((id) => nationalPolicyDefinitions.find((item) => item.id === id)?.name)
             .filter(Boolean)
             .join("、");
+          const requirementDescriptions = nationalPolicyRequirementDescriptions(policy);
           return (
             <article className={selected ? "policy-card is-selected" : "policy-card"} key={policy.id}>
               <div className="policy-card-head"><span>{policy.category}</span><small>{policy.transitionMonths} 个月过渡</small></div>
               <h3>{policy.name}</h3>
               <p>{policy.description}</p>
+              {requirementDescriptions.length > 0 ? (
+                <div className="policy-requirements">
+                  <strong>启动门槛</strong>
+                  <span>{requirementDescriptions.join(" · ")}</span>
+                </div>
+              ) : null}
               <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
               <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
+              {policy.id === "compulsory_education" ? <div className="policy-capability">当前落实率 {formatPercent(nationalPolicyImplementationRate(game.nation, policy.id))}；预算或执行能力低于门槛后，教育收益会按比例下降，财政承诺仍保留。</div> : null}
               {policy.id === "industrial_upgrading" ? <div className="policy-capability">科技准备度 {formatPercent(technologyMetrics.industrialUpgradeReadiness)} · 产业科技第 {technologyMetrics.industryTier} 层；收益按准备度折算，成本照常发生。</div> : null}
               <button
                 className={selected ? "policy-toggle remove" : "policy-toggle"}

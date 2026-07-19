@@ -788,6 +788,31 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const maturePolicyProgress =
     policyEngine.getState().nation.policyProgress.technology_priority;
 
+  const compulsoryEducationBaselineEngine = createSimulationEngine(
+    createInitialGameState(seed),
+  );
+  const compulsoryEducationEngine = createSimulationEngine(
+    createInitialGameState(seed),
+  );
+  for (const engine of [
+    compulsoryEducationBaselineEngine,
+    compulsoryEducationEngine,
+  ]) {
+    engine.dispatch({ type: "UPDATE_BUDGET", budget: { education: 0.12 } });
+  }
+  compulsoryEducationEngine.dispatch({
+    type: "SET_POLICIES",
+    policyIds: ["compulsory_education"],
+  });
+  compulsoryEducationBaselineEngine.dispatch({
+    type: "ADVANCE_MONTHS",
+    months: 180,
+  });
+  compulsoryEducationEngine.dispatch({ type: "ADVANCE_MONTHS", months: 180 });
+  const compulsoryEducationBaseline = compulsoryEducationBaselineEngine
+    .getState().nation;
+  const compulsoryEducation = compulsoryEducationEngine.getState().nation;
+
   const neutralTrade = createInitialGameState(seed);
   const agreementTrade = structuredClone(neutralTrade);
   const sanctionedTrade = structuredClone(neutralTrade);
@@ -1162,6 +1187,23 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         initialPolicyProgress < 1 &&
         Math.abs(maturePolicyProgress - 1) < 1e-9,
       `科技强国首月生效 ${(initialPolicyProgress * 100).toFixed(1)}%，60 个月后 ${(maturePolicyProgress * 100).toFixed(0)}%`,
+    ),
+    makeCheck(
+      "compulsory-education-policy",
+      "义务教育承担财政成本并通过基础教育和人力资本滞后提高科技",
+      compulsoryEducation.policyProgress.compulsory_education === 1 &&
+        applyPolicyModifiers(compulsoryEducation, "fiscal.spending", 1) >= 1.06 &&
+        compulsoryEducation.fiscal.expenditure >
+          compulsoryEducationBaseline.fiscal.expenditure &&
+        compulsoryEducation.education.primaryCoverage >
+          compulsoryEducationBaseline.education.primaryCoverage &&
+        compulsoryEducation.education.secondaryCoverage >
+          compulsoryEducationBaseline.education.secondaryCoverage &&
+        compulsoryEducation.economy.humanCapitalIndex >
+          compulsoryEducationBaseline.economy.humanCapitalIndex &&
+        compulsoryEducation.technology.index >
+          compulsoryEducationBaseline.technology.index,
+      `实施 15 年后基线/义务教育路线：财政支出 ${compulsoryEducationBaseline.fiscal.expenditure.toFixed(0)}/${compulsoryEducation.fiscal.expenditure.toFixed(0)}，小学覆盖率 ${(compulsoryEducationBaseline.education.primaryCoverage * 100).toFixed(1)}%/${(compulsoryEducation.education.primaryCoverage * 100).toFixed(1)}%，初中覆盖率 ${(compulsoryEducationBaseline.education.secondaryCoverage * 100).toFixed(1)}%/${(compulsoryEducation.education.secondaryCoverage * 100).toFixed(1)}%，人力资本 ${compulsoryEducationBaseline.economy.humanCapitalIndex.toFixed(2)}/${compulsoryEducation.economy.humanCapitalIndex.toFixed(2)}，科技 ${compulsoryEducationBaseline.technology.index.toFixed(2)}/${compulsoryEducation.technology.index.toFixed(2)}`,
     ),
     makeCheck(
       "technology-industry-paths",
