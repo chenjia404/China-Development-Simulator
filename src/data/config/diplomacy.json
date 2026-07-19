@@ -14,7 +14,26 @@
     "india": 15,
     "pakistan": 10,
     "vietnam": 35,
-    "albania": 40
+    "albania": 40,
+    "myanmar": 25,
+    "bangladesh": 8,
+    "sri_lanka": 12,
+    "iraq": 10,
+    "israel": 5,
+    "philippines": -8,
+    "new_zealand": -5,
+    "portugal": -5,
+    "greece": -5,
+    "czechoslovakia": 40,
+    "hungary": 38,
+    "romania": 38,
+    "cuba": 8,
+    "algeria": 8,
+    "ethiopia": 12,
+    "ghana": 10,
+    "tanzania": 10,
+    "thailand": 8,
+    "malaysia": 5
   },
   "actions": {
     "improve_relations": {
@@ -87,7 +106,9 @@
       "supportRelationThreshold": 25,
       "minimumSupportingCountries": 10,
       "minimumTradeAgreements": 3,
-      "requiredHistoricalEventIds": ["gatt_accession_application_1986"],
+      "requiredHistoricalEventIds": [
+        "gatt_accession_application_1986"
+      ],
       "minimumMonthsSinceEvents": {
         "gatt_accession_application_1986": 60
       },

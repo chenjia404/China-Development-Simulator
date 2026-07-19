@@ -11,11 +11,11 @@ import {
 } from "./world-simulation";
 
 describe("世界国家和排名", () => {
-  it("初始化外国经济体并包含需求文档指定国家与阿尔巴尼亚", () => {
+  it("初始化外国经济体并包含核心国家、阿尔巴尼亚与后续增补国", () => {
     const state = createInitialGameState(1);
     const ids = new Set(state.world.countries.map((country) => country.id));
 
-    expect(state.world.countries).toHaveLength(32);
+    expect(state.world.countries).toHaveLength(64);
     expect(state.world.countries.map((country) => country.id)).toEqual(
       worldCountryConfigs.map((config) => config.id),
     );
@@ -40,8 +40,23 @@ describe("世界国家和排名", () => {
       "canada",
       "australia",
       "albania",
+      "thailand",
+      "bangladesh",
+      "czechoslovakia",
+      "ethiopia",
+      "congo_kinshasa",
     ]) {
       expect(ids.has(id)).toBe(true);
+    }
+    const postLegacyIds = worldCountryConfigs
+      .map((config) => config.id)
+      .filter(
+        (id) => !(legacySharedWorldCountryIds as readonly string[]).includes(id),
+      );
+    expect(postLegacyIds.length).toBe(33);
+    expect(postLegacyIds).toContain("albania");
+    for (const id of postLegacyIds) {
+      expect(legacySharedWorldCountryIds).not.toContain(id);
     }
   });
 
@@ -136,6 +151,50 @@ describe("世界国家和排名", () => {
     expect(
       countryMonthRandomSeed(42, "egypt", 1949, 1),
     ).not.toBe(countryMonthRandomSeed(42, "albania", 1949, 1));
+    expect(
+      countryMonthRandomSeed(42, "thailand", 1949, 1),
+    ).not.toBe(countryMonthRandomSeed(42, "bangladesh", 1949, 1));
+  });
+
+  it("批量增补的中等体量国家使用独立随机流且不写入共享清单", () => {
+    const state = createInitialGameState(7);
+    const engine = createSimulationEngine(state);
+    const stripped = createSimulationEngine(createInitialGameState(7));
+    const newIds = [
+      "thailand",
+      "bangladesh",
+      "czechoslovakia",
+      "ethiopia",
+      "angola",
+    ] as const;
+    for (const id of newIds) {
+      expect(legacySharedWorldCountryIds).not.toContain(id);
+      expect(state.world.countries.some((country) => country.id === id)).toBe(
+        true,
+      );
+    }
+    stripped.getState().world.countries = stripped
+      .getState()
+      .world.countries.filter(
+        (country) =>
+          !(newIds as readonly string[]).includes(country.id) &&
+          country.id !== "albania",
+      );
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+    stripped.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+
+    const full = engine.getState();
+    const lean = stripped.getState();
+    expect(full.randomState).toBe(lean.randomState);
+    for (const country of lean.world.countries) {
+      if (!(legacySharedWorldCountryIds as readonly string[]).includes(country.id)) {
+        continue;
+      }
+      const paired = full.world.countries.find((item) => item.id === country.id);
+      expect(paired?.realGDP).toBeCloseTo(country.realGDP, 8);
+      expect(paired?.population).toBeCloseTo(country.population, 8);
+    }
   });
 
   it("顺序排名正确且相同数值不会异常", () => {

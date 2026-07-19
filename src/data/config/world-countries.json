@@ -1,34 +1,1183 @@
 [
-  { "id": "usa", "name": "美国", "population": 149000000, "realGDP": 1450000000000, "technology": 58, "education": 62, "lifeExpectancy": 68, "happiness": 66, "influence": 90, "baseGrowth": 0.027, "populationGrowth": 0.012, "stage": "高收入", "phases": [{ "startYear": 1949, "endYear": 1973, "growthModifier": 0.012 }, { "startYear": 2008, "endYear": 2009, "growthModifier": -0.035 }] },
-  { "id": "japan", "name": "日本", "population": 81800000, "realGDP": 155000000000, "technology": 27, "education": 45, "lifeExpectancy": 60, "happiness": 52, "influence": 28, "baseGrowth": 0.025, "populationGrowth": 0.009, "stage": "中低收入", "phases": [{ "startYear": 1956, "endYear": 1973, "growthModifier": 0.055 }, { "startYear": 1991, "endYear": 2026, "growthModifier": -0.012 }] },
-  { "id": "south_korea", "name": "韩国", "population": 20100000, "realGDP": 18000000000, "technology": 12, "education": 32, "lifeExpectancy": 47, "happiness": 45, "influence": 8, "baseGrowth": 0.033, "populationGrowth": 0.017, "stage": "低收入", "phases": [{ "startYear": 1962, "endYear": 1996, "growthModifier": 0.04 }] },
-  { "id": "north_korea", "name": "朝鲜", "population": 9620000, "realGDP": 10000000000, "technology": 8, "education": 20, "lifeExpectancy": 40, "happiness": 40, "influence": 6, "baseGrowth": 0.02, "populationGrowth": 0.014, "stage": "低收入", "phases": [{ "startYear": 1950, "endYear": 1953, "growthModifier": -0.08 }, { "startYear": 1954, "endYear": 1970, "growthModifier": 0.05 }, { "startYear": 1991, "endYear": 1998, "growthModifier": -0.06 }] },
-  { "id": "germany", "name": "德国", "population": 68300000, "realGDP": 420000000000, "technology": 48, "education": 58, "lifeExpectancy": 65, "happiness": 55, "influence": 48, "baseGrowth": 0.024, "populationGrowth": 0.005, "stage": "高收入", "phases": [{ "startYear": 1950, "endYear": 1973, "growthModifier": 0.025 }] },
-  { "id": "france", "name": "法国", "population": 41800000, "realGDP": 330000000000, "technology": 43, "education": 55, "lifeExpectancy": 66, "happiness": 58, "influence": 52, "baseGrowth": 0.022, "populationGrowth": 0.006, "stage": "高收入", "phases": [{ "startYear": 1950, "endYear": 1973, "growthModifier": 0.018 }] },
-  { "id": "united_kingdom", "name": "英国", "population": 50100000, "realGDP": 390000000000, "technology": 47, "education": 60, "lifeExpectancy": 67, "happiness": 60, "influence": 62, "baseGrowth": 0.021, "populationGrowth": 0.005, "stage": "高收入", "phases": [] },
-  { "id": "russia", "name": "俄罗斯", "population": 103000000, "realGDP": 480000000000, "technology": 42, "education": 52, "lifeExpectancy": 59, "happiness": 45, "influence": 72, "baseGrowth": 0.024, "populationGrowth": 0.008, "stage": "中高收入", "phases": [{ "startYear": 1991, "endYear": 1998, "growthModifier": -0.065 }] },
-  { "id": "india", "name": "印度", "population": 353000000, "realGDP": 98000000000, "technology": 9, "education": 16, "lifeExpectancy": 35, "happiness": 43, "influence": 16, "baseGrowth": 0.033, "populationGrowth": 0.018, "stage": "低收入", "phases": [{ "startYear": 1991, "endYear": 2026, "growthModifier": 0.02 }] },
-  { "id": "brazil", "name": "巴西", "population": 53500000, "realGDP": 72000000000, "technology": 15, "education": 25, "lifeExpectancy": 50, "happiness": 55, "influence": 14, "baseGrowth": 0.03, "populationGrowth": 0.018, "stage": "中低收入", "phases": [] },
-  { "id": "singapore", "name": "新加坡", "population": 1020000, "realGDP": 1900000000, "technology": 18, "education": 38, "lifeExpectancy": 58, "happiness": 50, "influence": 5, "baseGrowth": 0.04, "populationGrowth": 0.014, "stage": "中低收入", "phases": [{ "startYear": 1965, "endYear": 1997, "growthModifier": 0.025 }] },
-  { "id": "canada", "name": "加拿大", "population": 13900000, "realGDP": 125000000000, "technology": 40, "education": 58, "lifeExpectancy": 68, "happiness": 68, "influence": 24, "baseGrowth": 0.024, "populationGrowth": 0.012, "stage": "高收入", "phases": [] },
-  { "id": "australia", "name": "澳大利亚", "population": 8000000, "realGDP": 72000000000, "technology": 36, "education": 56, "lifeExpectancy": 68, "happiness": 67, "influence": 18, "baseGrowth": 0.025, "populationGrowth": 0.013, "stage": "高收入", "phases": [] },
-  { "id": "italy", "name": "意大利", "population": 46500000, "realGDP": 190000000000, "technology": 31, "education": 45, "lifeExpectancy": 65, "happiness": 58, "influence": 31, "baseGrowth": 0.023, "populationGrowth": 0.006, "stage": "中高收入", "phases": [{ "startYear": 1950, "endYear": 1973, "growthModifier": 0.03 }] },
-  { "id": "spain", "name": "西班牙", "population": 27800000, "realGDP": 85000000000, "technology": 25, "education": 38, "lifeExpectancy": 62, "happiness": 52, "influence": 20, "baseGrowth": 0.025, "populationGrowth": 0.008, "stage": "中低收入", "phases": [] },
-  { "id": "mexico", "name": "墨西哥", "population": 28500000, "realGDP": 51000000000, "technology": 15, "education": 30, "lifeExpectancy": 50, "happiness": 57, "influence": 13, "baseGrowth": 0.029, "populationGrowth": 0.018, "stage": "中低收入", "phases": [] },
-  { "id": "indonesia", "name": "印度尼西亚", "population": 74800000, "realGDP": 27000000000, "technology": 7, "education": 18, "lifeExpectancy": 40, "happiness": 48, "influence": 10, "baseGrowth": 0.033, "populationGrowth": 0.019, "stage": "低收入", "phases": [] },
-  { "id": "turkey", "name": "土耳其", "population": 21000000, "realGDP": 33000000000, "technology": 16, "education": 28, "lifeExpectancy": 49, "happiness": 49, "influence": 18, "baseGrowth": 0.029, "populationGrowth": 0.016, "stage": "中低收入", "phases": [] },
-  { "id": "saudi_arabia", "name": "沙特阿拉伯", "population": 3200000, "realGDP": 9000000000, "technology": 10, "education": 20, "lifeExpectancy": 48, "happiness": 51, "influence": 14, "baseGrowth": 0.031, "populationGrowth": 0.021, "stage": "中低收入", "phases": [{ "startYear": 1973, "endYear": 1981, "growthModifier": 0.04 }] },
-  { "id": "iran", "name": "伊朗", "population": 17000000, "realGDP": 24000000000, "technology": 13, "education": 24, "lifeExpectancy": 45, "happiness": 47, "influence": 16, "baseGrowth": 0.028, "populationGrowth": 0.018, "stage": "中低收入", "phases": [] },
-  { "id": "south_africa", "name": "南非", "population": 13700000, "realGDP": 29000000000, "technology": 20, "education": 32, "lifeExpectancy": 49, "happiness": 48, "influence": 12, "baseGrowth": 0.026, "populationGrowth": 0.017, "stage": "中低收入", "phases": [] },
-  { "id": "argentina", "name": "阿根廷", "population": 16700000, "realGDP": 47000000000, "technology": 22, "education": 40, "lifeExpectancy": 61, "happiness": 56, "influence": 11, "baseGrowth": 0.022, "populationGrowth": 0.013, "stage": "中高收入", "phases": [] },
-  { "id": "netherlands", "name": "荷兰", "population": 10100000, "realGDP": 73000000000, "technology": 40, "education": 58, "lifeExpectancy": 69, "happiness": 65, "influence": 18, "baseGrowth": 0.023, "populationGrowth": 0.006, "stage": "高收入", "phases": [] },
-  { "id": "switzerland", "name": "瑞士", "population": 4700000, "realGDP": 52000000000, "technology": 45, "education": 62, "lifeExpectancy": 69, "happiness": 68, "influence": 14, "baseGrowth": 0.023, "populationGrowth": 0.006, "stage": "高收入", "phases": [] },
-  { "id": "sweden", "name": "瑞典", "population": 7000000, "realGDP": 50000000000, "technology": 41, "education": 61, "lifeExpectancy": 70, "happiness": 69, "influence": 13, "baseGrowth": 0.023, "populationGrowth": 0.007, "stage": "高收入", "phases": [] },
-  { "id": "norway", "name": "挪威", "population": 3250000, "realGDP": 26000000000, "technology": 36, "education": 58, "lifeExpectancy": 69, "happiness": 70, "influence": 9, "baseGrowth": 0.025, "populationGrowth": 0.008, "stage": "高收入", "phases": [] },
-  { "id": "poland", "name": "波兰", "population": 24800000, "realGDP": 43000000000, "technology": 24, "education": 43, "lifeExpectancy": 58, "happiness": 47, "influence": 16, "baseGrowth": 0.026, "populationGrowth": 0.01, "stage": "中低收入", "phases": [] },
-  { "id": "albania", "name": "阿尔巴尼亚", "population": 1600000, "realGDP": 1200000000, "technology": 10, "education": 28, "lifeExpectancy": 58, "happiness": 44, "influence": 4, "baseGrowth": 0.028, "populationGrowth": 0.02, "stage": "低收入", "phases": [], "populationPhases": [{ "startYear": 1949, "endYear": 1989, "populationGrowth": 0.02 }, { "startYear": 1990, "endYear": 2005, "populationGrowth": -0.006 }, { "startYear": 2006, "endYear": 2026, "populationGrowth": -0.012 }] },
-  { "id": "egypt", "name": "埃及", "population": 20500000, "realGDP": 21000000000, "technology": 9, "education": 20, "lifeExpectancy": 42, "happiness": 47, "influence": 14, "baseGrowth": 0.03, "populationGrowth": 0.02, "stage": "低收入", "phases": [] },
-  { "id": "nigeria", "name": "尼日利亚", "population": 33000000, "realGDP": 15000000000, "technology": 6, "education": 14, "lifeExpectancy": 36, "happiness": 45, "influence": 8, "baseGrowth": 0.031, "populationGrowth": 0.022, "stage": "低收入", "phases": [] },
-  { "id": "pakistan", "name": "巴基斯坦", "population": 37000000, "realGDP": 16000000000, "technology": 7, "education": 14, "lifeExpectancy": 38, "happiness": 43, "influence": 10, "baseGrowth": 0.03, "populationGrowth": 0.021, "stage": "低收入", "phases": [] },
-  { "id": "vietnam", "name": "越南", "population": 24800000, "realGDP": 9000000000, "technology": 5, "education": 18, "lifeExpectancy": 40, "happiness": 42, "influence": 7, "baseGrowth": 0.033, "populationGrowth": 0.018, "stage": "低收入", "phases": [{ "startYear": 1986, "endYear": 2026, "growthModifier": 0.025 }] }
+  {
+    "id": "usa",
+    "name": "美国",
+    "population": 149000000,
+    "realGDP": 1450000000000,
+    "technology": 58,
+    "education": 62,
+    "lifeExpectancy": 68,
+    "happiness": 66,
+    "influence": 90,
+    "baseGrowth": 0.027,
+    "populationGrowth": 0.012,
+    "stage": "高收入",
+    "phases": [
+      {
+        "startYear": 1949,
+        "endYear": 1973,
+        "growthModifier": 0.012
+      },
+      {
+        "startYear": 2008,
+        "endYear": 2009,
+        "growthModifier": -0.035
+      }
+    ]
+  },
+  {
+    "id": "japan",
+    "name": "日本",
+    "population": 81800000,
+    "realGDP": 155000000000,
+    "technology": 27,
+    "education": 45,
+    "lifeExpectancy": 60,
+    "happiness": 52,
+    "influence": 28,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.009,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1956,
+        "endYear": 1973,
+        "growthModifier": 0.055
+      },
+      {
+        "startYear": 1991,
+        "endYear": 2026,
+        "growthModifier": -0.012
+      }
+    ]
+  },
+  {
+    "id": "south_korea",
+    "name": "韩国",
+    "population": 20100000,
+    "realGDP": 18000000000,
+    "technology": 12,
+    "education": 32,
+    "lifeExpectancy": 47,
+    "happiness": 45,
+    "influence": 8,
+    "baseGrowth": 0.033,
+    "populationGrowth": 0.017,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1962,
+        "endYear": 1996,
+        "growthModifier": 0.04
+      }
+    ]
+  },
+  {
+    "id": "north_korea",
+    "name": "朝鲜",
+    "population": 9620000,
+    "realGDP": 10000000000,
+    "technology": 8,
+    "education": 20,
+    "lifeExpectancy": 40,
+    "happiness": 40,
+    "influence": 6,
+    "baseGrowth": 0.02,
+    "populationGrowth": 0.014,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1950,
+        "endYear": 1953,
+        "growthModifier": -0.08
+      },
+      {
+        "startYear": 1954,
+        "endYear": 1970,
+        "growthModifier": 0.05
+      },
+      {
+        "startYear": 1991,
+        "endYear": 1998,
+        "growthModifier": -0.06
+      }
+    ]
+  },
+  {
+    "id": "germany",
+    "name": "德国",
+    "population": 68300000,
+    "realGDP": 420000000000,
+    "technology": 48,
+    "education": 58,
+    "lifeExpectancy": 65,
+    "happiness": 55,
+    "influence": 48,
+    "baseGrowth": 0.024,
+    "populationGrowth": 0.005,
+    "stage": "高收入",
+    "phases": [
+      {
+        "startYear": 1950,
+        "endYear": 1973,
+        "growthModifier": 0.025
+      }
+    ]
+  },
+  {
+    "id": "france",
+    "name": "法国",
+    "population": 41800000,
+    "realGDP": 330000000000,
+    "technology": 43,
+    "education": 55,
+    "lifeExpectancy": 66,
+    "happiness": 58,
+    "influence": 52,
+    "baseGrowth": 0.022,
+    "populationGrowth": 0.006,
+    "stage": "高收入",
+    "phases": [
+      {
+        "startYear": 1950,
+        "endYear": 1973,
+        "growthModifier": 0.018
+      }
+    ]
+  },
+  {
+    "id": "united_kingdom",
+    "name": "英国",
+    "population": 50100000,
+    "realGDP": 390000000000,
+    "technology": 47,
+    "education": 60,
+    "lifeExpectancy": 67,
+    "happiness": 60,
+    "influence": 62,
+    "baseGrowth": 0.021,
+    "populationGrowth": 0.005,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "russia",
+    "name": "俄罗斯",
+    "population": 103000000,
+    "realGDP": 480000000000,
+    "technology": 42,
+    "education": 52,
+    "lifeExpectancy": 59,
+    "happiness": 45,
+    "influence": 72,
+    "baseGrowth": 0.024,
+    "populationGrowth": 0.008,
+    "stage": "中高收入",
+    "phases": [
+      {
+        "startYear": 1991,
+        "endYear": 1998,
+        "growthModifier": -0.065
+      }
+    ]
+  },
+  {
+    "id": "india",
+    "name": "印度",
+    "population": 353000000,
+    "realGDP": 98000000000,
+    "technology": 9,
+    "education": 16,
+    "lifeExpectancy": 35,
+    "happiness": 43,
+    "influence": 16,
+    "baseGrowth": 0.033,
+    "populationGrowth": 0.018,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1991,
+        "endYear": 2026,
+        "growthModifier": 0.02
+      }
+    ]
+  },
+  {
+    "id": "brazil",
+    "name": "巴西",
+    "population": 53500000,
+    "realGDP": 72000000000,
+    "technology": 15,
+    "education": 25,
+    "lifeExpectancy": 50,
+    "happiness": 55,
+    "influence": 14,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.018,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "singapore",
+    "name": "新加坡",
+    "population": 1020000,
+    "realGDP": 1900000000,
+    "technology": 18,
+    "education": 38,
+    "lifeExpectancy": 58,
+    "happiness": 50,
+    "influence": 5,
+    "baseGrowth": 0.04,
+    "populationGrowth": 0.014,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1965,
+        "endYear": 1997,
+        "growthModifier": 0.025
+      }
+    ]
+  },
+  {
+    "id": "canada",
+    "name": "加拿大",
+    "population": 13900000,
+    "realGDP": 125000000000,
+    "technology": 40,
+    "education": 58,
+    "lifeExpectancy": 68,
+    "happiness": 68,
+    "influence": 24,
+    "baseGrowth": 0.024,
+    "populationGrowth": 0.012,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "australia",
+    "name": "澳大利亚",
+    "population": 8000000,
+    "realGDP": 72000000000,
+    "technology": 36,
+    "education": 56,
+    "lifeExpectancy": 68,
+    "happiness": 67,
+    "influence": 18,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.013,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "italy",
+    "name": "意大利",
+    "population": 46500000,
+    "realGDP": 190000000000,
+    "technology": 31,
+    "education": 45,
+    "lifeExpectancy": 65,
+    "happiness": 58,
+    "influence": 31,
+    "baseGrowth": 0.023,
+    "populationGrowth": 0.006,
+    "stage": "中高收入",
+    "phases": [
+      {
+        "startYear": 1950,
+        "endYear": 1973,
+        "growthModifier": 0.03
+      }
+    ]
+  },
+  {
+    "id": "spain",
+    "name": "西班牙",
+    "population": 27800000,
+    "realGDP": 85000000000,
+    "technology": 25,
+    "education": 38,
+    "lifeExpectancy": 62,
+    "happiness": 52,
+    "influence": 20,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.008,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "mexico",
+    "name": "墨西哥",
+    "population": 28500000,
+    "realGDP": 51000000000,
+    "technology": 15,
+    "education": 30,
+    "lifeExpectancy": 50,
+    "happiness": 57,
+    "influence": 13,
+    "baseGrowth": 0.029,
+    "populationGrowth": 0.018,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "indonesia",
+    "name": "印度尼西亚",
+    "population": 74800000,
+    "realGDP": 27000000000,
+    "technology": 7,
+    "education": 18,
+    "lifeExpectancy": 40,
+    "happiness": 48,
+    "influence": 10,
+    "baseGrowth": 0.033,
+    "populationGrowth": 0.019,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "turkey",
+    "name": "土耳其",
+    "population": 21000000,
+    "realGDP": 33000000000,
+    "technology": 16,
+    "education": 28,
+    "lifeExpectancy": 49,
+    "happiness": 49,
+    "influence": 18,
+    "baseGrowth": 0.029,
+    "populationGrowth": 0.016,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "saudi_arabia",
+    "name": "沙特阿拉伯",
+    "population": 3200000,
+    "realGDP": 9000000000,
+    "technology": 10,
+    "education": 20,
+    "lifeExpectancy": 48,
+    "happiness": 51,
+    "influence": 14,
+    "baseGrowth": 0.031,
+    "populationGrowth": 0.021,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1973,
+        "endYear": 1981,
+        "growthModifier": 0.04
+      }
+    ]
+  },
+  {
+    "id": "iran",
+    "name": "伊朗",
+    "population": 17000000,
+    "realGDP": 24000000000,
+    "technology": 13,
+    "education": 24,
+    "lifeExpectancy": 45,
+    "happiness": 47,
+    "influence": 16,
+    "baseGrowth": 0.028,
+    "populationGrowth": 0.018,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "south_africa",
+    "name": "南非",
+    "population": 13700000,
+    "realGDP": 29000000000,
+    "technology": 20,
+    "education": 32,
+    "lifeExpectancy": 49,
+    "happiness": 48,
+    "influence": 12,
+    "baseGrowth": 0.026,
+    "populationGrowth": 0.017,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "argentina",
+    "name": "阿根廷",
+    "population": 16700000,
+    "realGDP": 47000000000,
+    "technology": 22,
+    "education": 40,
+    "lifeExpectancy": 61,
+    "happiness": 56,
+    "influence": 11,
+    "baseGrowth": 0.022,
+    "populationGrowth": 0.013,
+    "stage": "中高收入",
+    "phases": []
+  },
+  {
+    "id": "netherlands",
+    "name": "荷兰",
+    "population": 10100000,
+    "realGDP": 73000000000,
+    "technology": 40,
+    "education": 58,
+    "lifeExpectancy": 69,
+    "happiness": 65,
+    "influence": 18,
+    "baseGrowth": 0.023,
+    "populationGrowth": 0.006,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "switzerland",
+    "name": "瑞士",
+    "population": 4700000,
+    "realGDP": 52000000000,
+    "technology": 45,
+    "education": 62,
+    "lifeExpectancy": 69,
+    "happiness": 68,
+    "influence": 14,
+    "baseGrowth": 0.023,
+    "populationGrowth": 0.006,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "sweden",
+    "name": "瑞典",
+    "population": 7000000,
+    "realGDP": 50000000000,
+    "technology": 41,
+    "education": 61,
+    "lifeExpectancy": 70,
+    "happiness": 69,
+    "influence": 13,
+    "baseGrowth": 0.023,
+    "populationGrowth": 0.007,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "norway",
+    "name": "挪威",
+    "population": 3250000,
+    "realGDP": 26000000000,
+    "technology": 36,
+    "education": 58,
+    "lifeExpectancy": 69,
+    "happiness": 70,
+    "influence": 9,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.008,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "poland",
+    "name": "波兰",
+    "population": 24800000,
+    "realGDP": 43000000000,
+    "technology": 24,
+    "education": 43,
+    "lifeExpectancy": 58,
+    "happiness": 47,
+    "influence": 16,
+    "baseGrowth": 0.026,
+    "populationGrowth": 0.01,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "albania",
+    "name": "阿尔巴尼亚",
+    "population": 1600000,
+    "realGDP": 1200000000,
+    "technology": 10,
+    "education": 28,
+    "lifeExpectancy": 58,
+    "happiness": 44,
+    "influence": 4,
+    "baseGrowth": 0.028,
+    "populationGrowth": 0.02,
+    "stage": "低收入",
+    "phases": [],
+    "populationPhases": [
+      {
+        "startYear": 1949,
+        "endYear": 1989,
+        "populationGrowth": 0.02
+      },
+      {
+        "startYear": 1990,
+        "endYear": 2005,
+        "populationGrowth": -0.006
+      },
+      {
+        "startYear": 2006,
+        "endYear": 2026,
+        "populationGrowth": -0.012
+      }
+    ]
+  },
+  {
+    "id": "egypt",
+    "name": "埃及",
+    "population": 20500000,
+    "realGDP": 21000000000,
+    "technology": 9,
+    "education": 20,
+    "lifeExpectancy": 42,
+    "happiness": 47,
+    "influence": 14,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.02,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "nigeria",
+    "name": "尼日利亚",
+    "population": 33000000,
+    "realGDP": 15000000000,
+    "technology": 6,
+    "education": 14,
+    "lifeExpectancy": 36,
+    "happiness": 45,
+    "influence": 8,
+    "baseGrowth": 0.031,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "pakistan",
+    "name": "巴基斯坦",
+    "population": 37000000,
+    "realGDP": 16000000000,
+    "technology": 7,
+    "education": 14,
+    "lifeExpectancy": 38,
+    "happiness": 43,
+    "influence": 10,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.021,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "vietnam",
+    "name": "越南",
+    "population": 24800000,
+    "realGDP": 9000000000,
+    "technology": 5,
+    "education": 18,
+    "lifeExpectancy": 40,
+    "happiness": 42,
+    "influence": 7,
+    "baseGrowth": 0.033,
+    "populationGrowth": 0.018,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1986,
+        "endYear": 2026,
+        "growthModifier": 0.025
+      }
+    ]
+  },
+  {
+    "id": "thailand",
+    "name": "泰国",
+    "population": 18500000,
+    "realGDP": 12000000000,
+    "technology": 8,
+    "education": 22,
+    "lifeExpectancy": 48,
+    "happiness": 50,
+    "influence": 8,
+    "baseGrowth": 0.032,
+    "populationGrowth": 0.02,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1960,
+        "endYear": 1997,
+        "growthModifier": 0.02
+      }
+    ]
+  },
+  {
+    "id": "philippines",
+    "name": "菲律宾",
+    "population": 20000000,
+    "realGDP": 14000000000,
+    "technology": 10,
+    "education": 28,
+    "lifeExpectancy": 50,
+    "happiness": 52,
+    "influence": 9,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "malaysia",
+    "name": "马来西亚",
+    "population": 6200000,
+    "realGDP": 5500000000,
+    "technology": 12,
+    "education": 28,
+    "lifeExpectancy": 52,
+    "happiness": 50,
+    "influence": 6,
+    "baseGrowth": 0.033,
+    "populationGrowth": 0.02,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1970,
+        "endYear": 1997,
+        "growthModifier": 0.022
+      }
+    ]
+  },
+  {
+    "id": "myanmar",
+    "name": "缅甸",
+    "population": 18000000,
+    "realGDP": 6000000000,
+    "technology": 6,
+    "education": 16,
+    "lifeExpectancy": 40,
+    "happiness": 44,
+    "influence": 6,
+    "baseGrowth": 0.028,
+    "populationGrowth": 0.018,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "bangladesh",
+    "name": "孟加拉国",
+    "population": 42000000,
+    "realGDP": 11000000000,
+    "technology": 5,
+    "education": 12,
+    "lifeExpectancy": 36,
+    "happiness": 42,
+    "influence": 6,
+    "baseGrowth": 0.031,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1990,
+        "endYear": 2026,
+        "growthModifier": 0.018
+      }
+    ]
+  },
+  {
+    "id": "sri_lanka",
+    "name": "斯里兰卡",
+    "population": 7500000,
+    "realGDP": 3500000000,
+    "technology": 9,
+    "education": 30,
+    "lifeExpectancy": 52,
+    "happiness": 50,
+    "influence": 5,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.018,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "iraq",
+    "name": "伊拉克",
+    "population": 5200000,
+    "realGDP": 4500000000,
+    "technology": 11,
+    "education": 22,
+    "lifeExpectancy": 45,
+    "happiness": 48,
+    "influence": 10,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.02,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1973,
+        "endYear": 1980,
+        "growthModifier": 0.03
+      }
+    ]
+  },
+  {
+    "id": "israel",
+    "name": "以色列",
+    "population": 1200000,
+    "realGDP": 2800000000,
+    "technology": 28,
+    "education": 55,
+    "lifeExpectancy": 68,
+    "happiness": 58,
+    "influence": 8,
+    "baseGrowth": 0.035,
+    "populationGrowth": 0.025,
+    "stage": "中高收入",
+    "phases": [
+      {
+        "startYear": 1968,
+        "endYear": 1985,
+        "growthModifier": 0.02
+      }
+    ]
+  },
+  {
+    "id": "new_zealand",
+    "name": "新西兰",
+    "population": 1900000,
+    "realGDP": 18000000000,
+    "technology": 34,
+    "education": 58,
+    "lifeExpectancy": 68,
+    "happiness": 68,
+    "influence": 8,
+    "baseGrowth": 0.024,
+    "populationGrowth": 0.013,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "belgium",
+    "name": "比利时",
+    "population": 8600000,
+    "realGDP": 55000000000,
+    "technology": 38,
+    "education": 55,
+    "lifeExpectancy": 66,
+    "happiness": 62,
+    "influence": 16,
+    "baseGrowth": 0.023,
+    "populationGrowth": 0.005,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "austria",
+    "name": "奥地利",
+    "population": 6900000,
+    "realGDP": 28000000000,
+    "technology": 33,
+    "education": 52,
+    "lifeExpectancy": 65,
+    "happiness": 60,
+    "influence": 10,
+    "baseGrowth": 0.024,
+    "populationGrowth": 0.005,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "denmark",
+    "name": "丹麦",
+    "population": 4250000,
+    "realGDP": 32000000000,
+    "technology": 38,
+    "education": 60,
+    "lifeExpectancy": 69,
+    "happiness": 68,
+    "influence": 10,
+    "baseGrowth": 0.023,
+    "populationGrowth": 0.007,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "finland",
+    "name": "芬兰",
+    "population": 4000000,
+    "realGDP": 22000000000,
+    "technology": 32,
+    "education": 58,
+    "lifeExpectancy": 66,
+    "happiness": 64,
+    "influence": 8,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.008,
+    "stage": "高收入",
+    "phases": []
+  },
+  {
+    "id": "portugal",
+    "name": "葡萄牙",
+    "population": 8400000,
+    "realGDP": 15000000000,
+    "technology": 20,
+    "education": 32,
+    "lifeExpectancy": 58,
+    "happiness": 52,
+    "influence": 10,
+    "baseGrowth": 0.026,
+    "populationGrowth": 0.008,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1986,
+        "endYear": 2008,
+        "growthModifier": 0.015
+      }
+    ]
+  },
+  {
+    "id": "greece",
+    "name": "希腊",
+    "population": 7600000,
+    "realGDP": 14000000000,
+    "technology": 22,
+    "education": 38,
+    "lifeExpectancy": 64,
+    "happiness": 55,
+    "influence": 11,
+    "baseGrowth": 0.026,
+    "populationGrowth": 0.007,
+    "stage": "中低收入",
+    "phases": []
+  },
+  {
+    "id": "czechoslovakia",
+    "name": "捷克斯洛伐克",
+    "population": 12300000,
+    "realGDP": 35000000000,
+    "technology": 32,
+    "education": 52,
+    "lifeExpectancy": 64,
+    "happiness": 52,
+    "influence": 14,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.007,
+    "stage": "中高收入",
+    "phases": [
+      {
+        "startYear": 1991,
+        "endYear": 1995,
+        "growthModifier": -0.04
+      }
+    ]
+  },
+  {
+    "id": "hungary",
+    "name": "匈牙利",
+    "population": 9200000,
+    "realGDP": 22000000000,
+    "technology": 28,
+    "education": 50,
+    "lifeExpectancy": 62,
+    "happiness": 50,
+    "influence": 12,
+    "baseGrowth": 0.025,
+    "populationGrowth": 0.006,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1991,
+        "endYear": 1995,
+        "growthModifier": -0.035
+      }
+    ]
+  },
+  {
+    "id": "romania",
+    "name": "罗马尼亚",
+    "population": 16000000,
+    "realGDP": 20000000000,
+    "technology": 22,
+    "education": 42,
+    "lifeExpectancy": 58,
+    "happiness": 48,
+    "influence": 12,
+    "baseGrowth": 0.026,
+    "populationGrowth": 0.009,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1991,
+        "endYear": 1995,
+        "growthModifier": -0.045
+      }
+    ]
+  },
+  {
+    "id": "ireland",
+    "name": "爱尔兰",
+    "population": 3000000,
+    "realGDP": 12000000000,
+    "technology": 28,
+    "education": 48,
+    "lifeExpectancy": 65,
+    "happiness": 58,
+    "influence": 7,
+    "baseGrowth": 0.026,
+    "populationGrowth": 0.005,
+    "stage": "中高收入",
+    "phases": [
+      {
+        "startYear": 1990,
+        "endYear": 2007,
+        "growthModifier": 0.025
+      }
+    ]
+  },
+  {
+    "id": "chile",
+    "name": "智利",
+    "population": 6000000,
+    "realGDP": 10000000000,
+    "technology": 16,
+    "education": 35,
+    "lifeExpectancy": 54,
+    "happiness": 52,
+    "influence": 8,
+    "baseGrowth": 0.028,
+    "populationGrowth": 0.016,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1985,
+        "endYear": 2010,
+        "growthModifier": 0.018
+      }
+    ]
+  },
+  {
+    "id": "colombia",
+    "name": "哥伦比亚",
+    "population": 11500000,
+    "realGDP": 14000000000,
+    "technology": 12,
+    "education": 28,
+    "lifeExpectancy": 50,
+    "happiness": 52,
+    "influence": 8,
+    "baseGrowth": 0.029,
+    "populationGrowth": 0.02,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "peru",
+    "name": "秘鲁",
+    "population": 8000000,
+    "realGDP": 8000000000,
+    "technology": 10,
+    "education": 26,
+    "lifeExpectancy": 46,
+    "happiness": 50,
+    "influence": 6,
+    "baseGrowth": 0.029,
+    "populationGrowth": 0.02,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "venezuela",
+    "name": "委内瑞拉",
+    "population": 5000000,
+    "realGDP": 16000000000,
+    "technology": 16,
+    "education": 32,
+    "lifeExpectancy": 54,
+    "happiness": 55,
+    "influence": 9,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.025,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1973,
+        "endYear": 1981,
+        "growthModifier": 0.025
+      },
+      {
+        "startYear": 2014,
+        "endYear": 2026,
+        "growthModifier": -0.05
+      }
+    ]
+  },
+  {
+    "id": "cuba",
+    "name": "古巴",
+    "population": 5500000,
+    "realGDP": 7000000000,
+    "technology": 14,
+    "education": 35,
+    "lifeExpectancy": 55,
+    "happiness": 52,
+    "influence": 7,
+    "baseGrowth": 0.027,
+    "populationGrowth": 0.015,
+    "stage": "中低收入",
+    "phases": [
+      {
+        "startYear": 1959,
+        "endYear": 1975,
+        "growthModifier": 0.015
+      },
+      {
+        "startYear": 1991,
+        "endYear": 1995,
+        "growthModifier": -0.06
+      }
+    ]
+  },
+  {
+    "id": "algeria",
+    "name": "阿尔及利亚",
+    "population": 8500000,
+    "realGDP": 6500000000,
+    "technology": 8,
+    "education": 16,
+    "lifeExpectancy": 43,
+    "happiness": 45,
+    "influence": 8,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1973,
+        "endYear": 1985,
+        "growthModifier": 0.02
+      }
+    ]
+  },
+  {
+    "id": "morocco",
+    "name": "摩洛哥",
+    "population": 9000000,
+    "realGDP": 5000000000,
+    "technology": 8,
+    "education": 16,
+    "lifeExpectancy": 44,
+    "happiness": 48,
+    "influence": 7,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "ethiopia",
+    "name": "埃塞俄比亚",
+    "population": 18000000,
+    "realGDP": 4000000000,
+    "technology": 4,
+    "education": 10,
+    "lifeExpectancy": 35,
+    "happiness": 42,
+    "influence": 7,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 2004,
+        "endYear": 2026,
+        "growthModifier": 0.02
+      }
+    ]
+  },
+  {
+    "id": "kenya",
+    "name": "肯尼亚",
+    "population": 6000000,
+    "realGDP": 2500000000,
+    "technology": 6,
+    "education": 16,
+    "lifeExpectancy": 42,
+    "happiness": 46,
+    "influence": 5,
+    "baseGrowth": 0.031,
+    "populationGrowth": 0.025,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "ghana",
+    "name": "加纳",
+    "population": 5000000,
+    "realGDP": 2500000000,
+    "technology": 7,
+    "education": 18,
+    "lifeExpectancy": 42,
+    "happiness": 48,
+    "influence": 5,
+    "baseGrowth": 0.031,
+    "populationGrowth": 0.024,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "congo_kinshasa",
+    "name": "刚果（金）",
+    "population": 12000000,
+    "realGDP": 5000000000,
+    "technology": 5,
+    "education": 12,
+    "lifeExpectancy": 38,
+    "happiness": 40,
+    "influence": 6,
+    "baseGrowth": 0.028,
+    "populationGrowth": 0.023,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 1997,
+        "endYear": 2003,
+        "growthModifier": -0.05
+      }
+    ]
+  },
+  {
+    "id": "tanzania",
+    "name": "坦桑尼亚",
+    "population": 8000000,
+    "realGDP": 2500000000,
+    "technology": 5,
+    "education": 14,
+    "lifeExpectancy": 40,
+    "happiness": 46,
+    "influence": 5,
+    "baseGrowth": 0.031,
+    "populationGrowth": 0.025,
+    "stage": "低收入",
+    "phases": []
+  },
+  {
+    "id": "angola",
+    "name": "安哥拉",
+    "population": 4500000,
+    "realGDP": 2200000000,
+    "technology": 5,
+    "education": 12,
+    "lifeExpectancy": 36,
+    "happiness": 42,
+    "influence": 5,
+    "baseGrowth": 0.03,
+    "populationGrowth": 0.022,
+    "stage": "低收入",
+    "phases": [
+      {
+        "startYear": 2002,
+        "endYear": 2014,
+        "growthModifier": 0.03
+      }
+    ]
+  }
 ]
