@@ -218,6 +218,9 @@ export function getSinoUSNormalizationStatus(
       blockers.push(`最早可在 ${normalizationConfig.earliestStartYear} 年发动`);
     }
     if (state.nation.pendingHistoricalEventId) blockers.push("需先处理当前历史事件决策");
+    if (state.nation.famineMortality?.pendingReport) {
+      blockers.push("需先确认三年困难人口损失报告");
+    }
     if (usa.diplomaticStatus === "sanctioned" || usa.sanctionLevel > 0.2) {
       blockers.push("需先解除对美制裁");
     }

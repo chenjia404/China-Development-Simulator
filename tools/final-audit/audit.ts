@@ -410,6 +410,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
               choiceId: choices[pendingEventId] ?? "historical_path",
             });
           }
+          if (engine.getState().nation.famineMortality?.pendingReport) {
+            engine.dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+          }
         }
       }
     }

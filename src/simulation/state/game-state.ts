@@ -1,5 +1,6 @@
 import type { NationHistory } from "./history-state";
 import type { WorldState } from "./world-state";
+import type { FamineMortalityAccount } from "../population/famine-mortality-account";
 
 export interface GameDate {
   year: number;
@@ -867,6 +868,8 @@ export interface NationState {
   modifiers: ModifierState[];
   historicalEventDecisionMode: "automatic" | "interactive";
   pendingHistoricalEventId: string | null;
+  /** 三年困难（1959–1961）超额死亡账户与待确认报告。 */
+  famineMortality: FamineMortalityAccount;
   history: NationHistory;
 }
 

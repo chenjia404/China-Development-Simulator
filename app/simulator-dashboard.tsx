@@ -1629,6 +1629,114 @@ function formatEventDuration(months: number): string {
     : `${years} 年 ${remainingMonths} 个月`;
 }
 
+function formatMortalityPeople(value: number): string {
+  const rounded = Math.round(value);
+  const abs = Math.abs(rounded);
+  if (abs >= 10_000) {
+    const wan = rounded / 10_000;
+    const text = Math.abs(wan) >= 100
+      ? wan.toFixed(0)
+      : wan.toFixed(1).replace(/\.0$/, "");
+    return `${text} 万人`;
+  }
+  return `${rounded.toLocaleString("zh-CN")} 人`;
+}
+
+function FamineMortalityReportModal({
+  game,
+  busy,
+}: {
+  game: GameState;
+  busy: boolean;
+}) {
+  const dismiss = useSimulationStore((store) => store.dismissFamineMortalityReport);
+  const report = game.nation.famineMortality?.pendingReport;
+  if (!report) return null;
+
+  const excessPositive = report.excessDeaths > 0;
+  const excessNearZero = Math.abs(report.excessDeaths) < 50_000;
+
+  return (
+    <div className="historical-decision-overlay">
+      <section
+        className="historical-decision-modal famine-mortality-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="famine-mortality-title"
+      >
+        <header className="historical-decision-header">
+          <div>
+            <span className="eyebrow">三年经济困难 · 阶段结算</span>
+            <h2 id="famine-mortality-title">
+              {report.windowStartYear}—{report.windowEndYear} 年人口损失报告
+            </h2>
+            <p>
+              以 1955—1957 年本局年均死亡为常态基线，估算危机三年内的超额死亡。
+              该口径对应人口学上的非正常死亡近似，不等于年末人口净减，也不包含少出生人口。
+              报告在 1961 年 12 月结算完成后弹出；确认前暂停推进。
+            </p>
+          </div>
+          <span className={`decision-impact ${excessPositive ? "negative" : "mixed"}`}>
+            {excessNearZero ? "接近常态" : excessPositive ? "超额死亡" : "低于常态"}
+          </span>
+        </header>
+        {!report.accountComplete ? (
+          <p className="famine-mortality-warning">
+            本局未完整跨越 1955—1961 年（或缺基线月），超额死亡为弱估计，仅供参考。
+          </p>
+        ) : null}
+        <div className="famine-mortality-stats">
+          <article>
+            <span>估计超额死亡</span>
+            <strong className={excessPositive ? "is-loss" : "is-relief"}>
+              {excessNearZero
+                ? "约 0"
+                : `${excessPositive ? "" : "约减少 "}${formatMortalityPeople(Math.abs(report.excessDeaths))}`}
+            </strong>
+            <small>
+              = 窗口累计死亡 − 常态基线 × {report.windowEndYear - report.windowStartYear + 1} 年
+            </small>
+          </article>
+          <article>
+            <span>窗口内累计死亡</span>
+            <strong>{formatMortalityPeople(report.totalDeaths)}</strong>
+            <small>
+              {report.windowStartYear}—{report.windowEndYear} 年合计
+            </small>
+          </article>
+          <article>
+            <span>常态基线（三年）</span>
+            <strong>{formatMortalityPeople(report.expectedBaselineDeaths)}</strong>
+            <small>
+              年均 {formatMortalityPeople(report.baselineAnnualAverage)}
+              {report.baselineSource === "recorded"
+                ? " · 1955—1957 完整记录"
+                : report.baselineSource === "partial"
+                  ? " · 基线月不完整"
+                  : " · 合成基线"}
+            </small>
+          </article>
+        </div>
+        {report.choiceName ? (
+          <div className="event-choice-result">
+            <span>危机应对方案</span>
+            <strong>{report.choiceName}</strong>
+            <p>不同粮食贸易与救济组合会显著改变超额死亡规模。</p>
+          </div>
+        ) : null}
+        <p className="historical-decision-note">
+          确认后继续推进时间。报告会保留在本局状态中，可在之后对照不同决策路径。
+        </p>
+        <div className="famine-mortality-actions">
+          <button type="button" disabled={busy} onClick={() => void dismiss()}>
+            {busy ? "处理中…" : "已知晓，继续"}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolean }) {
   const resolveHistoricalEvent = useSimulationStore(
     (store) => store.resolveHistoricalEvent,
@@ -2198,15 +2306,32 @@ export function SimulatorDashboard() {
   useEffect(() => { void initialize(); }, [initialize]);
   useEffect(() => { document.documentElement.dataset.theme = darkMode ? "dark" : "light"; }, [darkMode]);
   useEffect(() => {
-    if (!autoRunning || game?.nation.pendingHistoricalEventId) return;
-    const interval = window.setInterval(() => { if (!useSimulationStore.getState().busy) void useSimulationStore.getState().advanceYear(); }, speed === 1 ? 1300 : speed === 5 ? 420 : 180);
+    if (
+      !autoRunning ||
+      game?.nation.pendingHistoricalEventId ||
+      game?.nation.famineMortality?.pendingReport
+    ) {
+      return;
+    }
+    const interval = window.setInterval(() => {
+      if (!useSimulationStore.getState().busy) {
+        void useSimulationStore.getState().advanceYear();
+      }
+    }, speed === 1 ? 1300 : speed === 5 ? 420 : 180);
     return () => window.clearInterval(interval);
-  }, [autoRunning, game?.nation.pendingHistoricalEventId, speed]);
+  }, [
+    autoRunning,
+    game?.nation.pendingHistoricalEventId,
+    game?.nation.famineMortality?.pendingReport,
+    speed,
+  ]);
 
   const sectionTitle = useMemo(() => menuItems.find((item) => item.id === activeSection)?.label ?? "国家总览", [activeSection]);
   if (!game) return <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>;
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
   const awaitingHistoricalDecision = Boolean(game.nation.pendingHistoricalEventId);
+  const awaitingFamineReport = Boolean(game.nation.famineMortality?.pendingReport);
+  const awaitingBlockingPopup = awaitingHistoricalDecision || awaitingFamineReport;
   const handleRestart = async () => {
     const confirmed = window.confirm(
       "确定重新开始吗？当前进度将被清除，并使用相同随机种子回到 1949 年。",
@@ -2229,13 +2354,13 @@ export function SimulatorDashboard() {
             <button className="restart-button" disabled={busy} onClick={() => void handleRestart()}>重新开始</button>
             <button className="theme-button" onClick={() => store.setDarkMode(!darkMode)} aria-label="切换深色模式">{darkMode ? "日" : "夜"}</button>
             <div className="speed-control">{([1, 5, 10] as const).map((value) => <button className={speed === value ? "active" : ""} key={value} onClick={() => store.setSpeed(value)}>{value}×</button>)}</div>
-            <button className={autoRunning ? "control-button stop" : "control-button"} disabled={awaitingHistoricalDecision} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>
-            <button className="primary-button" disabled={busy || awaitingHistoricalDecision} onClick={() => void store.advanceYear()}>{awaitingHistoricalDecision ? "请先决策" : busy ? "结算中…" : "推进一年"}</button>
+            <button className={autoRunning ? "control-button stop" : "control-button"} disabled={awaitingBlockingPopup} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>
+            <button className="primary-button" disabled={busy || awaitingBlockingPopup} onClick={() => void store.advanceYear()}>{awaitingHistoricalDecision ? "请先决策" : awaitingFamineReport ? "请先确认报告" : busy ? "结算中…" : "推进一年"}</button>
           </div>
         </header>
         {error ? <div className="error-banner">{error}</div> : null}
         <div className="workspace">
-          <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}<button disabled={busy || awaitingHistoricalDecision || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
+          <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
           {activeSection === "technology" ? <TechnologySection game={game} busy={busy} /> : null}
@@ -2254,6 +2379,8 @@ export function SimulatorDashboard() {
           game={game}
           busy={busy}
         />
+      ) : game.nation.famineMortality?.pendingReport ? (
+        <FamineMortalityReportModal game={game} busy={busy} />
       ) : null}
     </main>
   );

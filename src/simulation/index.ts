@@ -30,6 +30,7 @@ export * from "./economy/private-economy";
 export * from "./economy/national-accounts";
 export * from "./economy/market-dynamics";
 export * from "./population/demographic-cohorts";
+export * from "./population/famine-mortality-account";
 export * from "./economy/enterprise-sectors";
 export * from "./fiscal/fiscal-federalism";
 export * from "./economy/monetary-financial";

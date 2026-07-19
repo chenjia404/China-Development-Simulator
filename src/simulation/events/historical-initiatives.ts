@@ -109,6 +109,9 @@ export function getHistoricalInitiativeStatus(
     blockers.push(`最早可在 ${definition.availableFromYear} 年发动`);
   }
   if (nation.pendingHistoricalEventId) blockers.push("需先处理当前历史事件决策");
+  if (nation.famineMortality?.pendingReport) {
+    blockers.push("需先确认三年困难人口损失报告");
+  }
   for (const requiredEventId of requirements.historicalEventIds) {
     const requiredRecord = nation.history.historicalEvents.find(
       (record) => record.id === requiredEventId,

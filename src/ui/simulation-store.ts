@@ -56,6 +56,7 @@ interface SimulationStore {
   setForeignAidProgram(programId: ForeignAidProgramId): Promise<void>;
   startSinoUSNormalization(): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
+  dismissFamineMortalityReport(): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
   setTechnologyIndustryPath(pathId: TechnologyIndustryPathId): Promise<void>;
@@ -126,9 +127,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       set({
         game: result.state,
         busy: false,
-        autoRunning: result.state.nation.pendingHistoricalEventId
-          ? false
-          : get().autoRunning,
+        autoRunning:
+          result.state.nation.pendingHistoricalEventId ||
+          result.state.nation.famineMortality?.pendingReport
+            ? false
+            : get().autoRunning,
       });
       await persist(result.state);
     } catch (error) {
@@ -198,6 +201,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
+  async dismissFamineMortalityReport() {
+    await get().dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+  },
+
   async enactHistoricalInitiative(initiativeId) {
     await get().dispatch({
       type: "ENACT_HISTORICAL_INITIATIVE",
@@ -263,9 +270,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
   setAutoRunning(autoRunning) {
     set({
-      autoRunning: get().game?.nation.pendingHistoricalEventId
-        ? false
-        : autoRunning,
+      autoRunning:
+        get().game?.nation.pendingHistoricalEventId ||
+        get().game?.nation.famineMortality?.pendingReport
+          ? false
+          : autoRunning,
     });
   },
 }));

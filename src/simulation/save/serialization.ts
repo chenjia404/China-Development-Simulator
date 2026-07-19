@@ -29,6 +29,7 @@ import { ensureWorldCountriesState } from "../world/countries";
 import { ensureSecurityDefenseState } from "../security/defense-security";
 import { ensureInstitutionCausalityState } from "../institutions/institution-causality";
 import { ensureIndustrialPolicyState } from "../policies/industrial-policy";
+import { ensureFamineMortalityAccount } from "../population/famine-mortality-account";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -68,6 +69,7 @@ export function deserializeGameState(serialized: string): GameState {
   state.nation.policyProgress ??= {};
   ensureDiplomacyState(state);
   ensureHistoricalEventState(state.nation);
+  ensureFamineMortalityAccount(state.nation);
   ensureHistoricalAccountingState(state);
   ensureForeignExchangeState(state);
   ensureEducationState(state.nation);

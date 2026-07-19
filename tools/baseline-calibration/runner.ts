@@ -64,6 +64,9 @@ export function runSimulation(options: SimulationRunOptions): SimulationRunResul
             ),
           });
         }
+        if (engine.getState().nation.famineMortality?.pendingReport) {
+          engine.dispatchHeadless({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+        }
       }
     }
     validateGameState(engine.exportState());

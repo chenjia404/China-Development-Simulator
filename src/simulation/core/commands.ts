@@ -99,6 +99,10 @@ export interface StartSinoUSNormalizationCommand {
   type: "START_SINO_US_NORMALIZATION";
 }
 
+export interface DismissFamineMortalityReportCommand {
+  type: "DISMISS_FAMINE_MORTALITY_REPORT";
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -116,4 +120,5 @@ export type SimulationCommand =
   | SetTechnologyIndustryPathCommand
   | SetForeignAidProgramCommand
   | StartSinoUSNormalizationCommand
+  | DismissFamineMortalityReportCommand
   | ImportGameCommand;

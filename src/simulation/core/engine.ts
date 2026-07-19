@@ -30,6 +30,11 @@ import { setTechnologyIndustryPath } from "../technology/technology-industry-pat
 import { ensureDomesticDemandState } from "../economy/domestic-demand";
 import { setForeignAidProgram } from "../diplomacy/foreign-aid";
 import { startSinoUSNormalization } from "../diplomacy/sino-us-normalization";
+import {
+  clearPendingFamineMortalityReport,
+  dismissFamineMortalityReport,
+  ensureFamineMortalityAccount,
+} from "../population/famine-mortality-account";
 import { ensureNationalAccountsState } from "../economy/national-accounts";
 import { ensureMarketDynamicsState } from "../economy/market-dynamics";
 import { ensureDemographicDetailState } from "../population/demographic-cohorts";
@@ -83,6 +88,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     this.state.nation.policyProgress ??= {};
     ensureDiplomacyState(this.state);
     ensureHistoricalEventState(this.state.nation);
+    ensureFamineMortalityAccount(this.state.nation);
     ensureHistoricalAccountingState(this.state);
     ensureForeignExchangeState(this.state);
     ensureTechnologyTreeState(this.state.nation);
@@ -133,6 +139,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         this.state.nation.policyProgress ??= {};
         ensureDiplomacyState(this.state);
         ensureHistoricalEventState(this.state.nation);
+        ensureFamineMortalityAccount(this.state.nation);
         ensureHistoricalAccountingState(this.state);
         ensureForeignExchangeState(this.state);
         ensureTechnologyTreeState(this.state.nation);
@@ -190,6 +197,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "SET_HISTORICAL_EVENT_MODE":
         setHistoricalEventDecisionMode(this.state.nation, command.mode);
+        if (command.mode === "automatic") {
+          clearPendingFamineMortalityReport(this.state.nation);
+        }
         break;
       case "RESOLVE_HISTORICAL_EVENT":
         resolveHistoricalEvent(
@@ -212,6 +222,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "START_SINO_US_NORMALIZATION":
         startSinoUSNormalization(this.state);
+        break;
+      case "DISMISS_FAMINE_MORTALITY_REPORT":
+        dismissFamineMortalityReport(this.state.nation);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

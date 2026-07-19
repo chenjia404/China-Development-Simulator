@@ -12,6 +12,7 @@ import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
 import { createInitialIndustrialPolicyState } from "../policies/industrial-policy";
 import { createInitialPrivateEconomyState } from "../economy/private-economy";
+import { createEmptyFamineMortalityAccount } from "../population/famine-mortality-account";
 import sinoUSNormalizationConfig from "../../data/config/sino-us-normalization.json";
 import {
   createEmptyNationalAccountsState,
@@ -353,6 +354,7 @@ export function createInitialGameState(
       modifiers: [],
       historicalEventDecisionMode,
       pendingHistoricalEventId: null,
+      famineMortality: createEmptyFamineMortalityAccount(),
       history: { monthly: [], annual: [], reports: [], historicalEvents: [] },
     },
     world: createInitialWorldState(),
