@@ -4,6 +4,7 @@ import { createInitialGameState } from "../state/initial-state";
 import {
   dismissFamineMortalityReport,
   FAMINE_MORTALITY_WINDOW,
+  HISTORICAL_PATH_FAMINE_EXCESS_DEATHS,
 } from "./famine-mortality-account";
 
 describe("三年困难超额死亡账户", () => {
@@ -36,6 +37,20 @@ describe("三年困难超额死亡账户", () => {
     expect(account.report?.baselineSource).toBe("recorded");
     expect(account.report?.excessDeaths).toBeGreaterThan(10_000_000);
     expect(account.report?.excessDeaths).toBeLessThan(30_000_000);
+    expect(account.report?.historicalPathExcessDeaths).toBe(
+      HISTORICAL_PATH_FAMINE_EXCESS_DEATHS,
+    );
+    expect(account.report?.vsHistoricalPathExcessDeaths).toBeCloseTo(
+      (account.report?.excessDeaths ?? 0) - HISTORICAL_PATH_FAMINE_EXCESS_DEATHS,
+      6,
+    );
+    // 史实路径超额应贴近锚点，便于报告「相对史实」对照。
+    expect(
+      Math.abs(
+        (account.report?.excessDeaths ?? 0) -
+          HISTORICAL_PATH_FAMINE_EXCESS_DEATHS,
+      ),
+    ).toBeLessThan(750_000);
     expect(account.report?.choiceId).toBe("historical_path");
     // 1961-12 结算后日期会滚到 1962-01，但 1 月尚未结算，推进被阻断。
     expect(afterFinalize.nation.date).toMatchObject({ year: 1962, month: 1 });

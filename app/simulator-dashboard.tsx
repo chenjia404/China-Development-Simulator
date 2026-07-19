@@ -61,6 +61,7 @@ import {
   foreignAidProgramEffects,
   getForeignAidProgram,
   historicalForeignAidTotalsThrough1980,
+  HISTORICAL_PATH_FAMINE_EXCESS_DEATHS,
   getSinoUSNormalizationStatus,
   sinoUSNormalizationDefinition,
   sinoUSNormalizationEffects,
@@ -1802,6 +1803,37 @@ function formatMortalityPeople(value: number): string {
   return `${rounded.toLocaleString("zh-CN")} 人`;
 }
 
+function formatFamineHistoricalHeadline(vsHistorical: number): {
+  badge: string;
+  badgeTone: "negative" | "mixed" | "positive";
+  headline: string;
+  shareLabel: string;
+} {
+  const near = Math.abs(vsHistorical) < 500_000;
+  if (near) {
+    return {
+      badge: "接近史实",
+      badgeTone: "mixed",
+      headline: "超额死亡与本游戏史实路线大致持平",
+      shareLabel: "与史实路线接近",
+    };
+  }
+  if (vsHistorical < 0) {
+    return {
+      badge: "优于史实",
+      badgeTone: "positive",
+      headline: `比史实路线少死约 ${formatMortalityPeople(Math.abs(vsHistorical))}`,
+      shareLabel: "显著轻于史实路线",
+    };
+  }
+  return {
+    badge: "重于史实",
+    badgeTone: "negative",
+    headline: `比史实路线多死约 ${formatMortalityPeople(vsHistorical)}`,
+    shareLabel: "重于史实路线",
+  };
+}
+
 function FamineMortalityReportModal({
   game,
   busy,
@@ -1813,8 +1845,14 @@ function FamineMortalityReportModal({
   const report = game.nation.famineMortality?.pendingReport;
   if (!report) return null;
 
-  const excessPositive = report.excessDeaths > 0;
-  const excessNearZero = Math.abs(report.excessDeaths) < 50_000;
+  const historicalAnchor =
+    report.historicalPathExcessDeaths ?? HISTORICAL_PATH_FAMINE_EXCESS_DEATHS;
+  const vsHistorical =
+    report.vsHistoricalPathExcessDeaths ??
+    report.excessDeaths - historicalAnchor;
+  const shareOfHistorical =
+    historicalAnchor > 0 ? report.excessDeaths / historicalAnchor : Number.NaN;
+  const comparison = formatFamineHistoricalHeadline(vsHistorical);
 
   return (
     <div className="historical-decision-overlay">
@@ -1826,18 +1864,17 @@ function FamineMortalityReportModal({
       >
         <header className="historical-decision-header">
           <div>
-            <span className="eyebrow">三年经济困难 · 阶段结算</span>
-            <h2 id="famine-mortality-title">
-              {report.windowStartYear}—{report.windowEndYear} 年人口损失报告
-            </h2>
+            <span className="eyebrow">三年经济困难 · 与史实对照</span>
+            <h2 id="famine-mortality-title">{comparison.headline}</h2>
             <p>
-              以 1955—1957 年本局年均死亡为常态基线，估算危机三年内的超额死亡。
-              该口径对应人口学上的非正常死亡近似，不等于年末人口净减，也不包含少出生人口。
-              报告在 1961 年 12 月结算完成后弹出；确认前暂停推进。
+              {report.windowStartYear}—{report.windowEndYear} 年人口损失报告。
+              对照基准是本模拟器「遵循历史路径」的同口径超额死亡（约{" "}
+              {formatMortalityPeople(historicalAnchor)}
+              ），不是学界文献区间。超额死亡 = 三年累计死亡 − 本局 1955—1957 常态基线。
             </p>
           </div>
-          <span className={`decision-impact ${excessPositive ? "negative" : "mixed"}`}>
-            {excessNearZero ? "接近常态" : excessPositive ? "超额死亡" : "低于常态"}
+          <span className={`decision-impact ${comparison.badgeTone}`}>
+            {comparison.badge}
           </span>
         </header>
         {!report.accountComplete ? (
@@ -1846,46 +1883,39 @@ function FamineMortalityReportModal({
           </p>
         ) : null}
         <div className="famine-mortality-stats">
-          <article>
-            <span>估计超额死亡</span>
-            <strong className={excessPositive ? "is-loss" : "is-relief"}>
-              {excessNearZero
-                ? "约 0"
-                : `${excessPositive ? "" : "约减少 "}${formatMortalityPeople(Math.abs(report.excessDeaths))}`}
+          <article className="famine-mortality-stat-emphasis">
+            <span>相对史实路线</span>
+            <strong
+              className={
+                Math.abs(vsHistorical) < 500_000
+                  ? ""
+                  : vsHistorical < 0
+                    ? "is-relief"
+                    : "is-loss"
+              }
+            >
+              {Math.abs(vsHistorical) < 500_000
+                ? "大致持平"
+                : `${vsHistorical < 0 ? "少死 " : "多死 "}${formatMortalityPeople(Math.abs(vsHistorical))}`}
             </strong>
             <small>
-              = 窗口累计死亡 − 常态基线 × {report.windowEndYear - report.windowStartYear + 1} 年
-            </small>
-          </article>
-          <article>
-            <span>窗口内累计死亡</span>
-            <strong>{formatMortalityPeople(report.totalDeaths)}</strong>
-            <small>
-              {report.windowStartYear}—{report.windowEndYear} 年合计
-            </small>
-          </article>
-          <article>
-            <span>常态基线（三年）</span>
-            <strong>{formatMortalityPeople(report.expectedBaselineDeaths)}</strong>
-            <small>
-              年均 {formatMortalityPeople(report.baselineAnnualAverage)}
-              {report.baselineSource === "recorded"
-                ? " · 1955—1957 完整记录"
-                : report.baselineSource === "partial"
-                  ? " · 基线月不完整"
-                  : " · 合成基线"}
+              {Number.isFinite(shareOfHistorical)
+                ? `本局约为史实路线的 ${(shareOfHistorical * 100).toFixed(0)}% · ${comparison.shareLabel}`
+                : comparison.shareLabel}
             </small>
           </article>
         </div>
         {report.choiceName ? (
           <div className="event-choice-result">
-            <span>危机应对方案</span>
+            <span>本局危机应对方案</span>
             <strong>{report.choiceName}</strong>
-            <p>不同粮食贸易、国内救济、征购口粮与外援规模组合会显著改变超额死亡规模。</p>
+            <p>
+              粮食贸易、国内救济、征购口粮与外援规模组合，会显著改变相对史实路线的人口损失差距。
+            </p>
           </div>
         ) : null}
         <p className="historical-decision-note">
-          确认后继续推进时间。报告会保留在本局状态中，可在之后对照不同决策路径。
+          确认后继续推进时间。报告会保留在本局状态中，之后可对照不同决策路径与史实的差别。
         </p>
         <div className="famine-mortality-actions">
           <button type="button" disabled={busy} onClick={() => void dismiss()}>

@@ -8,6 +8,12 @@ export const FAMINE_MORTALITY_WINDOW = {
   windowEndYear: 1961,
 } as const;
 
+/**
+ * 本游戏「遵循历史路径」在 1959—1961 窗内的超额死亡锚点（与报告同一口径）。
+ * 用于弹窗对照玩家路径；参数大改后需重测并更新。
+ */
+export const HISTORICAL_PATH_FAMINE_EXCESS_DEATHS = 13_623_000;
+
 export interface FamineMortalityReport {
   /** 1959–1961 累计死亡 */
   totalDeaths: number;
@@ -15,6 +21,10 @@ export interface FamineMortalityReport {
   expectedBaselineDeaths: number;
   /** 超额死亡 = 累计 − 常态；可为负（表示低于常态） */
   excessDeaths: number;
+  /** 本游戏史实路线超额死亡锚点（同口径） */
+  historicalPathExcessDeaths: number;
+  /** 本局相对史实路线：本局超额 − 史实超额；负值表示轻于史实 */
+  vsHistoricalPathExcessDeaths: number;
   baselineAnnualAverage: number;
   windowStartYear: number;
   windowEndYear: number;
@@ -61,6 +71,21 @@ export function ensureFamineMortalityAccount(nation: NationState): void {
   account.finalized ??= false;
   account.pendingReport ??= null;
   account.report ??= null;
+  if (account.report) {
+    ensureReportHistoricalComparison(account.report);
+  }
+  if (account.pendingReport) {
+    ensureReportHistoricalComparison(account.pendingReport);
+  }
+}
+
+/** 旧存档补齐相对史实对照字段，口径与当前锚点一致。 */
+export function ensureReportHistoricalComparison(
+  report: FamineMortalityReport,
+): void {
+  report.historicalPathExcessDeaths ??= HISTORICAL_PATH_FAMINE_EXCESS_DEATHS;
+  report.vsHistoricalPathExcessDeaths ??=
+    report.excessDeaths - report.historicalPathExcessDeaths;
 }
 
 function inInclusiveYearRange(
@@ -117,10 +142,14 @@ function buildReport(nation: NationState): FamineMortalityReport {
 
   const expectedBaselineDeaths = baselineAnnualAverage * windowYears;
   const totalDeaths = account.windowDeaths;
+  const excessDeaths = totalDeaths - expectedBaselineDeaths;
+  const historicalPathExcessDeaths = HISTORICAL_PATH_FAMINE_EXCESS_DEATHS;
   return {
     totalDeaths,
     expectedBaselineDeaths,
-    excessDeaths: totalDeaths - expectedBaselineDeaths,
+    excessDeaths,
+    historicalPathExcessDeaths,
+    vsHistoricalPathExcessDeaths: excessDeaths - historicalPathExcessDeaths,
     baselineAnnualAverage,
     windowStartYear: FAMINE_MORTALITY_WINDOW.windowStartYear,
     windowEndYear: FAMINE_MORTALITY_WINDOW.windowEndYear,

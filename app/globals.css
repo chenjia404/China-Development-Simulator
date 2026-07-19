@@ -532,20 +532,18 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .historical-choice button { width: 100%; margin-top: 15px; padding: 9px 10px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 700; }
 .historical-choice.is-historical button { background: var(--gold); border-color: var(--gold); }
 .historical-decision-note { margin: 14px 2px 0; color: var(--muted); font-size: 9px; text-align: center; }
-.famine-mortality-modal { width: min(760px, 100%); }
+.famine-mortality-modal { width: min(640px, 100%); }
 .famine-mortality-warning { margin: 14px 0 0; padding: 10px 12px; color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--line)); border-radius: 8px; font-size: 10px; line-height: 1.6; }
-.famine-mortality-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.famine-mortality-stats { margin-top: 18px; }
 .famine-mortality-stats article { padding: 14px 16px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 12px; }
+.famine-mortality-stats article.famine-mortality-stat-emphasis { border-color: color-mix(in srgb, var(--blue) 35%, var(--line)); background: color-mix(in srgb, var(--blue) 6%, var(--surface-soft)); }
 .famine-mortality-stats span { color: var(--muted); font-size: 9px; font-weight: 700; }
-.famine-mortality-stats strong { display: block; margin: 8px 0 6px; font-size: 22px; letter-spacing: -0.02em; }
+.famine-mortality-stats strong { display: block; margin: 8px 0 6px; font-size: 26px; letter-spacing: -0.02em; }
 .famine-mortality-stats strong.is-loss { color: var(--red); }
 .famine-mortality-stats strong.is-relief { color: var(--green); }
 .famine-mortality-stats small { color: var(--muted); font-size: 9px; line-height: 1.55; }
 .famine-mortality-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
 .famine-mortality-actions button { min-width: 180px; padding: 11px 16px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
-@media (max-width: 720px) {
-  .famine-mortality-stats { grid-template-columns: 1fr; }
-}
 
 .world-table, .annual-table { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
 .world-head, .world-row { display: grid; grid-template-columns: 60px 1.2fr 1fr 1fr 80px; align-items: center; gap: 12px; min-height: 45px; padding: 0 16px; }
