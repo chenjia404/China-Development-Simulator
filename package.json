@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
+    "build:static": "tsx tools/static-deployment/build.ts",
     "start": "vinext start",
     "simulate": "tsx tools/baseline-calibration/index.ts",
     "simulate:baseline": "tsx tools/baseline-calibration/index.ts historical 1949 1 1949 2026",
@@ -25,8 +26,9 @@
     "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:ui": "npm run build && node --test tests/rendered-html.test.mjs",
+    "test:static": "npm run build:static && node --test tests/static-export.test.mjs",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern dist-static --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
