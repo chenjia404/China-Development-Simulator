@@ -788,11 +788,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const maturePolicyProgress =
     policyEngine.getState().nation.policyProgress.technology_priority;
 
+  const compulsoryEducationInitial = createInitialGameState(seed);
+  enactHistoricalEventEarly(
+    compulsoryEducationInitial.nation,
+    "compulsory_education_law_1986",
+    "audit:compulsory-education-law",
+    "审计提前颁布义务教育法",
+  );
   const compulsoryEducationBaselineEngine = createSimulationEngine(
-    createInitialGameState(seed),
+    structuredClone(compulsoryEducationInitial),
   );
   const compulsoryEducationEngine = createSimulationEngine(
-    createInitialGameState(seed),
+    structuredClone(compulsoryEducationInitial),
   );
   for (const engine of [
     compulsoryEducationBaselineEngine,
@@ -802,7 +809,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   }
   compulsoryEducationEngine.dispatch({
     type: "SET_POLICIES",
-    policyIds: ["compulsory_education"],
+    policyIds: ["compulsory_education_implementation"],
   });
   compulsoryEducationBaselineEngine.dispatch({
     type: "ADVANCE_MONTHS",
@@ -813,23 +820,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     .getState().nation;
   const compulsoryEducation = compulsoryEducationEngine.getState().nation;
 
-  const capitalMarketInitial = createInitialGameState(seed, 2000);
+  const capitalMarketInitial = createInitialGameState(seed, 1980);
   capitalMarketInitial.nation.economy.institutionalEfficiency = 0.72;
   capitalMarketInitial.nation.institutions.legalPredictability = 0.7;
   capitalMarketInitial.nation.institutions.stateCapacity = 0.68;
   capitalMarketInitial.nation.society.stabilityIndex = 70;
-  const capitalMarketBaselineEngine = createSimulationEngine(capitalMarketInitial);
-  const capitalMarketPolicyEngine = createSimulationEngine(
-    structuredClone(capitalMarketInitial),
+  const capitalMarketEarlyInitial = structuredClone(capitalMarketInitial);
+  enactHistoricalEventEarly(
+    capitalMarketEarlyInitial.nation,
+    "securities_exchange_1990",
+    "audit:securities-exchange",
+    "审计提前设立证券交易所",
   );
-  capitalMarketPolicyEngine.dispatch({
-    type: "SET_POLICIES",
-    policyIds: ["securities_exchange"],
-  });
+  const capitalMarketBaselineEngine = createSimulationEngine(capitalMarketInitial);
+  const capitalMarketEarlyEngine = createSimulationEngine(capitalMarketEarlyInitial);
   capitalMarketBaselineEngine.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
-  capitalMarketPolicyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
+  capitalMarketEarlyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
   const capitalMarketBaseline = capitalMarketBaselineEngine.getState().nation;
-  const capitalMarketPolicy = capitalMarketPolicyEngine.getState().nation;
+  const capitalMarketEarly = capitalMarketEarlyEngine.getState().nation;
 
   const neutralTrade = createInitialGameState(seed);
   const agreementTrade = structuredClone(neutralTrade);
@@ -1209,7 +1217,10 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     makeCheck(
       "compulsory-education-policy",
       "义务教育承担财政成本并通过基础教育和人力资本滞后提高科技",
-      compulsoryEducation.policyProgress.compulsory_education === 1 &&
+      compulsoryEducation.history.historicalEvents.some(
+        (record) => record.id === "compulsory_education_law_1986",
+      ) &&
+        compulsoryEducation.policyProgress.compulsory_education_implementation === 1 &&
         applyPolicyModifiers(compulsoryEducation, "fiscal.spending", 1) >= 1.06 &&
         compulsoryEducation.fiscal.expenditure >
           compulsoryEducationBaseline.fiscal.expenditure &&
@@ -1225,19 +1236,22 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "securities-exchange-policy",
-      "证券交易所通过受监管的直接融资改善社会融资与创新，并保留波动和财政代价",
-      capitalMarketPolicy.policyProgress.securities_exchange === 1 &&
-        capitalMarketPolicy.financialSystem.capitalMarket.equityMarketDepth > 0 &&
-        capitalMarketPolicy.financialSystem.capitalMarket.annualEquityFinancing > 0 &&
-        capitalMarketPolicy.financialSystem.capitalMarket.annualEquityFinancing <=
-          capitalMarketPolicy.economy.investment &&
-        capitalMarketPolicy.financialSystem.capitalMarket.socialFinancingCapacity >
+      "证券交易所作为永久历史转折，通过受监管的直接融资改善社会融资与创新并保留波动风险",
+      capitalMarketEarly.history.historicalEvents.some(
+        (record) =>
+          record.id === "securities_exchange_1990" &&
+          record.outcome === "enacted_early",
+      ) &&
+        capitalMarketEarly.financialSystem.capitalMarket.equityMarketDepth > 0 &&
+        capitalMarketEarly.financialSystem.capitalMarket.annualEquityFinancing > 0 &&
+        capitalMarketEarly.financialSystem.capitalMarket.annualEquityFinancing <=
+          capitalMarketEarly.economy.investment &&
+        capitalMarketEarly.financialSystem.capitalMarket.socialFinancingCapacity >
           capitalMarketBaseline.financialSystem.capitalMarket.socialFinancingCapacity &&
-        capitalMarketPolicy.privateEconomy.technologyCommercialization >
+        capitalMarketEarly.privateEconomy.technologyCommercialization >
           capitalMarketBaseline.privateEconomy.technologyCommercialization &&
-        capitalMarketPolicy.financialSystem.capitalMarket.marketVolatilityIndex > 0 &&
-        applyPolicyModifiers(capitalMarketPolicy, "fiscal.spending", 1) >= 1.01,
-      `实施 10 年后基线/交易所路线：社会融资能力 ${(capitalMarketBaseline.financialSystem.capitalMarket.socialFinancingCapacity * 100).toFixed(1)}%/${(capitalMarketPolicy.financialSystem.capitalMarket.socialFinancingCapacity * 100).toFixed(1)}%，股权市场深度 ${(capitalMarketPolicy.financialSystem.capitalMarket.equityMarketDepth * 100).toFixed(1)}%，年度股权融资 ${capitalMarketPolicy.financialSystem.capitalMarket.annualEquityFinancing.toFixed(0)}，技术商业化 ${(capitalMarketBaseline.privateEconomy.technologyCommercialization * 100).toFixed(1)}%/${(capitalMarketPolicy.privateEconomy.technologyCommercialization * 100).toFixed(1)}%，市场风险 ${(capitalMarketPolicy.financialSystem.capitalMarket.marketVolatilityIndex * 100).toFixed(1)}%`,
+        capitalMarketEarly.financialSystem.capitalMarket.marketVolatilityIndex > 0,
+      `提前设立 10 年后基线/交易所路线：社会融资能力 ${(capitalMarketBaseline.financialSystem.capitalMarket.socialFinancingCapacity * 100).toFixed(1)}%/${(capitalMarketEarly.financialSystem.capitalMarket.socialFinancingCapacity * 100).toFixed(1)}%，股权市场深度 ${(capitalMarketEarly.financialSystem.capitalMarket.equityMarketDepth * 100).toFixed(1)}%，年度股权融资 ${capitalMarketEarly.financialSystem.capitalMarket.annualEquityFinancing.toFixed(0)}，技术商业化 ${(capitalMarketBaseline.privateEconomy.technologyCommercialization * 100).toFixed(1)}%/${(capitalMarketEarly.privateEconomy.technologyCommercialization * 100).toFixed(1)}%，市场风险 ${(capitalMarketEarly.financialSystem.capitalMarket.marketVolatilityIndex * 100).toFixed(1)}%`,
     ),
     makeCheck(
       "technology-industry-paths",
@@ -1779,7 +1793,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     makeCheck(
       "historical-initiatives",
       "适合主动推动的历史转折可提前实施，战争危机与组织资格保持事件化",
-      historicalInitiativeDefinitions.length === 15 &&
+      historicalInitiativeDefinitions.length === 17 &&
         new Set(initiativeEventIds).size === historicalInitiativeDefinitions.length &&
         excludedInitiativeEvents.every((eventId) => !initiativeEventIds.includes(eventId)) &&
         auditedEarlyInitiativeEvents.every((eventId) =>

@@ -5,17 +5,28 @@ import { calculateFiscalRevenue } from "../fiscal/revenue";
 import { calculateFiscalSpending } from "../fiscal/spending";
 import { createInitialGameState } from "../state/initial-state";
 import { updateTechnology } from "../technology/research";
+import { enactHistoricalEventEarly } from "../events/historical-event-engine";
 import {
   applyPolicyModifiers,
   getNationalPolicy,
   maximumActivePolicies,
-  nationalPolicyRequirementBlockers,
   nationalPolicyImplementationRate,
   updatePolicyEnvironment,
   validatePolicySelection,
 } from "./policy-engine";
 
 describe("国策系统", () => {
+  function enactCompulsoryEducationLaw(
+    nation: ReturnType<typeof createInitialGameState>["nation"],
+  ): void {
+    enactHistoricalEventEarly(
+      nation,
+      "compulsory_education_law_1986",
+      "test:compulsory-education-law",
+      "测试提前颁布义务教育法",
+    );
+  }
+
   it("拒绝未知、重复、超额和相互冲突的国策组合", () => {
     expect(() => validatePolicySelection(["unknown_policy"])).toThrow("未知国策");
     expect(() =>
@@ -67,13 +78,13 @@ describe("国策系统", () => {
     ).toBeCloseTo(1.12, 8);
   });
 
-  it("义务教育可从建国初期筹备，但必须具备预算和执行门槛", () => {
-    const definition = getNationalPolicy("compulsory_education");
+  it("落实义务教育必须先完成立法，并具备预算和执行门槛", () => {
+    const definition = getNationalPolicy("compulsory_education_implementation");
     expect(definition).toMatchObject({
-      name: "普及九年义务教育",
+      name: "落实九年义务教育",
       transitionMonths: 84,
       requirements: {
-        availableFromYear: 1949,
+        requiredHistoricalEventIds: ["compulsory_education_law_1986"],
         minimumEducationBudgetShare: 0.12,
         minimumStateCapacity: 0.3,
         minimumLocalImplementationCapacity: 0.25,
@@ -93,16 +104,43 @@ describe("国策系统", () => {
       expect.objectContaining({ target: "fiscal.spending", value: 1.06 }),
     ]));
 
-    const engine = createSimulationEngine(createInitialGameState(1949));
+    const initialState = createInitialGameState(1949);
+    const lockedEngine = createSimulationEngine(initialState);
+    expect(() => lockedEngine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["compulsory_education_implementation"],
+    })).toThrow("需先完成颁布义务教育法");
+    enactCompulsoryEducationLaw(initialState.nation);
+    const engine = createSimulationEngine(initialState);
     expect(() => engine.dispatch({
       type: "SET_POLICIES",
-      policyIds: ["compulsory_education"],
+      policyIds: ["compulsory_education_implementation"],
     })).toThrow("教育预算占比需达到 12%");
     engine.dispatch({ type: "UPDATE_BUDGET", budget: { education: 0.12 } });
     expect(() => engine.dispatch({
       type: "SET_POLICIES",
-      policyIds: ["compulsory_education"],
+      policyIds: ["compulsory_education_implementation"],
     })).not.toThrow();
+  });
+
+  it("玩家暂缓义务教育立法时不会误解锁持续落实国策", () => {
+    const state = createInitialGameState(1949, 1986, "interactive");
+    state.nation.date.month = 4;
+    state.nation.date.elapsedMonths = (1986 - 1949) * 12 + 3;
+    state.nation.fiscal.budget.education = 0.12;
+    const engine = createSimulationEngine(state);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "compulsory_education_law_1986",
+      choiceId: "defer_compulsory_education_law",
+    });
+
+    expect(() => engine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["compulsory_education_implementation"],
+    })).toThrow("需先完成颁布义务教育法");
   });
 
   it("义务教育以更高财政成本逐步提高基础教育、人力资本和科技", () => {
@@ -110,7 +148,8 @@ describe("国策系统", () => {
     const compulsoryCost = structuredClone(baselineCost);
     baselineCost.fiscal.budget.education = 0.12;
     compulsoryCost.fiscal.budget.education = 0.12;
-    compulsoryCost.policyProgress.compulsory_education = 1;
+    enactCompulsoryEducationLaw(compulsoryCost);
+    compulsoryCost.policyProgress.compulsory_education_implementation = 1;
     calculateFiscalSpending(baselineCost);
     calculateFiscalSpending(compulsoryCost);
     expect(compulsoryCost.fiscal.expenditure).toBeGreaterThan(
@@ -120,9 +159,15 @@ describe("国策系统", () => {
 
     const underfunded = structuredClone(compulsoryCost);
     underfunded.fiscal.budget.education = 0.06;
-    expect(nationalPolicyImplementationRate(compulsoryCost, "compulsory_education"))
+    expect(nationalPolicyImplementationRate(
+      compulsoryCost,
+      "compulsory_education_implementation",
+    ))
       .toBe(1);
-    expect(nationalPolicyImplementationRate(underfunded, "compulsory_education"))
+    expect(nationalPolicyImplementationRate(
+      underfunded,
+      "compulsory_education_implementation",
+    ))
       .toBeCloseTo(0.5, 8);
     expect(
       applyPolicyModifiers(underfunded, "education.secondaryCoverageFormation", 1),
@@ -134,14 +179,18 @@ describe("国策系统", () => {
       8,
     );
 
-    const baselineEngine = createSimulationEngine(createInitialGameState(1949));
-    const compulsoryEngine = createSimulationEngine(createInitialGameState(1949));
+    const baselineState = createInitialGameState(1949);
+    const compulsoryState = createInitialGameState(1949);
+    enactCompulsoryEducationLaw(baselineState.nation);
+    enactCompulsoryEducationLaw(compulsoryState.nation);
+    const baselineEngine = createSimulationEngine(baselineState);
+    const compulsoryEngine = createSimulationEngine(compulsoryState);
     for (const engine of [baselineEngine, compulsoryEngine]) {
       engine.dispatch({ type: "UPDATE_BUDGET", budget: { education: 0.12 } });
     }
     compulsoryEngine.dispatch({
       type: "SET_POLICIES",
-      policyIds: ["compulsory_education"],
+      policyIds: ["compulsory_education_implementation"],
     });
     baselineEngine.dispatch({ type: "ADVANCE_MONTHS", months: 180 });
     compulsoryEngine.dispatch({ type: "ADVANCE_MONTHS", months: 180 });
@@ -159,45 +208,6 @@ describe("国策系统", () => {
       baseline.economy.humanCapitalIndex,
     );
     expect(compulsory.technology.index).toBeGreaterThan(baseline.technology.index);
-  });
-
-  it("证券交易所可提前建立，但必须具备制度、法治和市场基础", () => {
-    const definition = getNationalPolicy("securities_exchange");
-    expect(definition).toMatchObject({
-      name: "设立证券交易所",
-      transitionMonths: 60,
-      requirements: {
-        availableFromYear: 1949,
-        minimumStateCapacity: 0.35,
-        minimumInstitutionalEfficiency: 0.4,
-        minimumLegalPredictability: 0.35,
-        minimumPrivateOperatingSpace: 0.45,
-      },
-    });
-    expect(definition?.modifiers).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        target: "finance.exchangeInfrastructureTarget",
-        operation: "add",
-        value: 1,
-      }),
-      expect.objectContaining({ target: "fiscal.spending", value: 1.01 }),
-      expect.objectContaining({ target: "wellbeing.welfare", value: 0.98 }),
-    ]));
-
-    const nation = createInitialGameState(1949).nation;
-    nation.institutions.legalPredictability = 0.2;
-    expect(nationalPolicyRequirementBlockers(nation, "securities_exchange"))
-      .toEqual(expect.arrayContaining([
-        expect.stringContaining("制度效率"),
-        expect.stringContaining("法律可预期性"),
-      ]));
-    nation.economy.institutionalEfficiency = 0.4;
-    nation.institutions.legalPredictability = 0.35;
-    nation.institutions.stateCapacity = 0.35;
-    expect(() => validatePolicySelection(
-      ["securities_exchange"],
-      nation,
-    )).not.toThrow();
   });
 
   it("韩国式追赶国策同时包含资本、技能、出口学习和现实代价", () => {

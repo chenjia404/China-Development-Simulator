@@ -977,8 +977,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
               ) : null}
               <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
               <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
-              {policy.id === "compulsory_education" ? <div className="policy-capability">当前落实率 {formatPercent(nationalPolicyImplementationRate(game.nation, policy.id))}；预算或执行能力低于门槛后，教育收益会按比例下降，财政承诺仍保留。</div> : null}
-              {policy.id === "securities_exchange" ? <div className="policy-capability">交易所运行能力 {formatPercent(game.nation.financialSystem.capitalMarket.exchangeOperationalCapacity)} · 股权市场深度 {formatPercent(game.nation.financialSystem.capitalMarket.equityMarketDepth)} · 市场风险 {formatPercent(game.nation.financialSystem.capitalMarket.marketVolatilityIndex)}</div> : null}
+              {policy.id === "compulsory_education_implementation" ? <div className="policy-capability">当前落实率 {formatPercent(nationalPolicyImplementationRate(game.nation, policy.id))}；预算或执行能力低于门槛后，教育收益会按比例下降，财政承诺仍保留。</div> : null}
               {policy.id === "industrial_upgrading" ? <div className="policy-capability">科技准备度 {formatPercent(technologyMetrics.industrialUpgradeReadiness)} · 产业科技第 {technologyMetrics.industryTier} 层；收益按准备度折算，成本照常发生。</div> : null}
               <button
                 className={selected ? "policy-toggle remove" : "policy-toggle"}
@@ -1034,6 +1033,12 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
                 <span>最早 {initiative.availableFromYear} 年</span>
                 <span>{initiativeCostLabel}</span>
                 <span>调整期 {formatEventDuration(initiative.transitionDurationMonths)}</span>
+              </div>
+              <div className="initiative-effects">
+                <strong>实施影响</strong>
+                {initiative.transitionEffects.map((effect) => (
+                  <span key={effect}>{effect}</span>
+                ))}
               </div>
               {record ? (
                 <div className="initiative-result">

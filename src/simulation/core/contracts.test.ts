@@ -16,7 +16,7 @@ describe("模拟接口契约", () => {
 
   it("拒绝未知存档版本", () => {
     expect(() =>
-      assertCompatibleSave({ schemaVersion: 2 } as never),
+      assertCompatibleSave({ schemaVersion: 1 } as never),
     ).toThrow("不支持的存档版本");
   });
 });

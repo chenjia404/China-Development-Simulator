@@ -330,6 +330,64 @@
     ]
   },
   {
+    "eventId": "compulsory_education_law_1986",
+    "choices": [
+      {
+        "id": "phased_education_legislation",
+        "name": "分地区立法并逐步扩围",
+        "description": "先在财政与师资条件较好的地区落实法律责任，再把学籍、督导和经费保障逐步扩展到全国；制度方向不变，但地区差距和建设周期更长。",
+        "effects": ["义务教育法律地位仍然确立", "地方试点降低初期执行压力", "全国覆盖进度较慢", "行政与师资建设承担持续成本"],
+        "durationMonths": 60,
+        "modifiers": [
+          { "target": "education.efficiency", "operation": "multiply", "value": 1.01 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+        ],
+        "outcome": "enacted_late"
+      },
+      {
+        "id": "defer_compulsory_education_law",
+        "name": "暂缓全国义务教育立法",
+        "description": "暂不确立全国统一的义务教育法律责任，把有限财政留给其他领域；短期支出压力较低，但不能启动全国持续落实国策。",
+        "effects": ["暂不建立全国法律责任", "短期财政压力降低", "基础教育扩张继续依赖一般预算", "人力资本积累失去制度保障"],
+        "durationMonths": 48,
+        "modifiers": [
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.995 },
+          { "target": "education.efficiency", "operation": "multiply", "value": 0.99 }
+        ],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
+    "eventId": "securities_exchange_1990",
+    "choices": [
+      {
+        "id": "regional_exchange_pilots",
+        "name": "区域试点并逐步扩容",
+        "description": "先以少量企业和区域交易试点建立登记、披露与监管能力，再逐步扩大市场范围；交易所制度仍然建立，但融资深化速度更慢。",
+        "effects": ["集中交易基础设施仍然建立", "监管能力逐步积累", "股权融资扩张较慢", "试点建设承担较低初期成本"],
+        "durationMonths": 84,
+        "modifiers": [
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.005 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+        ],
+        "outcome": "enacted_late"
+      },
+      {
+        "id": "defer_securities_exchange",
+        "name": "暂不设立集中证券交易所",
+        "description": "继续依靠银行和财政体系配置资本，避免早期市场波动与监管成本；企业股权融资和创新风险分担渠道因此缺位。",
+        "effects": ["不建立集中证券交易基础设施", "避免初期监管和波动风险", "社会融资继续依赖银行", "创新企业缺少公开股权融资渠道"],
+        "durationMonths": 60,
+        "modifiers": [
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.995 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.997 }
+        ],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
     "eventId": "covid_19_2020",
     "choices": [
       {

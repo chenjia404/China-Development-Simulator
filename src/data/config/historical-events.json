@@ -431,6 +431,18 @@
     ]
   },
   {
+    "id": "compulsory_education_law_1986",
+    "name": "颁布义务教育法",
+    "year": 1986,
+    "month": 4,
+    "category": "社会教育",
+    "impact": "positive",
+    "description": "国家以法律确立九年义务教育制度，明确适龄儿童接受义务教育以及政府保障经费、学校和师资的长期责任。法律地位一经确立即永久保留，实际普及速度仍取决于持续财政投入和地方执行能力。",
+    "effects": ["永久确立九年义务教育法律责任", "解锁九年义务教育持续落实国策", "学校、师资和地方执行仍需长期投入"],
+    "durationMonths": 36,
+    "modifiers": []
+  },
+  {
     "id": "private_economy_legal_recognition_1988",
     "name": "私营经济获得法律承认",
     "year": 1988,
@@ -448,6 +460,18 @@
       { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0016 },
       { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0016 }
     ]
+  },
+  {
+    "id": "securities_exchange_1990",
+    "name": "设立证券交易所",
+    "year": 1990,
+    "month": 12,
+    "category": "财政金融",
+    "impact": "positive",
+    "description": "上海、深圳证券交易市场相继建立，集中交易、登记清算、信息披露与一线监管开始形成制度化基础。交易所一经设立即成为永久金融基础设施，市场深度和融资效果仍由法治、监管、流动性与企业能力逐月决定。",
+    "effects": ["永久建立证券集中交易基础设施", "股权融资和上市企业逐步发展", "创新融资与金融资源配置改善", "资产波动和监管成本开始显现"],
+    "durationMonths": 60,
+    "modifiers": []
   },
   {
     "id": "socialist_market_economy_1992",

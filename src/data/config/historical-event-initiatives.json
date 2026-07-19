@@ -50,6 +50,36 @@
     ]
   },
   {
+    "id": "early_compulsory_education_law",
+    "eventId": "compulsory_education_law_1986",
+    "name": "提前颁布义务教育法",
+    "category": "教育法治",
+    "description": "在学校、财政与基层治理具备基本条件后，提前以法律确立九年义务教育和政府保障责任。立法永久解锁持续落实国策，但不会无成本完成学校建设、师资培养和学生入学。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": [],
+      "minimumMonthsSinceEvents": {},
+      "minimumInstitutionalEfficiency": 0.35,
+      "minimumStateCapacity": 0.3,
+      "minimumLocalImplementationCapacity": 0.25,
+      "minimumLegalPredictability": 0.25,
+      "minimumEducationBudgetShare": 0.12,
+      "minimumStability": 45,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0,
+      "minimumEducationIndex": 12
+    },
+    "transitionEffects": ["教育立法、学籍和督导体系建设增加短期行政支出", "永久解锁九年义务教育持续落实国策", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
     "id": "early_first_five_year_plan",
     "eventId": "first_five_year_plan",
     "name": "提前启动第一个五年计划",
@@ -214,6 +244,38 @@
     "transitionEffects": ["企业登记、税收、劳动和竞争监管建设增加财政支出", "原史实节点不再重复触发"],
     "transitionModifiers": [
       { "target": "fiscal.spending", "operation": "multiply", "value": 1.012 }
+    ]
+  },
+  {
+    "id": "early_securities_exchange",
+    "eventId": "securities_exchange_1990",
+    "name": "提前设立证券交易所",
+    "category": "金融制度",
+    "description": "在法治、监管、企业和社会稳定具备基础后，提前建立证券集中交易、登记清算、信息披露与一线监管体系。交易所永久保留，但融资收益依赖后续市场深度、投资者保护和流动性。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 60,
+    "requirements": {
+      "historicalEventIds": [],
+      "minimumMonthsSinceEvents": {},
+      "minimumInstitutionalEfficiency": 0.4,
+      "minimumStateCapacity": 0.35,
+      "minimumLocalImplementationCapacity": 0.3,
+      "minimumLegalPredictability": 0.35,
+      "minimumStability": 45,
+      "minimumOpenness": 0,
+      "minimumReputation": 0,
+      "minimumAverageRelation": -100,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 0,
+      "minimumEducationIndex": 15,
+      "minimumTechnologyIndex": 8,
+      "minimumUrbanizationRate": 0.1,
+      "minimumPrivateOperatingSpace": 0.45
+    },
+    "transitionEffects": ["交易、登记清算和监管体系建设增加短期财政支出", "交易所成为永久金融基础设施", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
     ]
   },
   {

@@ -12,6 +12,10 @@ export interface HistoricalInitiativeRequirements {
   historicalEventIds: string[];
   minimumMonthsSinceEvents: Partial<Record<string, number>>;
   minimumInstitutionalEfficiency: number;
+  minimumStateCapacity?: number;
+  minimumLocalImplementationCapacity?: number;
+  minimumLegalPredictability?: number;
+  minimumEducationBudgetShare?: number;
   minimumStability: number;
   minimumOpenness: number;
   minimumReputation: number;
@@ -121,6 +125,37 @@ export function getHistoricalInitiativeStatus(
   }
   if (nation.economy.institutionalEfficiency < requirements.minimumInstitutionalEfficiency) {
     blockers.push(`制度效率需达到 ${formatPercent(requirements.minimumInstitutionalEfficiency)}`);
+  }
+  if (
+    requirements.minimumStateCapacity !== undefined &&
+    nation.institutions.stateCapacity < requirements.minimumStateCapacity
+  ) {
+    blockers.push(`国家能力需达到 ${formatPercent(requirements.minimumStateCapacity)}`);
+  }
+  if (
+    requirements.minimumLocalImplementationCapacity !== undefined &&
+    nation.institutions.localImplementationCapacity <
+      requirements.minimumLocalImplementationCapacity
+  ) {
+    blockers.push(
+      `地方执行能力需达到 ${formatPercent(requirements.minimumLocalImplementationCapacity)}`,
+    );
+  }
+  if (
+    requirements.minimumLegalPredictability !== undefined &&
+    nation.institutions.legalPredictability < requirements.minimumLegalPredictability
+  ) {
+    blockers.push(
+      `法律可预期性需达到 ${formatPercent(requirements.minimumLegalPredictability)}`,
+    );
+  }
+  if (
+    requirements.minimumEducationBudgetShare !== undefined &&
+    nation.fiscal.budget.education < requirements.minimumEducationBudgetShare
+  ) {
+    blockers.push(
+      `教育预算占比需达到 ${formatPercent(requirements.minimumEducationBudgetShare)}`,
+    );
   }
   if (nation.society.stabilityIndex < requirements.minimumStability) {
     blockers.push(`社会稳定需达到 ${requirements.minimumStability.toFixed(0)}`);

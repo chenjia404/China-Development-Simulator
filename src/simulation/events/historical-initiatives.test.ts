@@ -18,10 +18,10 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("十五项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(15);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(15);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(15);
+  it("十七项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(17);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(17);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(17);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
     expect(
       historicalInitiativeDefinitions.map((item) => item.eventId),
@@ -34,6 +34,63 @@ describe("历史转折国策", () => {
       "un_seat_restored_1971",
       "wto_accession_2001",
     ]));
+  });
+
+  it("义务教育立法和证券交易所可提前成为永久历史转折", () => {
+    const state = createInitialGameState(1949, 1949);
+    state.nation.fiscal.budget.education = 0.12;
+    state.nation.economy.institutionalEfficiency = 0.5;
+    state.nation.institutions.stateCapacity = 0.5;
+    state.nation.institutions.localImplementationCapacity = 0.5;
+    state.nation.institutions.legalPredictability = 0.5;
+    state.nation.society.stabilityIndex = 60;
+    state.nation.education.index = 20;
+    state.nation.technology.index = 15;
+    state.nation.society.urbanizationRate = 0.15;
+    state.nation.privateEconomy.operatingSpace = 0.6;
+    const engine = createSimulationEngine(state);
+
+    expect(getHistoricalInitiativeStatus(
+      engine.exportState(),
+      "early_compulsory_education_law",
+    ).available).toBe(true);
+    expect(getHistoricalInitiativeStatus(
+      engine.exportState(),
+      "early_securities_exchange",
+    ).available).toBe(true);
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_compulsory_education_law",
+    });
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_securities_exchange",
+    });
+    engine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["compulsory_education_implementation"],
+    });
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 72 });
+
+    const nation = engine.getState().nation;
+    expect(nation.history.historicalEvents).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "compulsory_education_law_1986",
+        outcome: "enacted_early",
+      }),
+      expect.objectContaining({
+        id: "securities_exchange_1990",
+        outcome: "enacted_early",
+      }),
+    ]));
+    expect(nation.financialSystem.capitalMarket.exchangeOperationalCapacity)
+      .toBeGreaterThan(0);
+    expect(nation.financialSystem.capitalMarket.equityMarketDepth)
+      .toBeGreaterThan(0);
+    expect(() => engine.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["securities_exchange"],
+    })).toThrow("未知国策");
   });
 
   it("财政统一、土地改革和五年计划可由玩家依次提前启动", () => {

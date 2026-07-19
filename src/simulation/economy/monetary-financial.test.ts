@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { NationState } from "../state/game-state";
 import { createInitialGameState } from "../state/initial-state";
+import { createSimulationEngine } from "../core/engine";
+import { enactHistoricalEventEarly } from "../events/historical-event-engine";
 import {
   ensureFinancialSystemState,
   updateFinancialSystem,
@@ -8,6 +10,17 @@ import {
 } from "./monetary-financial";
 
 describe("货币银行与国际收支", () => {
+  function establishSecuritiesExchange(
+    state: ReturnType<typeof createInitialGameState>,
+  ): void {
+    enactHistoricalEventEarly(
+      state.nation,
+      "securities_exchange_1990",
+      "test:securities-exchange",
+      "测试提前设立证券交易所",
+    );
+  }
+
   it("货币和银行资产负债表保持守恒", () => {
     const state = createInitialGameState(8501);
     for (let month = 0; month < 36; month += 1) updateFinancialSystem(state);
@@ -46,10 +59,12 @@ describe("货币银行与国际收支", () => {
     expect(bop.identityError).toBeLessThan(0.001);
   });
 
-  it("证券交易所通过直接融资提高社会融资和创新能力但不重复创造GDP", () => {
+  it("证券交易所作为永久历史转折提高社会融资和创新能力但不重复创造GDP", () => {
     const baseline = createInitialGameState(8505);
     const exchange = structuredClone(baseline);
-    exchange.nation.policyProgress.securities_exchange = 1;
+    establishSecuritiesExchange(exchange);
+    baseline.nation.date.year = 1959;
+    exchange.nation.date.year = 1959;
     exchange.nation.economy.institutionalEfficiency = 0.72;
     exchange.nation.institutions.legalPredictability = 0.7;
     exchange.nation.institutions.stateCapacity = 0.68;
@@ -70,11 +85,32 @@ describe("货币银行与国际收支", () => {
     expect(exchange.nation.economy.realGDP).toBe(gdpBefore);
   });
 
+  it("玩家暂不设立证券交易所时不会生成交易所运行能力", () => {
+    const state = createInitialGameState(8507, 1990, "interactive");
+    state.nation.date.month = 12;
+    state.nation.date.elapsedMonths = (1990 - 1949) * 12 + 11;
+    const engine = createSimulationEngine(state);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "securities_exchange_1990",
+      choiceId: "defer_securities_exchange",
+    });
+    const prevented = engine.exportState();
+    for (let month = 0; month < 72; month += 1) updateFinancialSystem(prevented);
+
+    expect(prevented.nation.financialSystem.capitalMarket.exchangeOperationalCapacity)
+      .toBe(0);
+    expect(prevented.nation.financialSystem.capitalMarket.equityMarketDepth).toBe(0);
+  });
+
   it("投资者保护不足会降低股权融资并提高市场波动", () => {
     const protectedMarket = createInitialGameState(8506);
     const weakProtection = structuredClone(protectedMarket);
     for (const state of [protectedMarket, weakProtection]) {
-      state.nation.policyProgress.securities_exchange = 1;
+      establishSecuritiesExchange(state);
+      state.nation.date.year = 1959;
     }
     protectedMarket.nation.economy.institutionalEfficiency = 0.8;
     protectedMarket.nation.institutions.legalPredictability = 0.85;

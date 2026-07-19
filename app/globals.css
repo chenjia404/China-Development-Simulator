@@ -293,6 +293,9 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .initiative-card > p { min-height: 53px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
 .initiative-facts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
 .initiative-facts span { padding: 4px 6px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-size: 8px; }
+.initiative-effects { display: grid; gap: 5px; margin-top: 11px; color: var(--muted); font-size: 8px; }
+.initiative-effects strong { color: var(--text); }
+.initiative-effects span::before { content: "· "; color: var(--blue); }
 .initiative-blockers, .initiative-result, .initiative-ready { flex: 1; margin-top: 13px; padding: 11px; border-radius: 8px; font-size: 8px; }
 .initiative-blockers { color: var(--muted); background: color-mix(in srgb, var(--red) 4%, var(--surface)); border: 1px solid color-mix(in srgb, var(--red) 18%, var(--line)); }
 .initiative-blockers strong { color: var(--red); }
@@ -586,6 +589,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .initiative-card-head span,
 .initiative-card-head small,
 .initiative-facts span,
+.initiative-effects,
 .initiative-blockers,
 .initiative-result,
 .initiative-ready,

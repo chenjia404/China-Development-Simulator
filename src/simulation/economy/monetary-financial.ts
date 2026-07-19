@@ -1,6 +1,5 @@
 import financialData from "../../data/config/monetary-financial.json";
 import { approach, clamp, safeDivide } from "../core/math";
-import { applyPolicyModifiers } from "../policies/policy-engine";
 import type {
   FinancialSystemState,
   GameState,
@@ -320,11 +319,20 @@ export function updateFinancialSystem(state: GameState, initialize = false): voi
 
 function updateCapitalMarket(nation: NationState, initialize: boolean): void {
   const market = nation.financialSystem.capitalMarket;
-  const policyInfrastructureTarget = clamp(
-    applyPolicyModifiers(nation, "finance.exchangeInfrastructureTarget", 0),
-    0,
-    1,
+  const exchangeRecord = nation.history.historicalEvents.find(
+    (record) =>
+      record.id === "securities_exchange_1990" && record.outcome !== "prevented",
   );
+  const monthsSinceEstablishment = exchangeRecord
+    ? Math.max(
+      0,
+      (nation.date.year - exchangeRecord.year) * 12 +
+        nation.date.month - exchangeRecord.month,
+    )
+    : 0;
+  const establishmentProgress = exchangeRecord
+    ? clamp((monthsSinceEstablishment + 1) / 60, 0, 1)
+    : 0;
   const institutionalFoundation = clamp(
     nation.economy.institutionalEfficiency * 0.3 +
       nation.institutions.legalPredictability * 0.3 +
@@ -333,7 +341,7 @@ function updateCapitalMarket(nation: NationState, initialize: boolean): void {
     0,
     1,
   );
-  const capacityTarget = policyInfrastructureTarget *
+  const capacityTarget = establishmentProgress *
     (0.35 + institutionalFoundation * 0.65);
   market.exchangeOperationalCapacity = initialize
     ? capacityTarget
@@ -347,7 +355,7 @@ function updateCapitalMarket(nation: NationState, initialize: boolean): void {
     0.08 + nation.institutions.legalPredictability * 0.46 +
       nation.institutions.stateCapacity * 0.18 +
       nation.economy.institutionalEfficiency * 0.2 +
-      applyPolicyModifiers(nation, "finance.investorProtection", 0),
+      establishmentProgress * 0.1,
     0,
     1,
   );

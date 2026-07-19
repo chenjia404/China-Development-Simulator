@@ -1,6 +1,6 @@
 import type { GameState } from "../state/game-state";
 
-export const SAVE_SCHEMA_VERSION = 1;
+export const SAVE_SCHEMA_VERSION = 2;
 export const SIMULATION_VERSION = "0.1.0";
 
 export interface SaveEnvelope {

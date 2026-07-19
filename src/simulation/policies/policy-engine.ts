@@ -4,11 +4,13 @@ import { approach, clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
+import { historicalEventName } from "../events/historical-event-engine";
 
 export type PolicyCategory = "产业" | "社会" | "发展" | "开放" | "财政";
 export type PolicyOperation = "add" | "multiply";
 
 export interface NationalPolicyRequirements {
+  requiredHistoricalEventIds?: string[];
   availableFromYear?: number;
   minimumEducationBudgetShare?: number;
   minimumStateCapacity?: number;
@@ -48,6 +50,9 @@ export function nationalPolicyRequirementDescriptions(
   const requirements = policy.requirements;
   if (!requirements) return [];
   const descriptions: string[] = [];
+  for (const eventId of requirements.requiredHistoricalEventIds ?? []) {
+    descriptions.push(`需先完成${historicalEventName(eventId) ?? eventId}`);
+  }
   if (requirements.availableFromYear !== undefined) {
     descriptions.push(`最早 ${requirements.availableFromYear} 年`);
   }
@@ -93,6 +98,13 @@ export function nationalPolicyRequirementBlockers(
   if (!policy?.requirements) return [];
   const requirements = policy.requirements;
   const blockers: string[] = [];
+  for (const eventId of requirements.requiredHistoricalEventIds ?? []) {
+    if (!nation.history.historicalEvents.some(
+      (record) => record.id === eventId && record.outcome !== "prevented",
+    )) {
+      blockers.push(`需先完成${historicalEventName(eventId) ?? eventId}`);
+    }
+  }
   if (
     requirements.availableFromYear !== undefined &&
     nation.date.year < requirements.availableFromYear
@@ -169,9 +181,21 @@ export function nationalPolicyImplementationRate(
   policyId: string,
 ): number {
   const policy = getNationalPolicy(policyId);
-  if (policyId !== "compulsory_education" || !policy?.requirements) return 1;
+  if (
+    policyId !== "compulsory_education_implementation" ||
+    !policy?.requirements
+  ) return 1;
   const requirements = policy.requirements;
   const rates: number[] = [];
+  for (const eventId of requirements.requiredHistoricalEventIds ?? []) {
+    rates.push(
+      nation.history.historicalEvents.some(
+        (record) => record.id === eventId && record.outcome !== "prevented",
+      )
+        ? 1
+        : 0,
+    );
+  }
   if (requirements.availableFromYear !== undefined) {
     rates.push(nation.date.year >= requirements.availableFromYear ? 1 : 0);
   }
@@ -269,7 +293,7 @@ export function applyPolicyModifiers(
         .industrialUpgradeReadiness;
     }
     if (
-      policy.id === "compulsory_education" &&
+      policy.id === "compulsory_education_implementation" &&
       target.startsWith("education.")
     ) {
       progress *= nationalPolicyImplementationRate(nation, policy.id);
