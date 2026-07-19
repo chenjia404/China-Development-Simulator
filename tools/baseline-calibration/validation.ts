@@ -34,11 +34,27 @@ export function validateGameState(state: GameState): void {
   for (const [name, value] of Object.entries({
     教育指数: nation.education.index,
     医疗指数: nation.health.index,
-    科技指数: nation.technology.index,
     幸福度: nation.society.happinessIndex,
     稳定度: nation.society.stabilityIndex,
   })) {
     if (value < 0 || value > 100) throw new Error(`${name}超出 0 至 100 边界`);
+  }
+  // 科技指数无硬顶，但禁止负值与无边际递减约束下的异常发散。
+  if (nation.technology.index < 0 || !Number.isFinite(nation.technology.index)) {
+    throw new Error("科技指数必须为非负有限值");
+  }
+  if (nation.technology.index > 2_000) {
+    throw new Error("科技指数异常发散");
+  }
+  if (
+    state.world.countries.some(
+      (country) =>
+        country.technologyIndex < 0 ||
+        !Number.isFinite(country.technologyIndex) ||
+        country.technologyIndex > 2_000,
+    )
+  ) {
+    throw new Error("世界国家科技指数出现负值或异常发散");
   }
   for (const [name, value] of Object.entries({
     民营经营空间: nation.privateEconomy.operatingSpace,

@@ -6,6 +6,7 @@ import type {
   WorldCountryState,
   WorldTradeNetworkState,
 } from "../state/world-state";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 
 interface NetworkConfig {
   relationWeight: number;
@@ -70,7 +71,7 @@ export function updateWorldTradeNetwork(state: GameState): void {
     (country) => country.nominalGDP ** 0.58 * access(country));
   const imports = allocate(state.nation.trade.imports, state.world.countries,
     (country) => country.nominalGDP ** 0.55 *
-      (0.75 + country.technologyIndex / 100 * 0.25) * access(country));
+      (0.75 + technologyNormalizedEffect(country.technologyIndex) * 0.25) * access(country));
   const investment = allocate(state.nation.trade.foreignInvestment, state.world.countries,
     (country) => country.nominalGDP ** 0.5 * access(country) *
       (config.financialCenterCountries.includes(country.id) ? 1.45 : 1));

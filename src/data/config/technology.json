@@ -1,7 +1,13 @@
 {
   "researchProductivity": 8,
   "adoptionAdjustmentSpeed": 0.015,
-  "maximumTechnologyIndex": 100,
+  "diminishingReturnsStartIndex": 100,
+  "diminishingReturnsScale": 40,
+  "productiveAbsorptionStartIndex": 100,
+  "productiveAbsorptionScale": 40,
+  "productiveFrontierResidual": 0.02,
+  "effectHeadroom": 0.12,
+  "effectSaturationScale": 80,
   "maximumMonthlyTFPGrowth": 0.0037,
   "diffusionStrength": 0.002
 }

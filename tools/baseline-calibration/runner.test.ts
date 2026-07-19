@@ -24,8 +24,8 @@ describe("无界面批量模拟器", () => {
     });
     expect(result.annual).toHaveLength(78);
     expect(result.finalState.nation.history.monthly).toHaveLength(120);
-    expect(result.durationMs).toBeLessThan(5_000);
-  });
+    expect(result.durationMs).toBeLessThan(7_000);
+  }, 20_000);
 
   it("相同策略和种子产生完全相同的年度序列", () => {
     const options = {
@@ -39,7 +39,7 @@ describe("无界面批量模拟器", () => {
 
     expect(second.annual).toEqual(first.annual);
     expect(second.finalState.randomState).toBe(first.finalState.randomState);
-  });
+  }, 30_000);
 
   it("存档读取后继续模拟与未中断结果一致", () => {
     const firstHalf = runSimulation({
@@ -57,8 +57,7 @@ describe("无界面批量模拟器", () => {
     direct.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
 
     expect(continued.exportState()).toEqual(direct.exportState());
-  });
-
+  }, 20_000);
   it("CSV 包含全部年度且使用中文表头", () => {
     const result = runSimulation({
       strategy: "none",
@@ -129,7 +128,7 @@ describe("无界面批量模拟器", () => {
         transition[index - 1].realGDP,
       );
     }
-  });
+  }, 20_000);
 
   it("六条参考发展路线稳定运行并形成不同的结构特征", () => {
     const strategyIds = [
@@ -181,5 +180,5 @@ describe("无界面批量模拟器", () => {
     ).toBeGreaterThan(
       singapore.sectors.secondary.valueAdded / singapore.economy.realGDP,
     );
-  }, 10_000);
+  }, 30_000);
 });

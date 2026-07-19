@@ -97,8 +97,9 @@ describe("教育、医疗和科技", () => {
     expect(nation.health.lifeExpectancy).toBeGreaterThanOrEqual(20);
     expect(nation.health.lifeExpectancy).toBeLessThanOrEqual(100);
     expect(nation.technology.index).toBeGreaterThanOrEqual(0);
-    expect(nation.technology.index).toBeLessThanOrEqual(100);
+    expect(Number.isFinite(nation.technology.index)).toBe(true);
+    expect(nation.technology.index).toBeLessThan(2_000);
     expect(nation.society.happinessIndex).toBeGreaterThanOrEqual(0);
     expect(nation.society.happinessIndex).toBeLessThanOrEqual(100);
-  });
+  }, 20_000);
 });

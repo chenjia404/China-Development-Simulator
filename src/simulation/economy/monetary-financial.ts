@@ -5,6 +5,7 @@ import type {
   GameState,
   NationState,
 } from "../state/game-state";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 
 interface RatioAnchor { year: number; value: number }
 interface FinancialConfig {
@@ -433,7 +434,7 @@ function updateCapitalMarket(nation: NationState, initialize: boolean): void {
     market.exchangeOperationalCapacity * (
       market.investorProtectionIndex * 0.16 +
       nation.privateEconomy.technologyCommercialization * 0.18 +
-      nation.technology.index / 100 * 0.14
+      technologyNormalizedEffect(nation.technology.index) * 0.14
     ),
     0,
     config.capitalMarket.maximumInnovationFinancingShare,

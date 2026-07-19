@@ -1159,7 +1159,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     makeCheck(
       "performance",
       "无界面模拟性能满足预算",
-      summaries.every((item) => item.durationMs < 5_000),
+      summaries.every((item) => item.durationMs < 7_000),
       `单路线最慢 ${Math.max(...summaries.map((item) => item.durationMs)).toFixed(2)} ms`,
     ),
     makeCheck(

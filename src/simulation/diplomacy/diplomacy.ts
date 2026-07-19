@@ -3,6 +3,7 @@ import { approach, clamp } from "../core/math";
 import type { GameState } from "../state/game-state";
 import type { WorldCountryState } from "../state/world-state";
 import { applyModifiers } from "../events/modifiers";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 import {
   getHistoricalEvent,
   triggerConditionalHistoricalEvent,
@@ -423,7 +424,7 @@ export function updateDiplomacy(state: GameState): void {
       "diplomacy.securityTarget",
       25 +
         nation.fiscal.budget.defense * 180 +
-        nation.technology.index * 0.2 +
+        technologyNormalizedEffect(nation.technology.index) * 100 * 0.2 +
         nation.society.stabilityIndex * 0.15 +
         strategyEffects.securityTargetAdjustment +
         doctrineEffects.securityTargetAdjustment,

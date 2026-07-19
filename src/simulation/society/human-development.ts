@@ -8,6 +8,7 @@ import type {
   LaborSkillId,
   NationState,
 } from "../state/game-state";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 
 interface HumanDevelopmentConfig {
   educationStageWeights: Record<EducationStageId, number>;
@@ -56,7 +57,7 @@ export function ensureHumanDevelopmentState(nation: NationState): void {
 
 function allocateLaborSkills(nation: NationState): Record<LaborSkillId, number> {
   const education = nation.education.index / 100;
-  const technology = nation.technology.index / 100;
+  const technology = technologyNormalizedEffect(nation.technology.index);
   const raw = {
     basic: Math.max(0.08, 0.86 - education * 0.66),
     skilled: 0.1 + education * 0.38,

@@ -1,6 +1,7 @@
 import defenseData from "../../data/config/security-defense.json";
 import { clamp, safeDivide } from "../core/math";
 import type { NationState, SecurityDefenseState } from "../state/game-state";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 
 interface DefenseConfig {
   budgetShares: { personnel: number; equipment: number; logistics: number; research: number };
@@ -72,7 +73,7 @@ export function updateSecurityDefense(nation: NationState, initialize = false): 
       state.equipmentInvestment / 12);
   }
   state.equipmentModernizationRate = clamp(
-    nation.technology.index / 100 * 0.55 +
+    technologyNormalizedEffect(nation.technology.index) * 0.55 +
       nation.industries.aerospace_advanced.technologyReadiness * 0.25 +
       nation.industries.electronics_communications.technologyReadiness * 0.2,
     0, 1,

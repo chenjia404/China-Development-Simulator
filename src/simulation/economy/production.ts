@@ -9,6 +9,7 @@ import type {
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 import {
   allocateIndustrialProduction,
   calculateIndustrialStructureMetrics,
@@ -187,7 +188,7 @@ export function updateResourceSupply(nation: NationState): void {
     "resources.energySupply",
     24 *
       secondaryCapitalScale ** 0.72 *
-      (0.88 + nation.technology.index / 100 * 0.8),
+      (0.88 + technologyNormalizedEffect(nation.technology.index) * 0.8),
   );
   nation.resources.energyDemand = Math.max(
     1,

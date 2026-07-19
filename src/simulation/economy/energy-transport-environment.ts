@@ -6,6 +6,7 @@ import type {
   InfrastructureResourceState,
   NationState,
 } from "../state/game-state";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 
 interface ResourceConfig {
   electricityPerEnergyUnit: number;
@@ -54,7 +55,7 @@ function normalizedShares(nation: NationState): Record<EnergySourceId, number> {
   const development = clamp(
     Math.log1p(nation.economy.realGDPPerCapita) / Math.log(60_001), 0, 1,
   );
-  const technology = nation.technology.index / 100;
+  const technology = technologyNormalizedEffect(nation.technology.index);
   const greenPath = nation.technology.developmentPathId === "green_electrification";
   const scores: Record<EnergySourceId, number> = {
     coal: Math.max(0.12, 0.82 - development * 0.52 - (greenPath ? 0.18 : 0)),

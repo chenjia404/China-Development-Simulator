@@ -2,6 +2,7 @@ import { clamp } from "../core/math";
 import type { RandomGenerator } from "../core/random";
 import { Mulberry32 } from "../core/random";
 import type { GameState } from "../state/game-state";
+import { technologyDiminishingFactor } from "../technology/technology-growth";
 import {
   type WorldCountryConfig,
   worldCountryConfigs,
@@ -125,11 +126,11 @@ function simulateOneCountry(
   country.nominalGDP = country.realGDP * country.priceLevelIndex;
 
   const technologyGain =
-    (0.15 + technologyGap * absorptionCapacity * 1.8) / 12;
-  country.technologyIndex = clamp(
-    country.technologyIndex + technologyGain,
+    (0.15 + technologyGap * absorptionCapacity * 1.8) / 12 *
+    technologyDiminishingFactor(country.technologyIndex);
+  country.technologyIndex = Math.max(
     0,
-    100,
+    country.technologyIndex + technologyGain,
   );
   country.educationIndex = clamp(
     country.educationIndex +
@@ -168,6 +169,7 @@ export function simulateWorldCountries(
   const month = state.nation.date.month;
   const frontierTechnology = Math.max(
     85,
+    state.nation.technology.index,
     ...state.world.countries.map((country) => country.technologyIndex),
   );
   const presentIds = new Set(state.world.countries.map((country) => country.id));

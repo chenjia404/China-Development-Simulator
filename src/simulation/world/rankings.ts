@@ -5,6 +5,7 @@ import {
   calculateWorldComparableGDP,
   calculateWorldPeerNominalGDPScale,
 } from "../economy/historical-accounting";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 
 export function calculateRank<T extends { id: string }>(
   countries: T[],
@@ -70,7 +71,7 @@ export function calculateWorldRankings(state: GameState): void {
   state.nation.internationalInfluence = clamp(
     state.nation.internationalInfluence * 0.85 +
       safeDivide(chinaComparableGDP, worldNominalGDP) * 500 +
-      state.nation.technology.index * 0.08 +
+      technologyNormalizedEffect(state.nation.technology.index) * 100 * 0.08 +
       state.nation.diplomacy.globalReputation * 0.02 +
       state.nation.diplomacy.securityIndex * 0.01 +
       state.nation.diplomacy.organizationIds.length * 0.75,

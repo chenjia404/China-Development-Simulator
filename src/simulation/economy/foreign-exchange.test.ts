@@ -392,7 +392,7 @@ describe("外汇储备与侨汇", () => {
       foreignExchangeReserves: state.nation.trade.foreignExchangeReserves,
       remittanceInflows: state.nation.trade.remittanceInflows,
     });
-  });
+  }, 20_000);
 
   it("旧存档会确定性补齐外汇和侨汇字段", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));

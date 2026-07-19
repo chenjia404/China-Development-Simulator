@@ -12,6 +12,7 @@ import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
 import { capitalMarketInnovationMultiplier } from "../economy/monetary-financial";
 import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
+import { technologyDiminishingFactor, technologyProductiveAbsorption } from "./technology-growth";
 
 export function updateTechnology(nation: NationState): void {
   updateTechnologyIndustryPath(nation);
@@ -104,18 +105,19 @@ export function updateTechnology(nation: NationState): void {
     0.5,
     1.6,
   );
-  const technologyGain =
+  const undiminishedTechnologyGain =
     researchOutput *
       (0.2 + technology.adoptionRate * 0.8) *
       researchCommercialization +
     diffusion;
   const previousTechnologyIndex = technology.index;
-  technology.index = clamp(
-    technology.index + technologyGain,
-    0,
-    technologyConfig.maximumTechnologyIndex,
-  );
-  const effectiveTechnologyGain = technology.index - previousTechnologyIndex;
+  const technologyGain =
+    undiminishedTechnologyGain *
+    technologyDiminishingFactor(previousTechnologyIndex);
+  technology.index = Math.max(0, technology.index + technologyGain);
+  const productiveTechnologyGain =
+    undiminishedTechnologyGain *
+    technologyProductiveAbsorption(previousTechnologyIndex);
   updateTechnologyTree(nation, researchOutput * researchContinuityFactor);
 
   // 技术指数描述当期技术水平，结构性生产率则记录制度、人才和组织知识形成的
@@ -155,7 +157,7 @@ export function updateTechnology(nation: NationState): void {
   const combinedStructuralGrowth =
     structuralProductivityGrowth + exportLearningGrowth;
   const monthlyTFPGrowth = clamp(
-    effectiveTechnologyGain * 0.0267 + combinedStructuralGrowth,
+    productiveTechnologyGain * 0.0267 + combinedStructuralGrowth,
     -technologyConfig.maximumMonthlyTFPGrowth,
     technologyConfig.maximumMonthlyTFPGrowth,
   );

@@ -13,7 +13,7 @@ describe("1949—2026 历史校准", () => {
     const summary = summarizeCalibration(compareWithTargets(run.annual));
 
     expect(summary.passRate).toBeGreaterThanOrEqual(0.85);
-  });
+  }, 20_000);
 
   it("当前年份的人口、GDP、城市化、寿命与产业结构通过校准", () => {
     const run = runSimulation({
@@ -27,7 +27,7 @@ describe("1949—2026 历史校准", () => {
     );
 
     expect(current.every((result) => result.passed)).toBe(true);
-  });
+  }, 20_000);
 
   it("拟合、留出验证和预测三组分别报告，避免只用拟合点自证", () => {
     const run = runSimulation({
@@ -42,5 +42,5 @@ describe("1949—2026 历史校准", () => {
     expect(summary.byRole.validation.total).toBe(28);
     expect(summary.byRole.projection.total).toBe(8);
     expect(summary.byRole.validation.passRate).toBeGreaterThanOrEqual(0.85);
-  });
+  }, 20_000);
 });

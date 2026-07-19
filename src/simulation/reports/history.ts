@@ -4,6 +4,7 @@ import type { GameState } from "../state/game-state";
 import type { AnnualSnapshot, MonthlySnapshot } from "../state/history-state";
 import { eventName } from "../events/event-engine";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
+import { technologyNormalizedEffect } from "../technology/technology-growth";
 import { ensureAchievementsState } from "../events/national-achievements";
 
 const MAX_MONTHLY_HISTORY = 120;
@@ -31,7 +32,7 @@ function calculateScore(state: GameState): number {
     incomeScore * 0.2 +
       scaleScore * 0.1 +
       priceStabilityScore * 0.1 +
-      nation.technology.index * 0.1 +
+      technologyNormalizedEffect(nation.technology.index) * 100 * 0.1 +
       nation.education.index * 0.1 +
       nation.health.lifeExpectancy * 0.1 +
       nation.society.happinessIndex * 0.1 +
