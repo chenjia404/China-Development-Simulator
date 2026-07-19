@@ -48,6 +48,7 @@ import { updateRegionalEconomy } from "../economy/regional-economy";
 import { updateWorldTradeNetwork } from "../economy/international-network";
 import { updateSecurityDefense } from "../security/defense-security";
 import { updateInstitutionCausality } from "../institutions/institution-causality";
+import { updateIndustrialPolicy } from "../policies/industrial-policy";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -59,6 +60,7 @@ export function simulateMonth(
   if (state.nation.pendingHistoricalEventId) return false;
   checkRandomEvents(state.nation, eventRandom);
   updatePolicyEnvironment(state.nation);
+  updateIndustrialPolicy(state.nation);
   updateDiplomacy(state);
   checkAutomaticInternationalOrganizations(state);
   updatePrivateEconomy(state.nation);

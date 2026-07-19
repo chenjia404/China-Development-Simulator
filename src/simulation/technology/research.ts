@@ -11,6 +11,7 @@ import { updateTechnologyIndustryPath } from "./technology-industry-path";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
 import { capitalMarketInnovationMultiplier } from "../economy/monetary-financial";
+import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
 
 export function updateTechnology(nation: NationState): void {
   updateTechnologyIndustryPath(nation);
@@ -21,6 +22,7 @@ export function updateTechnology(nation: NationState): void {
   const foreignAidEffects = foreignAidProgramEffects(nation);
   const normalizationEffects = sinoUSNormalizationEffects(nation);
   const capitalMarketInnovation = capitalMarketInnovationMultiplier(nation);
+  const industrialPolicy = calculateIndustrialPolicyAggregateEffects(nation);
   const researchSpending = fiscal.expenditure * fiscal.budget.research;
   const fundingIntensity = clamp(
     Math.sqrt(safeDivide(researchSpending, economy.nominalGDP) / 0.01),
@@ -65,6 +67,7 @@ export function updateTechnology(nation: NationState): void {
     (0.9 + researchContinuityFactor * 0.1) *
     privateEconomy.researchCommercialization *
     capitalMarketInnovation *
+    industrialPolicy.researchMultiplier *
     foreignAidEffects.researchOutputMultiplier *
     normalizationEffects.researchOutputMultiplier;
   technology.monthlyResearchOutput = researchOutput;

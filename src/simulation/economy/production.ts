@@ -17,6 +17,7 @@ import {
 import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
 import { inputOutputConstraintForSector } from "./national-accounts";
 import { inventoryCycleConstraintForSector } from "./market-dynamics";
+import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
 
 export interface ProductionInput {
   productivity: number;
@@ -107,7 +108,8 @@ export function calculateSectorOutput(
       economyConfig.maximumCapacityUtilization,
     ) *
     (id === "secondary"
-      ? calculateIndustrialStructureMetrics(nation).outputMultiplier
+      ? calculateIndustrialStructureMetrics(nation).outputMultiplier *
+        calculateIndustrialPolicyAggregateEffects(nation).supplyChainConstraint
       : 1);
 
   return Math.max(
@@ -193,7 +195,8 @@ export function updateResourceSupply(nation: NationState): void {
       nation,
       "resources.energyDemand",
       (8 + nation.sectors.secondary.output / 2_000_000_000) *
-        technologyIndustryEnergyDemandMultiplier(nation),
+        technologyIndustryEnergyDemandMultiplier(nation) *
+        calculateIndustrialPolicyAggregateEffects(nation).energyDemandMultiplier,
     ),
   );
   nation.resources.energySupplyRatio = clamp(

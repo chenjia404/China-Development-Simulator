@@ -8,6 +8,61 @@ import type {
   NationState,
 } from "../state/game-state";
 
+interface IndustrialPolicyStanceEffect {
+  outputWeightMultiplier: number;
+  productivityMultiplier: number;
+  investmentMultiplier: number;
+  exportMultiplier: number;
+  researchMultiplier: number;
+  energyDemandMultiplier: number;
+  annualFiscalCostRate: number;
+  creditBias: number;
+  distortionRate: number;
+  laborDisplacementRate: number;
+}
+
+interface IndustrialPolicyCategoryParameters {
+  supportCostMultiplier: number;
+  employmentSensitivity: number;
+  supplyChainImportance: number;
+}
+
+export interface IndustrialPolicyEffect {
+  outputWeightMultiplier: number;
+  productivityMultiplier: number;
+  investmentMultiplier: number;
+  exportMultiplier: number;
+  researchMultiplier: number;
+  energyDemandMultiplier: number;
+  creditBias: number;
+  effectiveness: number;
+}
+
+export interface IndustrialPolicyAggregateEffects {
+  investmentMultiplier: number;
+  researchMultiplier: number;
+  energyDemandMultiplier: number;
+  supplyChainConstraint: number;
+}
+
+const neutralIndustrialPolicyEffect: IndustrialPolicyEffect = {
+  outputWeightMultiplier: 1,
+  productivityMultiplier: 1,
+  investmentMultiplier: 1,
+  exportMultiplier: 1,
+  researchMultiplier: 1,
+  energyDemandMultiplier: 1,
+  creditBias: 0,
+  effectiveness: 0,
+};
+
+const neutralIndustrialPolicyAggregateEffects: IndustrialPolicyAggregateEffects = {
+  investmentMultiplier: 1,
+  researchMultiplier: 1,
+  energyDemandMultiplier: 1,
+  supplyChainConstraint: 1,
+};
+
 export const industrialPolicyCategoryIds: IndustrialCategoryId[] = [
   "mining_energy",
   "basic_materials",
@@ -52,11 +107,48 @@ export function createInitialIndustrialPolicyState(): IndustrialPolicyState {
     distortionIndex: 0,
     laborDisplacementPressure: 0,
     administrativeEffectiveness: 1,
+    supplyChainConstraint: 1,
   };
+}
+
+function isCompleteIndustrialPolicyState(
+  state: Partial<IndustrialPolicyState> | undefined,
+): state is IndustrialPolicyState {
+  if (!state?.categories) return false;
+  const categoriesAreValid = industrialPolicyCategoryIds.every((industryId) => {
+    const category = state.categories?.[industryId];
+    return category?.industryId === industryId &&
+      industrialPolicyStances.includes(category.stance) &&
+      Number.isFinite(category.effectiveIntensity) &&
+      category.effectiveIntensity >= -1 &&
+      category.effectiveIntensity <= 1 &&
+      (
+        category.lastChangedElapsedMonth === null ||
+        Number.isInteger(category.lastChangedElapsedMonth)
+      );
+  });
+  return categoriesAreValid &&
+    Number.isFinite(state.annualFiscalCost) &&
+    (state.annualFiscalCost ?? -1) >= 0 &&
+    Number.isFinite(state.creditAllocationBias) &&
+    Math.abs(state.creditAllocationBias ?? 2) <= 1 &&
+    Number.isFinite(state.distortionIndex) &&
+    (state.distortionIndex ?? -1) >= 0 &&
+    (state.distortionIndex ?? 2) <= 1 &&
+    Number.isFinite(state.laborDisplacementPressure) &&
+    (state.laborDisplacementPressure ?? -1) >= 0 &&
+    (state.laborDisplacementPressure ?? 2) <= 1 &&
+    Number.isFinite(state.administrativeEffectiveness) &&
+    (state.administrativeEffectiveness ?? -1) >= 0 &&
+    (state.administrativeEffectiveness ?? 2) <= 1 &&
+    Number.isFinite(state.supplyChainConstraint) &&
+    (state.supplyChainConstraint ?? 0) >= 0.5 &&
+    (state.supplyChainConstraint ?? 2) <= 1;
 }
 
 export function ensureIndustrialPolicyState(nation: NationState): void {
   const existing = nation.industrialPolicy as Partial<IndustrialPolicyState> | undefined;
+  if (isCompleteIndustrialPolicyState(existing)) return;
   const fallback = createInitialIndustrialPolicyState();
   nation.industrialPolicy = fallback;
   for (const industryId of industrialPolicyCategoryIds) {
@@ -92,6 +184,11 @@ export function ensureIndustrialPolicyState(nation: NationState): void {
     existing?.administrativeEffectiveness,
   )
     ? clamp(existing?.administrativeEffectiveness ?? 1, 0, 1)
+    : 1;
+  nation.industrialPolicy.supplyChainConstraint = Number.isFinite(
+    existing?.supplyChainConstraint,
+  )
+    ? clamp(existing?.supplyChainConstraint ?? 1, 0.5, 1)
     : 1;
 }
 
@@ -142,7 +239,6 @@ export function setIndustrialPolicyStance(
 }
 
 export function updateIndustrialPolicyTransition(nation: NationState): void {
-  ensureIndustrialPolicyState(nation);
   for (const policy of Object.values(nation.industrialPolicy.categories)) {
     const target = policy.stance === "support" ? 1 : policy.stance === "suppress" ? -1 : 0;
     const transitionMonths = industrialPolicyConfig.transitionMonths[policy.stance];
@@ -156,4 +252,172 @@ export function updateIndustrialPolicyTransition(nation: NationState): void {
           1,
         );
   }
+}
+
+function stanceEffect(
+  stance: IndustrialPolicyStance,
+): IndustrialPolicyStanceEffect {
+  return industrialPolicyConfig.stances[stance] as IndustrialPolicyStanceEffect;
+}
+
+export function industrialPolicyCategoryParameters(
+  industryId: IndustrialCategoryId,
+): IndustrialPolicyCategoryParameters {
+  return industrialPolicyConfig.categoryParameters[
+    industryId
+  ] as IndustrialPolicyCategoryParameters;
+}
+
+function administrativeEffectiveness(nation: NationState): number {
+  const activeLoad = Object.values(nation.industrialPolicy.categories).reduce(
+    (sum, policy) => sum + Math.abs(policy.effectiveIntensity),
+    0,
+  );
+  const capability = industrialPolicyConfig.administrativeCapacity
+    .baseFullyEffectiveIndustries +
+    (
+      nation.economy.institutionalEfficiency * 0.5 +
+      nation.institutions.stateCapacity * 0.3 +
+      nation.institutions.localImplementationCapacity * 0.2
+    ) * industrialPolicyConfig.administrativeCapacity.institutionalCapacityScale;
+  return clamp(
+    activeLoad <= capability ? 1 : capability / Math.max(activeLoad, 1),
+    industrialPolicyConfig.administrativeCapacity.minimumEffectiveness,
+    1,
+  );
+}
+
+export function industrialPolicyEffect(
+  nation: NationState,
+  industryId: IndustrialCategoryId,
+): IndustrialPolicyEffect {
+  const categoryPolicy = nation.industrialPolicy.categories[industryId];
+  const intensity = categoryPolicy.effectiveIntensity;
+  if (Math.abs(intensity) < 1e-12) {
+    return neutralIndustrialPolicyEffect;
+  }
+  const stance = intensity > 0 ? "support" : "suppress";
+  const target = stanceEffect(stance);
+  const administrative = nation.industrialPolicy.administrativeEffectiveness;
+  const budgetCapacity = clamp(nation.fiscal.budget.industry / 0.18, 0.15, 1.15);
+  const enforcementCapacity = clamp(
+    (
+      nation.economy.institutionalEfficiency +
+      nation.institutions.stateCapacity +
+      nation.institutions.localImplementationCapacity
+    ) / 1.8,
+    0.3,
+    1,
+  );
+  const readiness = nation.industries[industryId].technologyReadiness;
+  const effectiveness = Math.abs(intensity) * administrative * (
+    stance === "support"
+      ? clamp(budgetCapacity * (0.45 + readiness * 0.55), 0.1, 1)
+      : enforcementCapacity
+  );
+  const blend = (value: number) => 1 + (value - 1) * effectiveness;
+  return {
+    outputWeightMultiplier: blend(target.outputWeightMultiplier),
+    productivityMultiplier: blend(target.productivityMultiplier),
+    investmentMultiplier: blend(target.investmentMultiplier),
+    exportMultiplier: blend(target.exportMultiplier),
+    researchMultiplier: blend(target.researchMultiplier),
+    energyDemandMultiplier: blend(target.energyDemandMultiplier),
+    creditBias: target.creditBias * effectiveness,
+    effectiveness,
+  };
+}
+
+export function calculateIndustrialPolicyAggregateEffects(
+  nation: NationState,
+): IndustrialPolicyAggregateEffects {
+  if (
+    nation.industrialPolicy.annualFiscalCost <= 1e-12 &&
+    Math.abs(nation.industrialPolicy.creditAllocationBias) <= 1e-12 &&
+    nation.industrialPolicy.distortionIndex <= 1e-12 &&
+    nation.industrialPolicy.laborDisplacementPressure <= 1e-12 &&
+    nation.industrialPolicy.supplyChainConstraint >= 1 - 1e-12
+  ) {
+    return neutralIndustrialPolicyAggregateEffects;
+  }
+  let investmentDelta = 0;
+  let researchDelta = 0;
+  let energyDelta = 0;
+  for (const industryId of industrialPolicyCategoryIds) {
+    const share = nation.industries[industryId].outputShare;
+    const effect = industrialPolicyEffect(nation, industryId);
+    investmentDelta += share * (effect.investmentMultiplier - 1);
+    researchDelta += share * (effect.researchMultiplier - 1);
+    energyDelta += share * (effect.energyDemandMultiplier - 1);
+  }
+  const distortionPenalty = nation.industrialPolicy.distortionIndex * 0.35;
+  return {
+    investmentMultiplier: clamp(1 + investmentDelta - distortionPenalty, 0.7, 1.25),
+    researchMultiplier: clamp(1 + researchDelta - distortionPenalty * 0.45, 0.72, 1.2),
+    energyDemandMultiplier: clamp(1 + energyDelta, 0.75, 1.18),
+    supplyChainConstraint: nation.industrialPolicy.supplyChainConstraint,
+  };
+}
+
+/**
+ * 先推进政策强度，再结算财政承诺、信贷倾斜、错配与就业冲击。
+ * 这些均为后续模块的中间变量，不在此处直接修改产出或GDP。
+ */
+export function updateIndustrialPolicy(nation: NationState): void {
+  const isNeutral = industrialPolicyCategoryIds.every((industryId) => {
+    const policy = nation.industrialPolicy.categories[industryId];
+    return policy.stance === "neutral" && Math.abs(policy.effectiveIntensity) < 1e-12;
+  });
+  if (isNeutral) {
+    nation.industrialPolicy.annualFiscalCost = 0;
+    nation.industrialPolicy.creditAllocationBias = 0;
+    nation.industrialPolicy.distortionIndex = 0;
+    nation.industrialPolicy.laborDisplacementPressure = 0;
+    nation.industrialPolicy.administrativeEffectiveness = 1;
+    nation.industrialPolicy.supplyChainConstraint = 1;
+    return;
+  }
+  updateIndustrialPolicyTransition(nation);
+  const administrative = administrativeEffectiveness(nation);
+  nation.industrialPolicy.administrativeEffectiveness = administrative;
+  let annualFiscalCost = 0;
+  let creditBias = 0;
+  let distortion = 0;
+  let laborDisplacement = 0;
+  let supplyChainDamage = 0;
+  for (const industryId of industrialPolicyCategoryIds) {
+    const categoryPolicy = nation.industrialPolicy.categories[industryId];
+    const intensity = categoryPolicy.effectiveIntensity;
+    if (Math.abs(intensity) < 1e-12) continue;
+    const stance = intensity > 0 ? "support" : "suppress";
+    const target = stanceEffect(stance);
+    const parameters = industrialPolicyCategoryParameters(industryId);
+    const effect = industrialPolicyEffect(nation, industryId);
+    const share = nation.industries[industryId].outputShare;
+    annualFiscalCost += nation.industries[industryId].valueAdded *
+      target.annualFiscalCostRate * Math.abs(intensity) *
+      parameters.supportCostMultiplier * (0.7 + administrative * 0.3);
+    creditBias += share * effect.creditBias;
+    distortion += share * target.distortionRate * Math.abs(intensity) *
+      (stance === "support" ? 1.35 - effect.effectiveness * 0.35 : 1);
+    if (stance === "suppress") {
+      laborDisplacement += share * target.laborDisplacementRate *
+        Math.abs(intensity) * parameters.employmentSensitivity * effect.effectiveness;
+      supplyChainDamage += share * parameters.supplyChainImportance *
+        Math.abs(intensity) * effect.effectiveness * 0.12;
+    }
+  }
+  nation.industrialPolicy.annualFiscalCost = Math.max(0, annualFiscalCost);
+  nation.industrialPolicy.creditAllocationBias = clamp(creditBias, -0.35, 0.25);
+  nation.industrialPolicy.distortionIndex = clamp(distortion, 0, 0.2);
+  nation.industrialPolicy.laborDisplacementPressure = clamp(
+    laborDisplacement,
+    0,
+    0.18,
+  );
+  nation.industrialPolicy.supplyChainConstraint = clamp(
+    1 - supplyChainDamage,
+    0.72,
+    1,
+  );
 }

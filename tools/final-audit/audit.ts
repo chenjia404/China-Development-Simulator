@@ -39,6 +39,7 @@ import {
   industrialCategoryDefinitions,
   updateIndustrialStructure,
   validateIndustrialCategoryDefinitions,
+  validateIndustrialPolicyConfiguration,
   validateMarketDynamicsDefinitions,
   validateDemographicCohortDefinitions,
   AGE_BAND_IDS,
@@ -842,6 +843,42 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const capitalMarketBaseline = capitalMarketBaselineEngine.getState().nation;
   const capitalMarketEarly = capitalMarketEarlyEngine.getState().nation;
 
+  const industrialPolicyInitial = createInitialGameState(seed, 2005);
+  industrialPolicyInitial.nation.economy.institutionalEfficiency = 0.8;
+  industrialPolicyInitial.nation.institutions.stateCapacity = 0.8;
+  industrialPolicyInitial.nation.institutions.localImplementationCapacity = 0.8;
+  industrialPolicyInitial.nation.education.index = 65;
+  industrialPolicyInitial.nation.technology.index = 60;
+  const industrialPolicyBaselineEngine = createSimulationEngine(
+    structuredClone(industrialPolicyInitial),
+  );
+  const industrialPolicySupportEngine = createSimulationEngine(
+    structuredClone(industrialPolicyInitial),
+  );
+  const industrialPolicySuppressEngine = createSimulationEngine(
+    structuredClone(industrialPolicyInitial),
+  );
+  industrialPolicySupportEngine.dispatch({
+    type: "SET_INDUSTRIAL_POLICY",
+    industryId: "electronics_communications",
+    stance: "support",
+  });
+  industrialPolicySuppressEngine.dispatch({
+    type: "SET_INDUSTRIAL_POLICY",
+    industryId: "basic_materials",
+    stance: "suppress",
+  });
+  for (const engine of [
+    industrialPolicyBaselineEngine,
+    industrialPolicySupportEngine,
+    industrialPolicySuppressEngine,
+  ]) {
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 36 });
+  }
+  const industrialPolicyBaseline = industrialPolicyBaselineEngine.getState().nation;
+  const industrialPolicySupport = industrialPolicySupportEngine.getState().nation;
+  const industrialPolicySuppress = industrialPolicySuppressEngine.getState().nation;
+
   const neutralTrade = createInitialGameState(seed);
   const agreementTrade = structuredClone(neutralTrade);
   const sanctionedTrade = structuredClone(neutralTrade);
@@ -1312,6 +1349,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           constrainedIndustrialStructure.exportCapability,
       industrialCategoryValidationError ??
         `史实路线工业复杂度 ${historicalIndustrialStructure.complexityIndex.toFixed(1)}、高技术工业占比 ${(historicalIndustrialStructure.highTechnologyShare * 100).toFixed(1)}%、工业品出口 ${(industrialExportTotal / 100_000_000).toFixed(1)} 亿美元；能力完备/受限出口能力 ${capableIndustrialStructure.exportCapability.toFixed(3)}/${constrainedIndustrialStructure.exportCapability.toFixed(3)}`,
+    ),
+    makeCheck(
+      "targeted-industrial-policy",
+      "产业政策可定向扶持或限制十一类工业，并形成财政、错配、就业与供应链代价",
+      validateIndustrialPolicyConfiguration().length === 0 &&
+        industrialPolicySupport.industries.electronics_communications.outputShare >
+          industrialPolicyBaseline.industries.electronics_communications.outputShare &&
+        industrialPolicySupport.industries.electronics_communications.exportValue >
+          industrialPolicyBaseline.industries.electronics_communications.exportValue &&
+        industrialPolicySupport.industrialPolicy.annualFiscalCost > 0 &&
+        industrialPolicySupport.industrialPolicy.distortionIndex > 0 &&
+        industrialPolicySuppress.industries.basic_materials.outputShare <
+          industrialPolicyBaseline.industries.basic_materials.outputShare &&
+        industrialPolicySuppress.industrialPolicy.supplyChainConstraint < 1 &&
+        industrialPolicySuppress.industrialPolicy.laborDisplacementPressure > 0 &&
+        industrialPolicySuppress.labor.unemploymentRate >
+          industrialPolicyBaseline.labor.unemploymentRate,
+      `36个月后电子通信业基线/扶持份额 ${(industrialPolicyBaseline.industries.electronics_communications.outputShare * 100).toFixed(2)}%/${(industrialPolicySupport.industries.electronics_communications.outputShare * 100).toFixed(2)}%，出口 ${industrialPolicyBaseline.industries.electronics_communications.exportValue.toFixed(0)}/${industrialPolicySupport.industries.electronics_communications.exportValue.toFixed(0)}；基础材料基线/限制份额 ${(industrialPolicyBaseline.industries.basic_materials.outputShare * 100).toFixed(2)}%/${(industrialPolicySuppress.industries.basic_materials.outputShare * 100).toFixed(2)}%，供应链约束 ${(industrialPolicySuppress.industrialPolicy.supplyChainConstraint * 100).toFixed(1)}%，失业率 ${(industrialPolicyBaseline.labor.unemploymentRate * 100).toFixed(2)}%/${(industrialPolicySuppress.labor.unemploymentRate * 100).toFixed(2)}%`,
     ),
     makeCheck(
       "korean-catch-up",

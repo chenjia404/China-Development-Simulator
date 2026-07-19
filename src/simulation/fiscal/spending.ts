@@ -33,6 +33,10 @@ export function calculateFiscalSpending(nation: NationState): void {
     primarySpending,
   );
 
-  fiscal.expenditure = Math.max(0, primarySpending + fiscal.interestExpense);
+  fiscal.expenditure = Math.max(
+    0,
+    primarySpending + fiscal.interestExpense +
+      nation.industrialPolicy.annualFiscalCost,
+  );
   fiscal.balance = fiscal.revenue - fiscal.expenditure;
 }

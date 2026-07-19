@@ -250,7 +250,8 @@ export function updateFinancialSystem(state: GameState, initialize = false): voi
   banking.enterpriseLoans = banking.totalLoans - banking.householdLoans;
   banking.aggregateFinancingAccess = clamp(
     safeDivide(banking.totalLoans, nation.economy.investment, 0) * 0.12 +
-      nation.economy.institutionalEfficiency * 0.55,
+      nation.economy.institutionalEfficiency * 0.55 +
+      Math.max(0, nation.industrialPolicy.creditAllocationBias) * 0.08,
     0,
     1,
   );
@@ -258,7 +259,8 @@ export function updateFinancialSystem(state: GameState, initialize = false): voi
     config.baseNonPerformingLoanRatio +
       (1 - nation.economy.institutionalEfficiency) * 0.045 +
       Math.max(0, nation.labor.unemploymentRate - 0.04) * 0.25 +
-      Math.max(0, -nation.economy.annualRealGDPGrowth) * 0.35,
+      Math.max(0, -nation.economy.annualRealGDPGrowth) * 0.35 +
+      nation.industrialPolicy.distortionIndex * 0.18,
     0.005,
     0.35,
   );

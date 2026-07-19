@@ -23,7 +23,8 @@ export function updateLaborForce(nation: NationState): void {
     society.urbanizationRate - education.index / 100,
   );
   const targetUnemployment = clamp(
-    populationConfig.baseUnemploymentRate + transitionPressure * 0.08,
+    populationConfig.baseUnemploymentRate + transitionPressure * 0.08 +
+      nation.industrialPolicy.laborDisplacementPressure,
     0,
     populationConfig.maximumUnemploymentRate,
   );

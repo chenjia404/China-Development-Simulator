@@ -10,6 +10,7 @@ import { applyModifiers } from "../events/modifiers";
 import { privateEconomyIndustryMultipliers } from "./private-economy";
 import { technologyIndustryEffect } from "../technology/technology-industry-path";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
+import { industrialPolicyEffect } from "../policies/industrial-policy";
 
 export interface IndustrialCategoryDefinition {
   id: IndustrialCategoryId;
@@ -285,6 +286,7 @@ export function updateIndustrialStructure(nation: NationState): void {
       definition.id,
     );
     const developmentPath = technologyIndustryEffect(nation, definition.id);
+    const industrialPolicy = industrialPolicyEffect(nation, definition.id);
     const skillFactor = clamp(
       1 - definition.skillIntensity * (1 - nation.education.index / 100) * 0.55,
       0.45,
@@ -309,7 +311,8 @@ export function updateIndustrialStructure(nation: NationState): void {
       highTechnologyExpansionFactor *
       demandFactor(nation, definition) *
       privateEconomy.output *
-      developmentPath.outputWeightMultiplier,
+      developmentPath.outputWeightMultiplier *
+      industrialPolicy.outputWeightMultiplier,
     );
     targetWeights.set(definition.id, weight);
     totalWeight += weight;
@@ -324,6 +327,7 @@ export function updateIndustrialStructure(nation: NationState): void {
         technologyEffects.productivityMultiplier *
         privateEconomy.productivity *
         developmentPath.productivityMultiplier *
+        industrialPolicy.productivityMultiplier *
         foreignAidEffects.industrialProductivityMultiplier,
     );
   }
@@ -353,11 +357,13 @@ export function calculateIndustrialStructureMetrics(
       const technologyEffects = completedTechnologyEffects(nation, id);
       const privateEconomy = privateEconomyIndustryMultipliers(nation, id);
       const developmentPath = technologyIndustryEffect(nation, id);
+      const industrialPolicy = industrialPolicyEffect(nation, id);
       return sum + category.outputShare * definition.exportPropensity *
         (0.35 + category.technologyReadiness * 0.65) *
         technologyEffects.exportMultiplier *
         privateEconomy.exports *
-        developmentPath.exportMultiplier;
+        developmentPath.exportMultiplier *
+        industrialPolicy.exportMultiplier;
     }, 0),
     0,
     1,
@@ -431,11 +437,13 @@ export function allocateIndustrialExports(nation: NationState): void {
     const technologyEffects = completedTechnologyEffects(nation, id);
     const privateEconomy = privateEconomyIndustryMultipliers(nation, id);
     const developmentPath = technologyIndustryEffect(nation, id);
+    const industrialPolicy = industrialPolicyEffect(nation, id);
     const weight = category.output * definition.exportPropensity *
       (0.3 + category.technologyReadiness * 0.7) *
       technologyEffects.exportMultiplier *
       privateEconomy.exports *
-      developmentPath.exportMultiplier;
+      developmentPath.exportMultiplier *
+      industrialPolicy.exportMultiplier;
     weights.set(id, weight);
     totalWeight += weight;
   }

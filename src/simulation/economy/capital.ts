@@ -11,12 +11,14 @@ import {
 import { calculatePrivateEconomyMultipliers } from "./private-economy";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 import { capitalMarketInvestmentMultipliers } from "./monetary-financial";
+import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
   const privateEconomyMultiplier = calculatePrivateEconomyMultipliers(nation)
     .investment;
   const capitalMarket = capitalMarketInvestmentMultipliers(nation);
+  const industrialPolicy = calculateIndustrialPolicyAggregateEffects(nation);
   const foreignAidEffects = foreignAidProgramEffects(nation);
   const governmentCapitalSpending = applyModifiers(
     nation,
@@ -50,7 +52,8 @@ export function updateCapitalAndInvestment(nation: NationState): void {
         economy.realGDP * 0.08 +
         remittanceDirectedInvestment(nation) +
         exportSurplusReinvestment) * privateEconomyMultiplier *
-        capitalMarket.privateInvestment,
+        capitalMarket.privateInvestment *
+        industrialPolicy.investmentMultiplier,
     ),
   );
   const annualNominalInvestment =

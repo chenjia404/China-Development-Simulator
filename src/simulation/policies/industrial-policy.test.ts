@@ -2,11 +2,15 @@ import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
 import {
+  calculateIndustrialPolicyAggregateEffects,
+  industrialPolicyEffect,
   industrialPolicyCategoryIds,
   setIndustrialPolicyStance,
+  updateIndustrialPolicy,
   updateIndustrialPolicyTransition,
   validateIndustrialPolicyConfiguration,
 } from "./industrial-policy";
+import { calculateFiscalSpending } from "../fiscal/spending";
 
 describe("产业政策状态与命令", () => {
   it("配置完整覆盖十一类工业且初始状态全部中性", () => {
@@ -50,6 +54,9 @@ describe("产业政策状态与命令", () => {
     });
     expect(engine.getState().nation.industrialPolicy.categories.consumer_goods.stance)
       .toBe("support");
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.industrialPolicy.categories.consumer_goods.effectiveIntensity)
+      .toBeCloseTo(1 / 24, 8);
     expect(() => engine.dispatch({
       type: "SET_INDUSTRIAL_POLICY",
       industryId: "consumer_goods",
@@ -73,5 +80,84 @@ describe("产业政策状态与命令", () => {
       "consumer_goods",
       "unknown" as never,
     )).toThrow("未知产业政策方向");
+  });
+
+  it("扶持特定行业会增加定向投资、研发和出口能力并产生财政成本", () => {
+    const baseline = createInitialGameState(1954).nation;
+    const supported = structuredClone(baseline);
+    supported.economy.institutionalEfficiency = 0.8;
+    supported.institutions.stateCapacity = 0.8;
+    supported.institutions.localImplementationCapacity = 0.8;
+    supported.industries.electronics_communications.technologyReadiness = 0.8;
+    setIndustrialPolicyStance(
+      supported,
+      "electronics_communications",
+      "support",
+    );
+    for (let month = 0; month < 24; month += 1) updateIndustrialPolicy(supported);
+
+    const effect = industrialPolicyEffect(supported, "electronics_communications");
+    const aggregate = calculateIndustrialPolicyAggregateEffects(supported);
+    calculateFiscalSpending(baseline);
+    calculateFiscalSpending(supported);
+    expect(effect.outputWeightMultiplier).toBeGreaterThan(1);
+    expect(effect.productivityMultiplier).toBeGreaterThan(1);
+    expect(effect.exportMultiplier).toBeGreaterThan(1);
+    expect(aggregate.investmentMultiplier).toBeGreaterThan(1);
+    expect(aggregate.researchMultiplier).toBeGreaterThan(1);
+    expect(supported.industrialPolicy.annualFiscalCost).toBeGreaterThan(0);
+    expect(supported.fiscal.expenditure).toBeGreaterThan(baseline.fiscal.expenditure);
+    expect(supported.industrialPolicy.distortionIndex).toBeGreaterThan(0);
+  });
+
+  it("限制关键行业会压低投资、出口与供应链并形成就业冲击", () => {
+    const nation = createInitialGameState(1955).nation;
+    nation.economy.institutionalEfficiency = 0.8;
+    nation.institutions.stateCapacity = 0.8;
+    nation.institutions.localImplementationCapacity = 0.8;
+    setIndustrialPolicyStance(nation, "basic_materials", "suppress");
+    for (let month = 0; month < 12; month += 1) updateIndustrialPolicy(nation);
+
+    const effect = industrialPolicyEffect(nation, "basic_materials");
+    const aggregate = calculateIndustrialPolicyAggregateEffects(nation);
+    expect(effect.outputWeightMultiplier).toBeLessThan(1);
+    expect(effect.investmentMultiplier).toBeLessThan(1);
+    expect(effect.exportMultiplier).toBeLessThan(1);
+    expect(aggregate.investmentMultiplier).toBeLessThan(1);
+    expect(aggregate.supplyChainConstraint).toBeLessThan(1);
+    expect(nation.industrialPolicy.laborDisplacementPressure).toBeGreaterThan(0);
+    expect(nation.industrialPolicy.annualFiscalCost).toBeGreaterThan(0);
+  });
+
+  it("同时扶持过多行业会稀释行政能力并扩大财政和错配代价", () => {
+    const focused = createInitialGameState(1956).nation;
+    const broad = structuredClone(focused);
+    for (const nation of [focused, broad]) {
+      nation.economy.institutionalEfficiency = 0.45;
+      nation.institutions.stateCapacity = 0.45;
+      nation.institutions.localImplementationCapacity = 0.45;
+      for (const industry of Object.values(nation.industries)) {
+        industry.technologyReadiness = 0.65;
+      }
+    }
+    setIndustrialPolicyStance(focused, "electronics_communications", "support");
+    for (const industryId of industrialPolicyCategoryIds) {
+      setIndustrialPolicyStance(broad, industryId, "support");
+    }
+    for (let month = 0; month < 24; month += 1) {
+      updateIndustrialPolicy(focused);
+      updateIndustrialPolicy(broad);
+    }
+
+    expect(broad.industrialPolicy.administrativeEffectiveness)
+      .toBeLessThan(focused.industrialPolicy.administrativeEffectiveness);
+    expect(industrialPolicyEffect(broad, "electronics_communications").effectiveness)
+      .toBeLessThan(
+        industrialPolicyEffect(focused, "electronics_communications").effectiveness,
+      );
+    expect(broad.industrialPolicy.annualFiscalCost)
+      .toBeGreaterThan(focused.industrialPolicy.annualFiscalCost);
+    expect(broad.industrialPolicy.distortionIndex)
+      .toBeGreaterThan(focused.industrialPolicy.distortionIndex);
   });
 });

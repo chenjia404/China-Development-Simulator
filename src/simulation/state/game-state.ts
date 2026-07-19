@@ -166,6 +166,7 @@ export interface IndustrialPolicyState {
   distortionIndex: number;
   laborDisplacementPressure: number;
   administrativeEffectiveness: number;
+  supplyChainConstraint: number;
 }
 
 export interface FiscalBudget {
