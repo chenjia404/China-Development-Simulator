@@ -134,6 +134,9 @@ test("客户端展示可提前发动的治理、工业化与改革国策", async
   assert.match(source, /minimumEducationBudgetShare:.12/);
   assert.match(source, /受教育群体成年后才会逐步转化为人力资本/);
   assert.match(source, /财政承诺仍保留/);
+  assert.match(source, /设立证券交易所/);
+  assert.match(source, /法律可预期性至少/);
+  assert.match(source, /交易所运行能力/);
 });
 
 test("客户端可选择历史、韩国、日本和台湾进行发展对比", async () => {
@@ -300,6 +303,9 @@ test("客户端展示货币银行、汇率与国际收支账户", async () => {
   assert.match(source, /货币银行与国际收支/);
   assert.match(source, /广义货币 M2/);
   assert.match(source, /银行贷款/);
+  assert.match(source, /社会融资能力/);
+  assert.match(source, /年度股权融资/);
+  assert.match(source, /投资者保护/);
   assert.match(source, /不良贷款/);
   assert.match(source, /经常账户/);
   assert.match(source, /官方汇率/);

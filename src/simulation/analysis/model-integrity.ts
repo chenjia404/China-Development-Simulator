@@ -82,9 +82,17 @@ export function evaluateModelIntegrity(game: GameState): ModelIntegrityReport {
     ),
     indicator(
       "financial",
-      "银行与国际收支账户",
+      "银行、资本市场与国际收支账户",
       Math.max(
         relative(financial.banking.balanceSheetError, financial.banking.totalAssets),
+        relative(
+          Math.max(
+            0,
+            financial.capitalMarket.annualEquityFinancing -
+              nation.economy.investment,
+          ),
+          nation.economy.investment,
+        ),
         relative(
           financial.balanceOfPayments.identityError,
           Math.abs(financial.balanceOfPayments.goodsExports) +

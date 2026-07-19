@@ -16,6 +16,7 @@ interface OwnershipDefinition {
   export: number;
   profitability: number;
   financing: number;
+  equityFinancingSensitivity: number;
 }
 
 interface EnterpriseConfig {
@@ -99,7 +100,10 @@ export function validateEnterpriseSectorDefinitions(): string[] {
     errors.push("企业所有制 ID 缺失或重复");
   }
   for (const item of config.ownership) {
-    if (item.baseScore <= 0 || item.productivity <= 0 || item.financing <= 0) {
+    if (
+      item.baseScore <= 0 || item.productivity <= 0 || item.financing <= 0 ||
+      item.equityFinancingSensitivity < 0
+    ) {
       errors.push(`${item.id} 的结构参数必须大于零`);
     }
   }
@@ -217,6 +221,13 @@ export function updateEnterpriseSectors(nation: NationState): void {
   state.monthlyExitRate = clamp(Math.max(0, -countGrowth) + (1 - nation.society.stabilityIndex / 100) * 0.0015, 0, 0.2);
 
   const enterpriseValueAdded = nation.nationalAccounts.productionGDP * 0.88;
+  const capitalMarketSupport = clamp(
+    nation.financialSystem.capitalMarket.equityMarketDepth *
+      nation.financialSystem.capitalMarket.marketLiquidity *
+      (0.4 + nation.financialSystem.capitalMarket.investorProtectionIndex * 0.6),
+    0,
+    1,
+  );
   for (const id of ENTERPRISE_OWNERSHIP_IDS) {
     const account = state.ownership[id];
     account.enterpriseCount = state.totalEnterpriseCount * account.valueAddedShare;
@@ -229,7 +240,9 @@ export function updateEnterpriseSectors(nation: NationState): void {
     account.productivityIndex = definition(id).productivity *
       (0.75 + nation.economy.totalFactorProductivity * 0.25);
     account.financingAccess = clamp(
-      definition(id).financing * (0.75 + nation.economy.institutionalEfficiency * 0.35),
+      definition(id).financing *
+        (0.75 + nation.economy.institutionalEfficiency * 0.35) *
+        (1 + capitalMarketSupport * definition(id).equityFinancingSensitivity * 0.28),
       0.1,
       1.2,
     );

@@ -1,5 +1,6 @@
 import financialData from "../../data/config/monetary-financial.json";
 import { approach, clamp, safeDivide } from "../core/math";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 import type {
   FinancialSystemState,
   GameState,
@@ -19,6 +20,20 @@ interface FinancialConfig {
   governmentClaimShareMinimum: number;
   serviceExportShareOfGoods: number;
   serviceImportShareOfGoods: number;
+  capitalMarket: {
+    monthlyCapacityAdjustmentSpeed: number;
+    monthlyDepthAdjustmentSpeed: number;
+    monthlyLiquidityAdjustmentSpeed: number;
+    maximumEquityMarketDepth: number;
+    maximumEquityFinancingShareOfInvestment: number;
+    maximumListedCompanyShare: number;
+    maximumInnovationFinancingShare: number;
+    privateInvestmentResponse: number;
+    investmentEfficiencyBenefit: number;
+    volatilityEfficiencyPenalty: number;
+    commercializationMonthlyGain: number;
+    entrepreneurialCapacityMonthlyGain: number;
+  };
   m2ToGDPAnchors: RatioAnchor[];
   baseMoneyToGDPAnchors: RatioAnchor[];
 }
@@ -67,6 +82,7 @@ export function createEmptyFinancialSystemState(): FinancialSystemState {
       aggregateFinancingAccess: 0.2,
       balanceSheetError: 0,
     },
+    capitalMarket: createEmptyCapitalMarketState(),
     balanceOfPayments: {
       goodsExports: 0,
       goodsImports: 0,
@@ -87,16 +103,56 @@ export function createEmptyFinancialSystemState(): FinancialSystemState {
   };
 }
 
+function createEmptyCapitalMarketState(): FinancialSystemState["capitalMarket"] {
+  return {
+    exchangeOperationalCapacity: 0,
+    investorProtectionIndex: 0,
+    equityMarketDepth: 0,
+    marketLiquidity: 0,
+    socialFinancingCapacity: 0.13,
+    annualEquityFinancing: 0,
+    innovationFinancingShare: 0,
+    listedCompanyCount: 0,
+    marketVolatilityIndex: 0,
+  };
+}
+
 function complete(value: FinancialSystemState | undefined): boolean {
-  return Boolean(value?.monetary && value.banking && value.balanceOfPayments &&
+  return Boolean(value?.monetary && value.banking && value.capitalMarket &&
+    value.balanceOfPayments &&
     Number.isFinite(value.monetary.broadMoney) &&
     Number.isFinite(value.banking.totalAssets) &&
+    Number.isFinite(value.capitalMarket.equityMarketDepth) &&
     Number.isFinite(value.balanceOfPayments.identityError));
 }
 
 /** 旧存档缺失金融账户时从当前宏观存量确定性重建。 */
 export function ensureFinancialSystemState(state: GameState): void {
   if (complete(state.nation.financialSystem)) return;
+  const existing = state.nation.financialSystem as
+    | (Partial<FinancialSystemState> & {
+      capitalMarket?: Partial<FinancialSystemState["capitalMarket"]>;
+    })
+    | undefined;
+  if (existing?.monetary && existing.banking && existing.balanceOfPayments) {
+    state.nation.financialSystem = {
+      ...existing,
+      monetary: existing.monetary,
+      banking: existing.banking,
+      balanceOfPayments: existing.balanceOfPayments,
+      officialExchangeRate: existing.officialExchangeRate ?? 2.46,
+      realEffectiveExchangeRateIndex:
+        existing.realEffectiveExchangeRateIndex ?? 100,
+      foreignCurrencyLiquidityMonths:
+        existing.foreignCurrencyLiquidityMonths ?? 0,
+      capitalMarket: {
+        ...createEmptyCapitalMarketState(),
+        ...existing.capitalMarket,
+      },
+    };
+    updateFinancialSystem(state);
+    return;
+  }
   state.nation.financialSystem = createEmptyFinancialSystemState();
   updateFinancialSystem(state, true);
 }
@@ -217,6 +273,8 @@ export function updateFinancialSystem(state: GameState, initialize = false): voi
       (monetary.bankReserves + banking.totalLoans + banking.governmentClaims),
   );
 
+  updateCapitalMarket(nation, initialize);
+
   const conversion = comparableConversion(nation);
   const bop = system.balanceOfPayments;
   bop.goodsExports = Math.max(0, nation.trade.exports * conversion);
@@ -260,6 +318,181 @@ export function updateFinancialSystem(state: GameState, initialize = false): voi
   system.foreignCurrencyLiquidityMonths = nation.trade.importCoverageMonths;
 }
 
+function updateCapitalMarket(nation: NationState, initialize: boolean): void {
+  const market = nation.financialSystem.capitalMarket;
+  const policyInfrastructureTarget = clamp(
+    applyPolicyModifiers(nation, "finance.exchangeInfrastructureTarget", 0),
+    0,
+    1,
+  );
+  const institutionalFoundation = clamp(
+    nation.economy.institutionalEfficiency * 0.3 +
+      nation.institutions.legalPredictability * 0.3 +
+      nation.institutions.stateCapacity * 0.2 +
+      nation.privateEconomy.operatingSpace * 0.2,
+    0,
+    1,
+  );
+  const capacityTarget = policyInfrastructureTarget *
+    (0.35 + institutionalFoundation * 0.65);
+  market.exchangeOperationalCapacity = initialize
+    ? capacityTarget
+    : approach(
+      market.exchangeOperationalCapacity,
+      capacityTarget,
+      config.capitalMarket.monthlyCapacityAdjustmentSpeed,
+    );
+
+  const investorProtectionTarget = market.exchangeOperationalCapacity * clamp(
+    0.08 + nation.institutions.legalPredictability * 0.46 +
+      nation.institutions.stateCapacity * 0.18 +
+      nation.economy.institutionalEfficiency * 0.2 +
+      applyPolicyModifiers(nation, "finance.investorProtection", 0),
+    0,
+    1,
+  );
+  market.investorProtectionIndex = initialize
+    ? investorProtectionTarget
+    : approach(
+      market.investorProtectionIndex,
+      investorProtectionTarget,
+      config.capitalMarket.monthlyCapacityAdjustmentSpeed,
+    );
+
+  const savingsRate = clamp(
+    safeDivide(nation.economy.nationalSavings, nation.economy.nominalGDP),
+    0,
+    0.65,
+  );
+  const depthTarget = clamp(
+    market.exchangeOperationalCapacity * (
+      0.12 + nation.privateEconomy.operatingSpace * 0.38 +
+      nation.privateEconomy.technologyCommercialization * 0.24 +
+      savingsRate * 0.5
+    ),
+    0,
+    config.capitalMarket.maximumEquityMarketDepth,
+  );
+  market.equityMarketDepth = initialize
+    ? depthTarget
+    : approach(
+      market.equityMarketDepth,
+      depthTarget,
+      config.capitalMarket.monthlyDepthAdjustmentSpeed,
+    );
+
+  const liquidityTarget = clamp(
+    market.exchangeOperationalCapacity * (
+      0.16 + market.investorProtectionIndex * 0.3 +
+      nation.society.urbanizationRate * 0.18 +
+      nation.economy.institutionalEfficiency * 0.22 +
+      nation.financialSystem.banking.aggregateFinancingAccess * 0.14
+    ),
+    0,
+    1,
+  );
+  market.marketLiquidity = initialize
+    ? liquidityTarget
+    : approach(
+      market.marketLiquidity,
+      liquidityTarget,
+      config.capitalMarket.monthlyLiquidityAdjustmentSpeed,
+    );
+
+  market.marketVolatilityIndex = market.exchangeOperationalCapacity <= 0.001
+    ? 0
+    : clamp(
+      0.14 + (1 - market.investorProtectionIndex) * 0.28 +
+        Math.max(0, nation.economy.inflationRate - 0.04) * 0.9 +
+        Math.max(0, -nation.economy.annualRealGDPGrowth) * 0.5 -
+        market.marketLiquidity * 0.08,
+      0.08,
+      0.75,
+    );
+  const equityFinancingShare = clamp(
+    market.equityMarketDepth * market.marketLiquidity *
+      (0.45 + market.investorProtectionIndex * 0.55),
+    0,
+    config.capitalMarket.maximumEquityFinancingShareOfInvestment,
+  );
+  market.annualEquityFinancing = Math.max(
+    0,
+    nation.economy.investment * equityFinancingShare,
+  );
+  market.innovationFinancingShare = clamp(
+    market.exchangeOperationalCapacity * (
+      market.investorProtectionIndex * 0.16 +
+      nation.privateEconomy.technologyCommercialization * 0.18 +
+      nation.technology.index / 100 * 0.14
+    ),
+    0,
+    config.capitalMarket.maximumInnovationFinancingShare,
+  );
+  market.listedCompanyCount = Math.max(
+    0,
+    Math.round(
+      nation.enterprises.totalEnterpriseCount *
+      config.capitalMarket.maximumListedCompanyShare *
+      market.exchangeOperationalCapacity * market.marketLiquidity,
+    ),
+  );
+  market.socialFinancingCapacity = clamp(
+    nation.financialSystem.banking.aggregateFinancingAccess * 0.7 +
+      market.exchangeOperationalCapacity * 0.1 +
+      market.equityMarketDepth * 0.12 +
+      market.marketLiquidity * 0.08,
+    0,
+    1,
+  );
+}
+
+/** 资本形成模块读取上一结算月的融资条件，避免金融账户重复创造投资。 */
+export function capitalMarketInvestmentMultipliers(nation: NationState): {
+  privateInvestment: number;
+  investmentEfficiency: number;
+} {
+  const market = nation.financialSystem.capitalMarket;
+  const productiveDepth = market.equityMarketDepth * market.marketLiquidity *
+    (0.4 + market.investorProtectionIndex * 0.6);
+  return {
+    privateInvestment: 1 + productiveDepth *
+      config.capitalMarket.privateInvestmentResponse,
+    investmentEfficiency: clamp(
+      1 + productiveDepth * config.capitalMarket.investmentEfficiencyBenefit -
+        market.equityMarketDepth * market.marketVolatilityIndex *
+          config.capitalMarket.volatilityEfficiencyPenalty,
+      0.96,
+      1.06,
+    ),
+  };
+}
+
+/** 证券市场为创新企业提供无需抵押的风险资本，但收益受保护制度约束。 */
+export function capitalMarketInnovationMultiplier(nation: NationState): number {
+  const market = nation.financialSystem.capitalMarket;
+  return clamp(
+    1 + market.equityMarketDepth * market.innovationFinancingShare *
+      market.investorProtectionIndex * 0.45,
+    1,
+    1.08,
+  );
+}
+
+export function capitalMarketCapabilityGains(nation: NationState): {
+  commercialization: number;
+  entrepreneurship: number;
+} {
+  const market = nation.financialSystem.capitalMarket;
+  const effectiveMarket = market.equityMarketDepth * market.marketLiquidity *
+    market.investorProtectionIndex;
+  return {
+    commercialization: effectiveMarket *
+      config.capitalMarket.commercializationMonthlyGain,
+    entrepreneurship: effectiveMarket *
+      config.capitalMarket.entrepreneurialCapacityMonthlyGain,
+  };
+}
+
 export function validateFinancialConfiguration(): string[] {
   const errors: string[] = [];
   for (const [name, anchors] of Object.entries({
@@ -271,6 +504,14 @@ export function validateFinancialConfiguration(): string[] {
       (index > 0 && item.year <= (anchors[index - 1]?.year ?? 0)))) {
       errors.push(`${name}锚点必须按年份递增且数值为正`);
     }
+  }
+  if (
+    config.capitalMarket.maximumEquityMarketDepth <= 0 ||
+    config.capitalMarket.maximumEquityFinancingShareOfInvestment <= 0 ||
+    config.capitalMarket.maximumEquityFinancingShareOfInvestment > 1 ||
+    config.capitalMarket.maximumListedCompanyShare <= 0
+  ) {
+    errors.push("资本市场深度、股权融资和上市公司参数必须处于有效范围");
   }
   return errors;
 }

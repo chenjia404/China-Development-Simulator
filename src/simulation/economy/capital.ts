@@ -10,11 +10,13 @@ import {
 } from "./foreign-exchange";
 import { calculatePrivateEconomyMultipliers } from "./private-economy";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
+import { capitalMarketInvestmentMultipliers } from "./monetary-financial";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
   const privateEconomyMultiplier = calculatePrivateEconomyMultipliers(nation)
     .investment;
+  const capitalMarket = capitalMarketInvestmentMultipliers(nation);
   const foreignAidEffects = foreignAidProgramEffects(nation);
   const governmentCapitalSpending = applyModifiers(
     nation,
@@ -47,7 +49,8 @@ export function updateCapitalAndInvestment(nation: NationState): void {
       (economy.nationalSavings * economyConfig.savingsToInvestmentEfficiency +
         economy.realGDP * 0.08 +
         remittanceDirectedInvestment(nation) +
-        exportSurplusReinvestment) * privateEconomyMultiplier,
+        exportSurplusReinvestment) * privateEconomyMultiplier *
+        capitalMarket.privateInvestment,
     ),
   );
   const annualNominalInvestment =
@@ -63,6 +66,7 @@ export function updateCapitalAndInvestment(nation: NationState): void {
         "capital.investmentEfficiency",
         economyConfig.baseInvestmentEfficiency *
           (0.7 + economy.institutionalEfficiency * 0.3) *
+          capitalMarket.investmentEfficiency *
           foreignExchangeInvestmentMultiplier(nation) *
           Math.min(
             nation.resources.energySupplyRatio,

@@ -46,6 +46,57 @@ describe("货币银行与国际收支", () => {
     expect(bop.identityError).toBeLessThan(0.001);
   });
 
+  it("证券交易所通过直接融资提高社会融资和创新能力但不重复创造GDP", () => {
+    const baseline = createInitialGameState(8505);
+    const exchange = structuredClone(baseline);
+    exchange.nation.policyProgress.securities_exchange = 1;
+    exchange.nation.economy.institutionalEfficiency = 0.72;
+    exchange.nation.institutions.legalPredictability = 0.7;
+    exchange.nation.institutions.stateCapacity = 0.68;
+    const gdpBefore = exchange.nation.economy.realGDP;
+    for (let month = 0; month < 120; month += 1) {
+      updateFinancialSystem(baseline);
+      updateFinancialSystem(exchange);
+    }
+    const baselineMarket = baseline.nation.financialSystem.capitalMarket;
+    const exchangeMarket = exchange.nation.financialSystem.capitalMarket;
+    expect(baselineMarket.equityMarketDepth).toBe(0);
+    expect(exchangeMarket.exchangeOperationalCapacity).toBeGreaterThan(0.5);
+    expect(exchangeMarket.equityMarketDepth).toBeGreaterThan(0.2);
+    expect(exchangeMarket.annualEquityFinancing).toBeGreaterThan(0);
+    expect(exchangeMarket.socialFinancingCapacity)
+      .toBeGreaterThan(baselineMarket.socialFinancingCapacity);
+    expect(exchangeMarket.innovationFinancingShare).toBeGreaterThan(0);
+    expect(exchange.nation.economy.realGDP).toBe(gdpBefore);
+  });
+
+  it("投资者保护不足会降低股权融资并提高市场波动", () => {
+    const protectedMarket = createInitialGameState(8506);
+    const weakProtection = structuredClone(protectedMarket);
+    for (const state of [protectedMarket, weakProtection]) {
+      state.nation.policyProgress.securities_exchange = 1;
+    }
+    protectedMarket.nation.economy.institutionalEfficiency = 0.8;
+    protectedMarket.nation.institutions.legalPredictability = 0.85;
+    protectedMarket.nation.institutions.stateCapacity = 0.8;
+    weakProtection.nation.economy.institutionalEfficiency = 0.28;
+    weakProtection.nation.institutions.legalPredictability = 0.15;
+    weakProtection.nation.institutions.stateCapacity = 0.3;
+    for (let month = 0; month < 120; month += 1) {
+      updateFinancialSystem(protectedMarket);
+      updateFinancialSystem(weakProtection);
+    }
+    const strong = protectedMarket.nation.financialSystem.capitalMarket;
+    const weak = weakProtection.nation.financialSystem.capitalMarket;
+    expect(strong.investorProtectionIndex).toBeGreaterThan(
+      weak.investorProtectionIndex,
+    );
+    expect(strong.marketVolatilityIndex).toBeLessThan(weak.marketVolatilityIndex);
+    expect(strong.annualEquityFinancing).toBeGreaterThan(
+      weak.annualEquityFinancing,
+    );
+  });
+
   it("旧存档缺失金融账户时可确定性重建", () => {
     const legacy = createInitialGameState(8504);
     delete (legacy.nation as Partial<NationState>).financialSystem;
@@ -54,5 +105,17 @@ describe("货币银行与国际收支", () => {
     ensureFinancialSystemState(first);
     ensureFinancialSystemState(second);
     expect(first.nation.financialSystem).toEqual(second.nation.financialSystem);
+  });
+
+  it("旧存档仅缺失资本市场子账户时保留已有货币银行数据", () => {
+    const legacy = createInitialGameState(8507);
+    legacy.nation.financialSystem.monetary.broadMoney = 123_456_789;
+    delete (legacy.nation.financialSystem as Partial<
+      NationState["financialSystem"]
+    >).capitalMarket;
+    ensureFinancialSystemState(legacy);
+    expect(legacy.nation.financialSystem.capitalMarket).toBeDefined();
+    expect(legacy.nation.financialSystem.monetary.broadMoney)
+      .not.toBe(0);
   });
 });

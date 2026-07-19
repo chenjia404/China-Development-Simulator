@@ -9,6 +9,7 @@ import {
   applyPolicyModifiers,
   getNationalPolicy,
   maximumActivePolicies,
+  nationalPolicyRequirementBlockers,
   nationalPolicyImplementationRate,
   updatePolicyEnvironment,
   validatePolicySelection,
@@ -158,6 +159,45 @@ describe("国策系统", () => {
       baseline.economy.humanCapitalIndex,
     );
     expect(compulsory.technology.index).toBeGreaterThan(baseline.technology.index);
+  });
+
+  it("证券交易所可提前建立，但必须具备制度、法治和市场基础", () => {
+    const definition = getNationalPolicy("securities_exchange");
+    expect(definition).toMatchObject({
+      name: "设立证券交易所",
+      transitionMonths: 60,
+      requirements: {
+        availableFromYear: 1949,
+        minimumStateCapacity: 0.35,
+        minimumInstitutionalEfficiency: 0.4,
+        minimumLegalPredictability: 0.35,
+        minimumPrivateOperatingSpace: 0.45,
+      },
+    });
+    expect(definition?.modifiers).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        target: "finance.exchangeInfrastructureTarget",
+        operation: "add",
+        value: 1,
+      }),
+      expect.objectContaining({ target: "fiscal.spending", value: 1.01 }),
+      expect.objectContaining({ target: "wellbeing.welfare", value: 0.98 }),
+    ]));
+
+    const nation = createInitialGameState(1949).nation;
+    nation.institutions.legalPredictability = 0.2;
+    expect(nationalPolicyRequirementBlockers(nation, "securities_exchange"))
+      .toEqual(expect.arrayContaining([
+        expect.stringContaining("制度效率"),
+        expect.stringContaining("法律可预期性"),
+      ]));
+    nation.economy.institutionalEfficiency = 0.4;
+    nation.institutions.legalPredictability = 0.35;
+    nation.institutions.stateCapacity = 0.35;
+    expect(() => validatePolicySelection(
+      ["securities_exchange"],
+      nation,
+    )).not.toThrow();
   });
 
   it("韩国式追赶国策同时包含资本、技能、出口学习和现实代价", () => {

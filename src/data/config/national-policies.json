@@ -280,6 +280,28 @@
       ]
     },
     {
+      "id": "securities_exchange",
+      "name": "设立证券交易所",
+      "category": "发展",
+      "description": "建立证券集中交易、登记清算、信息披露和一线监管体系，把部分储蓄转化为企业股权融资，提高民营与混合所有制企业融资可得性、创新商业化和金融资源配置能力。收益取决于法治、制度和市场流动性；监管支出、资产波动与分配压力会形成代价。",
+      "transitionMonths": 60,
+      "conflictsWith": [],
+      "requirements": {
+        "availableFromYear": 1949,
+        "minimumStateCapacity": 0.35,
+        "minimumStabilityIndex": 45,
+        "minimumInstitutionalEfficiency": 0.4,
+        "minimumLegalPredictability": 0.35,
+        "minimumPrivateOperatingSpace": 0.45
+      },
+      "modifiers": [
+        { "target": "finance.exchangeInfrastructureTarget", "operation": "add", "value": 1 },
+        { "target": "finance.investorProtection", "operation": "add", "value": 0.1 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 },
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.98 }
+      ]
+    },
+    {
       "id": "main_bank_industrial_coordination",
       "name": "主银行与产业协调",
       "category": "财政",

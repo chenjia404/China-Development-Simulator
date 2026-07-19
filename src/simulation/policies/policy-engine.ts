@@ -14,6 +14,9 @@ export interface NationalPolicyRequirements {
   minimumStateCapacity?: number;
   minimumLocalImplementationCapacity?: number;
   minimumStabilityIndex?: number;
+  minimumInstitutionalEfficiency?: number;
+  minimumLegalPredictability?: number;
+  minimumPrivateOperatingSpace?: number;
 }
 
 export interface NationalPolicyDefinition {
@@ -64,6 +67,21 @@ export function nationalPolicyRequirementDescriptions(
   if (requirements.minimumStabilityIndex !== undefined) {
     descriptions.push(`社会稳定度至少 ${requirements.minimumStabilityIndex.toFixed(0)}`);
   }
+  if (requirements.minimumInstitutionalEfficiency !== undefined) {
+    descriptions.push(
+      `制度效率至少 ${(requirements.minimumInstitutionalEfficiency * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumLegalPredictability !== undefined) {
+    descriptions.push(
+      `法律可预期性至少 ${(requirements.minimumLegalPredictability * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumPrivateOperatingSpace !== undefined) {
+    descriptions.push(
+      `民营经营空间至少 ${(requirements.minimumPrivateOperatingSpace * 100).toFixed(0)}%`,
+    );
+  }
   return descriptions;
 }
 
@@ -111,6 +129,33 @@ export function nationalPolicyRequirementBlockers(
     nation.society.stabilityIndex < requirements.minimumStabilityIndex
   ) {
     blockers.push(`社会稳定度需达到 ${requirements.minimumStabilityIndex.toFixed(0)}`);
+  }
+  if (
+    requirements.minimumInstitutionalEfficiency !== undefined &&
+    nation.economy.institutionalEfficiency <
+      requirements.minimumInstitutionalEfficiency
+  ) {
+    blockers.push(
+      `制度效率需达到 ${(requirements.minimumInstitutionalEfficiency * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumLegalPredictability !== undefined &&
+    nation.institutions.legalPredictability <
+      requirements.minimumLegalPredictability
+  ) {
+    blockers.push(
+      `法律可预期性需达到 ${(requirements.minimumLegalPredictability * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumPrivateOperatingSpace !== undefined &&
+    nation.privateEconomy.operatingSpace <
+      requirements.minimumPrivateOperatingSpace
+  ) {
+    blockers.push(
+      `民营经营空间需达到 ${(requirements.minimumPrivateOperatingSpace * 100).toFixed(0)}%`,
+    );
   }
   return blockers;
 }

@@ -460,6 +460,29 @@ export interface FinancialSystemState {
     aggregateFinancingAccess: number;
     balanceSheetError: number;
   };
+  /**
+   * 证券交易所与直接融资账户。股权融资只是既有投资的融资来源，
+   * 不会在国民账户中重复计为新增投资或 GDP。
+   */
+  capitalMarket: {
+    /** 交易、登记、清算、信息披露与一线监管的综合运行能力，0—1。 */
+    exchangeOperationalCapacity: number;
+    /** 股东权利、信息披露与违法处置形成的投资者保护水平，0—1。 */
+    investorProtectionIndex: number;
+    /** 股票总市值相对名义 GDP 的比例。 */
+    equityMarketDepth: number;
+    /** 市场承接发行与交易的流动性，0—1。 */
+    marketLiquidity: number;
+    /** 由银行可得性和直接融资共同形成的社会融资能力，0—1。 */
+    socialFinancingCapacity: number;
+    /** 从当年既有投资中识别出的年度化股权融资流量。 */
+    annualEquityFinancing: number;
+    /** 股权融资中面向研发、成长企业和技术商业化的份额。 */
+    innovationFinancingShare: number;
+    listedCompanyCount: number;
+    /** 资产价格波动和制度缺口形成的市场风险，0—1。 */
+    marketVolatilityIndex: number;
+  };
   balanceOfPayments: {
     goodsExports: number;
     goodsImports: number;

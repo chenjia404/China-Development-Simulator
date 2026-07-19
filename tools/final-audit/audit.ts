@@ -813,6 +813,24 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     .getState().nation;
   const compulsoryEducation = compulsoryEducationEngine.getState().nation;
 
+  const capitalMarketInitial = createInitialGameState(seed, 2000);
+  capitalMarketInitial.nation.economy.institutionalEfficiency = 0.72;
+  capitalMarketInitial.nation.institutions.legalPredictability = 0.7;
+  capitalMarketInitial.nation.institutions.stateCapacity = 0.68;
+  capitalMarketInitial.nation.society.stabilityIndex = 70;
+  const capitalMarketBaselineEngine = createSimulationEngine(capitalMarketInitial);
+  const capitalMarketPolicyEngine = createSimulationEngine(
+    structuredClone(capitalMarketInitial),
+  );
+  capitalMarketPolicyEngine.dispatch({
+    type: "SET_POLICIES",
+    policyIds: ["securities_exchange"],
+  });
+  capitalMarketBaselineEngine.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
+  capitalMarketPolicyEngine.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
+  const capitalMarketBaseline = capitalMarketBaselineEngine.getState().nation;
+  const capitalMarketPolicy = capitalMarketPolicyEngine.getState().nation;
+
   const neutralTrade = createInitialGameState(seed);
   const agreementTrade = structuredClone(neutralTrade);
   const sanctionedTrade = structuredClone(neutralTrade);
@@ -1204,6 +1222,22 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         compulsoryEducation.technology.index >
           compulsoryEducationBaseline.technology.index,
       `实施 15 年后基线/义务教育路线：财政支出 ${compulsoryEducationBaseline.fiscal.expenditure.toFixed(0)}/${compulsoryEducation.fiscal.expenditure.toFixed(0)}，小学覆盖率 ${(compulsoryEducationBaseline.education.primaryCoverage * 100).toFixed(1)}%/${(compulsoryEducation.education.primaryCoverage * 100).toFixed(1)}%，初中覆盖率 ${(compulsoryEducationBaseline.education.secondaryCoverage * 100).toFixed(1)}%/${(compulsoryEducation.education.secondaryCoverage * 100).toFixed(1)}%，人力资本 ${compulsoryEducationBaseline.economy.humanCapitalIndex.toFixed(2)}/${compulsoryEducation.economy.humanCapitalIndex.toFixed(2)}，科技 ${compulsoryEducationBaseline.technology.index.toFixed(2)}/${compulsoryEducation.technology.index.toFixed(2)}`,
+    ),
+    makeCheck(
+      "securities-exchange-policy",
+      "证券交易所通过受监管的直接融资改善社会融资与创新，并保留波动和财政代价",
+      capitalMarketPolicy.policyProgress.securities_exchange === 1 &&
+        capitalMarketPolicy.financialSystem.capitalMarket.equityMarketDepth > 0 &&
+        capitalMarketPolicy.financialSystem.capitalMarket.annualEquityFinancing > 0 &&
+        capitalMarketPolicy.financialSystem.capitalMarket.annualEquityFinancing <=
+          capitalMarketPolicy.economy.investment &&
+        capitalMarketPolicy.financialSystem.capitalMarket.socialFinancingCapacity >
+          capitalMarketBaseline.financialSystem.capitalMarket.socialFinancingCapacity &&
+        capitalMarketPolicy.privateEconomy.technologyCommercialization >
+          capitalMarketBaseline.privateEconomy.technologyCommercialization &&
+        capitalMarketPolicy.financialSystem.capitalMarket.marketVolatilityIndex > 0 &&
+        applyPolicyModifiers(capitalMarketPolicy, "fiscal.spending", 1) >= 1.01,
+      `实施 10 年后基线/交易所路线：社会融资能力 ${(capitalMarketBaseline.financialSystem.capitalMarket.socialFinancingCapacity * 100).toFixed(1)}%/${(capitalMarketPolicy.financialSystem.capitalMarket.socialFinancingCapacity * 100).toFixed(1)}%，股权市场深度 ${(capitalMarketPolicy.financialSystem.capitalMarket.equityMarketDepth * 100).toFixed(1)}%，年度股权融资 ${capitalMarketPolicy.financialSystem.capitalMarket.annualEquityFinancing.toFixed(0)}，技术商业化 ${(capitalMarketBaseline.privateEconomy.technologyCommercialization * 100).toFixed(1)}%/${(capitalMarketPolicy.privateEconomy.technologyCommercialization * 100).toFixed(1)}%，市场风险 ${(capitalMarketPolicy.financialSystem.capitalMarket.marketVolatilityIndex * 100).toFixed(1)}%`,
     ),
     makeCheck(
       "technology-industry-paths",

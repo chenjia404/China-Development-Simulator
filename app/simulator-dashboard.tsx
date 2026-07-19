@@ -978,6 +978,7 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
               <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
               <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
               {policy.id === "compulsory_education" ? <div className="policy-capability">当前落实率 {formatPercent(nationalPolicyImplementationRate(game.nation, policy.id))}；预算或执行能力低于门槛后，教育收益会按比例下降，财政承诺仍保留。</div> : null}
+              {policy.id === "securities_exchange" ? <div className="policy-capability">交易所运行能力 {formatPercent(game.nation.financialSystem.capitalMarket.exchangeOperationalCapacity)} · 股权市场深度 {formatPercent(game.nation.financialSystem.capitalMarket.equityMarketDepth)} · 市场风险 {formatPercent(game.nation.financialSystem.capitalMarket.marketVolatilityIndex)}</div> : null}
               {policy.id === "industrial_upgrading" ? <div className="policy-capability">科技准备度 {formatPercent(technologyMetrics.industrialUpgradeReadiness)} · 产业科技第 {technologyMetrics.industryTier} 层；收益按准备度折算，成本照常发生。</div> : null}
               <button
                 className={selected ? "policy-toggle remove" : "policy-toggle"}
@@ -1742,6 +1743,9 @@ function InternationalSection({ game }: { game: GameState }) {
       <div className="diplomacy-metrics foreign-exchange-metrics">
         <MetricCard label="广义货币 M2" value={formatLarge(financial.monetary.broadMoney)} detail={`基础货币 ${formatLarge(financial.monetary.monetaryBase)} · 增速 ${formatPercent(financial.monetary.annualBroadMoneyGrowth, 1)}`} tone="blue" />
         <MetricCard label="银行贷款" value={formatLarge(financial.banking.totalLoans)} detail={`企业 ${formatLarge(financial.banking.enterpriseLoans)} · 居民 ${formatLarge(financial.banking.householdLoans)}`} tone="gold" />
+        <MetricCard label="社会融资能力" value={formatPercent(financial.capitalMarket.socialFinancingCapacity)} detail={`股权市场深度 ${formatPercent(financial.capitalMarket.equityMarketDepth)} · 上市企业 ${financial.capitalMarket.listedCompanyCount.toLocaleString("zh-CN")} 家`} tone="blue" />
+        <MetricCard label="年度股权融资" value={formatLarge(financial.capitalMarket.annualEquityFinancing)} detail={`创新融资占比 ${formatPercent(financial.capitalMarket.innovationFinancingShare)} · 流动性 ${formatPercent(financial.capitalMarket.marketLiquidity)}`} tone="gold" />
+        <MetricCard label="投资者保护" value={formatPercent(financial.capitalMarket.investorProtectionIndex)} detail={`交易所运行 ${formatPercent(financial.capitalMarket.exchangeOperationalCapacity)} · 市场风险 ${formatPercent(financial.capitalMarket.marketVolatilityIndex)}`} tone={financial.capitalMarket.marketVolatilityIndex <= 0.35 ? "green" : "red"} />
         <MetricCard label="不良贷款" value={formatPercent(financial.banking.nonPerformingLoanRatio, 2)} detail={`拨备 ${formatLarge(financial.banking.loanLossProvisions)} · 资本充足率 ${formatPercent(financial.banking.capitalAdequacyRatio, 1)}`} tone={financial.banking.nonPerformingLoanRatio <= 0.05 ? "green" : "red"} />
         <MetricCard label="经常账户" value={`$${formatLarge(financial.balanceOfPayments.currentAccountBalance)}`} detail={`金融账户 $${formatLarge(financial.balanceOfPayments.financialAccountBalance)} · 储备变动 $${formatLarge(financial.balanceOfPayments.reserveAssetChange)}`} tone={financial.balanceOfPayments.currentAccountBalance >= 0 ? "green" : "red"} />
       </div>

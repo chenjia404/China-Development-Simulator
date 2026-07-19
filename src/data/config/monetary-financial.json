@@ -4,7 +4,11 @@
     "sources": [
       "https://data.stats.gov.cn/easyquery.htm?cn=C01",
       "https://www.pbc.gov.cn/diaochatongjisi/116219/index.html",
-      "https://www.safe.gov.cn/safe/2019/0627/13584.html"
+      "https://www.safe.gov.cn/safe/2019/0627/13584.html",
+      "https://www.sse.com.cn/aboutus/overview/",
+      "https://www.szse.cn/aboutus/sse/events/index.html",
+      "https://documents1.worldbank.org/curated/en/799771635517440050/pdf/How-Financial-Market-Development-Can-Encourage-Innovation-Activity.pdf",
+      "https://doi.org/10.1016/j.jfineco.2020.08.018"
     ]
   },
   "monthlyDepthAdjustmentSpeed": 0.025,
@@ -18,6 +22,20 @@
   "governmentClaimShareMinimum": 0.08,
   "serviceExportShareOfGoods": 0.09,
   "serviceImportShareOfGoods": 0.12,
+  "capitalMarket": {
+    "monthlyCapacityAdjustmentSpeed": 0.03,
+    "monthlyDepthAdjustmentSpeed": 0.018,
+    "monthlyLiquidityAdjustmentSpeed": 0.025,
+    "maximumEquityMarketDepth": 1.6,
+    "maximumEquityFinancingShareOfInvestment": 0.24,
+    "maximumListedCompanyShare": 0.0018,
+    "maximumInnovationFinancingShare": 0.42,
+    "privateInvestmentResponse": 0.18,
+    "investmentEfficiencyBenefit": 0.06,
+    "volatilityEfficiencyPenalty": 0.035,
+    "commercializationMonthlyGain": 0.0012,
+    "entrepreneurialCapacityMonthlyGain": 0.0008
+  },
   "m2ToGDPAnchors": [
     { "year": 1949, "value": 0.2 },
     { "year": 1978, "value": 0.32 },
