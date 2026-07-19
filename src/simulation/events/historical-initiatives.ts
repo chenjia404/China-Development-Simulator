@@ -38,7 +38,7 @@ export interface HistoricalInitiativeDefinition {
   name: string;
   category: string;
   description: string;
-  availableFromYear: number;
+  availableFromYear?: number;
   diplomaticPointCost: number;
   transitionDurationMonths: number;
   requirements: HistoricalInitiativeRequirements;
@@ -102,7 +102,10 @@ export function getHistoricalInitiativeStatus(
   const isBeforeSchedule = nation.date.year < event.year ||
     (nation.date.year === event.year && nation.date.month < event.month);
   if (!isBeforeSchedule) blockers.push(`已到${event.year}年${event.month}月史实触发期`);
-  if (nation.date.year < definition.availableFromYear) {
+  if (
+    definition.availableFromYear !== undefined &&
+    nation.date.year < definition.availableFromYear
+  ) {
     blockers.push(`最早可在 ${definition.availableFromYear} 年发动`);
   }
   if (nation.pendingHistoricalEventId) blockers.push("需先处理当前历史事件决策");

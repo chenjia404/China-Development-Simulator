@@ -412,8 +412,7 @@
     "eventId": "gatt_observer_1982",
     "name": "提前取得关贸总协定观察员地位",
     "category": "多边贸易",
-    "description": "在改革和涉外经济法律框架初步建立后，通过区域贸易合作与多边外交接触，争取提前参与关贸总协定规则讨论。",
-    "availableFromYear": 1979,
+    "description": "不设固定年份门槛；在改革、涉外经济法治和国家谈判能力初步建立后，通过区域贸易合作与多边外交接触争取参与关贸总协定规则讨论。",
     "diplomaticPointCost": 12,
     "transitionDurationMonths": 24,
     "requirements": {
@@ -423,6 +422,8 @@
         "joint_venture_law_1979": 6
       },
       "minimumInstitutionalEfficiency": 0.4,
+      "minimumStateCapacity": 0.4,
+      "minimumLegalPredictability": 0.35,
       "minimumStability": 50,
       "minimumOpenness": 0.12,
       "minimumReputation": 45,

@@ -693,10 +693,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     initiativeId: "early_first_five_year_plan",
   });
   const observerState = industrializationEngine.exportState();
-  observerState.nation.date.year = 1979;
+  observerState.nation.date.year = 1950;
   observerState.nation.date.month = 1;
-  observerState.nation.date.elapsedMonths = (1979 - 1949) * 12;
+  observerState.nation.date.elapsedMonths = (1950 - 1949) * 12;
   observerState.nation.economy.institutionalEfficiency = 0.5;
+  observerState.nation.institutions.stateCapacity = 0.5;
+  observerState.nation.institutions.legalPredictability = 0.5;
   observerState.nation.society.stabilityIndex = 60;
   observerState.nation.trade.openness = 0.22;
   observerState.nation.diplomacy.globalReputation = 60;

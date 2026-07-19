@@ -423,10 +423,12 @@ describe("历史转折国策", () => {
       initiativeId: "early_special_economic_zones",
     });
     const observerState = legalEngine.exportState();
-    observerState.nation.date.year = 1979;
+    observerState.nation.date.year = 1972;
     observerState.nation.date.month = 1;
-    observerState.nation.date.elapsedMonths = (1979 - 1949) * 12;
+    observerState.nation.date.elapsedMonths = (1972 - 1949) * 12;
     observerState.nation.economy.institutionalEfficiency = 0.5;
+    observerState.nation.institutions.stateCapacity = 0.5;
+    observerState.nation.institutions.legalPredictability = 0.5;
     observerState.nation.society.stabilityIndex = 60;
     observerState.nation.trade.openness = 0.22;
     observerState.nation.diplomacy.globalReputation = 60;
@@ -440,6 +442,12 @@ describe("历史转折国策", () => {
       getHistoricalInitiativeStatus(observerEngine.exportState(), "early_gatt_observer")
         .blockers,
     ).toContain("需至少 3 个国家关系达到 10");
+    expect(
+      getHistoricalInitiativeStatus(observerEngine.exportState(), "early_gatt_observer")
+        .blockers.some((blocker) => blocker.includes("最早可在")),
+    ).toBe(false);
+    expect(getHistoricalInitiative("early_gatt_observer")?.availableFromYear)
+      .toBeUndefined();
     const supportedObserverState = observerEngine.exportState();
     for (const country of supportedObserverState.world.countries) {
       country.relationWithChina = 15;

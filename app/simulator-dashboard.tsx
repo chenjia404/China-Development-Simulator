@@ -1030,7 +1030,9 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
               <p>{initiative.description}</p>
               <div className="initiative-facts">
                 <span>{initiative.category}</span>
-                <span>最早 {initiative.availableFromYear} 年</span>
+                <span>{initiative.availableFromYear === undefined
+                  ? "无固定年份限制"
+                  : `最早 ${initiative.availableFromYear} 年`}</span>
                 <span>{initiativeCostLabel}</span>
                 <span>调整期 {formatEventDuration(initiative.transitionDurationMonths)}</span>
               </div>
