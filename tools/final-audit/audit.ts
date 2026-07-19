@@ -436,7 +436,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     industry_wide_joint_ownership_1956: "preserve_mixed_ownership",
     ...campaignChoices,
     three_year_difficulties_1959:
-      "ban_grain_exports_and_import+accept_foreign_aid",
+      "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
     third_front_construction_1964: "cancel_third_front",
     ...culturalRevolutionChoices,
   });
@@ -531,6 +531,12 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const banGrainCrisis = runCrisisChoice("ban_grain_exports_and_import");
   const banGrainWithAidCrisis = runCrisisChoice(
     "ban_grain_exports_and_import+accept_foreign_aid",
+  );
+  const reduceProcurementCrisis = runCrisisChoice(
+    "reduce_procurement_guarantee_ration",
+  );
+  const banAidReduceProcurementCrisis = runCrisisChoice(
+    "ban_grain_exports_and_import+accept_foreign_aid+reduce_procurement_guarantee_ration",
   );
   const domesticReliefCrisis = runCrisisChoice("domestic_emergency_relief");
   const crisisRelation = (
@@ -1869,21 +1875,33 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     ),
     makeCheck(
       "grain-export-crisis-choices",
-      "三年困难粮食贸易与救济两轴可组合，禁止出口与外援叠乘后粮食更优并保留用汇代价",
+      "三年困难贸易、救济与征购三轴可组合；禁止出口、外援与降征购叠乘后粮食与死亡更优并保留工业/用汇代价",
       limitedGrainCrisis.nation.resources.foodSupplyRatio >
           historicalCrisis.nation.resources.foodSupplyRatio &&
         domesticReliefCrisis.nation.resources.foodSupplyRatio >
           limitedGrainCrisis.nation.resources.foodSupplyRatio &&
         banGrainCrisis.nation.resources.foodSupplyRatio >
           domesticReliefCrisis.nation.resources.foodSupplyRatio &&
-        foreignAidCrisis.nation.resources.foodSupplyRatio >
+        reduceProcurementCrisis.nation.resources.foodSupplyRatio >
           banGrainCrisis.nation.resources.foodSupplyRatio &&
+        foreignAidCrisis.nation.resources.foodSupplyRatio >
+          reduceProcurementCrisis.nation.resources.foodSupplyRatio &&
         banGrainWithAidCrisis.nation.resources.foodSupplyRatio >
           foreignAidCrisis.nation.resources.foodSupplyRatio &&
+        banAidReduceProcurementCrisis.nation.resources.foodSupplyRatio >=
+          banGrainWithAidCrisis.nation.resources.foodSupplyRatio &&
+        banAidReduceProcurementCrisis.nation.population.monthlyDeaths <=
+          banGrainWithAidCrisis.nation.population.monthlyDeaths &&
         banGrainWithAidCrisis.nation.population.monthlyDeaths <
           foreignAidCrisis.nation.population.monthlyDeaths &&
+        reduceProcurementCrisis.nation.population.monthlyDeaths <
+          banGrainCrisis.nation.population.monthlyDeaths &&
         banGrainWithAidCrisis.nation.trade.capitalGoodsImportCoverage <
           foreignAidCrisis.nation.trade.capitalGoodsImportCoverage &&
+        banAidReduceProcurementCrisis.nation.fiscal.expenditure >
+          banGrainWithAidCrisis.nation.fiscal.expenditure &&
+        banAidReduceProcurementCrisis.nation.trade.exports <
+          banGrainWithAidCrisis.nation.trade.exports &&
         crisisRelation(banGrainWithAidCrisis, "russia") >
           crisisRelation(banGrainCrisis, "russia") &&
         crisisRelation(banGrainWithAidCrisis, "canada") >
@@ -1898,7 +1916,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           crisisRelation(historicalCrisis, "canada") &&
         crisisRelation(banGrainCrisis, "australia") >
           crisisRelation(historicalCrisis, "australia"),
-      `粮食供给率 史实/限制出口/国内赈济/禁止并进口/外援/禁出口+外援 ${(historicalCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(limitedGrainCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(domesticReliefCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(banGrainCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(foreignAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(banGrainWithAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%；禁出口+外援仍保留资本品用汇代价 ${(banGrainWithAidCrisis.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%`,
+      `禁止出口首月粮食 ${(banGrainCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%，外援 ${(foreignAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%，禁出口+外援 ${(banGrainWithAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%，再叠加降征购 ${(banAidReduceProcurementCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%；降征购财政支出 ${banAidReduceProcurementCrisis.nation.fiscal.expenditure.toFixed(0)} / 出口 ${banAidReduceProcurementCrisis.nation.trade.exports.toFixed(0)}，对比禁出口+外援 ${banGrainWithAidCrisis.nation.fiscal.expenditure.toFixed(0)} / ${banGrainWithAidCrisis.nation.trade.exports.toFixed(0)}`,
     ),
     makeCheck(
       "korean-war-branching",

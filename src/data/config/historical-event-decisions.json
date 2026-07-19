@@ -295,7 +295,7 @@
       {
         "id": "crisis_relief",
         "name": "救济与纠偏",
-        "description": "在粮食贸易取向之外，是否追加国内赈济或接受外国援助。可与贸易取向组合。",
+        "description": "在粮食贸易取向之外，是否追加国内赈济或接受外国援助。可与贸易、征购口粮取向组合。",
         "options": [
           {
             "id": "no_additional_relief",
@@ -339,6 +339,49 @@
               { "target": "diplomacy.relationTarget.australia", "operation": "add", "value": 24 },
               { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 18 }
             ]
+          }
+        ]
+      },
+      {
+        "id": "procurement_ration",
+        "name": "征购与农村口粮",
+        "description": "决定是否继续高额征购，或下调征购并保障农村最低口粮。可与粮食贸易、救济取向自由组合叠乘。",
+        "options": [
+          {
+            "id": "reduce_procurement_guarantee_ration",
+            "name": "降低征购并保障农村最低口粮",
+            "description": "大幅削减高指标征购与透支性调出，把种子粮和人均最低口粮优先留在产区；城镇配给与工业动员承担短缺，财政需追加调剂与救济支出。",
+            "effects": [
+              "农村饥荒死亡显著下降",
+              "粮食短缺冲击明显缓和",
+              "城镇工业用粮与建设进度承压",
+              "财政支出上升",
+              "可与贸易、救济选项叠加"
+            ],
+            "durationMonths": 36,
+            "modifiers": [
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.972 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.008, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.995, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.965, "durationMonths": 36 },
+              { "target": "fiscal.spending", "operation": "multiply", "value": 1.03 },
+              { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.988 },
+              { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.98 },
+              { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.012 }
+            ]
+          },
+          {
+            "id": "continue_high_procurement",
+            "name": "维持高额征购与统销",
+            "description": "继续以保障城镇配给和工业化用粮为优先，农村口粮服从统购统销任务；危机后果主要由贸易与救济取向决定。",
+            "effects": [
+              "史实高征购取向",
+              "农村保留口粮空间最窄",
+              "城镇与工业用粮优先"
+            ],
+            "durationMonths": 36,
+            "isHistoricalDefault": true,
+            "modifiers": []
           }
         ]
       }

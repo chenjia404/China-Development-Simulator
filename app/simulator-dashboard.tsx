@@ -1881,7 +1881,7 @@ function FamineMortalityReportModal({
           <div className="event-choice-result">
             <span>危机应对方案</span>
             <strong>{report.choiceName}</strong>
-            <p>不同粮食贸易与救济组合会显著改变超额死亡规模。</p>
+            <p>不同粮食贸易、救济与征购口粮组合会显著改变超额死亡规模。</p>
           </div>
         ) : null}
         <p className="historical-decision-note">
@@ -2065,7 +2065,7 @@ function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolea
         )}
         <p className="historical-decision-note">
           {axes.length > 0
-            ? "请在各轴各选一项后确认组合；禁止出口并提前进口可与接受外国援助同时生效。决策写入存档后不可撤销。"
+            ? "请在各轴各选一项后确认组合；禁止出口、接受外援与降低征购可同时叠加。决策写入存档后不可撤销。"
             : "决策将写入存档且不可撤销。选择后本月仍未结算，可继续推进时间。"}
         </p>
       </section>

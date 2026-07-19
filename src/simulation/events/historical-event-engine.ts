@@ -353,7 +353,7 @@ function mergeMultiplyOverlay(target: string, left: number, right: number): numb
 }
 
 /**
- * 叠乘式：两轴均为备选方案时，互补冲击按独立效应叠加。
+ * 叠乘式：备选轴同时生效时，互补冲击按独立效应叠加。
  * 粮食等保留率用软或：1-(1-a)(1-b)；死亡率超额相乘；用汇等代价相乘。
  */
 function mergeMultiplyStack(target: string, left: number, right: number): number {
@@ -411,14 +411,54 @@ function composeHistoricalModifiers(
 }
 
 const threeYearLegacyChoiceAliases: Record<string, string[]> = {
-  accept_foreign_aid: ["continue_grain_exports", "accept_foreign_aid"],
-  domestic_emergency_relief: ["continue_grain_exports", "domestic_emergency_relief"],
-  limit_grain_exports: ["limit_grain_exports", "no_additional_relief"],
+  accept_foreign_aid: [
+    "continue_grain_exports",
+    "accept_foreign_aid",
+    "continue_high_procurement",
+  ],
+  domestic_emergency_relief: [
+    "continue_grain_exports",
+    "domestic_emergency_relief",
+    "continue_high_procurement",
+  ],
+  limit_grain_exports: [
+    "limit_grain_exports",
+    "no_additional_relief",
+    "continue_high_procurement",
+  ],
   ban_grain_exports_and_import: [
     "ban_grain_exports_and_import",
     "no_additional_relief",
+    "continue_high_procurement",
+  ],
+  reduce_procurement_guarantee_ration: [
+    "continue_grain_exports",
+    "no_additional_relief",
+    "reduce_procurement_guarantee_ration",
   ],
 };
+
+/** 旧存档两段式复合 id（缺征购轴）映射到补齐史实征购默认后的三段。 */
+function padLegacyThreeYearOptionIds(
+  axes: HistoricalEventAxisDefinition[],
+  parts: string[],
+): string[] | null {
+  if (parts.length === 0 || parts.length > axes.length) {
+    return null;
+  }
+  if (parts.length === axes.length) return parts;
+  const resolved = axes.map((axis) => {
+    const matched = axis.options.find((option) => parts.includes(option.id));
+    if (matched) return matched.id;
+    return (
+      axis.options.find((option) => option.isHistoricalDefault) ??
+      axis.options[0]
+    ).id;
+  });
+  // 每个遗留片段都必须落在某一轴上，避免把未知 id 静默改写成默认。
+  if (!parts.every((part) => resolved.includes(part))) return null;
+  return resolved;
+}
 
 function getDecisionDefinition(eventId: string) {
   return historicalDecisionDefinitions.find(
@@ -518,7 +558,7 @@ export function composeHistoricalEventAxisChoice(
   });
   const event = contextualizeHistoricalEvent(baseEvent, nation);
   // 含史实贸易底座时用覆盖合并，避免“继续出口+外援”把底座冲击软叠成近乎消除；
-  // 两轴均为备选（如禁出口+外援）时用叠乘，使粮食等互补收益真正高于单轴。
+  // 各轴均为备选（如禁出口+外援+降征购）时用叠乘，使粮食等互补收益真正高于单轴。
   const mergeMode: HistoricalModifierMergeMode = selected.some(
     (option) => option.useEventModifiers,
   )
@@ -573,7 +613,11 @@ function expandAxisChoiceId(
     );
   }
   if (choiceId.includes("+")) {
-    return choiceId.split("+");
+    const parts = choiceId.split("+");
+    if (parts.length === axes.length) return parts;
+    const padded = padLegacyThreeYearOptionIds(axes, parts);
+    if (padded) return padded;
+    return parts;
   }
   const aliased = threeYearLegacyChoiceAliases[choiceId];
   if (aliased) return aliased;
@@ -618,13 +662,18 @@ export function getHistoricalEventChoices(
   if (!baseEvent) return [];
   const axes = getHistoricalEventAxes(baseEvent, nation);
   if (axes.length > 0) {
-    return cartesianAxisOptions(axes).map((selected) => {
+    const choices = cartesianAxisOptions(axes).map((selected) => {
       const composed = composeHistoricalEventAxisChoice(
         baseEvent,
         selected.map((option) => option.id),
         nation,
       );
       return composed!;
+    });
+    // 史实组合始终置顶，避免备选项排在轴首位时破坏 choices[0] 约定。
+    return choices.sort((left, right) => {
+      if (left.isHistoricalPath === right.isHistoricalPath) return 0;
+      return left.isHistoricalPath ? -1 : 1;
     });
   }
   const scales = historicalDependencyScales(baseEvent, nation);
