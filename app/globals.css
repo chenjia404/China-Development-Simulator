@@ -492,7 +492,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .decision-impact.positive { color: var(--green); background: color-mix(in srgb, var(--green) 10%, var(--surface)); }
 .decision-impact.negative { color: var(--red); background: color-mix(in srgb, var(--red) 10%, var(--surface)); }
 .decision-impact.mixed { color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--surface)); }
-.historical-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin-top: 18px; }
+.historical-choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 13px; margin-top: 18px; }
 .historical-choice { display: flex; flex-direction: column; min-width: 0; padding: 17px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 11px; }
 .historical-choice.is-historical { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); background: color-mix(in srgb, var(--gold) 5%, var(--surface)); }
 .historical-choice.prevents-event { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); background: color-mix(in srgb, var(--green) 5%, var(--surface)); }

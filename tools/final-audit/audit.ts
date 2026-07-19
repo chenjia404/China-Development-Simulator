@@ -506,6 +506,9 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   };
   const historicalCrisis = runCrisisChoice("historical_path");
   const foreignAidCrisis = runCrisisChoice("accept_foreign_aid");
+  const limitedGrainCrisis = runCrisisChoice("limit_grain_exports");
+  const banGrainCrisis = runCrisisChoice("ban_grain_exports_and_import");
+  const domesticReliefCrisis = runCrisisChoice("domestic_emergency_relief");
   const crisisRelation = (
     state: typeof foreignAidCrisis,
     countryId: string,
@@ -1839,6 +1842,29 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         foreignAidFinalState.nation.history.reports.length === 68 &&
         Number.isFinite(foreignAidFinalState.nation.economy.realGDP),
       `首月死亡人数由 ${historicalCrisis.nation.population.monthlyDeaths.toFixed(0)} 降至 ${foreignAidCrisis.nation.population.monthlyDeaths.toFixed(0)}，粮食供给率由 ${(historicalCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}% 升至 ${(foreignAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%；苏联、加拿大、澳大利亚和美国关系均改善，无关的日本关系不变；援助路线生成 1959—2026 年 ${foreignAidFinalState.nation.history.reports.length} 个年度报告`,
+    ),
+    makeCheck(
+      "grain-export-crisis-choices",
+      "三年困难可限制或禁止粮食出口，并按史实贸易量级在民生与用汇之间取舍",
+      limitedGrainCrisis.nation.resources.foodSupplyRatio >
+          historicalCrisis.nation.resources.foodSupplyRatio &&
+        domesticReliefCrisis.nation.resources.foodSupplyRatio >
+          limitedGrainCrisis.nation.resources.foodSupplyRatio &&
+        banGrainCrisis.nation.resources.foodSupplyRatio >
+          domesticReliefCrisis.nation.resources.foodSupplyRatio &&
+        foreignAidCrisis.nation.resources.foodSupplyRatio >
+          banGrainCrisis.nation.resources.foodSupplyRatio &&
+        banGrainCrisis.nation.population.monthlyDeaths <
+          limitedGrainCrisis.nation.population.monthlyDeaths &&
+        limitedGrainCrisis.nation.population.monthlyDeaths <
+          historicalCrisis.nation.population.monthlyDeaths &&
+        banGrainCrisis.nation.trade.capitalGoodsImportCoverage <
+          historicalCrisis.nation.trade.capitalGoodsImportCoverage &&
+        crisisRelation(banGrainCrisis, "canada") >
+          crisisRelation(historicalCrisis, "canada") &&
+        crisisRelation(banGrainCrisis, "australia") >
+          crisisRelation(historicalCrisis, "australia"),
+      `粮食供给率 史实/限制出口/国内赈济/禁止并进口/外援 ${(historicalCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(limitedGrainCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(domesticReliefCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(banGrainCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%/${(foreignAidCrisis.nation.resources.foodSupplyRatio * 100).toFixed(1)}%；禁止出口路线资本品用汇 ${(banGrainCrisis.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%，加澳关系上升`,
     ),
     makeCheck(
       "korean-war-branching",
