@@ -250,7 +250,7 @@
           "对苏关系降温较轻",
           "成套项目经验积累有限"
         ],
-        "durationMonths": 30,
+        "durationMonths": 36,
         "modifiers": [
           { "target": "resources.foodSupply", "operation": "multiply", "value": 0.999 },
           { "target": "fiscal.spending", "operation": "multiply", "value": 1.002 },

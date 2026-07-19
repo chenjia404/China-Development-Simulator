@@ -651,7 +651,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "policies" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总，受内外需求对产能利用的滞后影响"], ["内需规模", formatLarge(n.economy.domesticDemand), `约为名义 GDP 的 ${formatPercent(n.economy.domesticDemandShare)}`], ["居民消费", formatLarge(n.economy.householdConsumption), `消费倾向 ${formatPercent(n.economy.consumptionPropensity)}`], ["社保转移收入", formatLarge(n.economy.socialProtectionIncome), "降低预防性储蓄，但不直接计入 GDP"], ["居民可支配收入", formatLarge(n.economy.householdDisposableIncome), "税后收入、侨汇与社保转移的综合结果"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
-    fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息与对外援助"], ["对外援助", formatLarge(n.fiscal.foreignAidExpenditure), "已包含在财政总支出中，不重复相加"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
+    fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息；援外为展示归因，不单独叠加"], ["对外援助", formatLarge(n.fiscal.foreignAidExpenditure), "与年度承诺同口径，不增减财政总支出"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)}`]],
     education: [["教育指数", n.education.index.toFixed(1), "长期滞后生效"], ["识字率", formatPercent(n.education.literacyRate), `平均受教育 ${n.education.averageYearsOfSchooling.toFixed(1)} 年`], ["大学招生能力", formatPercent(n.education.higherEducationAdmissionCapacity), `累计严重中断 ${n.education.educationDisruptionMonths} 个月`], ["学术体系连续性", formatPercent(n.education.academicContinuity), "恢复速度慢于停摆速度"], ["科研人才代际缺口", formatPercent(n.education.researchCohortGap), `现有科研人才 ${formatLarge(n.education.researchTalent)}`], ["科研人才永久损失", formatLarge(n.education.permanentResearchTalentLosses), "含迫害死亡与永久离岗"]],
     technology: [["科技指数", n.technology.index.toFixed(1), `采用率 ${formatPercent(n.technology.adoptionRate)}`], ["科研点数", n.technology.researchPoints.toFixed(1), "累计知识存量"], ["本月科研产出", n.technology.monthlyResearchOutput.toFixed(2), "受人才与制度约束"], ["全要素生产率", n.economy.totalFactorProductivity.toFixed(3), "受年度软上限约束"]],
@@ -1452,7 +1452,7 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
           <div>
             <span className="eyebrow">财政承诺 · 受援伙伴 · 国内机会成本</span>
             <h2>对外援助方案</h2>
-            <p>史实路线按1950—1980年约365亿元人民币、当年官方汇率约170亿美元记录。玩家可以停止、缩减、改变受援方向或扩大援助；变化不会直接修改 GDP，而是通过财政构成、国内投资、工业设备、科研人员、外汇、出口网络、国际声誉和相关国家关系逐月传导。</p>
+            <p>史实路线按1950—1980年约365亿元人民币、当年官方汇率约170亿美元记录。玩家可以停止、缩减、改变受援方向或扩大援助；变化不会直接修改 GDP，而是通过国内投资、工业设备、科研人员、外汇、出口网络、国际声誉和相关国家关系逐月传导。界面中的财政归因与年度承诺同口径，仅作展示，不抬高财政总支出。</p>
           </div>
           <div className="strategy-current">
             <span>当前方案</span>
@@ -1464,7 +1464,7 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
           <div><span>1949—1980累计</span><strong>{formatLarge(game.nation.diplomacy.cumulativeForeignAidRMBThrough1980)} 元</strong><small>史实参考 {formatLarge(historicalAidTotals.rmb)} 元</small></div>
           <div><span>官方汇率美元等值</span><strong>${formatLarge(game.nation.diplomacy.cumulativeForeignAidUSDThrough1980)}</strong><small>史实参考 ${formatLarge(historicalAidTotals.usd)}</small></div>
           <div><span>当前年度承诺</span><strong>{formatLarge(game.nation.diplomacy.annualForeignAidRMB)} 元</strong><small>约 ${formatLarge(game.nation.diplomacy.annualForeignAidUSD)}</small></div>
-          <div><span>年度援外用汇</span><strong>${formatLarge(game.nation.diplomacy.annualForeignAidForeignExchangeOutflow)}</strong><small>财政占用 {formatLarge(game.nation.fiscal.foreignAidExpenditure)}</small></div>
+          <div><span>年度援外用汇</span><strong>${formatLarge(game.nation.diplomacy.annualForeignAidForeignExchangeOutflow)}</strong><small>财政归因 {formatLarge(game.nation.fiscal.foreignAidExpenditure)}</small></div>
         </div>
         <div className="strategy-live-effects">
           <span>国内投资 ×{aidProgramEffects.domesticInvestmentMultiplier.toFixed(3)}</span>

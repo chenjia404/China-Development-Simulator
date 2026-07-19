@@ -1055,19 +1055,43 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const suspendedAidEngine = createSimulationEngine(
     createInitialGameState(seed, 1949, "automatic"),
   );
+  const expandedAidEngine = createSimulationEngine(
+    createInitialGameState(seed, 1949, "automatic"),
+  );
+  const economicAidEngine = createSimulationEngine(
+    createInitialGameState(seed, 1949, "automatic"),
+  );
   suspendedAidEngine.dispatch({
     type: "SET_FOREIGN_AID_PROGRAM",
     programId: "suspended",
   });
+  expandedAidEngine.dispatch({
+    type: "SET_FOREIGN_AID_PROGRAM",
+    programId: "expanded_internationalist",
+  });
+  economicAidEngine.dispatch({
+    type: "SET_FOREIGN_AID_PROGRAM",
+    programId: "economic_technical_cooperation",
+  });
   historicalAidEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
   suspendedAidEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+  expandedAidEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+  economicAidEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
   const historicalAidState = historicalAidEngine.getState();
   const suspendedAidState = suspendedAidEngine.getState();
+  const expandedAidState = expandedAidEngine.getState();
+  const economicAidState = economicAidEngine.getState();
   const historicalAidTotals = historicalForeignAidTotalsThrough1980();
   const historicalAidNorthKorea = historicalAidState.world.countries.find(
     (country) => country.id === "north_korea",
   );
   const suspendedAidNorthKorea = suspendedAidState.world.countries.find(
+    (country) => country.id === "north_korea",
+  );
+  const expandedAidNorthKorea = expandedAidState.world.countries.find(
+    (country) => country.id === "north_korea",
+  );
+  const economicAidNorthKorea = economicAidState.world.countries.find(
     (country) => country.id === "north_korea",
   );
 
@@ -1503,8 +1527,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         suspendedAidState.nation.trade.foreignExchangeReserves >
           historicalAidState.nation.trade.foreignExchangeReserves &&
         (historicalAidNorthKorea?.relationWithChina ?? -100) >
-          (suspendedAidNorthKorea?.relationWithChina ?? 100),
-      `史实累计 ${(historicalAidTotals.rmb / 100_000_000).toFixed(1)} 亿元、${(historicalAidTotals.usd / 100_000_000).toFixed(1)} 亿美元；1980 年暂停/史实 GDP ${(suspendedAidState.nation.economy.realGDP / 100_000_000).toFixed(1)}/${(historicalAidState.nation.economy.realGDP / 100_000_000).toFixed(1)} 亿元，科技 ${suspendedAidState.nation.technology.index.toFixed(1)}/${historicalAidState.nation.technology.index.toFixed(1)}，对朝关系 ${(suspendedAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}/${(historicalAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}`,
+          (suspendedAidNorthKorea?.relationWithChina ?? 100) &&
+        expandedAidState.nation.economy.capitalStock <
+          historicalAidState.nation.economy.capitalStock &&
+        expandedAidState.nation.trade.foreignExchangeReserves <
+          historicalAidState.nation.trade.foreignExchangeReserves &&
+        (expandedAidNorthKorea?.relationWithChina ?? -100) >
+          (historicalAidNorthKorea?.relationWithChina ?? 100) &&
+        economicAidState.nation.economy.capitalStock <
+          historicalAidState.nation.economy.capitalStock &&
+        economicAidState.nation.trade.exports >
+          historicalAidState.nation.trade.exports &&
+        (economicAidNorthKorea?.relationWithChina ?? 100) <
+          (historicalAidNorthKorea?.relationWithChina ?? -100),
+      `史实累计 ${(historicalAidTotals.rmb / 100_000_000).toFixed(1)} 亿元、${(historicalAidTotals.usd / 100_000_000).toFixed(1)} 亿美元；1980 年暂停/史实 GDP ${(suspendedAidState.nation.economy.realGDP / 100_000_000).toFixed(1)}/${(historicalAidState.nation.economy.realGDP / 100_000_000).toFixed(1)} 亿元，科技 ${suspendedAidState.nation.technology.index.toFixed(1)}/${historicalAidState.nation.technology.index.toFixed(1)}，对朝关系 ${(suspendedAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}/${(historicalAidNorthKorea?.relationWithChina ?? 0).toFixed(1)}；扩大援助资本低于史实且对朝更高；经贸合作出口更高但对朝关系与资本低于史实`,
     ),
     makeCheck(
       "sino-us-normalization",

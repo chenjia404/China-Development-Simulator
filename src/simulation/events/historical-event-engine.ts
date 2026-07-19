@@ -193,12 +193,29 @@ function genericChoices(event: HistoricalEventDefinition): HistoricalEventChoice
   ];
 }
 
-function contextualizeHistoricalEvent(
+function scaleForeignAidAdjustment(
+  adjustment: HistoricalEventForeignAidAdjustment | undefined,
+  modifierScale: number,
+  durationMultiplier: number,
+): HistoricalEventForeignAidAdjustment | undefined {
+  if (!adjustment) return undefined;
+  return {
+    annualRmbDelta: adjustment.annualRmbDelta * modifierScale,
+    annualForeignExchangeRmbDelta:
+      adjustment.annualForeignExchangeRmbDelta * modifierScale,
+    durationMonths: Math.max(
+      1,
+      Math.round(adjustment.durationMonths * durationMultiplier),
+    ),
+  };
+}
+
+function matchingHistoricalDependencies(
   event: HistoricalEventDefinition,
   nation?: NationState,
-): HistoricalEventDefinition {
-  if (!nation) return event;
-  const dependencies = historicalDependencyDefinitions.filter((dependency) => {
+) {
+  if (!nation) return [];
+  return historicalDependencyDefinitions.filter((dependency) => {
     if (dependency.eventId !== event.id) return false;
     const sourceRecord = nation.history.historicalEvents.find(
       (record) => record.id === dependency.sourceEventId,
@@ -207,8 +224,32 @@ function contextualizeHistoricalEvent(
       ? dependency.sourceChoiceIds.includes(sourceRecord.choiceId)
       : false;
   });
-  if (dependencies.length === 0) return event;
+}
 
+function historicalDependencyScales(
+  event: HistoricalEventDefinition,
+  nation?: NationState,
+): { modifierScale: number; durationMultiplier: number } | null {
+  const dependencies = matchingHistoricalDependencies(event, nation);
+  if (dependencies.length === 0) return null;
+  return {
+    modifierScale: dependencies.reduce(
+      (scale, dependency) => scale * dependency.modifierScale,
+      1,
+    ),
+    durationMultiplier: dependencies.reduce(
+      (scale, dependency) => scale * dependency.durationMultiplier,
+      1,
+    ),
+  };
+}
+
+function contextualizeHistoricalEvent(
+  event: HistoricalEventDefinition,
+  nation?: NationState,
+): HistoricalEventDefinition {
+  const dependencies = matchingHistoricalDependencies(event, nation);
+  if (dependencies.length === 0) return event;
   const modifierScale = dependencies.reduce(
     (scale, dependency) => scale * dependency.modifierScale,
     1,
@@ -231,6 +272,39 @@ function contextualizeHistoricalEvent(
     modifiers: event.modifiers.map((modifier) =>
       scaleModifier(modifier, modifierScale)
     ),
+    foreignAidAdjustment: scaleForeignAidAdjustment(
+      event.foreignAidAdjustment,
+      modifierScale,
+      durationMultiplier,
+    ),
+  };
+}
+
+function contextualizeHistoricalChoice(
+  choice: Omit<HistoricalEventChoice, "isHistoricalPath"> & {
+    isHistoricalPath?: boolean;
+  },
+  scales: { modifierScale: number; durationMultiplier: number } | null,
+): HistoricalEventChoice {
+  if (!scales) {
+    return { ...choice, isHistoricalPath: false };
+  }
+  const { modifierScale, durationMultiplier } = scales;
+  return {
+    ...choice,
+    isHistoricalPath: false,
+    durationMonths: Math.max(
+      1,
+      Math.round(choice.durationMonths * durationMultiplier),
+    ),
+    modifiers: choice.modifiers.map((modifier) =>
+      scaleModifier(modifier, modifierScale)
+    ),
+    foreignAidAdjustment: scaleForeignAidAdjustment(
+      choice.foreignAidAdjustment,
+      modifierScale,
+      durationMultiplier,
+    ),
   };
 }
 
@@ -242,6 +316,7 @@ export function getHistoricalEventChoices(
     ? getHistoricalEvent(eventOrId)
     : eventOrId;
   if (!baseEvent) return [];
+  const scales = historicalDependencyScales(baseEvent, nation);
   const event = contextualizeHistoricalEvent(baseEvent, nation);
   const historicalChoice: HistoricalEventChoice = {
     id: "historical_path",
@@ -260,7 +335,9 @@ export function getHistoricalEventChoices(
     (definition) => definition.eventId === event.id,
   );
   const alternatives = bespoke
-    ? bespoke.choices.map((choice) => ({ ...choice, isHistoricalPath: false }))
+    ? bespoke.choices.map((choice) =>
+      contextualizeHistoricalChoice(choice, scales)
+    )
     : genericChoices(event);
   return [historicalChoice, ...alternatives];
 }
@@ -298,6 +375,7 @@ function applyChoice(
   choice: HistoricalEventChoice,
   recordDate = { year: event.year, month: event.month },
 ): HistoricalEventRecord {
+  const resolvedEvent = contextualizeHistoricalEvent(event, nation);
   for (const [index, modifier] of choice.modifiers.entries()) {
     addModifier(nation, {
       id: `historical:${event.id}:${choice.id}:${index}`,
@@ -313,7 +391,7 @@ function applyChoice(
   applyForeignAidEventAdjustment(
     nation,
     choice.foreignAidAdjustment,
-    event.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
+    resolvedEvent.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
   );
   const record: HistoricalEventRecord = {
     id: event.id,

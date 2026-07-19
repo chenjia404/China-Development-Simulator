@@ -112,6 +112,68 @@ describe("可选对外援助方案", () => {
       .toBeLessThan(1);
   });
 
+  it("扩大援助挤出资本而经贸合作以出口换国内投资", () => {
+    const historicalEngine = createSimulationEngine(
+      createInitialGameState(1949, 1949, "automatic"),
+    );
+    const expandedEngine = createSimulationEngine(
+      createInitialGameState(1949, 1949, "automatic"),
+    );
+    const economicEngine = createSimulationEngine(
+      createInitialGameState(1949, 1949, "automatic"),
+    );
+    expandedEngine.dispatch({
+      type: "SET_FOREIGN_AID_PROGRAM",
+      programId: "expanded_internationalist",
+    });
+    economicEngine.dispatch({
+      type: "SET_FOREIGN_AID_PROGRAM",
+      programId: "economic_technical_cooperation",
+    });
+    historicalEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+    expandedEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+    economicEngine.dispatch({ type: "ADVANCE_MONTHS", months: 384 });
+    const historical = historicalEngine.getState();
+    const expanded = expandedEngine.getState();
+    const economic = economicEngine.getState();
+
+    expect(expanded.nation.economy.capitalStock).toBeLessThan(
+      historical.nation.economy.capitalStock,
+    );
+    expect(expanded.nation.trade.foreignExchangeReserves).toBeLessThan(
+      historical.nation.trade.foreignExchangeReserves,
+    );
+    expect(relation(expanded, "north_korea")).toBeGreaterThan(
+      relation(historical, "north_korea"),
+    );
+
+    expect(foreignAidProgramEffects(economic.nation).domesticInvestmentMultiplier)
+      .toBeLessThan(1);
+    expect(economic.nation.economy.capitalStock).toBeLessThan(
+      historical.nation.economy.capitalStock,
+    );
+    expect(economic.nation.trade.exports).toBeGreaterThan(
+      historical.nation.trade.exports,
+    );
+    expect(relation(economic, "north_korea")).toBeLessThan(
+      relation(historical, "north_korea"),
+    );
+  });
+
+  it("财政归因与年度承诺同口径且不抬高财政总支出", () => {
+    const engine = createSimulationEngine(
+      createInitialGameState(1965, 1965, "automatic"),
+    );
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    const nation = engine.getState().nation;
+    expect(nation.fiscal.foreignAidExpenditure).toBe(
+      nation.diplomacy.annualForeignAidRMB,
+    );
+    expect(nation.fiscal.expenditure).toBeGreaterThan(
+      nation.fiscal.foreignAidExpenditure,
+    );
+  });
+
   it("调整援助方案消耗外交点并触发两年冷却和一年过渡", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));
     const before = engine.getState().nation.diplomacy.diplomaticPoints;

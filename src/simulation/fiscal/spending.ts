@@ -25,13 +25,10 @@ export function calculateFiscalSpending(nation: NationState): void {
     budgetIntensity *
     policyMultiplier;
 
-  // 援外支出是财政总盘子的一部分，不得在总支出中重复相加。史实校准已经
-  // 隐含史实援外规模，玩家路线差异由援外模块对国内资源配置逐项传导。
-  fiscal.foreignAidExpenditure = clamp(
-    fiscal.foreignAidExpenditure,
-    0,
-    primarySpending,
-  );
+  // foreignAidExpenditure 是与年度承诺同口径的展示归因，不得叠加进总支出。
+  // 史实校准已隐含史实援外；玩家路线差额由援助模块的国内倍率与外汇流量传导。
+  // 不再用主支出上限夹取，否则会与 annualForeignAidRMB 口径短暂偏离。
+  fiscal.foreignAidExpenditure = Math.max(0, fiscal.foreignAidExpenditure);
 
   fiscal.expenditure = Math.max(
     0,

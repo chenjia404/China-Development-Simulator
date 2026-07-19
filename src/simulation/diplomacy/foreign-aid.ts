@@ -417,14 +417,9 @@ export function updateForeignAidProgram(state: GameState): void {
     nation.diplomacy.cumulativeForeignAidRMBThrough1980 += annualRMB / 12;
     nation.diplomacy.cumulativeForeignAidUSDThrough1980 += annualUSD / 12;
   }
-  nation.fiscal.foreignAidExpenditure = Math.max(
-    0,
-    nation.economy.nominalGDP * interpolate(
-      previous.fiscalShareOfGDP,
-      current.fiscalShareOfGDP,
-      progress,
-    ) + eventRmb,
-  );
+  // 财政归因与年度承诺同口径（当年价账户），仅供展示与上限夹取；
+  // 不抬高 fiscal.expenditure——真实代价经国内倍率与外汇流量传导。
+  nation.fiscal.foreignAidExpenditure = annualRMB;
   // 剩余月份递减必须在本月 updateForeignExchange 之后执行，否则最后一月
   // 外储相对基线调整会因提前清空 historicalFxBaseline 而多扣史实外汇。
 }

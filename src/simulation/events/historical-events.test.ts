@@ -543,6 +543,13 @@ describe("确定性历史事件", () => {
         (modifier) => modifier.target === "resources.foodSupply",
       )?.value,
     ).toBeCloseTo(0.9688, 6);
+    const acceptAid = choices.find((choice) => choice.id === "accept_foreign_aid");
+    expect(acceptAid?.durationMonths).toBe(16);
+    expect(
+      acceptAid?.modifiers.find(
+        (modifier) => modifier.target === "population.deathRate",
+      )?.value,
+    ).toBeCloseTo(1 + (1.006 - 1) * 0.65 * 0.6, 6);
   });
 
   it("三年经济困难可接受外国援助并减少死亡与经济冲击", () => {
@@ -626,8 +633,11 @@ describe("确定性历史事件", () => {
     });
     expect(choices[1]).toMatchObject({
       name: "削减对阿援助规模",
-      durationMonths: 30,
+      durationMonths: 36,
     });
+    expect(choices[1]?.foreignAidAdjustment?.durationMonths).toBe(
+      choices[1]?.durationMonths,
+    );
     expect(choices[2]).toMatchObject({
       name: "拒绝对阿尔巴尼亚援助",
       outcome: "prevented",
