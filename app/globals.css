@@ -325,6 +325,21 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .industry-category-track i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: inherit; }
 .industry-category-requirements { margin-top: 10px; color: var(--muted); font-size: 11px; }
 .industry-path-effects { margin-top: 8px; padding: 7px 8px; color: var(--gold); background: color-mix(in srgb, var(--gold) 6%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 20%, var(--line)); border-radius: 6px; font-size: 11px; line-height: 1.5; }
+.industrial-policy-control { margin-top: 12px; padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.industrial-policy-control.is-support { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.industrial-policy-control.is-suppress { border-color: color-mix(in srgb, var(--red) 50%, var(--line)); }
+.industrial-policy-control-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.industrial-policy-control-head strong { color: var(--text); font-size: 12px; }
+.industrial-policy-control-head span { color: var(--muted); font-size: 11px; }
+.industrial-policy-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 9px; }
+.industrial-policy-buttons button { min-height: 30px; padding: 5px 7px; color: var(--text-secondary); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 12px; cursor: pointer; }
+.industrial-policy-buttons button:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+.industrial-policy-buttons button.active { color: var(--surface); background: var(--blue); border-color: var(--blue); }
+.industrial-policy-control.is-support .industrial-policy-buttons button.active { background: var(--green); border-color: var(--green); }
+.industrial-policy-control.is-suppress .industrial-policy-buttons button.active { background: var(--red); border-color: var(--red); }
+.industrial-policy-buttons button:disabled { cursor: not-allowed; opacity: 0.62; }
+.industrial-policy-control > small { display: block; margin-top: 8px; color: var(--muted); font-size: 11px; }
+.industrial-policy-control > p { margin: 7px 0 0; color: var(--text-secondary); font-size: 11px; line-height: 1.55; }
 .technology-industry-effects { display: grid; gap: 5px; margin-top: 10px; }
 .technology-industry-effects strong { color: var(--text-secondary); font-size: 0.78rem; letter-spacing: 0.04em; }
 .technology-industry-effects span { padding: 6px 8px; color: var(--gold); background: color-mix(in srgb, var(--gold) 6%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 20%, var(--line)); border-radius: 6px; font-size: 11px; }

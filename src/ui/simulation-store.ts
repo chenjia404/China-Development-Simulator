@@ -10,6 +10,8 @@ import {
   type ForeignPolicyDoctrineId,
   type ForeignAidProgramId,
   type GameState,
+  type IndustrialCategoryId,
+  type IndustrialPolicyStance,
   type SimulationCommand,
   type TechnologyIndustryPathId,
 } from "../simulation";
@@ -57,6 +59,10 @@ interface SimulationStore {
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
   setTechnologyIndustryPath(pathId: TechnologyIndustryPathId): Promise<void>;
+  setIndustrialPolicy(
+    industryId: IndustrialCategoryId,
+    stance: IndustrialPolicyStance,
+  ): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
@@ -210,6 +216,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     await get().dispatch({
       type: "SET_TECHNOLOGY_INDUSTRY_PATH",
       pathId,
+    });
+  },
+
+  async setIndustrialPolicy(industryId, stance) {
+    await get().dispatch({
+      type: "SET_INDUSTRIAL_POLICY",
+      industryId,
+      stance,
     });
   },
 

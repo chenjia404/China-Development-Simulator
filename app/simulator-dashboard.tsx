@@ -11,6 +11,7 @@ import type {
   ForeignPolicyDoctrineId,
   ForeignAidProgramId,
   GameState,
+  IndustrialPolicyStance,
   TargetComparisonMetric,
   TechnologyIndustryPathId,
 } from "@/src/simulation";
@@ -45,6 +46,8 @@ import {
   technologyResearchRequirements,
   technologyTreeDefinitions,
   industrialCategoryDefinitions,
+  industrialPolicyChangeCooldownRemaining,
+  industrialPolicyEffect,
   foreignAidProgramCooldownRemaining,
   foreignAidProgramDefinitions,
   foreignAidProgramEffects,
@@ -643,8 +646,11 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <><BudgetPanel game={game} busy={false} /><SecurityDefensePanel game={game} /><InstitutionCausalityPanel game={game} /></> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
 }
 
-function IndustrySection({ game }: { game: GameState }) {
+function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
   const nation = game.nation;
+  const setIndustrialPolicy = useSimulationStore(
+    (store) => store.setIndustrialPolicy,
+  );
   const metrics = calculateIndustrialStructureMetrics(nation);
   const developmentPath = getTechnologyIndustryPath(
     nation.technology.developmentPathId,
@@ -653,6 +659,28 @@ function IndustrySection({ game }: { game: GameState }) {
     (sum, category) => sum + category.exportValue,
     0,
   );
+  const stanceOptions: Array<{
+    id: IndustrialPolicyStance;
+    label: string;
+  }> = [
+    { id: "support", label: "扶持" },
+    { id: "neutral", label: "中性" },
+    { id: "suppress", label: "限制" },
+  ];
+  const chooseIndustrialPolicy = (
+    industryId: (typeof industrialCategoryDefinitions)[number]["id"],
+    industryName: string,
+    stance: IndustrialPolicyStance,
+  ) => {
+    const message = stance === "support"
+      ? `确定扶持“${industryName}”吗？政策将逐步改善投资、科研、生产率和出口，但会占用财政与信贷资源，并可能积累产业错配。`
+      : stance === "suppress"
+        ? `确定限制“${industryName}”吗？政策将压低投资、产出和出口，并可能造成失业与供应链冲击。`
+        : `确定把“${industryName}”恢复为中性产业政策吗？既有政策强度将逐步退出。`;
+    if (window.confirm(message)) {
+      void setIndustrialPolicy(industryId, stance);
+    }
+  };
   return (
     <section className="panel detail-page industry-page">
       <div className="detail-hero industry-hero">
@@ -665,6 +693,10 @@ function IndustrySection({ game }: { game: GameState }) {
         <MetricCard label="工业复杂度" value={metrics.complexityIndex.toFixed(1)} detail={`产出能力倍率 ${metrics.outputMultiplier.toFixed(3)}`} tone="green" />
         <MetricCard label="高技术工业" value={formatPercent(metrics.highTechnologyShare)} detail="化工医药、电气电子、精密医疗和高端装备" tone="gold" />
         <MetricCard label="工业品出口" value={`$${formatLarge(industrialExports)}`} detail={`占总出口 ${formatPercent(metrics.industrialExportShare)}`} tone="red" />
+        <MetricCard label="产业政策财政成本" value={formatLarge(nation.industrialPolicy.annualFiscalCost)} detail="年度承诺，进入政府支出与赤字闭环" tone="gold" />
+        <MetricCard label="行政执行有效性" value={formatPercent(nation.industrialPolicy.administrativeEffectiveness)} detail="同时干预过多行业会稀释执行能力" tone="blue" />
+        <MetricCard label="供应链约束" value={formatPercent(nation.industrialPolicy.supplyChainConstraint)} detail="限制上游关键行业会传导至全部工业" tone={nation.industrialPolicy.supplyChainConstraint < 0.98 ? "red" : "green"} />
+        <MetricCard label="产业错配指数" value={formatPercent(nation.industrialPolicy.distortionIndex)} detail={`就业调整压力 ${formatPercent(nation.industrialPolicy.laborDisplacementPressure)}`} tone={nation.industrialPolicy.distortionIndex > 0.03 ? "red" : "green"} />
       </div>
       <section className="enterprise-ownership-panel">
         <div className="panel-heading"><div><span className="eyebrow">所有制 · 就业 · 投资 · 出口</span><h2>企业部门账户</h2></div><span>企业约 {formatLarge(nation.enterprises.totalEnterpriseCount)} 家</span></div>
@@ -679,8 +711,20 @@ function IndustrySection({ game }: { game: GameState }) {
         {industrialCategoryDefinitions.map((definition) => {
           const category = nation.industries[definition.id];
           const pathEffect = technologyIndustryEffect(nation, definition.id);
+          const policy = nation.industrialPolicy.categories[definition.id];
+          const policyEffect = industrialPolicyEffect(nation, definition.id);
+          const cooldown = industrialPolicyChangeCooldownRemaining(
+            nation,
+            definition.id,
+          );
+          const stanceName = stanceOptions.find((option) => option.id === policy.stance)
+            ?.label ?? policy.stance;
           return (
-            <article className="industry-category-card" key={definition.id}>
+            <article
+              className="industry-category-card"
+              data-industry-id={definition.id}
+              key={definition.id}
+            >
               <div className="industry-category-head">
                 <span>{formatPercent(category.outputShare)}</span>
                 <small>技术准备 {formatPercent(category.technologyReadiness, 0)}</small>
@@ -698,6 +742,40 @@ function IndustrySection({ game }: { game: GameState }) {
               </div>
               <div className="industry-path-effects">
                 路线传导：份额 ×{pathEffect.outputWeightMultiplier.toFixed(2)} · 生产率 ×{pathEffect.productivityMultiplier.toFixed(2)} · 出口 ×{pathEffect.exportMultiplier.toFixed(2)}
+              </div>
+              <div className={`industrial-policy-control is-${policy.stance}`}>
+                <div className="industrial-policy-control-head">
+                  <strong>产业政策：{stanceName}</strong>
+                  <span>执行强度 {formatPercent(Math.abs(policy.effectiveIntensity))}</span>
+                </div>
+                <div className="industrial-policy-buttons">
+                  {stanceOptions.map((option) => (
+                    <button
+                      className={policy.stance === option.id ? "active" : ""}
+                      disabled={busy || policy.stance === option.id || cooldown > 0}
+                      key={option.id}
+                      onClick={() => chooseIndustrialPolicy(
+                        definition.id,
+                        definition.name,
+                        option.id,
+                      )}
+                      type="button"
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                <small>
+                  {cooldown > 0
+                    ? `政策调整冷却还剩 ${cooldown} 个月`
+                    : "每次调整后六个月内不能再次修改"}
+                </small>
+                <p>
+                  当前传导：份额 ×{policyEffect.outputWeightMultiplier.toFixed(2)} ·
+                  投资 ×{policyEffect.investmentMultiplier.toFixed(2)} ·
+                  生产率 ×{policyEffect.productivityMultiplier.toFixed(2)} ·
+                  出口 ×{policyEffect.exportMultiplier.toFixed(2)}
+                </p>
               </div>
             </article>
           );
@@ -2021,7 +2099,7 @@ export function SimulatorDashboard() {
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
           {activeSection === "technology" ? <TechnologySection game={game} busy={busy} /> : null}
-          {activeSection === "industry" ? <IndustrySection game={game} /> : null}
+          {activeSection === "industry" ? <IndustrySection game={game} busy={busy} /> : null}
           {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
           {activeSection === "history" ? <HistoricalEventsSection game={game} /> : null}
           {activeSection === "international" ? <InternationalSection game={game} /> : null}

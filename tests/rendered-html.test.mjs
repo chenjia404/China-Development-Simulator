@@ -112,6 +112,27 @@ test("客户端展示十一类工业结构、技术准备度和类别出口", as
   assert.match(source, /当前.*路线会改变各类别的扩张权重/);
 });
 
+test("客户端可逐行业选择扶持、中性或限制政策并查看代价", async () => {
+  const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
+  const files = await readdir(assetsDirectory);
+  const dashboardFile = files.find(
+    (file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"),
+  );
+  assert.ok(dashboardFile, "应生成模拟器客户端代码块");
+  const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
+  assert.match(source, /产业政策财政成本/);
+  assert.match(source, /行政执行有效性/);
+  assert.match(source, /供应链约束/);
+  assert.match(source, /产业错配指数/);
+  assert.match(source, /产业政策：/);
+  assert.match(source, /扶持/);
+  assert.match(source, /中性/);
+  assert.match(source, /限制/);
+  assert.match(source, /每次调整后六个月内不能再次修改/);
+  assert.match(source, /当前传导：份额/);
+  assert.match(source, /失业与供应链冲击/);
+});
+
 test("客户端展示可提前发动的治理、工业化与改革国策", async () => {
   const assetsDirectory = new URL("../dist/client/assets/", import.meta.url);
   const files = await readdir(assetsDirectory);

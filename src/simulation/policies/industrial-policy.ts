@@ -238,6 +238,20 @@ export function setIndustrialPolicyStance(
   policy.lastChangedElapsedMonth = nation.date.elapsedMonths;
 }
 
+export function industrialPolicyChangeCooldownRemaining(
+  nation: NationState,
+  industryId: IndustrialCategoryId,
+): number {
+  const lastChanged = nation.industrialPolicy.categories[industryId]
+    .lastChangedElapsedMonth;
+  if (lastChanged === null) return 0;
+  return Math.max(
+    0,
+    industrialPolicyConfig.minimumChangeIntervalMonths -
+      (nation.date.elapsedMonths - lastChanged),
+  );
+}
+
 export function updateIndustrialPolicyTransition(nation: NationState): void {
   for (const policy of Object.values(nation.industrialPolicy.categories)) {
     const target = policy.stance === "support" ? 1 : policy.stance === "suppress" ? -1 : 0;
