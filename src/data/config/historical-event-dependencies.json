@@ -11,7 +11,7 @@
     "eventId": "three_year_difficulties_1959",
     "sourceEventId": "peoples_communes_1958",
     "sourceChoiceIds": ["avoid_communes", "household_incentives"],
-    "modifierScale": 0.6,
+    "modifierScale": 0.8,
     "durationMultiplier": 0.8,
     "contextEffect": "未实施人民公社化，基层生产激励和粮食信息得到保留"
   }

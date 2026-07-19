@@ -179,11 +179,11 @@
     "category": "工业化",
     "impact": "negative",
     "description": "工业和农业生产指标被大幅提高，大量劳动力与资源向低效率工业项目集中。短期工业统计扩张伴随农业减产、能源浪费和资本效率下降。",
-    "effects": ["短期工业动员增强", "农业与粮食生产受损", "投资效率下降"],
+    "effects": ["短期工业动员增强", "农业劳动力与资源被抽走", "投资效率下降"],
     "durationMonths": 30,
     "modifiers": [
       { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
-      { "target": "sector.primary.output", "operation": "multiply", "value": 0.96 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.945, "delayMonths": 3, "durationMonths": 36 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 }
     ]
   },
@@ -194,11 +194,12 @@
     "month": 8,
     "category": "农业农村",
     "impact": "negative",
-    "description": "农村生产和分配被高度集中，公共资源动员能力上升，但基层信息失真、激励弱化与生产组织失序加剧粮食风险。",
-    "effects": ["农村组织高度集中", "农业激励下降", "粮食供应风险上升"],
+    "description": "农村生产和分配被高度集中，公共资源动员能力上升，但退出权剥夺、公共食堂浪费、基层信息失真与激励弱化使粮食风险在下一季收获前后显著上升。",
+    "effects": ["农村组织高度集中", "农业激励下降", "公共食堂加剧短期粮食消耗", "下一季收获起产出承压"],
     "durationMonths": 36,
     "modifiers": [
-      { "target": "sector.primary.output", "operation": "multiply", "value": 0.96 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.978, "delayMonths": 5, "durationMonths": 24 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.975, "delayMonths": 6 },
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.97 }
     ]
   },
@@ -216,11 +217,12 @@
       "工农业产出收缩",
       "史实路径继续高额粮食净出口加重国内短缺"
     ],
-    "durationMonths": 36,
+    "durationMonths": 48,
     "modifiers": [
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.92 },
-      { "target": "population.deathRate", "operation": "multiply", "value": 1.03 },
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.97 }
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.9 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.955, "delayMonths": 12, "durationMonths": 24 },
+      { "target": "population.deathRate", "operation": "multiply", "value": 1.03, "durationMonths": 36 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.97, "durationMonths": 36 }
     ]
   },
   {
@@ -230,12 +232,12 @@
     "month": 1,
     "category": "宏观调控",
     "impact": "positive",
-    "description": "国民经济进入调整期，压缩过度扩张的建设规模，恢复农业和轻工业，改善基本生活资料供给。",
-    "effects": ["农业与粮食恢复", "过热工业投资收缩", "宏观秩序改善"],
+    "description": "国民经济进入调整期，压缩过度扩张的建设规模，恢复农业和轻工业，改善基本生活资料供给。恢复是渐进的，短期内尚难回到困难前的产量水平。",
+    "effects": ["农业与粮食逐步恢复", "过热工业投资收缩", "宏观秩序改善"],
     "durationMonths": 42,
     "modifiers": [
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.08 },
-      { "target": "sector.primary.output", "operation": "multiply", "value": 1.055 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.025 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 1.02 },
       { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.02 }
     ]

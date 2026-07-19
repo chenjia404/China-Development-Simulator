@@ -214,7 +214,7 @@
               "国内短缺最严重",
               "保留出口换汇能力"
             ],
-            "durationMonths": 36,
+            "durationMonths": 48,
             "isHistoricalDefault": true,
             "useEventModifiers": true,
             "modifiers": []
@@ -228,12 +228,12 @@
               "出口换汇与农产出口竞争力下降",
               "资本品用汇略受挤压"
             ],
-            "durationMonths": 36,
+            "durationMonths": 48,
             "modifiers": [
               { "target": "resources.foodSupply", "operation": "multiply", "value": 0.94 },
-              { "target": "population.deathRate", "operation": "multiply", "value": 1.02 },
-              { "target": "sector.primary.output", "operation": "multiply", "value": 0.98 },
-              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.978 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.02, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.98, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.978, "durationMonths": 36 },
               { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.992 },
               { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.994 },
               { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 }
@@ -249,12 +249,12 @@
               "外汇转向购粮，资本品用汇承压",
               "对加拿大、澳大利亚贸易关系改善"
             ],
-            "durationMonths": 36,
+            "durationMonths": 48,
             "modifiers": [
               { "target": "resources.foodSupply", "operation": "multiply", "value": 0.962 },
-              { "target": "population.deathRate", "operation": "multiply", "value": 1.011 },
-              { "target": "sector.primary.output", "operation": "multiply", "value": 0.985 },
-              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.982 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.011, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.985, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.982, "durationMonths": 36 },
               { "target": "fiscal.spending", "operation": "multiply", "value": 1.018 },
               { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.985 },
               { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.978 },
@@ -275,7 +275,7 @@
             "name": "不追加专项救济",
             "description": "不另开国际人道援助或大规模国内赈济专项，危机后果主要由粮食贸易取向决定。",
             "effects": ["不追加专项救济成本", "危机缓和完全依赖贸易取向"],
-            "durationMonths": 36,
+            "durationMonths": 48,
             "isHistoricalDefault": true,
             "modifiers": []
           },
@@ -287,9 +287,9 @@
             "durationMonths": 30,
             "modifiers": [
               { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95 },
-              { "target": "population.deathRate", "operation": "multiply", "value": 1.015 },
-              { "target": "sector.primary.output", "operation": "multiply", "value": 0.975 },
-              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.015, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.975, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985, "durationMonths": 36 },
               { "target": "fiscal.spending", "operation": "multiply", "value": 1.045 },
               { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.01 }
             ]
@@ -302,9 +302,9 @@
             "durationMonths": 24,
             "modifiers": [
               { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985 },
-              { "target": "population.deathRate", "operation": "multiply", "value": 1.006 },
-              { "target": "sector.primary.output", "operation": "multiply", "value": 0.99 },
-              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992 },
+              { "target": "population.deathRate", "operation": "multiply", "value": 1.006, "durationMonths": 36 },
+              { "target": "sector.primary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 },
+              { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992, "durationMonths": 36 },
               { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
               { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
               { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 36 },

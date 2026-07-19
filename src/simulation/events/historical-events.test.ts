@@ -537,25 +537,34 @@ describe("确定性历史事件", () => {
     expect(engine.getState().nation.pendingHistoricalEventId).toBe(
       "three_year_difficulties_1959",
     );
-    expect(historicalPath.durationMonths).toBe(24);
+    expect(historicalPath.durationMonths).toBe(33);
     expect(historicalPath.effects).toContain(
       "未发动大跃进，政策性资源错配与农业冲击明显减轻",
     );
     expect(
       historicalPath.modifiers.find(
-        (modifier) => modifier.target === "resources.foodSupply",
+        (modifier) =>
+          modifier.target === "resources.foodSupply" &&
+          (modifier.delayMonths ?? 0) === 0,
       )?.value,
-    ).toBeCloseTo(0.9688, 6);
+    ).toBeCloseTo(1 + (0.9 - 1) * 0.65 * 0.8, 6);
+    expect(
+      historicalPath.modifiers.find(
+        (modifier) =>
+          modifier.target === "resources.foodSupply" &&
+          modifier.delayMonths === 12,
+      )?.value,
+    ).toBeCloseTo(1 + (0.955 - 1) * 0.65 * 0.8, 6);
     const acceptAid = choices.find(
       (choice) => choice.id === "continue_grain_exports+accept_foreign_aid",
     );
-    // 组合持续期取各轴最大：救济轴缩放后约 16 月，贸易轴史实危机仍为 24 月。
-    expect(acceptAid?.durationMonths).toBe(24);
+    // 组合持续期取各轴最大：贸易轴史实危机缩放后为 33 月。
+    expect(acceptAid?.durationMonths).toBe(33);
     expect(
       acceptAid?.modifiers.find(
         (modifier) => modifier.target === "population.deathRate",
       )?.value,
-    ).toBeCloseTo(1 + (1.006 - 1) * 0.65 * 0.6, 6);
+    ).toBeCloseTo(1 + (1.006 - 1) * 0.65 * 0.8, 6);
   });
 
   it("三年经济困难可接受外国援助并减少死亡与经济冲击", () => {
@@ -573,7 +582,7 @@ describe("确定性历史事件", () => {
       (choice) => choice.id === "continue_grain_exports+accept_foreign_aid",
     );
     expect(aidChoice?.name).toContain("接受外国粮食与医疗援助");
-    expect(aidChoice?.durationMonths).toBe(36);
+    expect(aidChoice?.durationMonths).toBe(48);
     expect(
       aidChoice?.modifiers.find(
         (modifier) => modifier.target === "population.deathRate",

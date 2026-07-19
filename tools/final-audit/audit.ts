@@ -1814,7 +1814,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       preventedEvents.length === 2 &&
         causalEngine.getState().nation.pendingHistoricalEventId ===
           "three_year_difficulties_1959" &&
-        causalChoices[0]?.durationMonths === 24 &&
+        causalChoices[0]?.durationMonths === 33 &&
         causalEngine.getState().nation.modifiers.some(
           (modifier) =>
             modifier.sourceId === "great_leap_forward_1958" &&
@@ -1822,7 +1822,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
             modifier.operation === "add" &&
             modifier.value > 0,
         ),
-      `已避免 ${preventedEvents.map((event) => event.name).join("、")}，三年经济困难由 36 个月降至 ${causalChoices[0]?.durationMonths ?? "未知"} 个月`,
+      `已避免 ${preventedEvents.map((event) => event.name).join("、")}，三年经济困难由 48 个月降至 ${causalChoices[0]?.durationMonths ?? "未知"} 个月`,
     ),
     makeCheck(
       "foreign-aid-relief",
