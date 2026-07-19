@@ -554,7 +554,7 @@ describe("确定性历史事件", () => {
           modifier.target === "sector.primary.output" &&
           modifier.delayMonths === 6,
       ),
-    ).toMatchObject({ value: 0.93, durationMonths: 10 });
+    ).toMatchObject({ value: 0.93, durationMonths: 24 });
     expect(
       historicalChoice?.modifiers.find(
         (modifier) =>
@@ -577,7 +577,7 @@ describe("确定性历史事件", () => {
           modifier.target === "resources.foodSupply" &&
           modifier.delayMonths === 5,
       ),
-    ).toMatchObject({ value: 0.95, durationMonths: 10 });
+    ).toMatchObject({ value: 0.95, durationMonths: 24 });
     expect(
       historicalChoice?.modifiers.find(
         (modifier) =>
@@ -653,14 +653,14 @@ describe("确定性历史事件", () => {
           modifier.target === "resources.foodSupply" &&
           (modifier.delayMonths ?? 0) === 0,
       )?.value,
-    ).toBeCloseTo(1 + (0.92 - 1) * 0.65 * 0.8, 6);
+    ).toBeCloseTo(1 + (0.94 - 1) * 0.65 * 0.8, 6);
     expect(
       historicalPath.modifiers.find(
         (modifier) =>
           modifier.target === "resources.foodSupply" &&
           modifier.delayMonths === 12,
       )?.value,
-    ).toBeCloseTo(1 + (0.96 - 1) * 0.65 * 0.8, 6);
+    ).toBeCloseTo(1 + (0.97 - 1) * 0.65 * 0.8, 6);
     const acceptAid = choices.find(
       (choice) =>
         choice.id ===

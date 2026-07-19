@@ -257,7 +257,7 @@
             ],
             "durationMonths": 48,
             "modifiers": [
-              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.94 },
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.945 },
               { "target": "population.deathRate", "operation": "multiply", "value": 1.02, "durationMonths": 36 },
               { "target": "sector.primary.output", "operation": "multiply", "value": 0.98, "durationMonths": 36 },
               { "target": "sector.secondary.output", "operation": "multiply", "value": 0.978, "durationMonths": 36 },
@@ -313,7 +313,7 @@
             "effects": ["粮食和死亡率冲击部分缓解", "财政负担明显增加", "制度纠偏能力改善"],
             "durationMonths": 30,
             "modifiers": [
-              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95 },
+              { "target": "resources.foodSupply", "operation": "multiply", "value": 0.955 },
               { "target": "population.deathRate", "operation": "multiply", "value": 1.015, "durationMonths": 36 },
               { "target": "sector.primary.output", "operation": "multiply", "value": 0.975, "durationMonths": 36 },
               { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985, "durationMonths": 36 },

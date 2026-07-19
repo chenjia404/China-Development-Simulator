@@ -208,21 +208,21 @@
     "month": 8,
     "category": "农业农村",
     "impact": "negative",
-    "description": "农村生产和分配被高度集中。模型以约一年收获期的偏强短脉冲刻画：农业劳动效率明显下降、管理失误与错误技术压低制度与投资效率、家庭副业与民间经营收缩，粮供在下一季起显著承压；并残留轻度长期生产率拖累。数值经历史校准约束，落在劳动约 5%–10%、管理/技术约 3%–8%、副业相关投资显著下滑的可对冲区间上沿附近。",
+    "description": "农村生产和分配被高度集中。史实上极端集中生产与公共食堂冲击自 1958 秋铺开后，经 1959 调整反复、庐山会议反右倾回潮，一直压到 1960 年粮食谷底；约至 1961 年初《农业六十条》前后才明显退潮。模型以收获期滞后的偏强中脉冲刻画：一产与粮供自 1959 年初承压至约 1961 年初（约 24 个月，覆盖 1960 谷底），劳动约降 7%、粮供约降 5%；管理/投资效率与副业收缩及轻度长期生产率拖累并行。与「三年经济困难」通用粮供冲击做归因再平衡，避免双计过度。",
     "effects": [
-      "农业劳动效率显著下降（约7%）",
+      "农业劳动效率显著下降（约7%），持续至约1961年初",
       "管理失误与错误技术拖累制度与投资效率",
       "家庭副业与民间经营明显收缩",
-      "粮食产量与供应显著承压",
+      "粮食产量与供应承压覆盖1960谷底",
       "公共食堂与集中分配放大短缺"
     ],
     "durationMonths": 36,
     "modifiers": [
-      { "target": "sector.primary.output", "operation": "multiply", "value": 0.93, "delayMonths": 6, "durationMonths": 10 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.93, "delayMonths": 6, "durationMonths": 24 },
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.95 },
       { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.97, "durationMonths": 36 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.85, "durationMonths": 10 },
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95, "delayMonths": 5, "durationMonths": 10 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95, "delayMonths": 5, "durationMonths": 24 },
       { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": -0.00005, "durationMonths": 72 }
     ]
   },
@@ -242,8 +242,8 @@
     ],
     "durationMonths": 48,
     "modifiers": [
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.92 },
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.96, "delayMonths": 12, "durationMonths": 24 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.94 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.97, "delayMonths": 12, "durationMonths": 24 },
       { "target": "population.deathRate", "operation": "multiply", "value": 1.022, "durationMonths": 36 },
       { "target": "sector.secondary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 }
     ]
