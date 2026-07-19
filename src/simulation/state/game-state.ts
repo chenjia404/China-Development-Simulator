@@ -148,6 +148,26 @@ export interface IndustrialCategoryState {
   productivityIndex: number;
 }
 
+export type IndustrialPolicyStance = "support" | "neutral" | "suppress";
+
+export interface IndustrialPolicyCategoryState {
+  industryId: IndustrialCategoryId;
+  /** 玩家当前要求的政策方向；实际强度按月渐进接近目标。 */
+  stance: IndustrialPolicyStance;
+  /** -1 表示完全限制，0 表示中性，1 表示完全扶持。 */
+  effectiveIntensity: number;
+  lastChangedElapsedMonth: number | null;
+}
+
+export interface IndustrialPolicyState {
+  categories: Record<IndustrialCategoryId, IndustrialPolicyCategoryState>;
+  annualFiscalCost: number;
+  creditAllocationBias: number;
+  distortionIndex: number;
+  laborDisplacementPressure: number;
+  administrativeEffectiveness: number;
+}
+
 export interface FiscalBudget {
   education: number;
   health: number;
@@ -808,6 +828,8 @@ export interface NationState {
   sectors: Record<SectorId, SectorState>;
   /** 第二产业细分结构；各类别之和与第二产业总量保持一致。 */
   industries: Record<IndustrialCategoryId, IndustrialCategoryState>;
+  /** 可按工业类别分别扶持或限制的产业政策账户。 */
+  industrialPolicy: IndustrialPolicyState;
   fiscal: FiscalState;
   education: EducationState;
   health: HealthState;

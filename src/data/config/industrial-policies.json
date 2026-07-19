@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "description": "产业政策通过财政、信贷、投资、研发、出口、能源和劳动力重配影响十一类工业，不直接修改GDP。",
+    "sources": [
+      "国家统计局高技术制造业与战略性新兴产业分类",
+      "项目既有工业细分与科技树传导口径"
+    ]
+  },
+  "minimumChangeIntervalMonths": 6,
+  "transitionMonths": {
+    "support": 24,
+    "neutral": 18,
+    "suppress": 12
+  },
+  "administrativeCapacity": {
+    "baseFullyEffectiveIndustries": 2,
+    "institutionalCapacityScale": 4,
+    "minimumEffectiveness": 0.35
+  },
+  "stances": {
+    "support": {
+      "outputWeightMultiplier": 1.22,
+      "productivityMultiplier": 1.08,
+      "investmentMultiplier": 1.18,
+      "exportMultiplier": 1.12,
+      "researchMultiplier": 1.1,
+      "energyDemandMultiplier": 1.05,
+      "annualFiscalCostRate": 0.012,
+      "creditBias": 0.15,
+      "distortionRate": 0.035,
+      "laborDisplacementRate": 0.01
+    },
+    "neutral": {
+      "outputWeightMultiplier": 1,
+      "productivityMultiplier": 1,
+      "investmentMultiplier": 1,
+      "exportMultiplier": 1,
+      "researchMultiplier": 1,
+      "energyDemandMultiplier": 1,
+      "annualFiscalCostRate": 0,
+      "creditBias": 0,
+      "distortionRate": 0,
+      "laborDisplacementRate": 0
+    },
+    "suppress": {
+      "outputWeightMultiplier": 0.62,
+      "productivityMultiplier": 0.96,
+      "investmentMultiplier": 0.55,
+      "exportMultiplier": 0.68,
+      "researchMultiplier": 0.75,
+      "energyDemandMultiplier": 0.82,
+      "annualFiscalCostRate": 0.0025,
+      "creditBias": -0.2,
+      "distortionRate": 0.015,
+      "laborDisplacementRate": 0.12
+    }
+  },
+  "categoryParameters": {
+    "mining_energy": { "supportCostMultiplier": 1.1, "employmentSensitivity": 0.85, "supplyChainImportance": 1.3 },
+    "basic_materials": { "supportCostMultiplier": 1.25, "employmentSensitivity": 0.95, "supplyChainImportance": 1.4 },
+    "consumer_goods": { "supportCostMultiplier": 0.75, "employmentSensitivity": 1.4, "supplyChainImportance": 0.9 },
+    "construction": { "supportCostMultiplier": 0.9, "employmentSensitivity": 1.35, "supplyChainImportance": 1 },
+    "general_machinery": { "supportCostMultiplier": 1.15, "employmentSensitivity": 1.05, "supplyChainImportance": 1.35 },
+    "transport_equipment": { "supportCostMultiplier": 1.3, "employmentSensitivity": 1, "supplyChainImportance": 1.2 },
+    "chemicals_pharmaceuticals": { "supportCostMultiplier": 1.25, "employmentSensitivity": 0.85, "supplyChainImportance": 1.2 },
+    "electrical_equipment": { "supportCostMultiplier": 1.2, "employmentSensitivity": 0.9, "supplyChainImportance": 1.25 },
+    "electronics_communications": { "supportCostMultiplier": 1.35, "employmentSensitivity": 0.85, "supplyChainImportance": 1.3 },
+    "precision_medical": { "supportCostMultiplier": 1.45, "employmentSensitivity": 0.7, "supplyChainImportance": 1.05 },
+    "aerospace_advanced": { "supportCostMultiplier": 1.7, "employmentSensitivity": 0.65, "supplyChainImportance": 1.15 }
+  }
+}

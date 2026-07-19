@@ -44,6 +44,10 @@ import { ensureRegionalEconomyState } from "../economy/regional-economy";
 import { ensureWorldTradeNetworkState } from "../economy/international-network";
 import { ensureSecurityDefenseState } from "../security/defense-security";
 import { ensureInstitutionCausalityState } from "../institutions/institution-causality";
+import {
+  ensureIndustrialPolicyState,
+  setIndustrialPolicyStance,
+} from "../policies/industrial-policy";
 
 export interface SimulationResult {
   state: GameState;
@@ -97,6 +101,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureWorldTradeNetworkState(this.state);
     ensureSecurityDefenseState(this.state.nation);
     ensureInstitutionCausalityState(this.state.nation);
+    ensureIndustrialPolicyState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -145,6 +150,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureWorldTradeNetworkState(this.state);
         ensureSecurityDefenseState(this.state.nation);
         ensureInstitutionCausalityState(this.state.nation);
+        ensureIndustrialPolicyState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
         this.state.nation.fiscal.budget = {
@@ -159,6 +165,13 @@ class DeterministicSimulationEngine implements SimulationEngine {
           this.state.nation.policies,
         );
         this.state.nation.policies = [...command.policyIds];
+        break;
+      case "SET_INDUSTRIAL_POLICY":
+        setIndustrialPolicyStance(
+          this.state.nation,
+          command.industryId,
+          command.stance,
+        );
         break;
       case "DIPLOMATIC_ACTION":
         executeDiplomaticAction(this.state, command.actionId, command.countryId);

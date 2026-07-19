@@ -52,6 +52,7 @@ export * from "./save/serialization";
 export * from "./reports/history";
 export * from "./reports/historical-comparison";
 export * from "./policies/policy-engine";
+export * from "./policies/industrial-policy";
 export * from "./policies/development-routes";
 export * from "./events/event-engine";
 export * from "./events/historical-event-engine";

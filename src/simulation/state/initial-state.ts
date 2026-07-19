@@ -10,6 +10,7 @@ import { createInitialWorldState } from "../world/countries";
 import { calculateWorldRankings } from "../world/rankings";
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
+import { createInitialIndustrialPolicyState } from "../policies/industrial-policy";
 import { createInitialPrivateEconomyState } from "../economy/private-economy";
 import sinoUSNormalizationConfig from "../../data/config/sino-us-normalization.json";
 import {
@@ -191,6 +192,7 @@ export function createInitialGameState(
         tertiary: createSector("tertiary", 33_000_000_000, 62_000_000_000, 27_000_000, 0.6),
       },
       industries: createInitialIndustrialCategories(28_000_000_000),
+      industrialPolicy: createInitialIndustrialPolicyState(),
       fiscal: {
         revenue: 12_000_000_000,
         expenditure: 13_000_000_000,

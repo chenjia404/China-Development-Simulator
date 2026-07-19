@@ -1,4 +1,9 @@
-import type { FiscalBudget, GameState } from "../state/game-state";
+import type {
+  FiscalBudget,
+  GameState,
+  IndustrialCategoryId,
+  IndustrialPolicyStance,
+} from "../state/game-state";
 import type { DiplomaticActionId } from "../diplomacy/diplomacy";
 import type { DiplomaticStrategyId } from "../diplomacy/diplomatic-strategy";
 import type { ForeignPolicyDoctrineId } from "../diplomacy/foreign-policy-doctrine";
@@ -25,6 +30,12 @@ export interface UpdateBudgetCommand {
 export interface SetPoliciesCommand {
   type: "SET_POLICIES";
   policyIds: string[];
+}
+
+export interface SetIndustrialPolicyCommand {
+  type: "SET_INDUSTRIAL_POLICY";
+  industryId: IndustrialCategoryId;
+  stance: IndustrialPolicyStance;
 }
 
 export interface ImportGameCommand {
@@ -93,6 +104,7 @@ export type SimulationCommand =
   | AdvanceMonthsCommand
   | UpdateBudgetCommand
   | SetPoliciesCommand
+  | SetIndustrialPolicyCommand
   | DiplomaticActionCommand
   | JoinOrganizationCommand
   | SetDiplomaticStrategyCommand
