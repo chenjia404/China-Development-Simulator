@@ -75,6 +75,17 @@ button { color: inherit; }
 .primary-button { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; font-weight: 700; box-shadow: 0 6px 14px color-mix(in srgb, var(--blue) 24%, transparent); }
 button:disabled { cursor: not-allowed; opacity: .55; transform: none !important; }
 
+/* 手机悬浮「推进一年」：桌面隐藏，≤800px 再显示 */
+.advance-year-fab {
+  display: none;
+  border: 1px solid var(--blue);
+  background: var(--blue);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--blue) 36%, transparent);
+}
+
 .workspace { width: min(1580px, 100%); margin: 0 auto; padding: 20px 28px 42px; }
 .status-strip { display: flex; align-items: center; gap: 32px; min-height: 52px; margin-bottom: 16px; padding: 8px 12px 8px 18px; border: 1px solid var(--line); background: var(--surface); border-radius: 11px; box-shadow: 0 3px 12px rgba(31,48,76,.035); }
 .status-strip div { display: grid; gap: 2px; }
@@ -723,15 +734,50 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .sidebar { width: 100%; height: auto; position: sticky; top: 0; padding: 9px 12px; }
   .brand { padding: 0 0 8px; border: 0; }
   .brand-mark { width: 31px; height: 31px; }
-  .sidebar nav { display: flex; overflow-x: auto; margin: 0; padding-bottom: 2px; }
-  .nav-item { flex: 0 0 auto; padding: 7px 10px; }
+  .sidebar nav {
+    display: flex;
+    overflow-x: auto;
+    margin: 0;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+  .nav-item {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 10px 12px;
+    scroll-snap-align: start;
+  }
   .nav-item span { display: none; }
   .sidebar-foot { display: none; }
   .main-column { width: 100%; margin: 0; }
   .topbar { position: static; height: auto; align-items: flex-start; padding: 15px; flex-direction: column; }
-  .top-actions { width: 100%; overflow-x: auto; padding-bottom: 2px; }
-  .workspace { padding: 13px 12px 30px; }
-  .status-strip { gap: 14px; overflow-x: auto; }
+  .top-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .top-actions button,
+  .status-strip button,
+  .settings-action button,
+  .file-button {
+    min-height: 44px;
+  }
+  .theme-button { width: 44px; min-width: 44px; }
+  .speed-control button { min-height: 44px; padding: 10px 12px; }
+  .control-button,
+  .primary-button { min-height: 44px; }
+  .workspace { padding: 13px 12px calc(88px + env(safe-area-inset-bottom, 0px)); }
+  .status-strip {
+    gap: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
   .status-strip div { flex: 0 0 auto; }
   .status-strip button { flex: 0 0 auto; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
@@ -751,6 +797,17 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .technology-path-grid { grid-template-columns: 1fr; }
   .technology-path-heading { display: block; }
   .technology-path-current { width: fit-content; margin-top: 12px; text-align: left; }
+  .technology-path-card button,
+  .route-blueprint-card button,
+  .strategy-card button,
+  .policy-card button,
+  .policy-toggle,
+  .initiative-card button,
+  .technology-node button {
+    min-height: 44px;
+    padding: 11px 12px;
+    font-size: 13px;
+  }
   .industry-category-grid { grid-template-columns: 1fr; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -758,22 +815,92 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .initiative-heading { align-items: flex-start; }
   .strategy-panel-heading { display: block; }
   .strategy-current { width: fit-content; margin-top: 12px; text-align: left; }
+  .industrial-policy-buttons button {
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
   .foreign-aid-grid { grid-template-columns: 1fr; }
   .normalization-policy-action { grid-template-columns: 1fr; }
-  .normalization-policy-action button { width: 100%; }
+  .normalization-policy-action button { width: 100%; min-height: 44px; }
   .policy-hero { padding-right: 4px; }
   .selection-count { position: static; display: inline-block; margin-top: 14px; }
   .relation-row { grid-template-columns: 1fr 64px; }
-  .relation-actions { grid-column: 1 / -1; justify-content: flex-start; overflow-x: auto; }
+  .relation-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+  .organization-card button,
+  .relation-actions button {
+    min-height: 40px;
+    padding: 10px 12px;
+    font-size: 12px;
+    scroll-snap-align: start;
+  }
   .history-event-toolbar { align-items: stretch; flex-direction: column; }
+  .history-event-toolbar select { min-height: 44px; }
   .next-event { text-align: left; }
   .world-head, .world-row { grid-template-columns: 38px 1fr 1fr 60px; }
   .world-head span:nth-child(4), .world-row span:nth-child(4) { display: none; }
   .history-chart, .chart-empty { height: 285px; }
-  .historical-decision-overlay { padding: 10px; }
-  .historical-decision-modal { max-height: calc(100vh - 20px); padding: 17px; }
+  .historical-comparison-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .historical-decision-overlay {
+    place-items: end center;
+    padding: 0;
+  }
+  .historical-decision-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(92vh, 920px);
+    padding: 18px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-radius: 20px 20px 0 0;
+  }
   .historical-decision-header { gap: 12px; }
   .historical-decision-header h2 { font-size: 20px; }
+  .historical-choice button {
+    min-height: 44px;
+    padding: 12px;
+    font-size: 13px;
+  }
+  .historical-axis-preview {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .historical-axis-preview button {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    font-size: 14px;
+  }
+  .famine-mortality-actions { justify-content: stretch; }
+  .famine-mortality-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    font-size: 14px;
+  }
+  .advance-year-fab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index: 45;
+    min-height: 48px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 470px) {
@@ -787,7 +914,6 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .technology-path-grid { grid-template-columns: 1fr; }
   .industry-summary { grid-template-columns: 1fr; }
   .metric-card strong { font-size: 19px; }
-  .control-button, .theme-button { display: none; }
   .panel { padding: 14px; }
   .policy-grid, .diplomacy-metrics { grid-template-columns: 1fr; }
   .foreign-aid-metrics { grid-template-columns: 1fr; }

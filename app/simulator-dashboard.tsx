@@ -2492,6 +2492,13 @@ export function SimulatorDashboard() {
   const awaitingHistoricalDecision = Boolean(game.nation.pendingHistoricalEventId);
   const awaitingFamineReport = Boolean(game.nation.famineMortality?.pendingReport);
   const awaitingBlockingPopup = awaitingHistoricalDecision || awaitingFamineReport;
+  const advanceYearLabel = awaitingHistoricalDecision
+    ? "请先决策"
+    : awaitingFamineReport
+      ? "请先确认报告"
+      : busy
+        ? "结算中…"
+        : "推进一年";
   const handleRestart = async () => {
     const confirmed = window.confirm(
       "确定重新开始吗？当前进度将被清除，并使用相同随机种子回到 1949 年。",
@@ -2515,7 +2522,7 @@ export function SimulatorDashboard() {
             <button className="theme-button" onClick={() => store.setDarkMode(!darkMode)} aria-label="切换深色模式">{darkMode ? "日" : "夜"}</button>
             <div className="speed-control">{([1, 5, 10] as const).map((value) => <button className={speed === value ? "active" : ""} key={value} onClick={() => store.setSpeed(value)}>{value}×</button>)}</div>
             <button className={autoRunning ? "control-button stop" : "control-button"} disabled={awaitingBlockingPopup} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>
-            <button className="primary-button" disabled={busy || awaitingBlockingPopup} onClick={() => void store.advanceYear()}>{awaitingHistoricalDecision ? "请先决策" : awaitingFamineReport ? "请先确认报告" : busy ? "结算中…" : "推进一年"}</button>
+            <button className="primary-button" disabled={busy || awaitingBlockingPopup} onClick={() => void store.advanceYear()}>{advanceYearLabel}</button>
           </div>
         </header>
         {error ? <div className="error-banner">{error}</div> : null}
@@ -2534,6 +2541,14 @@ export function SimulatorDashboard() {
           {!(["nation", "technology", "industry", "policies", "achievements", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
         </div>
       </div>
+      <button
+        type="button"
+        className="advance-year-fab"
+        disabled={busy || awaitingBlockingPopup}
+        onClick={() => void store.advanceYear()}
+      >
+        {advanceYearLabel}
+      </button>
       {game.nation.pendingHistoricalEventId ? (
         <HistoricalDecisionModal
           key={game.nation.pendingHistoricalEventId}
