@@ -14,5 +14,12 @@
   "baseInflationRate": 0.018,
   "minimumInflationRate": -0.2,
   "maximumInflationRate": 10,
-  "inflationAdjustmentSpeed": 0.12
+  "inflationAdjustmentSpeed": 0.12,
+  "agriculturalTaxShareCoefficient": 7.0,
+  "agriculturalTaxShareExponent": 4.35,
+  "agriculturalTaxShareWeakDevWeight": 0.3,
+  "agriculturalTaxShareFloor": 0.008,
+  "agriculturalTaxShareCap": 0.4,
+  "agriculturalTaxWelfareBoost": 0.006,
+  "agriculturalTaxStabilityBoost": 1.2
 }

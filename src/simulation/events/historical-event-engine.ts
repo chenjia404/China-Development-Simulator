@@ -5,6 +5,10 @@ import type { ModifierState, NationState } from "../state/game-state";
 import type { HistoricalEventRecord } from "../state/history-state";
 import { applyForeignAidEventAdjustment } from "../diplomacy/foreign-aid";
 import { addModifier } from "./modifiers";
+import {
+  AGRICULTURAL_TAX_ABOLITION_EVENT_ID,
+  ensureFiscalAgricultureTaxState,
+} from "../fiscal/agricultural-tax";
 
 export type HistoricalEventCategory =
   | "经济制度"
@@ -716,6 +720,7 @@ function applyChoice(
     outcome: choice.outcome ?? "occurred",
   };
   nation.history.historicalEvents.push(record);
+  ensureFiscalAgricultureTaxState(nation);
   nation.pendingHistoricalEventId = null;
   return record;
 }
@@ -855,6 +860,20 @@ export function checkHistoricalEvents(nation: NationState): HistoricalEventRecor
       occurredIds.has(event.id)
     ) {
       continue;
+    }
+    // 国策路径已永久废除农业税时，史实月自动入库，避免 interactive 再阻塞决策。
+    if (
+      event.id === AGRICULTURAL_TAX_ABOLITION_EVENT_ID
+    ) {
+      ensureFiscalAgricultureTaxState(nation);
+      if (nation.fiscal.agriculturalTaxAbolished) {
+        nation.pendingHistoricalEventId = event.id;
+        triggered.push(
+          resolveHistoricalEvent(nation, event.id, "historical_path"),
+        );
+        occurredIds.add(event.id);
+        continue;
+      }
     }
     nation.pendingHistoricalEventId = event.id;
     if (nation.historicalEventDecisionMode === "interactive") break;

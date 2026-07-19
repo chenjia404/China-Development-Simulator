@@ -3,6 +3,7 @@ import { approach, clamp } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { applyAgriculturalTaxAttribution } from "./agricultural-tax";
 
 export function calculateEffectiveTaxRate(
   statutoryTaxRate: number,
@@ -49,16 +50,14 @@ export function calculateFiscalRevenue(nation: NationState): void {
   const stateOwnedProfit = sectors.secondary.valueAdded * 0.055;
   const tariffRevenue =
     (trade.exports + trade.imports) * trade.openness * 0.035;
+  const base = generalTax + stateOwnedProfit + tariffRevenue;
+  const netBase = applyAgriculturalTaxAttribution(nation, base);
   fiscal.revenue = Math.max(
     0,
     applyModifiers(
       nation,
       "fiscal.revenue",
-      applyPolicyModifiers(
-        nation,
-        "fiscal.revenue",
-        generalTax + stateOwnedProfit + tariffRevenue,
-      ),
+      applyPolicyModifiers(nation, "fiscal.revenue", netBase),
     ),
   );
 }

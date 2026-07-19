@@ -197,6 +197,12 @@ export interface FiscalState {
   monetaryFinancing: number;
   /** 已包含在财政总支出中的年度化对外援助支出。 */
   foreignAidExpenditure: number;
+  /** 农业税潜在份额（相对未乘外层 modifier 的合并税基）。 */
+  agriculturalTaxShare: number;
+  /** 当期实收农业税。 */
+  agriculturalTaxRevenue: number;
+  /** 农业税是否已永久废除（不可逆）。 */
+  agriculturalTaxAbolished: boolean;
   budget: FiscalBudget;
   federalism: FiscalFederalismState;
 }

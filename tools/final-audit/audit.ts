@@ -1959,7 +1959,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     makeCheck(
       "historical-initiatives",
       "适合主动推动的历史转折可提前实施，战争危机与组织资格保持事件化",
-      historicalInitiativeDefinitions.length === 17 &&
+      historicalInitiativeDefinitions.length === 18 &&
         new Set(initiativeEventIds).size === historicalInitiativeDefinitions.length &&
         excludedInitiativeEvents.every((eventId) => !initiativeEventIds.includes(eventId)) &&
         auditedEarlyInitiativeEvents.every((eventId) =>

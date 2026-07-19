@@ -43,6 +43,7 @@ import { ensureNationalAccountsState } from "../economy/national-accounts";
 import { ensureMarketDynamicsState } from "../economy/market-dynamics";
 import { ensureDemographicDetailState } from "../population/demographic-cohorts";
 import { ensureEnterpriseSectorState } from "../economy/enterprise-sectors";
+import { ensureFiscalAgricultureTaxState } from "../fiscal/agricultural-tax";
 import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
@@ -103,6 +104,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureDemographicDetailState(this.state.nation);
     ensureEnterpriseSectorState(this.state.nation);
     ensureFiscalFederalismState(this.state.nation);
+    ensureFiscalAgricultureTaxState(this.state.nation);
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
     ensureInfrastructureResourceState(this.state.nation);
@@ -155,6 +157,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureDemographicDetailState(this.state.nation);
         ensureEnterpriseSectorState(this.state.nation);
         ensureFiscalFederalismState(this.state.nation);
+        ensureFiscalAgricultureTaxState(this.state.nation);
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
         ensureInfrastructureResourceState(this.state.nation);

@@ -1,23 +1,29 @@
+import fiscalConfig from "../../data/config/fiscal.json";
 import { approach, clamp, safeDivide } from "../core/math";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { resolveAgriculturalTaxIntensity } from "../fiscal/agricultural-tax";
 
 export function updateWellbeing(nation: NationState): void {
   const { society, economy, fiscal, education, health, labor, resources } = nation;
+  const agriculturalTaxAbolitionIntensity = resolveAgriculturalTaxIntensity(nation);
   const incomeScore = clamp(
     Math.log1p(economy.realGDPPerCapita) / Math.log(60_001),
     0,
     1,
   );
-  const welfareIntensity = applyPolicyModifiers(
-    nation,
-    "wellbeing.welfare",
-    safeDivide(
-      fiscal.expenditure * fiscal.budget.welfare,
-      economy.nominalGDP,
-    ),
-  );
+  const welfareIntensity =
+    applyPolicyModifiers(
+      nation,
+      "wellbeing.welfare",
+      safeDivide(
+        fiscal.expenditure * fiscal.budget.welfare,
+        economy.nominalGDP,
+      ),
+    ) +
+    fiscalConfig.agriculturalTaxWelfareBoost *
+      agriculturalTaxAbolitionIntensity;
   const targetPoverty = clamp(
     0.92 - incomeScore * 0.82 - welfareIntensity * 1.5,
     0.01,
@@ -85,7 +91,9 @@ export function updateWellbeing(nation: NationState): void {
       society.happinessIndex * 0.55 +
         (1 - labor.unemploymentRate) * 25 +
         (1 - society.povertyRate) * 20 -
-        inflationPenalty * 20,
+        inflationPenalty * 20 +
+        fiscalConfig.agriculturalTaxStabilityBoost *
+          agriculturalTaxAbolitionIntensity,
     ),
     0,
     100,

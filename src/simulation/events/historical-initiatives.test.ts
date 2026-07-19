@@ -18,10 +18,10 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("十七项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(17);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(17);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(17);
+  it("十八项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(18);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(18);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(18);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
     expect(
       historicalInitiativeDefinitions.map((item) => item.eventId),
@@ -91,6 +91,46 @@ describe("历史转折国策", () => {
       type: "SET_POLICIES",
       policyIds: ["securities_exchange"],
     })).toThrow("未知国策");
+  });
+
+  it("可提前废除农业税且史实年份不再重复触发", () => {
+    const state = createInitialGameState(1949, 1949);
+    state.nation.economy.institutionalEfficiency = 0.4;
+    state.nation.institutions.stateCapacity = 0.35;
+    state.nation.institutions.localImplementationCapacity = 0.3;
+    state.nation.institutions.legalPredictability = 0.3;
+    state.nation.society.stabilityIndex = 50;
+    const engine = createSimulationEngine(state);
+
+    expect(getHistoricalInitiativeStatus(
+      engine.exportState(),
+      "early_agricultural_tax_abolition",
+    ).available).toBe(true);
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_agricultural_tax_abolition",
+    });
+    expect(engine.getState().nation.fiscal.agriculturalTaxAbolished).toBe(true);
+    expect(engine.getState().nation.history.historicalEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "agricultural_tax_abolition_2006",
+          outcome: "enacted_early",
+        }),
+      ]),
+    );
+
+    const advanced = engine.exportState();
+    advanced.nation.date.year = 2006;
+    advanced.nation.date.month = 1;
+    advanced.nation.historicalEventDecisionMode = "automatic";
+    const later = createSimulationEngine(advanced);
+    later.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(
+      later.getState().nation.history.historicalEvents.filter(
+        (record) => record.id === "agricultural_tax_abolition_2006",
+      ),
+    ).toHaveLength(1);
   });
 
   it("财政统一、土地改革和五年计划可由玩家依次提前启动", () => {

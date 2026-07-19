@@ -17,6 +17,7 @@ export * from "./diplomacy/foreign-aid";
 export * from "./diplomacy/sino-us-normalization";
 export * from "./fiscal/debt";
 export * from "./fiscal/revenue";
+export * from "./fiscal/agricultural-tax";
 export * from "./fiscal/spending";
 export * from "./society/education";
 export * from "./society/health";

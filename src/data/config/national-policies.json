@@ -439,6 +439,15 @@
       "modifiers": []
     },
     {
+      "id": "abolish_agricultural_tax",
+      "name": "废除农业税",
+      "category": "财政",
+      "description": "逐步取消农业税及相关农村税费。建国初期农税常占财政收入三成左右，废除将显著扩大赤字；工业化推进后份额降至很低，代价随之减轻。满额或经历史事件废止后永久生效，取消本国务不恢复征收且可腾出国策槽；若已废除，2006 年史实节点不再要求另行决策。不直接改写农村人均收入公式，收益体现为小幅改善民生与稳定。",
+      "transitionMonths": 18,
+      "conflictsWith": [],
+      "modifiers": []
+    },
+    {
       "id": "low_tax",
       "name": "减税降费",
       "category": "财政",

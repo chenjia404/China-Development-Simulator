@@ -17,6 +17,7 @@ import { ensureNationalAccountsState } from "../economy/national-accounts";
 import { ensureMarketDynamicsState } from "../economy/market-dynamics";
 import { ensureDemographicDetailState } from "../population/demographic-cohorts";
 import { ensureEnterpriseSectorState } from "../economy/enterprise-sectors";
+import { ensureFiscalAgricultureTaxState } from "../fiscal/agricultural-tax";
 import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
@@ -83,6 +84,7 @@ export function deserializeGameState(serialized: string): GameState {
   ensureDemographicDetailState(state.nation);
   ensureEnterpriseSectorState(state.nation);
   ensureFiscalFederalismState(state.nation);
+  ensureFiscalAgricultureTaxState(state.nation);
   ensureFinancialSystemState(state);
   ensureAgricultureSystemState(state.nation);
   ensureInfrastructureResourceState(state.nation);

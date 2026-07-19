@@ -210,6 +210,23 @@ describe("国策系统", () => {
     expect(compulsory.technology.index).toBeGreaterThan(baseline.technology.index);
   });
 
+  it("废除农业税国策可随时启用且 modifiers 为空", () => {
+    const definition = getNationalPolicy("abolish_agricultural_tax");
+    expect(definition).toMatchObject({
+      category: "财政",
+      transitionMonths: 18,
+      modifiers: [],
+    });
+    expect(definition?.requirements).toBeUndefined();
+    const engine = createSimulationEngine(createInitialGameState(11));
+    expect(() =>
+      engine.dispatch({
+        type: "SET_POLICIES",
+        policyIds: ["abolish_agricultural_tax"],
+      }),
+    ).not.toThrow();
+  });
+
   it("韩国式追赶国策同时包含资本、技能、出口学习和现实代价", () => {
     expect(maximumActivePolicies).toBe(5);
     expect(getNationalPolicy("developmental_finance")?.modifiers).toEqual(

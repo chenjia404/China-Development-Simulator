@@ -612,6 +612,23 @@
     ]
   },
   {
+    "id": "agricultural_tax_abolition_2006",
+    "name": "全面取消农业税",
+    "year": 2006,
+    "month": 1,
+    "category": "财政金融",
+    "impact": "positive",
+    "description": "废止《农业税条例》，结束对农业生产者的专门税费。制度一经确立即永久清零农业税归因收入（模型以 intensity/latch 生效，而非有限期 Modifier）；农民减负改善民生与稳定，财政相应减少农税收入，建国初期废除代价远高于工业化后期。",
+    "effects": [
+      "通过 intensity/latch 永久清零农业税实收",
+      "温和改善民生与社会稳定",
+      "财政收入减少与农税潜在份额相当的部分",
+      "取消国策后亦不恢复征收"
+    ],
+    "durationMonths": 12,
+    "modifiers": []
+  },
+  {
     "id": "global_crisis_stimulus_2008",
     "name": "国际金融危机与扩大内需",
     "year": 2008,

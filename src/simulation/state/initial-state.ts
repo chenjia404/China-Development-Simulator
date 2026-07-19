@@ -32,6 +32,7 @@ import {
   createEmptyFiscalFederalismState,
   updateFiscalFederalism,
 } from "../fiscal/fiscal-federalism";
+import { calculateAgriculturalTaxPotentialShare } from "../fiscal/agricultural-tax";
 import {
   createEmptyFinancialSystemState,
   updateFinancialSystem,
@@ -78,6 +79,13 @@ const INITIAL_BUDGET: FiscalBudget = {
   defense: 0.1,
   administration: 0.1,
 };
+
+const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
+const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
+  INITIAL_PRIMARY_SHARE,
+  0.35,
+);
+const INITIAL_FISCAL_REVENUE = 12_000_000_000;
 
 function createSector(
   id: SectorId,
@@ -196,7 +204,7 @@ export function createInitialGameState(
       industries: createInitialIndustrialCategories(28_000_000_000),
       industrialPolicy: createInitialIndustrialPolicyState(),
       fiscal: {
-        revenue: 12_000_000_000,
+        revenue: INITIAL_FISCAL_REVENUE,
         expenditure: 13_000_000_000,
         balance: -1_000_000_000,
         governmentDebt: 5_000_000_000,
@@ -207,6 +215,10 @@ export function createInitialGameState(
         effectiveTaxRate: 0.095,
         monetaryFinancing: 0,
         foreignAidExpenditure: 0,
+        agriculturalTaxShare: INITIAL_AGRICULTURAL_TAX_SHARE,
+        agriculturalTaxRevenue:
+          INITIAL_FISCAL_REVENUE * INITIAL_AGRICULTURAL_TAX_SHARE,
+        agriculturalTaxAbolished: false,
         budget: { ...INITIAL_BUDGET },
         federalism: createEmptyFiscalFederalismState(),
       },

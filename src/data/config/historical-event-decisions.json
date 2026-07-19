@@ -553,6 +553,45 @@
     ]
   },
   {
+    "eventId": "agricultural_tax_abolition_2006",
+    "choices": [
+      {
+        "id": "phased_agricultural_tax_abolition",
+        "name": "分省推进并逐步免征",
+        "description": "先在粮食主产区和试点省份取消农业税，再扩展到全国。制度仍永久清零农税归因收入，但征管对接、转移支付和地方财政重整带来更长过渡行政成本。",
+        "effects": [
+          "仍通过 intensity/latch 永久清零农业税",
+          "地方财政与转移支付调整期更长",
+          "短期行政支出上升",
+          "全国步调略慢于一次到位"
+        ],
+        "durationMonths": 36,
+        "modifiers": [
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.012 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.997 }
+        ],
+        "outcome": "enacted_late"
+      },
+      {
+        "id": "defer_agricultural_tax_abolition",
+        "name": "暂缓全面取消农业税",
+        "description": "继续保留农业税及相关地方税费，以稳住基层财力。短期内财政收入少受冲击，但农民负担不减；之后仍可通过「废除农业税」普通国策主动废除。",
+        "effects": [
+          "不确立全面废止农业税",
+          "基层农税收入短期得以保留",
+          "农民税费负担继续存在",
+          "仍可随时启用废除农业税国策"
+        ],
+        "durationMonths": 48,
+        "modifiers": [
+          { "target": "fiscal.revenue", "operation": "multiply", "value": 1.004 },
+          { "target": "society.happiness", "operation": "multiply", "value": 0.995 }
+        ],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
     "eventId": "covid_19_2020",
     "choices": [
       {
