@@ -15,6 +15,8 @@ import type {
   TargetComparisonMetric,
   TechnologyIndustryPathId,
 } from "@/src/simulation";
+import { formatLarge, formatPercent } from "@/src/ui/format";
+import { ShareDialog } from "./share-dialog";
 import {
   averageInternationalRelation,
   developmentRouteBlueprints,
@@ -104,18 +106,6 @@ const budgetLabels: Record<keyof FiscalBudget, string> = {
   defense: "国防",
   administration: "行政",
 };
-
-function formatLarge(value: number): string {
-  const absolute = Math.abs(value);
-  if (absolute >= 1e12) return `${(value / 1e12).toFixed(2)}万亿`;
-  if (absolute >= 1e8) return `${(value / 1e8).toFixed(2)}亿`;
-  if (absolute >= 1e4) return `${(value / 1e4).toFixed(1)}万`;
-  return value.toFixed(0);
-}
-
-function formatPercent(value: number, digits = 1): string {
-  return `${(value * 100).toFixed(digits)}%`;
-}
 
 function MetricCard({
   label,
@@ -356,12 +346,31 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
   const nation = game.nation;
   const lastAnnual = nation.history.annual.at(-1);
   const previousAnnual = nation.history.annual.at(-2);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareSession, setShareSession] = useState(0);
   const growth = previousAnnual && lastAnnual
     ? lastAnnual.realGDP / previousAnnual.realGDP - 1
     : nation.economy.annualRealGDPGrowth;
 
   return (
     <>
+      <div className="share-overview-toolbar">
+        <div>
+          <span className="eyebrow">本局战报</span>
+          <h2>国家发展成绩</h2>
+          <p>生成成绩卡、里程碑或对比海报，便于在社交网络分享。</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setShareSession((value) => value + 1);
+            setShareOpen(true);
+          }}
+          disabled={busy}
+        >
+          分享本局
+        </button>
+      </div>
       <div className="metrics-grid">
         <MetricCard
           label="实际 GDP"
@@ -377,6 +386,12 @@ function Overview({ game, darkMode, busy }: { game: GameState; darkMode: boolean
         <MetricCard label="世界经济排名" value={`GDP 第 ${game.world.rankings.nominalGDP.china ?? "—"} 名`} detail={`全球人均第 ${nation.economy.globalGDPPerCapitaRank}/${nation.economy.globalGDPPerCapitaParticipants} · 评分 ${lastAnnual?.score.toFixed(1) ?? "—"}`} tone="green" />
       </div>
       <OverviewComparison annual={nation.history.annual} />
+      <ShareDialog
+        key={shareSession}
+        game={game}
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+      />
       <div className="dashboard-grid">
         <section className="panel chart-panel">
           <div className="panel-heading"><div><span className="eyebrow">长期趋势</span><h2>国家发展轨迹</h2></div><span className="history-count">{nation.history.annual.length} 个年度</span></div>
