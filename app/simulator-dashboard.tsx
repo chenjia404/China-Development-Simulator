@@ -66,6 +66,7 @@ import {
   type SectionId,
   useSimulationStore,
 } from "@/src/ui/simulation-store";
+import { formatHistoricalModifier } from "@/src/ui/historical-modifier-text";
 
 const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "nation", label: "国家总览", mark: "国" },
@@ -1503,46 +1504,6 @@ function formatEventDuration(months: number): string {
   return remainingMonths === 0
     ? `${years} 年`
     : `${years} 年 ${remainingMonths} 个月`;
-}
-
-const historicalModifierLabels: Record<string, string> = {
-  "sector.primary.output": "农业产出",
-  "sector.secondary.output": "工业产出",
-  "sector.tertiary.output": "服务业产出",
-  "capital.privateInvestment": "社会投资",
-  "fiscal.revenue": "财政收入",
-  "fiscal.spending": "财政支出",
-  "trade.foreignInvestment": "外商投资",
-  "trade.exportCompetitiveness": "出口竞争力",
-  "diplomacy.reputationTarget": "国际声誉目标",
-  "economy.institutionalEfficiencyTarget": "制度效率目标",
-  "resources.foodSupply": "粮食供应",
-  "resources.energySupply": "能源供应",
-  "population.birthRate": "出生率",
-  "population.deathRate": "死亡率",
-  "education.efficiency": "教育效率",
-  "education.higherEducationAdmissions": "高等教育招生能力",
-  "education.academicContinuityTarget": "学术体系连续性",
-  "education.researchCohortFormation": "科研人才培养",
-  "education.researchTalentRetention": "科研人才留存",
-  "health.efficiency": "医疗效率",
-  "technology.researchOutput": "科研产出",
-};
-
-function formatHistoricalModifier(modifier: {
-  target: string;
-  operation: "add" | "multiply" | "override";
-  value: number;
-}): string {
-  const label = historicalModifierLabels[modifier.target] ?? modifier.target;
-  if (modifier.operation === "multiply") {
-    const change = (modifier.value - 1) * 100;
-    return `${label} ${change >= 0 ? "+" : ""}${change.toFixed(1)}%`;
-  }
-  if (modifier.operation === "add") {
-    return `${label} ${modifier.value >= 0 ? "+" : ""}${modifier.value.toFixed(1)}`;
-  }
-  return `${label} 调整为 ${modifier.value}`;
 }
 
 function HistoricalDecisionModal({ game, busy }: { game: GameState; busy: boolean }) {
