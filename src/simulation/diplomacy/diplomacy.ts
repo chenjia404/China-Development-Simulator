@@ -434,29 +434,56 @@ export function updateDiplomacy(state: GameState): void {
   );
 
   for (const country of state.world.countries) {
+    const relationModifierTarget = `diplomacy.relationTarget.${country.id}`;
+    const hasActiveHistoricalRelationShock = nation.modifiers.some(
+      (modifier) =>
+        modifier.target === relationModifierTarget &&
+        (modifier.delayMonths ?? 0) <= 0,
+    );
     const cooperationBonus =
       (country.tradeAgreement ? 8 : 0) +
       (country.diplomaticStatus === "strategic_partner" ? 12 : 0);
+    const relationModifierDelta = applyModifiers(
+      nation,
+      relationModifierTarget,
+      0,
+    );
+    const ordinaryRelationTarget =
+      (nation.diplomacy.globalReputation - 50) * 0.3 +
+      nation.trade.openness * 12 +
+      cooperationBonus -
+      country.sanctionLevel * 80 +
+      diplomaticRelationTargetAdjustment(nation, country.id) +
+      foreignPolicyDoctrineRelationAdjustment(nation, country.id) +
+      foreignAidRelationTargetAdjustment(nation, country.id) +
+      sinoUSNormalizationRelationTargetAdjustment(nation, country.id);
+    const modifiedRelationTarget = applyModifiers(
+      nation,
+      relationModifierTarget,
+      ordinaryRelationTarget,
+    );
+    const directionalHistoricalTarget = relationModifierDelta > 0
+      ? Math.max(
+          modifiedRelationTarget,
+          initialRelation(country.id) + relationModifierDelta,
+        )
+      : relationModifierDelta < 0
+        ? Math.min(
+            modifiedRelationTarget,
+            initialRelation(country.id) + relationModifierDelta,
+          )
+        : modifiedRelationTarget;
     const relationTarget = clamp(
-      applyModifiers(
-        nation,
-        `diplomacy.relationTarget.${country.id}`,
-        (nation.diplomacy.globalReputation - 50) * 0.3 +
-          nation.trade.openness * 12 +
-          cooperationBonus -
-          country.sanctionLevel * 80 +
-          diplomaticRelationTargetAdjustment(nation, country.id) +
-          foreignPolicyDoctrineRelationAdjustment(nation, country.id) +
-          foreignAidRelationTargetAdjustment(nation, country.id) +
-          sinoUSNormalizationRelationTargetAdjustment(nation, country.id),
-      ),
+      directionalHistoricalTarget,
       -100,
       100,
     );
     country.relationWithChina = approach(
       country.relationWithChina,
       relationTarget,
-      0.002,
+      hasActiveHistoricalRelationShock
+        ? diplomacyConfig.historicalRelationAdjustmentSpeed
+        : diplomacyConfig.relationAdjustmentSpeed,
     );
   }
 

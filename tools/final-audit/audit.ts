@@ -1656,13 +1656,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         koreanWarUsRelation < preventedWarUsRelation &&
         koreanWarRussiaRelation > preventedWarRussiaRelation &&
         koreanWarSouthKoreaRelation < -30 &&
-        preventedWarSouthKoreaRelation > -30 &&
+        preventedWarSouthKoreaRelation > -28 &&
         preventedWarSouthKoreaRelation > koreanWarSouthKoreaRelation &&
         koreanWarWesternCountryIds.every(
           (countryId) =>
             relationFor(preventedWarDiplomacyState, countryId) >
             relationFor(koreanWarDiplomacyState, countryId),
         ) &&
+        preventedWarWesternAverage >= 25 &&
+        preventedWarWesternAverage - koreanWarWesternAverage >= 35 &&
+        relationFor(preventedWarDiplomacyState, "south_korea") >= 40 &&
+        relationFor(preventedWarDiplomacyState, "south_korea") -
+          relationFor(koreanWarDiplomacyState, "south_korea") >= 100 &&
         koreanWarDebtState.nation.trade.externalDebt >= 750_000_000 &&
         koreanWarDebtState.nation.trade.externalDebt <= 850_000_000 &&
         preventedWarState.nation.trade.externalDebt === 0 &&
@@ -1673,7 +1678,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
         preventedWarRecord?.outcome === "prevented" &&
         preventedWarFinalState.nation.date.year === 2027 &&
         preventedWarFinalState.nation.history.reports.length === 77,
-      `参战 37 个月后军事外债 ${(koreanWarDebtState.nation.trade.externalDebt / 100_000_000).toFixed(2)} 亿美元，阻止路线为 0；参战/阻止首月资本品用汇满足率 ${(koreanWarState.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%/${(preventedWarState.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%，五年后资本存量 ${koreanWarDevelopmentState.nation.economy.capitalStock.toFixed(0)}/${preventedWarDevelopmentState.nation.economy.capitalStock.toFixed(0)}；对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，七年后西方六国平均关系 ${koreanWarWesternAverage.toFixed(2)}/${preventedWarWesternAverage.toFixed(2)}`,
+      `参战 37 个月后军事外债 ${(koreanWarDebtState.nation.trade.externalDebt / 100_000_000).toFixed(2)} 亿美元，阻止路线为 0；参战/阻止首月资本品用汇满足率 ${(koreanWarState.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%/${(preventedWarState.nation.trade.capitalGoodsImportCoverage * 100).toFixed(1)}%，五年后资本存量 ${koreanWarDevelopmentState.nation.economy.capitalStock.toFixed(0)}/${preventedWarDevelopmentState.nation.economy.capitalStock.toFixed(0)}；首月对韩关系 ${koreanWarSouthKoreaRelation.toFixed(2)}/${preventedWarSouthKoreaRelation.toFixed(2)}，七年后对韩关系 ${relationFor(koreanWarDiplomacyState, "south_korea").toFixed(2)}/${relationFor(preventedWarDiplomacyState, "south_korea").toFixed(2)}、西方六国平均 ${koreanWarWesternAverage.toFixed(2)}/${preventedWarWesternAverage.toFixed(2)}`,
     ),
     makeCheck(
       "third-front-branching",

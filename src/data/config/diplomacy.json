@@ -3,6 +3,8 @@
   "initialDiplomaticPoints": 35,
   "initialReputation": 45,
   "initialSecurityIndex": 35,
+  "relationAdjustmentSpeed": 0.002,
+  "historicalRelationAdjustmentSpeed": 0.025,
   "initialRelations": {
     "usa": -25,
     "japan": -20,

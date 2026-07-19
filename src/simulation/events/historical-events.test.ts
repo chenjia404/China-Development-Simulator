@@ -173,7 +173,7 @@ describe("确定性历史事件", () => {
       "limited_defense_and_mediation",
     ]);
 
-    const runChoice = (choiceId: string) => {
+    const runChoice = (choiceId: string, monthsAfterChoice = 1) => {
       const state = createInitialGameState(1950, 1950, "interactive");
       state.nation.date.month = 6;
       const engine = createSimulationEngine(state);
@@ -195,13 +195,15 @@ describe("确定性历史事件", () => {
         eventId: "korean_war_1950",
         choiceId,
       });
-      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsAfterChoice });
       return engine.getState();
     };
 
     const war = runChoice("historical_path");
     const prevented = runChoice("oppose_korean_war");
     const limited = runChoice("limited_defense_and_mediation");
+    const warAfterYear = runChoice("historical_path", 12);
+    const preventedAfterYear = runChoice("oppose_korean_war", 12);
     const preventedChoice = choices.find(
       (choice) => choice.id === "oppose_korean_war",
     );
@@ -281,9 +283,24 @@ describe("确定性历史事件", () => {
     )?.relationWithChina;
     expect(warSouthKoreaRelation).toBeLessThan(-30);
     expect(preventedSouthKoreaRelation).toBeGreaterThan(-30);
+    expect(preventedSouthKoreaRelation).toBeGreaterThan(-28);
     expect(preventedSouthKoreaRelation).toBeGreaterThan(
       warSouthKoreaRelation ?? Number.POSITIVE_INFINITY,
     );
+    expect(
+      prevented.world.countries.find((country) => country.id === "usa")
+        ?.relationWithChina,
+    ).toBeGreaterThan(-24);
+    for (const countryId of ["usa", "south_korea"]) {
+      const preventedRelation = preventedAfterYear.world.countries.find(
+        (country) => country.id === countryId,
+      )?.relationWithChina ?? Number.NEGATIVE_INFINITY;
+      const warRelation = warAfterYear.world.countries.find(
+        (country) => country.id === countryId,
+      )?.relationWithChina ?? Number.POSITIVE_INFINITY;
+      expect(preventedRelation).toBeGreaterThan(-18);
+      expect(preventedRelation - warRelation).toBeGreaterThan(20);
+    }
     for (const countryId of [
       "united_kingdom",
       "france",
