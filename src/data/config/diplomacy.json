@@ -95,7 +95,7 @@
     {
       "id": "world_trade_organization",
       "name": "世界贸易组织",
-      "description": "完成复关谈判并取得足够国际支持后接入多边贸易规则，扩大市场准入并提高外资信心；不设置固定最早年份。",
+      "description": "完成复关谈判并取得足够国际支持后接入多边贸易规则。成员资格带来持续的市场准入与规则透明度红利；入世后的冲击与红利峰值由配套历史事件分阶段传导，不设置固定最早年份。",
       "automatic": true,
       "availableYear": 1949,
       "cost": 0,
@@ -113,9 +113,9 @@
         "gatt_accession_application_1986": 60
       },
       "historicalEventId": "wto_accession_2001",
-      "tradeMultiplier": 1.1,
-      "monthlyPointGain": 0.05,
-      "reputationBonus": 6
+      "tradeMultiplier": 1.13,
+      "monthlyPointGain": 0.06,
+      "reputationBonus": 8
     },
     {
       "id": "shanghai_cooperation_organization",

@@ -634,14 +634,40 @@
     "month": 12,
     "triggerMode": "conditional",
     "category": "对外经济",
-    "impact": "positive",
-    "description": "中国正式加入世界贸易组织，关税、市场准入和国内规则逐步与多边贸易体系衔接，出口和外资进入加速期。",
-    "effects": ["出口市场准入扩大", "外资信心增强", "国内企业竞争加剧"],
-    "durationMonths": 72,
+    "impact": "mixed",
+    "description": "中国正式加入世界贸易组织后进入约十年的规则对接与市场整合期：关税下调与最惠国待遇扩大出口和外资机会，外资股比与加工贸易改革促进嵌入全球价值链；同时农产品与部分消费品进口竞争、合规改造与监管建设形成短期压力。效果分履约调整、红利释放和常态化三阶段传导，不直接改写GDP。",
+    "effects": [
+      "履约初期制度与法治目标改善，但财政支出和调整摩擦上升",
+      "农产品与部分消费品面临进口竞争压力",
+      "中期出口竞争力、外资流入和电子通信/轻纺外向产能显著抬升",
+      "民营出口网络与技术商业化能力逐步增强",
+      "后期事件加成回落，主要保留成员资格带来的永久贸易规则红利"
+    ],
+    "durationMonths": 108,
     "modifiers": [
-      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.09 },
-      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.1 },
-      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.025 }
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.018, "durationMonths": 24 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.03, "durationMonths": 60 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2.5, "durationMonths": 48 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.035, "durationMonths": 24 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.045, "durationMonths": 24 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.988, "durationMonths": 36 },
+      { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 0.988, "durationMonths": 30 },
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.995, "durationMonths": 24 },
+
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.07, "delayMonths": 18, "durationMonths": 54 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.1, "delayMonths": 18, "durationMonths": 54 },
+      { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.012, "delayMonths": 24, "durationMonths": 48 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0022, "delayMonths": 24, "durationMonths": 48 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0016, "delayMonths": 24, "durationMonths": 48 },
+      { "target": "industry.electronics_communications.productivity", "operation": "multiply", "value": 1.022, "delayMonths": 24, "durationMonths": 60 },
+      { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 1.018, "delayMonths": 30, "durationMonths": 48 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.01, "delayMonths": 24, "durationMonths": 48 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 1.008, "delayMonths": 30, "durationMonths": 60 },
+      { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.005, "delayMonths": 30, "durationMonths": 60 },
+
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025, "delayMonths": 72, "durationMonths": 36 },
+      { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.035, "delayMonths": 72, "durationMonths": 36 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.012, "delayMonths": 60, "durationMonths": 48 }
     ]
   },
   {

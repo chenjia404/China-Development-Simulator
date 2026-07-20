@@ -9,6 +9,7 @@ import { applyModifiers } from "./modifiers";
 import { createInitialGameState } from "../state/initial-state";
 import {
   checkHistoricalEvents,
+  enactHistoricalEventEarly,
   getHistoricalEventAxes,
   getHistoricalEventChoice,
   getHistoricalEventChoices,
@@ -1377,6 +1378,90 @@ describe("确定性历史事件", () => {
     expect(() =>
       engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 }),
     ).not.toThrow();
+  });
+
+  it("加入世界贸易组织按履约、红利与常态化三阶段传导并保留进口竞争代价", () => {
+    const event = historicalEventDefinitions.find(
+      (item) => item.id === "wto_accession_2001",
+    );
+    expect(event).toMatchObject({
+      impact: "mixed",
+      durationMonths: 108,
+      triggerMode: "conditional",
+    });
+    expect(event?.effects.some((item) => item.includes("进口竞争"))).toBe(true);
+    expect(event?.effects.some((item) => item.includes("中期出口"))).toBe(true);
+    expect(
+      event?.modifiers.filter(
+        (modifier) => modifier.target === "trade.exportCompetitiveness",
+      ).length,
+    ).toBeGreaterThanOrEqual(3);
+    expect(
+      event?.modifiers.some(
+        (modifier) =>
+          modifier.target === "sector.primary.output" && modifier.value < 1,
+      ),
+    ).toBe(true);
+    expect(
+      event?.modifiers.some(
+        (modifier) =>
+          modifier.target === "industry.electronics_communications.productivity" &&
+          (modifier.delayMonths ?? 0) > 0,
+      ),
+    ).toBe(true);
+
+    const eligible = createInitialGameState(1982, 1982);
+    enactHistoricalEventEarly(
+      eligible.nation,
+      "gatt_accession_application_1986",
+      "test:gatt-application-wto-effect",
+      "测试入世效果前置",
+      [],
+    );
+    eligible.nation.date.year = 1987;
+    eligible.nation.date.month = 1;
+    eligible.nation.date.elapsedMonths = (1987 - 1949) * 12;
+    eligible.nation.internationalInfluence = 50;
+    eligible.nation.trade.openness = 0.5;
+    for (const country of eligible.world.countries) {
+      country.relationWithChina = 30;
+    }
+    for (const country of eligible.world.countries.slice(0, 3)) {
+      country.tradeAgreement = true;
+    }
+    const engine = createSimulationEngine(eligible);
+    const beforeExport = applyModifiers(
+      engine.getState().nation,
+      "trade.exportCompetitiveness",
+      1,
+    );
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.history.historicalEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "wto_accession_2001" }),
+      ]),
+    );
+    expect(
+      applyModifiers(engine.getState().nation, "trade.exportCompetitiveness", 1),
+    ).toBeGreaterThan(beforeExport);
+    expect(
+      applyModifiers(engine.getState().nation, "fiscal.spending", 1),
+    ).toBeGreaterThan(1);
+    expect(
+      applyModifiers(engine.getState().nation, "sector.primary.output", 1),
+    ).toBeLessThan(1);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 24 });
+    expect(
+      applyModifiers(
+        engine.getState().nation,
+        "industry.electronics_communications.productivity",
+        1,
+      ),
+    ).toBeGreaterThan(1);
+    expect(
+      applyModifiers(engine.getState().nation, "trade.exportCompetitiveness", 1),
+    ).toBeGreaterThan(1.05);
   });
 
   it("四三方案在1973年触发，兼具成套引进收益与外汇财政代价", () => {

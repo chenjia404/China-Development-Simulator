@@ -52,6 +52,7 @@ export const historicalModifierLabels: Readonly<Record<string, string>> = {
   "industry.chemicals_pharmaceuticals.productivity": "化工与医药工业生产率",
   "industry.consumer_goods.outputWeight": "消费品工业产出权重",
   "industry.consumer_goods.productivity": "消费品工业生产率",
+  "industry.electronics_communications.productivity": "电子通信工业生产率",
   "industry.general_machinery.productivity": "通用机械工业生产率",
   "privateEconomy.operatingSpaceChange": "民营经济经营空间变化",
   "privateEconomy.entrepreneurialCapacityChange": "企业家组织能力变化",
