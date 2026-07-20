@@ -141,6 +141,43 @@
     ]
   },
   {
+    "id": "early_four_three_plan",
+    "eventId": "four_three_plan_1973",
+    "name": "提前实施四三方案",
+    "category": "技术引进",
+    "description": "在具备工业化基础、恢复联合国席位并完成中美建交后，提前批准以约43亿美元成套设备为核心的引进方案，争取化肥、化纤、石化和能源钢材能力提前形成；代价是配套财政投资、购汇挤占与部分延期付款外债。",
+    "availableFromYear": 1949,
+    "diplomaticPointCost": 12,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["first_five_year_plan"],
+      "minimumMonthsSinceEvents": {
+        "first_five_year_plan": 60
+      },
+      "requiredOrganizationIds": ["united_nations"],
+      "requireSinoUSNormalization": true,
+      "minimumInstitutionalEfficiency": 0.38,
+      "minimumStability": 48,
+      "minimumOpenness": 0.06,
+      "minimumReputation": 42,
+      "minimumAverageRelation": -15,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 5,
+      "minimumEducationIndex": 14,
+      "minimumTechnologyIndex": 10,
+      "minimumSecondarySectorShare": 0.28
+    },
+    "transitionEffects": [
+      "进口谈判、厂址准备和外汇筹划增加财政支出",
+      "前期设备订购进一步挤出部分民间投资",
+      "原史实节点不再重复触发"
+    ],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 }
+    ]
+  },
+  {
     "id": "early_reform_and_opening",
     "eventId": "reform_and_opening_1978",
     "name": "提前启动改革开放",

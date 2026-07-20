@@ -1378,4 +1378,74 @@ describe("确定性历史事件", () => {
       engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 }),
     ).not.toThrow();
   });
+
+  it("四三方案在1973年触发，兼具成套引进收益与外汇财政代价", () => {
+    const event = historicalEventDefinitions.find(
+      (item) => item.id === "four_three_plan_1973",
+    );
+    expect(event).toMatchObject({
+      year: 1973,
+      month: 1,
+      category: "对外经济",
+      impact: "mixed",
+      durationMonths: 96,
+    });
+    expect(event?.description).toContain("43亿美元");
+    expect(event?.effects.some((item) => item.includes("化肥"))).toBe(true);
+    expect(event?.effects.some((item) => item.includes("外债"))).toBe(true);
+    expect(
+      event?.modifiers.some(
+        (modifier) =>
+          modifier.target === "trade.externalBorrowing" &&
+          modifier.operation === "add" &&
+          modifier.value > 0,
+      ),
+    ).toBe(true);
+    expect(
+      event?.modifiers.some(
+        (modifier) =>
+          modifier.target === "industry.chemicals_pharmaceuticals.productivity" &&
+          (modifier.delayMonths ?? 0) > 0,
+      ),
+    ).toBe(true);
+
+    const state = createInitialGameState(1973, 1973);
+    state.nation.date.month = 1;
+    const engine = createSimulationEngine(state);
+    const beforeDebt = engine.getState().nation.trade.externalDebt;
+    const beforeCoverage = engine.getState().nation.trade.capitalGoodsImportCoverage;
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+
+    const nation = engine.getState().nation;
+    expect(nation.history.historicalEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "four_three_plan_1973",
+          outcome: "occurred",
+        }),
+      ]),
+    );
+    expect(
+      nation.modifiers.some(
+        (modifier) =>
+          modifier.sourceId === "four_three_plan_1973" &&
+          modifier.target === "fiscal.spending" &&
+          modifier.value > 1,
+      ),
+    ).toBe(true);
+    expect(nation.trade.externalDebt).toBeGreaterThan(beforeDebt);
+    expect(nation.trade.capitalGoodsImportCoverage).toBeLessThan(beforeCoverage);
+
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 48 });
+    expect(
+      applyModifiers(engine.getState().nation, "resources.foodSupply", 1),
+    ).toBeGreaterThan(1);
+    expect(
+      applyModifiers(
+        engine.getState().nation,
+        "industry.chemicals_pharmaceuticals.productivity",
+        1,
+      ),
+    ).toBeGreaterThan(1);
+  });
 });

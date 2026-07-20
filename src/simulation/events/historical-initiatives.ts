@@ -1,5 +1,7 @@
+import diplomacyConfig from "../../data/config/diplomacy.json";
 import initiativeData from "../../data/config/historical-event-initiatives.json";
 import { averageInternationalRelation } from "../diplomacy/diplomacy";
+import { ensureSinoUSNormalizationState } from "../diplomacy/sino-us-normalization";
 import type { GameState, ModifierState } from "../state/game-state";
 import type { HistoricalEventRecord } from "../state/history-state";
 import { addModifier } from "./modifiers";
@@ -11,6 +13,8 @@ import {
 export interface HistoricalInitiativeRequirements {
   historicalEventIds: string[];
   minimumMonthsSinceEvents: Partial<Record<string, number>>;
+  requiredOrganizationIds?: string[];
+  requireSinoUSNormalization?: boolean;
   minimumInstitutionalEfficiency: number;
   minimumStateCapacity?: number;
   minimumLocalImplementationCapacity?: number;
@@ -30,6 +34,13 @@ export interface HistoricalInitiativeRequirements {
   minimumSecondarySectorShare?: number;
   minimumPrivateOperatingSpace?: number;
   minimumEntrepreneurialCapacity?: number;
+}
+
+function organizationName(organizationId: string): string {
+  const organization = diplomacyConfig.organizations.find(
+    (item) => item.id === organizationId,
+  );
+  return organization?.name ?? organizationId;
 }
 
 export interface HistoricalInitiativeDefinition {
@@ -127,6 +138,17 @@ export function getHistoricalInitiativeStatus(
       blockers.push(
         `${requiredRecord.name}需实施满 ${minimumMonths} 个月（还需 ${minimumMonths - elapsedMonths} 个月）`,
       );
+    }
+  }
+  for (const organizationId of requirements.requiredOrganizationIds ?? []) {
+    if (!nation.diplomacy.organizationIds.includes(organizationId)) {
+      blockers.push(`需先取得${organizationName(organizationId)}`);
+    }
+  }
+  if (requirements.requireSinoUSNormalization) {
+    ensureSinoUSNormalizationState(state);
+    if (nation.diplomacy.sinoUSNormalizationStatus !== "established") {
+      blockers.push("需先完成中美建交");
     }
   }
   if (nation.economy.institutionalEfficiency < requirements.minimumInstitutionalEfficiency) {

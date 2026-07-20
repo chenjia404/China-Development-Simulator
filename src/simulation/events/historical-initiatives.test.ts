@@ -18,10 +18,10 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("十八项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(18);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(18);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(18);
+  it("十九项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(19);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(19);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(19);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
     expect(
       historicalInitiativeDefinitions.map((item) => item.eventId),
@@ -34,6 +34,9 @@ describe("历史转折国策", () => {
       "un_seat_restored_1971",
       "wto_accession_2001",
     ]));
+    expect(
+      historicalInitiativeDefinitions.map((item) => item.eventId),
+    ).toEqual(expect.arrayContaining(["four_three_plan_1973"]));
   });
 
   it("义务教育立法和证券交易所可提前成为永久历史转折", () => {
@@ -559,5 +562,119 @@ describe("历史转折国策", () => {
         (record) => record.id === "reform_and_opening_1978",
       ),
     ).toHaveLength(1);
+  });
+
+  it("四三方案需一五基础、联合国席位与中美建交，达标后可提前发动并产生财政与外汇代价", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
+    expect(
+      getHistoricalInitiativeStatus(engine.exportState(), "early_four_three_plan")
+        .blockers,
+    ).toContain("需先完成第一个五年计划启动");
+
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_unified_finance",
+    });
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_land_reform",
+    });
+    const afterLand = engine.exportState();
+    afterLand.nation.date.month = 7;
+    afterLand.nation.date.elapsedMonths = 6;
+    const fiveYearEngine = createSimulationEngine(afterLand);
+    fiveYearEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_first_five_year_plan",
+    });
+
+    const premature = fiveYearEngine.exportState();
+    premature.nation.date.year = 1952;
+    premature.nation.date.month = 1;
+    premature.nation.date.elapsedMonths = 36;
+    premature.nation.trade.openness = 0.08;
+    premature.nation.diplomacy.globalReputation = 45;
+    premature.nation.diplomacy.diplomaticPoints = 20;
+    premature.nation.internationalInfluence = 8;
+    premature.nation.education.index = 16;
+    premature.nation.technology.index = 12;
+    premature.nation.sectors.secondary.output = 40_000_000_000;
+    premature.nation.sectors.primary.output = 60_000_000_000;
+    premature.nation.sectors.tertiary.output = 20_000_000_000;
+    expect(
+      getHistoricalInitiativeStatus(premature, "early_four_three_plan").blockers,
+    ).toContain("第一个五年计划启动需实施满 60 个月（还需 30 个月）");
+
+    const eligible = createSimulationEngine(premature).exportState();
+    eligible.nation.date.year = 1954;
+    eligible.nation.date.month = 7;
+    eligible.nation.date.elapsedMonths = 66;
+    eligible.nation.trade.openness = 0.08;
+    eligible.nation.diplomacy.globalReputation = 45;
+    eligible.nation.diplomacy.diplomaticPoints = 20;
+    eligible.nation.internationalInfluence = 8;
+    eligible.nation.education.index = 16;
+    eligible.nation.technology.index = 12;
+    eligible.nation.economy.institutionalEfficiency = 0.4;
+    eligible.nation.society.stabilityIndex = 55;
+    eligible.nation.sectors.secondary.output = 40_000_000_000;
+    eligible.nation.sectors.primary.output = 60_000_000_000;
+    eligible.nation.sectors.tertiary.output = 20_000_000_000;
+    expect(
+      getHistoricalInitiativeStatus(eligible, "early_four_three_plan").blockers,
+    ).toEqual(expect.arrayContaining([
+      "需先取得联合国席位",
+      "需先完成中美建交",
+    ]));
+
+    eligible.nation.diplomacy.organizationIds = ["united_nations"];
+    eligible.nation.diplomacy.sinoUSNormalizationStatus = "established";
+    eligible.nation.diplomacy.sinoUSNormalizationEstablishedYear = 1954;
+    eligible.nation.diplomacy.sinoUSNormalizationEstablishedMonth = 1;
+    const readyEngine = createSimulationEngine(eligible);
+    expect(
+      getHistoricalInitiativeStatus(readyEngine.exportState(), "early_four_three_plan")
+        .available,
+    ).toBe(true);
+
+    const beforePoints = readyEngine.getState().nation.diplomacy.diplomaticPoints;
+    readyEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_four_three_plan",
+    });
+    const nation = readyEngine.getState().nation;
+    expect(nation.diplomacy.diplomaticPoints).toBe(beforePoints - 12);
+    expect(nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "four_three_plan_1973",
+      outcome: "enacted_early",
+    });
+    expect(
+      nation.modifiers.some(
+        (modifier) =>
+          modifier.sourceId === "four_three_plan_1973" &&
+          modifier.target === "trade.externalBorrowing",
+      ),
+    ).toBe(true);
+    expect(
+      nation.modifiers.some(
+        (modifier) =>
+          modifier.sourceId === "four_three_plan_1973" &&
+          modifier.target === "trade.capitalGoodsImportCoverage" &&
+          modifier.value < 1,
+      ),
+    ).toBe(true);
+    expect(
+      nation.modifiers.some(
+        (modifier) =>
+          modifier.sourceId === "four_three_plan_1973" &&
+          modifier.target === "industry.chemicals_pharmaceuticals.productivity" &&
+          (modifier.delayMonths ?? 0) > 0,
+      ),
+    ).toBe(true);
+
+    const historicalDate = readyEngine.exportState();
+    historicalDate.nation.date.year = 1973;
+    historicalDate.nation.date.month = 1;
+    expect(checkHistoricalEvents(historicalDate.nation)).toEqual([]);
   });
 });

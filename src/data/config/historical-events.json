@@ -393,6 +393,46 @@
     ]
   },
   {
+    "id": "four_three_plan_1973",
+    "name": "四三方案",
+    "year": 1973,
+    "month": 1,
+    "category": "对外经济",
+    "impact": "mixed",
+    "description": "抓住西方经济危机与对华关系缓和的窗口，在此后三至五年集中引进约43亿美元成套技术设备，核心包括大型化肥、化纤、石化、综合采煤、电站和武钢一米七轧机等26个大型项目；后又追加约8.8亿美元。引进改善农业投入、轻纺原料、能源电力和钢材能力，并为改革开放积累对外经贸与技术吸收经验，但需支付大量外汇、配套财政投资，并通过延期付款形成一定外部融资负担。",
+    "effects": [
+      "大型化肥装置投产后提高粮食供给能力",
+      "化纤石化与轧钢设备增强轻纺和基础材料产能",
+      "采煤机组与电站改善能源供应",
+      "西方技术接触小幅改善对日欧美关系与技术吸收",
+      "配套建设抬高财政支出与政府投资",
+      "设备购汇挤占其他资本品进口保障，部分延期付款形成外债"
+    ],
+    "durationMonths": 96,
+    "modifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02, "durationMonths": 54 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.988, "durationMonths": 48 },
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.99, "durationMonths": 36 },
+      { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.982, "durationMonths": 48 },
+      { "target": "trade.externalBorrowing", "operation": "add", "value": 140000000, "durationMonths": 48 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.0025, "delayMonths": 48, "durationMonths": 48 },
+      { "target": "industry.chemicals_pharmaceuticals.productivity", "operation": "multiply", "value": 1.006, "delayMonths": 42, "durationMonths": 48 },
+      { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 1.005, "delayMonths": 48, "durationMonths": 48 },
+      { "target": "industry.basic_materials.productivity", "operation": "multiply", "value": 1.004, "delayMonths": 54, "durationMonths": 36 },
+      { "target": "industry.mining_energy.productivity", "operation": "multiply", "value": 1.003, "delayMonths": 42, "durationMonths": 48 },
+      { "target": "resources.energySupply", "operation": "multiply", "value": 1.0015, "delayMonths": 42, "durationMonths": 48 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 1.002, "delayMonths": 30, "durationMonths": 48 },
+      { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.0015, "delayMonths": 30, "durationMonths": 48 },
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.004, "delayMonths": 48, "durationMonths": 36 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.0015, "delayMonths": 60, "durationMonths": 36 },
+      { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": 2, "durationMonths": 48 },
+      { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 1.5, "durationMonths": 48 },
+      { "target": "diplomacy.relationTarget.germany", "operation": "add", "value": 2, "durationMonths": 48 },
+      { "target": "diplomacy.relationTarget.france", "operation": "add", "value": 1.5, "durationMonths": 48 },
+      { "target": "diplomacy.relationTarget.united_kingdom", "operation": "add", "value": 1.5, "durationMonths": 48 }
+    ]
+  },
+  {
     "id": "reform_and_opening_1978",
     "name": "改革开放启动",
     "year": 1978,
