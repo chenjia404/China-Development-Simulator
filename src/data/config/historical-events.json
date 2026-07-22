@@ -276,6 +276,72 @@
     ]
   },
   {
+    "id": "sino_soviet_split_1960",
+    "name": "中苏交恶",
+    "year": 1960,
+    "month": 7,
+    "category": "外交",
+    "impact": "negative",
+    "requiredDiplomaticStrategyId": "pro_soviet",
+    "description": "在亲苏依附加深后，中苏在长波电台、联合舰队、核援助与意识形态上的分歧公开化。1960年7月苏联撤回全部在华专家、中止大量经济技术合同，成套设备与技术资料供应骤停；对苏贸易从高峰急剧收缩，边境与战略互信持续恶化。史实冲击经资本品进口、工业投资效率、科研吸收、出口竞争力和双边关系目标传导，不直接改写 GDP。",
+    "effects": [
+      "对苏关系大幅恶化",
+      "苏东阵营伙伴关系降温",
+      "资本品进口与成套项目保障骤降",
+      "工业投资效率与产出承压",
+      "科研产出与技术吸收中断",
+      "对苏贸易竞争力下降",
+      "国家安全环境恶化"
+    ],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -55 },
+      { "target": "diplomacy.relationTarget.north_korea", "operation": "add", "value": -12 },
+      { "target": "diplomacy.relationTarget.vietnam", "operation": "add", "value": -10 },
+      { "target": "diplomacy.relationTarget.poland", "operation": "add", "value": -10 },
+      { "target": "diplomacy.relationTarget.albania", "operation": "add", "value": -8 },
+      { "target": "diplomacy.relationTarget.czechoslovakia", "operation": "add", "value": -10 },
+      { "target": "diplomacy.relationTarget.hungary", "operation": "add", "value": -10 },
+      { "target": "diplomacy.relationTarget.romania", "operation": "add", "value": -8 },
+      { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.9, "durationMonths": 36 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.985, "durationMonths": 36 },
+      { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.97, "durationMonths": 36 },
+      { "target": "technology.researchOutput", "operation": "multiply", "value": 0.94, "durationMonths": 48 },
+      { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 0.88, "durationMonths": 48 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.93, "durationMonths": 36 },
+      { "target": "diplomacy.securityTarget", "operation": "add", "value": -8 },
+      { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.99, "durationMonths": 24 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985, "durationMonths": 24 }
+    ]
+  },
+  {
+    "id": "soviet_debt_repayment_beidaihe_1960",
+    "name": "北戴河对苏还债抉择",
+    "year": 1960,
+    "month": 8,
+    "category": "对外经济",
+    "impact": "mixed",
+    "requiredPriorHistoricalEventIds": ["sino_soviet_split_1960", "korean_war_1950"],
+    "requiredPriorHistoricalEventOutcomeNot": {
+      "korean_war_1950": ["prevented"]
+    },
+    "description": "1960年7月18日，毛泽东在北戴河会议上指示周恩来核算对苏欠账需多少年还清。周恩来表示约需十年；毛泽东主张勒紧裤腰带，争取五年内还清。对苏欠账大量来自抗美援朝军事订货与设备贷款。随后中共中央政治局决定各省成立外贸小组，挤出农产品、矿产品和轻工产品出口还债。是否提前清偿将改变外债本金偿还节奏与国内民生压力。",
+    "effects": [
+      "启用五年提前还清与各省外贸挤出口动员",
+      "粮食供应与居民消费承压",
+      "出口竞争力短期提高以换取偿债能力",
+      "外债本金偿还显著加快"
+    ],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.04, "durationMonths": 60 },
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985, "durationMonths": 60 },
+      { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.03, "durationMonths": 60 },
+      { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.97, "durationMonths": 60 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 0.992, "durationMonths": 60 }
+    ]
+  },
+  {
     "id": "economic_readjustment_1961",
     "name": "调整、巩固、充实、提高",
     "year": 1961,

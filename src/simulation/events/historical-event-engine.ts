@@ -1,9 +1,14 @@
 import historicalEventData from "../../data/config/historical-events.json";
 import historicalDecisionData from "../../data/config/historical-event-decisions.json";
 import historicalDependencyData from "../../data/config/historical-event-dependencies.json";
+import type { DiplomaticStrategyId } from "../diplomacy/diplomatic-strategy";
 import type { ModifierState, NationState } from "../state/game-state";
 import type { HistoricalEventRecord } from "../state/history-state";
 import { applyForeignAidEventAdjustment } from "../diplomacy/foreign-aid";
+import {
+  applySovietDebtRepaymentChoice,
+  SOVIET_DEBT_REPAYMENT_EVENT_ID,
+} from "../economy/soviet-debt-repayment";
 import { addModifier } from "./modifiers";
 import {
   AGRICULTURAL_TAX_ABOLITION_EVENT_ID,
@@ -53,6 +58,11 @@ export interface HistoricalEventDefinition {
   year: number;
   month: number;
   triggerMode?: "scheduled" | "conditional";
+  requiredDiplomaticStrategyId?: DiplomaticStrategyId;
+  requiredPriorHistoricalEventIds?: string[];
+  requiredPriorHistoricalEventOutcomeNot?: Partial<
+    Record<string, HistoricalEventOutcome[]>
+  >;
   category: HistoricalEventCategory;
   impact: HistoricalEventImpact;
   description: string;
@@ -795,8 +805,34 @@ function applyChoice(
   };
   nation.history.historicalEvents.push(record);
   ensureFiscalAgricultureTaxState(nation);
+  if (event.id === SOVIET_DEBT_REPAYMENT_EVENT_ID) {
+    applySovietDebtRepaymentChoice(nation, choice.id);
+  }
   nation.pendingHistoricalEventId = null;
   return record;
+}
+
+/** 判断定时历史事件在当前国家状态下是否满足触发门槛。 */
+export function historicalEventMeetsPrerequisites(
+  nation: NationState,
+  event: HistoricalEventDefinition,
+): boolean {
+  if (
+    event.requiredDiplomaticStrategyId &&
+    nation.diplomacy.strategyId !== event.requiredDiplomaticStrategyId
+  ) {
+    return false;
+  }
+  for (const priorEventId of event.requiredPriorHistoricalEventIds ?? []) {
+    const record = nation.history.historicalEvents.find(
+      (item) => item.id === priorEventId,
+    );
+    if (!record) return false;
+    const blockedOutcomes =
+      event.requiredPriorHistoricalEventOutcomeNot?.[priorEventId] ?? [];
+    if (blockedOutcomes.includes(record.outcome)) return false;
+  }
+  return true;
 }
 
 /** 在史实日期前主动实施一次性历史转折国策；原事件到期后不会重复触发。 */
@@ -931,7 +967,8 @@ export function checkHistoricalEvents(nation: NationState): HistoricalEventRecor
       event.triggerMode === "conditional" ||
       event.year !== nation.date.year ||
       event.month !== nation.date.month ||
-      occurredIds.has(event.id)
+      occurredIds.has(event.id) ||
+      !historicalEventMeetsPrerequisites(nation, event)
     ) {
       continue;
     }

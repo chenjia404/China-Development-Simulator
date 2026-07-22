@@ -6,6 +6,12 @@ import type { GameState, NationState } from "../state/game-state";
 import type { MonthlySnapshot } from "../state/history-state";
 import { calculateWorldComparableGDP } from "./historical-accounting";
 import { foreignAidReserveFlowAdjustment } from "../diplomacy/foreign-aid";
+import {
+  allowsSovietDebtFinalClearance,
+  allowsSovietDebtFormalClearance,
+  ensureSovietDebtRepaymentState,
+  sovietDebtAnnualPrincipalRepaymentRate,
+} from "./soviet-debt-repayment";
 
 interface ShareAnchor {
   year: number;
@@ -247,6 +253,7 @@ export function ensureForeignExchangeState(state: GameState): void {
   )
     ? clamp(trade.capitalGoodsImportCoverage, 0, 1)
     : 0.65;
+  ensureSovietDebtRepaymentState(state.nation);
 
   for (const snapshot of state.nation.history.monthly as Array<
     Partial<MonthlySnapshot>
@@ -481,13 +488,18 @@ export function updateForeignExchange(state: GameState): void {
     0.01,
     0.18,
   );
+  ensureSovietDebtRepaymentState(nation);
   const annualPrincipalRepaymentRate = clamp(
     applyModifiers(
       nation,
       "trade.externalDebtPrincipalRepaymentRate",
-      nation.date.year <= foreignExchangeConfig.earlyRepaymentEndYear
-        ? foreignExchangeConfig.earlyAnnualPrincipalRepaymentRate
-        : foreignExchangeConfig.baseAnnualPrincipalRepaymentRate,
+      sovietDebtAnnualPrincipalRepaymentRate(
+        nation.trade.sovietDebtRepaymentPlan,
+        nation.date.year,
+        foreignExchangeConfig.earlyAnnualPrincipalRepaymentRate,
+        foreignExchangeConfig.baseAnnualPrincipalRepaymentRate,
+        foreignExchangeConfig.earlyRepaymentEndYear,
+      ),
     ),
     0,
     1,
@@ -497,11 +509,13 @@ export function updateForeignExchange(state: GameState): void {
   const residualFloor =
     foreignExchangeConfig.historicalResidualExternalDebtUsd;
   const isFinalClearanceMonth =
+    allowsSovietDebtFinalClearance(nation.trade.sovietDebtRepaymentPlan) &&
     nation.date.year ===
       foreignExchangeConfig.historicalExternalDebtClearanceYear &&
     nation.date.month ===
       foreignExchangeConfig.historicalExternalDebtClearanceMonth;
   const isFormalClearanceMonth =
+    allowsSovietDebtFormalClearance(nation.trade.sovietDebtRepaymentPlan) &&
     nation.date.year ===
       foreignExchangeConfig.historicalFormalDebtClearanceYear &&
     nation.date.month ===

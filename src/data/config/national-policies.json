@@ -468,6 +468,24 @@
       ]
     },
     {
+      "id": "soviet_debt_austerity_repayment",
+      "name": "勒紧裤腰带还债",
+      "category": "财政",
+      "description": "在中苏交恶且朝鲜战争已形成对苏军事欠账后，按北戴河五年还清方针动员各省外贸小组，挤出农产品、矿产品与轻工产品出口偿债；可加快外债出清，但持续压低粮食、消费与民生。",
+      "transitionMonths": 24,
+      "conflictsWith": ["consumption_stimulus"],
+      "requirements": {
+        "requiredHistoricalEventIds": ["korean_war_1950", "soviet_debt_repayment_beidaihe_1960"]
+      },
+      "modifiers": [
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.08 },
+        { "target": "resources.foodSupply", "operation": "multiply", "value": 0.97 },
+        { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.035 },
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.94 },
+        { "target": "sector.primary.output", "operation": "multiply", "value": 0.985 }
+      ]
+    },
+    {
       "id": "austerity",
       "name": "财政紧缩",
       "category": "财政",

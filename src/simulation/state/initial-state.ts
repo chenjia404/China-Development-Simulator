@@ -298,6 +298,7 @@ export function createInitialGameState(
         capitalGoodsForeignExchangeNeed: 0,
         capitalGoodsImportShare: 0.28,
         capitalGoodsImportCoverage: 0.65,
+        sovietDebtRepaymentPlan: "unset",
       },
       privateEconomy: createInitialPrivateEconomyState(),
       enterprises: createEmptyEnterpriseSectorState(),

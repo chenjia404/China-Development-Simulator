@@ -1665,4 +1665,193 @@ describe("确定性历史事件", () => {
       ),
     ).toBeGreaterThan(1);
   });
+
+  it("仅亲苏路线在1960年7月触发中苏交恶，且三选一对苏冲击可区分", () => {
+    const choices = getHistoricalEventChoices("sino_soviet_split_1960");
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "restrained_conciliation",
+      "accelerate_self_reliance",
+    ]);
+
+    const balanced = createInitialGameState(1960, 1960, "interactive");
+    balanced.nation.date.month = 7;
+    const balancedEngine = createSimulationEngine(balanced);
+    balancedEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(balancedEngine.getState().nation.pendingHistoricalEventId).not.toBe(
+      "sino_soviet_split_1960",
+    );
+    expect(
+      balancedEngine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "sino_soviet_split_1960",
+      ),
+    ).toBe(false);
+
+    const runSplit = (choiceId: string) => {
+      const state = createInitialGameState(1960, 1960, "interactive");
+      state.nation.date.month = 7;
+      state.nation.diplomacy.strategyId = "pro_soviet";
+      state.nation.diplomacy.strategyAlignment = -1;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "sino_soviet_split_1960",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "sino_soviet_split_1960",
+        choiceId,
+      });
+      advanceMonthsDismissingFamineReports(engine, 1);
+      return engine.getState();
+    };
+
+    const historical = runSplit("historical_path");
+    const restrained = runSplit("restrained_conciliation");
+    const selfReliance = runSplit("accelerate_self_reliance");
+    const russiaRelation = (state: typeof historical) =>
+      state.world.countries.find((country) => country.id === "russia")
+        ?.relationWithChina ?? Number.NaN;
+
+    expect(russiaRelation(historical)).toBeLessThan(russiaRelation(restrained));
+    expect(russiaRelation(selfReliance)).toBeLessThanOrEqual(
+      russiaRelation(historical),
+    );
+    expect(historical.nation.trade.capitalGoodsImportCoverage).toBeLessThan(
+      restrained.nation.trade.capitalGoodsImportCoverage,
+    );
+    expect(selfReliance.nation.trade.capitalGoodsImportCoverage).toBeLessThan(
+      historical.nation.trade.capitalGoodsImportCoverage,
+    );
+    expect(
+      applyModifiers(historical.nation, "technology.researchOutput", 1),
+    ).toBeLessThan(
+      applyModifiers(restrained.nation, "technology.researchOutput", 1),
+    );
+  });
+
+  it("北戴河还债需交恶且朝战已爆发，三选一改变偿债计划与民生代价", () => {
+    const choices = getHistoricalEventChoices(
+      "soviet_debt_repayment_beidaihe_1960",
+    );
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "moderate_schedule",
+      "ten_year_no_early",
+    ]);
+
+    const seedHistory = (
+      state: GameState,
+      koreanOutcome: "occurred" | "prevented",
+      includeSplit: boolean,
+    ) => {
+      state.nation.history.historicalEvents.push({
+        id: "korean_war_1950",
+        name: "朝鲜战争",
+        year: 1950,
+        month: 6,
+        scheduledYear: 1950,
+        scheduledMonth: 6,
+        category: "外部冲击",
+        impact: "mixed",
+        description: "test",
+        effects: [],
+        durationMonths: 37,
+        choiceId:
+          koreanOutcome === "prevented"
+            ? "oppose_korean_war"
+            : "historical_path",
+        choiceName: koreanOutcome === "prevented" ? "劝阻开战" : "史实参战",
+        choiceDescription: "test",
+        outcome: koreanOutcome,
+      });
+      if (includeSplit) {
+        state.nation.history.historicalEvents.push({
+          id: "sino_soviet_split_1960",
+          name: "中苏交恶",
+          year: 1960,
+          month: 7,
+          scheduledYear: 1960,
+          scheduledMonth: 7,
+          category: "外交",
+          impact: "negative",
+          description: "test",
+          effects: [],
+          durationMonths: 60,
+          choiceId: "historical_path",
+          choiceName: "遵循历史路径",
+          choiceDescription: "test",
+          outcome: "occurred",
+        });
+      }
+      state.nation.diplomacy.strategyId = "pro_soviet";
+      state.nation.diplomacy.strategyAlignment = -1;
+      state.nation.date.year = 1960;
+      state.nation.date.month = 8;
+    };
+
+    const blockedByPreventedWar = createInitialGameState(1960, 1960, "interactive");
+    seedHistory(blockedByPreventedWar, "prevented", true);
+    const blockedEngine = createSimulationEngine(blockedByPreventedWar);
+    blockedEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(blockedEngine.getState().nation.pendingHistoricalEventId).not.toBe(
+      "soviet_debt_repayment_beidaihe_1960",
+    );
+
+    const blockedWithoutSplit = createInitialGameState(1960, 1960, "interactive");
+    seedHistory(blockedWithoutSplit, "occurred", false);
+    const noSplitEngine = createSimulationEngine(blockedWithoutSplit);
+    noSplitEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(noSplitEngine.getState().nation.pendingHistoricalEventId).not.toBe(
+      "soviet_debt_repayment_beidaihe_1960",
+    );
+
+    const runDebtChoice = (choiceId: string) => {
+      const state = createInitialGameState(1960, 1960, "interactive");
+      seedHistory(state, "occurred", true);
+      state.nation.trade.externalDebt = 5_000_000_000;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "soviet_debt_repayment_beidaihe_1960",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "soviet_debt_repayment_beidaihe_1960",
+        choiceId,
+      });
+      advanceMonthsDismissingFamineReports(engine, 3);
+      return engine.getState();
+    };
+
+    const fiveYear = runDebtChoice("historical_path");
+    const moderate = runDebtChoice("moderate_schedule");
+    const tenYear = runDebtChoice("ten_year_no_early");
+
+    expect(fiveYear.nation.trade.sovietDebtRepaymentPlan).toBe("five_year_early");
+    expect(moderate.nation.trade.sovietDebtRepaymentPlan).toBe("moderate");
+    expect(tenYear.nation.trade.sovietDebtRepaymentPlan).toBe("ten_year");
+    expect(fiveYear.nation.policies).toContain(
+      "soviet_debt_austerity_repayment",
+    );
+    expect(moderate.nation.policies).not.toContain(
+      "soviet_debt_austerity_repayment",
+    );
+    expect(tenYear.nation.policies).not.toContain(
+      "soviet_debt_austerity_repayment",
+    );
+
+    expect(fiveYear.nation.trade.externalDebt).toBeLessThan(
+      moderate.nation.trade.externalDebt,
+    );
+    expect(moderate.nation.trade.externalDebt).toBeLessThan(
+      tenYear.nation.trade.externalDebt,
+    );
+    expect(fiveYear.nation.resources.foodSupplyRatio).toBeLessThan(
+      moderate.nation.resources.foodSupplyRatio,
+    );
+    expect(moderate.nation.resources.foodSupplyRatio).toBeLessThan(
+      tenYear.nation.resources.foodSupplyRatio,
+    );
+  });
 });

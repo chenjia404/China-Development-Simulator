@@ -459,6 +459,11 @@ export interface TradeState {
   capitalGoodsForeignExchangeNeed: number;
   capitalGoodsImportShare: number;
   capitalGoodsImportCoverage: number;
+  /**
+   * 北戴河对苏还债计划。unset 保持史实校准提前还债；
+   * 亲苏交恶后由还债事件写入五年/折中/十年路径。
+   */
+  sovietDebtRepaymentPlan: "unset" | "five_year_early" | "moderate" | "ten_year";
 }
 
 /** 货币、银行与国际收支账户；境内金额使用当期人民币口径，跨境项目使用美元等值。 */

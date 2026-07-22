@@ -415,6 +415,7 @@ describe("外汇储备与侨汇", () => {
     delete oldTrade.capitalGoodsForeignExchangeNeed;
     delete oldTrade.capitalGoodsImportShare;
     delete oldTrade.capitalGoodsImportCoverage;
+    delete oldTrade.sovietDebtRepaymentPlan;
     const oldAnnual = oldState.nation.history.annual[0] as Partial<
       typeof oldState.nation.history.annual[0]
     >;
@@ -432,6 +433,7 @@ describe("外汇储备与侨汇", () => {
     expect(restored.nation.trade.externalDebt).toBe(0);
     expect(restored.nation.trade.externalDebtToGDP).toBeGreaterThanOrEqual(0);
     expect(restored.nation.trade.capitalGoodsImportCoverage).toBeGreaterThan(0);
+    expect(restored.nation.trade.sovietDebtRepaymentPlan).toBe("unset");
     expect(restored.nation.history.annual[0]).toMatchObject({
       foreignExchangeReserves: 0,
       remittanceInflows: 0,

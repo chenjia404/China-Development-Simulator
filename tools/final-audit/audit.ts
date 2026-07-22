@@ -304,8 +304,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
   const distinctGDP = new Set(summaries.map((item) => Math.round(item.finalGDP / 1_000_000_000)));
   const historicalRecords = historical.finalState.nation.history.historicalEvents;
   const historicalRecordIds = new Set(historicalRecords.map((event) => event.id));
+  // 默认史实路线不要求亲苏门槛或前置依赖事件；这类定时事件另由单测覆盖。
   const scheduledHistoricalEvents = historicalEventDefinitions.filter(
-    (event) => event.triggerMode !== "conditional",
+    (event) =>
+      event.triggerMode !== "conditional" &&
+      !event.requiredDiplomaticStrategyId &&
+      !(event.requiredPriorHistoricalEventIds?.length),
+  );
+  const gatedScheduledHistoricalEvents = historicalEventDefinitions.filter(
+    (event) =>
+      event.triggerMode !== "conditional" &&
+      (!!event.requiredDiplomaticStrategyId ||
+        !!(event.requiredPriorHistoricalEventIds?.length)),
   );
   const recordedScheduledEvents = historicalRecords.filter((record) =>
     scheduledHistoricalEvents.some((event) => event.id === record.id)
@@ -1735,10 +1745,13 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "固定日期历史事件按年月唯一触发，条件型资格不绕过门槛",
       recordedScheduledEvents.length === scheduledHistoricalEvents.length &&
         scheduledHistoricalEvents.every((event) => historicalRecordIds.has(event.id)) &&
+        gatedScheduledHistoricalEvents.every(
+          (event) => !historicalRecordIds.has(event.id),
+        ) &&
         historicalRecordIds.size === historicalRecords.length &&
         historicalRecordIds.has("foreign_assets_reorganization") &&
         historicalRecordIds.has("industry_wide_joint_ownership_1956"),
-      `${recordedScheduledEvents.length}/${scheduledHistoricalEvents.length} 个固定日期事件已记录；联合国席位与世贸资格另按条件审计`,
+      `${recordedScheduledEvents.length}/${scheduledHistoricalEvents.length} 个无门槛固定日期事件已记录，${gatedScheduledHistoricalEvents.length} 个门槛事件未在默认路线误触发；联合国席位与世贸资格另按条件审计`,
     ),
     makeCheck(
       "historical-decisions",

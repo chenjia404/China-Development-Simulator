@@ -511,6 +511,118 @@
     ]
   },
   {
+    "eventId": "sino_soviet_split_1960",
+    "choices": [
+      {
+        "id": "restrained_conciliation",
+        "name": "克制回应、争取缓和",
+        "description": "在主权与路线分歧上坚持立场，但避免全面意识形态决裂与公开对骂，争取保留部分技术合同、贸易渠道和沟通窗口；冲击减轻，但示弱也会轻微损害国际声誉。",
+        "effects": [
+          "对苏与苏东关系降温约为史实六成",
+          "资本品、科研与工业冲击明显减轻",
+          "安全环境恶化较轻",
+          "国际声誉小幅承压"
+        ],
+        "durationMonths": 48,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -32 },
+          { "target": "diplomacy.relationTarget.north_korea", "operation": "add", "value": -7 },
+          { "target": "diplomacy.relationTarget.vietnam", "operation": "add", "value": -6 },
+          { "target": "diplomacy.relationTarget.poland", "operation": "add", "value": -6 },
+          { "target": "diplomacy.relationTarget.albania", "operation": "add", "value": -5 },
+          { "target": "diplomacy.relationTarget.czechoslovakia", "operation": "add", "value": -6 },
+          { "target": "diplomacy.relationTarget.hungary", "operation": "add", "value": -6 },
+          { "target": "diplomacy.relationTarget.romania", "operation": "add", "value": -5 },
+          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.95, "durationMonths": 30 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.992, "durationMonths": 30 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.985, "durationMonths": 30 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 0.97, "durationMonths": 36 },
+          { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 0.94, "durationMonths": 36 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.965, "durationMonths": 30 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": -4 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": -2 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.995, "durationMonths": 18 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.992, "durationMonths": 18 }
+        ]
+      },
+      {
+        "id": "accelerate_self_reliance",
+        "name": "加速自力更生",
+        "description": "把专家撤离与合同中止视为彻底脱钩，立即动员自主装备、仿制与国防科研；短期工业与资本品冲击重于史实，但对苏关系同样大跌，并在约两年后形成有限的科研与安全修复。",
+        "effects": [
+          "对苏关系大幅恶化不亚于史实",
+          "短期资本品与工业冲击更重",
+          "约两年后科研与安全有小幅自主修复",
+          "投资挤出更明显"
+        ],
+        "durationMonths": 72,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": -58 },
+          { "target": "diplomacy.relationTarget.north_korea", "operation": "add", "value": -14 },
+          { "target": "diplomacy.relationTarget.vietnam", "operation": "add", "value": -12 },
+          { "target": "diplomacy.relationTarget.poland", "operation": "add", "value": -12 },
+          { "target": "diplomacy.relationTarget.albania", "operation": "add", "value": -9 },
+          { "target": "diplomacy.relationTarget.czechoslovakia", "operation": "add", "value": -12 },
+          { "target": "diplomacy.relationTarget.hungary", "operation": "add", "value": -12 },
+          { "target": "diplomacy.relationTarget.romania", "operation": "add", "value": -9 },
+          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 0.88, "durationMonths": 42 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.978, "durationMonths": 42 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.96, "durationMonths": 42 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 0.92, "durationMonths": 36 },
+          { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 0.84, "durationMonths": 36 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.92, "durationMonths": 36 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": -10 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.985, "durationMonths": 30 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.975, "durationMonths": 30 },
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.06, "delayMonths": 24, "durationMonths": 48 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": 4, "delayMonths": 24, "durationMonths": 48 }
+        ]
+      }
+    ]
+  },
+  {
+    "eventId": "soviet_debt_repayment_beidaihe_1960",
+    "choices": [
+      {
+        "id": "moderate_schedule",
+        "name": "折中约七年偿清",
+        "description": "承认必须清偿对苏欠账，但不搞五年突击挤兑：各省适度增加出口还债，本金偿还节奏介于五年提前与十年常规之间，民生代价约为史实一半。",
+        "effects": [
+          "外债下降快于十年路径、慢于五年路径",
+          "粮食与消费压力轻于勒紧裤腰带",
+          "不启用勒紧裤腰带还债国策",
+          "1964年正式清偿加速不再触发"
+        ],
+        "durationMonths": 84,
+        "modifiers": [
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.02, "durationMonths": 84 },
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.992, "durationMonths": 84 },
+          { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.015, "durationMonths": 84 },
+          { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.985, "durationMonths": 84 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 0.996, "durationMonths": 84 }
+        ]
+      },
+      {
+        "id": "ten_year_no_early",
+        "name": "不提前，约十年偿清",
+        "description": "采纳周恩来关于约需十年还清的估算，不发动各省突击外贸还债，也不追求五年内出清。短期民生明显好于史实，但外债存量下降更慢，并关闭1964/1965史实清偿加速节点。",
+        "effects": [
+          "避免勒紧裤腰带式出口挤兑",
+          "粮食、消费与福利压力显著减轻",
+          "外债按基础本金率摊还",
+          "关闭史实提前清偿加速"
+        ],
+        "durationMonths": 120,
+        "modifiers": [
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.005, "durationMonths": 60 },
+          { "target": "resources.foodSupply", "operation": "multiply", "value": 0.998, "durationMonths": 60 },
+          { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.005, "durationMonths": 60 },
+          { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.995, "durationMonths": 60 }
+        ]
+      }
+    ]
+  },
+  {
     "eventId": "albania_aid_after_soviet_cutoff_1961",
     "choices": [
       {
