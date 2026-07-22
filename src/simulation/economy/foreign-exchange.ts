@@ -155,10 +155,14 @@ export function remittanceInvestmentRate(nation: NationState): number {
 
 export function remittanceDomesticIncome(nation: NationState): number {
   const transferEfficiency = clamp(
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "trade.remittanceTransferEfficiency",
-      foreignExchangeConfig.remittanceHouseholdIncomePassThrough,
+      applyPolicyModifiers(
+        nation,
+        "trade.remittanceTransferEfficiency",
+        foreignExchangeConfig.remittanceHouseholdIncomePassThrough,
+      ),
     ),
     0.5,
     1,

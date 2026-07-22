@@ -5,6 +5,7 @@ import { calculateGDP } from "./gdp";
 import { updateCapitalAndInvestment } from "./capital";
 import {
   remittanceDirectedInvestment,
+  remittanceDomesticIncome,
   remittanceInvestmentRate,
   updateForeignExchange,
 } from "./foreign-exchange";
@@ -62,6 +63,26 @@ describe("外汇储备与侨汇", () => {
     );
     expect(highRemittances.nation.trade.monthlyReserveChange).toBeGreaterThan(
       lowRemittances.nation.trade.monthlyReserveChange,
+    );
+  });
+
+  it("历史事件也可提高侨汇到户效率并增加居民所得", () => {
+    const baseline = createInitialGameState(1955);
+    const boosted = structuredClone(baseline);
+    boosted.nation.modifiers.push({
+      id: "test:remittance-transfer-efficiency",
+      sourceId: "test",
+      target: "trade.remittanceTransferEfficiency",
+      operation: "multiply",
+      value: 1.03,
+      remainingMonths: 12,
+      stackRule: "stack",
+    });
+    baseline.nation.trade.remittanceInflows = 2_000_000_000;
+    boosted.nation.trade.remittanceInflows = 2_000_000_000;
+
+    expect(remittanceDomesticIncome(boosted.nation)).toBeGreaterThan(
+      remittanceDomesticIncome(baseline.nation),
     );
   });
 

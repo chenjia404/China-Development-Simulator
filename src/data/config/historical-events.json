@@ -182,6 +182,34 @@
     ]
   },
   {
+    "id": "bandung_conference_1955",
+    "name": "万隆会议",
+    "year": 1955,
+    "month": 4,
+    "category": "外交",
+    "impact": "mixed",
+    "description": "中国积极出席亚非会议，宣示和平共处五项原则，并与印尼推进双重国籍安排，鼓励侨民在侨居国择一国籍。会议扩大了亚非外交空间与国际声誉，缓解东南亚对华侨问题的疑虑，但择一国籍政策会削弱部分侨汇纽带，不结盟叙事也对美关系目标略有疏离。",
+    "effects": [
+      "国际声誉与亚非多边外交空间扩大",
+      "印尼、印度、埃及等国关系目标改善",
+      "双重国籍安排缓和东南亚疑虑",
+      "部分侨汇纽带因择一国籍而弱化",
+      "对美关系目标小幅承压"
+    ],
+    "durationMonths": 60,
+    "modifiers": [
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 5 },
+      { "target": "diplomacy.relationTarget.indonesia", "operation": "add", "value": 18 },
+      { "target": "diplomacy.relationTarget.india", "operation": "add", "value": 12 },
+      { "target": "diplomacy.relationTarget.egypt", "operation": "add", "value": 10 },
+      { "target": "diplomacy.relationTarget.myanmar", "operation": "add", "value": 8 },
+      { "target": "diplomacy.relationTarget.pakistan", "operation": "add", "value": 6 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.01 },
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.97 },
+      { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": -3 }
+    ]
+  },
+  {
     "id": "industry_wide_joint_ownership_1956",
     "name": "全行业公私合营",
     "year": 1956,
@@ -210,6 +238,30 @@
       { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": -0.009, "durationMonths": 32 },
       { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": -0.0065, "durationMonths": 32 },
       { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0065, "durationMonths": 32 }
+    ]
+  },
+  {
+    "id": "japanese_war_criminals_amnesty_1956",
+    "name": "日本战犯特赦与遣返",
+    "year": 1956,
+    "month": 6,
+    "category": "外交",
+    "impact": "mixed",
+    "description": "对关押于抚顺战犯管理所的约一千一百零九名日本战犯，中国政府采取“宽大处理、一个不杀”方针：经特别军事法庭审判后，对多数人免予起诉或予以特赦，并在一九五六至一九六四年间分三批全部释放遣返。政策以人道主义与分化敌对阵营塑造国际声誉、缓和未来对日关系空间，但战争受害记忆下的国内正义期待会承受阶段性压力。",
+    "effects": [
+      "对日本关系目标逐步改善",
+      "国际声誉因宽大处理有所提升",
+      "受害群体正义期待承压，社会稳定小幅波动",
+      "为日后对日民间与官方接触保留弹性"
+    ],
+    "durationMonths": 96,
+    "modifiers": [
+      { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": 8 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 4 },
+      { "target": "diplomacy.securityTarget", "operation": "add", "value": 1 },
+      { "target": "society.stability", "operation": "add", "value": -1.5 },
+      { "target": "society.happiness", "operation": "add", "value": -1 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.004, "delayMonths": 24, "durationMonths": 72 }
     ]
   },
   {

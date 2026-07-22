@@ -311,11 +311,20 @@ export function applyPolicyModifiers(
 export function updatePolicyEnvironment(nation: NationState): void {
   updatePolicyProgress(nation);
   const openingProgress = nation.policyProgress.expand_opening ?? 0;
-  const openingTarget = applyPolicyModifiers(
-    nation,
-    "trade.opennessTarget",
-    policyConfig.closedTarget +
-      (policyConfig.openingTarget - policyConfig.closedTarget) * openingProgress,
+  const openingTarget = clamp(
+    applyModifiers(
+      nation,
+      "trade.opennessTarget",
+      applyPolicyModifiers(
+        nation,
+        "trade.opennessTarget",
+        policyConfig.closedTarget +
+          (policyConfig.openingTarget - policyConfig.closedTarget) *
+            openingProgress,
+      ),
+    ),
+    0,
+    1,
   );
   nation.trade.openness = clamp(
     approach(

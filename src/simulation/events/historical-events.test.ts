@@ -475,6 +475,298 @@ describe("确定性历史事件", () => {
     ).toBeCloseTo(-15 * 0.35, 6);
   });
 
+  it("万隆会议在1955年4月触发，史实与保护侨胞路线形成二选一取舍", () => {
+    const choices = getHistoricalEventChoices("bandung_conference_1955");
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "retain_overseas_chinese_nationality",
+    ]);
+    expect(choices[0]).toMatchObject({
+      isHistoricalPath: true,
+      durationMonths: 60,
+    });
+    expect(choices[1]).toMatchObject({
+      name: "感谢抗战贡献、保护海外侨胞并保留国籍",
+      durationMonths: 60,
+    });
+    expect(choices[1]?.description).toContain("保护海外侨胞");
+    expect(choices[1]?.effects).toEqual(
+      expect.arrayContaining([
+        "保护海外侨胞权益",
+        "保留华侨中国国籍",
+        "侨汇与开放度提高",
+        "东南亚关系承压",
+      ]),
+    );
+
+    const historicalRemittance = choices[0]?.modifiers.find(
+      (modifier) => modifier.target === "trade.remittanceInflows",
+    )?.value;
+    const retainRemittance = choices[1]?.modifiers.find(
+      (modifier) => modifier.target === "trade.remittanceInflows",
+    )?.value;
+    expect(historicalRemittance).toBe(0.97);
+    expect(retainRemittance).toBe(1.18);
+    expect(retainRemittance ?? 0).toBeGreaterThan(historicalRemittance ?? 0);
+
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.indonesia",
+      )?.value,
+    ).toBe(18);
+    expect(
+      choices[1]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.indonesia",
+      )?.value,
+    ).toBe(-12);
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.reputationTarget",
+      )?.value,
+    ).toBe(5);
+    expect(
+      choices[1]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.reputationTarget",
+      )?.value,
+    ).toBe(2);
+    expect(
+      choices[1]?.modifiers.find(
+        (modifier) => modifier.target === "trade.opennessTarget",
+      ),
+    ).toMatchObject({ operation: "add", value: 0.04 });
+    expect(
+      choices[0]?.modifiers.some(
+        (modifier) => modifier.target === "trade.opennessTarget",
+      ),
+    ).toBe(false);
+
+    const runChoice = (choiceId: string, monthsAfter = 36) => {
+      const state = createInitialGameState(1955, 1955, "interactive");
+      state.nation.date.month = 4;
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "bandung_conference_1955",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "bandung_conference_1955",
+        choiceId,
+      });
+      engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+      advanceMonthsDismissingFamineReports(engine, monthsAfter);
+      return engine.getState();
+    };
+
+    const historical = runChoice("historical_path");
+    const retained = runChoice("retain_overseas_chinese_nationality");
+    const relation = (state: typeof historical, countryId: string) =>
+      state.world.countries.find((country) => country.id === countryId)
+        ?.relationWithChina ?? Number.NaN;
+
+    expect(
+      historical.nation.history.historicalEvents.find(
+        (event) => event.id === "bandung_conference_1955",
+      ),
+    ).toMatchObject({
+      choiceId: "historical_path",
+      outcome: "occurred",
+    });
+    expect(
+      retained.nation.history.historicalEvents.find(
+        (event) => event.id === "bandung_conference_1955",
+      ),
+    ).toMatchObject({
+      choiceId: "retain_overseas_chinese_nationality",
+      outcome: "occurred",
+      choiceName: "感谢抗战贡献、保护海外侨胞并保留国籍",
+    });
+
+    expect(relation(historical, "indonesia")).toBeGreaterThan(
+      relation(retained, "indonesia"),
+    );
+    expect(
+      applyModifiers(historical.nation, "diplomacy.reputationTarget", 50),
+    ).toBeGreaterThan(
+      applyModifiers(retained.nation, "diplomacy.reputationTarget", 50),
+    );
+    expect(
+      applyModifiers(retained.nation, "trade.remittanceInflows", 100),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "trade.remittanceInflows", 100),
+    );
+    expect(
+      applyModifiers(retained.nation, "trade.opennessTarget", 0.1),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "trade.opennessTarget", 0.1),
+    );
+    expect(retained.nation.trade.openness).toBeGreaterThan(
+      historical.nation.trade.openness,
+    );
+    expect(retained.nation.trade.remittanceInflows).toBeGreaterThan(
+      historical.nation.trade.remittanceInflows,
+    );
+    expect(
+      applyModifiers(retained.nation, "trade.remittanceTransferEfficiency", 1),
+    ).toBeGreaterThan(
+      applyModifiers(
+        historical.nation,
+        "trade.remittanceTransferEfficiency",
+        1,
+      ),
+    );
+  });
+
+  it("日本战犯特赦在1956年6月触发，三线取舍区分对日关系与国内稳定", () => {
+    const choices = getHistoricalEventChoices(
+      "japanese_war_criminals_amnesty_1956",
+    );
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "immediate_full_amnesty",
+      "refuse_amnesty_prosecute",
+    ]);
+    expect(choices[0]).toMatchObject({
+      isHistoricalPath: true,
+      durationMonths: 96,
+      outcome: "occurred",
+    });
+    expect(choices[1]).toMatchObject({
+      id: "immediate_full_amnesty",
+      name: "立即全部特赦遣返",
+      durationMonths: 36,
+    });
+    expect(choices[2]).toMatchObject({
+      id: "refuse_amnesty_prosecute",
+      name: "依法严惩、拒绝特赦",
+      outcome: "prevented",
+      durationMonths: 120,
+    });
+
+    const japanRelation = (choiceId: string) =>
+      choices
+        .find((choice) => choice.id === choiceId)
+        ?.modifiers.find(
+          (modifier) => modifier.target === "diplomacy.relationTarget.japan",
+        )?.value;
+    expect(japanRelation("historical_path")).toBe(8);
+    expect(japanRelation("immediate_full_amnesty")).toBe(16);
+    expect(japanRelation("refuse_amnesty_prosecute")).toBe(-12);
+    expect(japanRelation("immediate_full_amnesty") ?? 0).toBeGreaterThan(
+      japanRelation("historical_path") ?? 0,
+    );
+    expect(japanRelation("historical_path") ?? 0).toBeGreaterThan(
+      japanRelation("refuse_amnesty_prosecute") ?? 0,
+    );
+
+    const stability = (choiceId: string) =>
+      choices
+        .find((choice) => choice.id === choiceId)
+        ?.modifiers.find((modifier) => modifier.target === "society.stability")
+        ?.value;
+    expect(stability("immediate_full_amnesty")).toBe(-4);
+    expect(stability("historical_path")).toBe(-1.5);
+    expect(stability("refuse_amnesty_prosecute")).toBe(3);
+
+    const state = createInitialGameState(1956, 1956, "interactive");
+    state.nation.date.month = 6;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+      "japanese_war_criminals_amnesty_1956",
+    );
+
+    const runChoice = (choiceId: string, monthsAfter = 24) => {
+      const runState = createInitialGameState(1956, 1956, "interactive");
+      runState.nation.date.month = 6;
+      const runEngine = createSimulationEngine(runState);
+      runEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(runEngine.getState().nation.pendingHistoricalEventId).toBe(
+        "japanese_war_criminals_amnesty_1956",
+      );
+      runEngine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "japanese_war_criminals_amnesty_1956",
+        choiceId,
+      });
+      runEngine.dispatch({
+        type: "SET_HISTORICAL_EVENT_MODE",
+        mode: "automatic",
+      });
+      advanceMonthsDismissingFamineReports(runEngine, monthsAfter);
+      return runEngine.getState();
+    };
+
+    const historical = runChoice("historical_path");
+    const immediate = runChoice("immediate_full_amnesty");
+    const refused = runChoice("refuse_amnesty_prosecute");
+    const relation = (gameState: typeof historical) =>
+      gameState.world.countries.find((country) => country.id === "japan")
+        ?.relationWithChina ?? Number.NaN;
+    const japanTarget = (gameState: typeof historical) =>
+      applyModifiers(gameState.nation, "diplomacy.relationTarget.japan", 0);
+
+    expect(
+      historical.nation.history.historicalEvents.find(
+        (event) => event.id === "japanese_war_criminals_amnesty_1956",
+      ),
+    ).toMatchObject({
+      choiceId: "historical_path",
+      outcome: "occurred",
+    });
+    expect(
+      immediate.nation.history.historicalEvents.find(
+        (event) => event.id === "japanese_war_criminals_amnesty_1956",
+      ),
+    ).toMatchObject({
+      choiceId: "immediate_full_amnesty",
+      outcome: "occurred",
+      choiceName: "立即全部特赦遣返",
+    });
+    expect(
+      refused.nation.history.historicalEvents.find(
+        (event) => event.id === "japanese_war_criminals_amnesty_1956",
+      ),
+    ).toMatchObject({
+      choiceId: "refuse_amnesty_prosecute",
+      outcome: "prevented",
+      choiceName: "依法严惩、拒绝特赦",
+    });
+
+    expect(japanTarget(immediate)).toBeGreaterThan(japanTarget(historical));
+    expect(japanTarget(historical)).toBeGreaterThan(japanTarget(refused));
+    expect(relation(immediate)).toBeGreaterThan(relation(historical));
+    expect(relation(historical)).toBeGreaterThan(relation(refused));
+    expect(
+      applyModifiers(immediate.nation, "diplomacy.reputationTarget", 50),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "diplomacy.reputationTarget", 50),
+    );
+    expect(
+      applyModifiers(historical.nation, "diplomacy.reputationTarget", 50),
+    ).toBeGreaterThan(
+      applyModifiers(refused.nation, "diplomacy.reputationTarget", 50),
+    );
+    expect(
+      applyModifiers(refused.nation, "society.stability", 50),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "society.stability", 50),
+    );
+    expect(
+      applyModifiers(historical.nation, "society.stability", 50),
+    ).toBeGreaterThan(
+      applyModifiers(immediate.nation, "society.stability", 50),
+    );
+    expect(
+      choices.every(
+        (choice) =>
+          !choice.modifiers.some(
+            (modifier) => modifier.target === "fiscal.spending",
+          ),
+      ),
+    ).toBe(true);
+  });
+
   it("朝鲜战争军事贷款在战争期累积，1964年保留残债并于1965年清偿", () => {
     const state = createInitialGameState(1950, 1950, "interactive");
     state.nation.date.month = 6;
@@ -608,12 +900,12 @@ describe("确定性历史事件", () => {
     );
   });
 
-  it("所有固定日期历史事件都有至少三个会改变数值传导的方案", () => {
+  it("所有固定日期历史事件都有至少两个会改变数值传导的方案", () => {
     for (const event of historicalEventDefinitions.filter(
       (candidate) => candidate.triggerMode !== "conditional",
     )) {
       const choices = getHistoricalEventChoices(event);
-      expect(choices.length).toBeGreaterThanOrEqual(3);
+      expect(choices.length).toBeGreaterThanOrEqual(2);
       expect(new Set(choices.map((choice) => choice.id)).size).toBe(
         choices.length,
       );

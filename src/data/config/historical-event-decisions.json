@@ -158,6 +158,35 @@
     ]
   },
   {
+    "eventId": "bandung_conference_1955",
+    "choices": [
+      {
+        "id": "retain_overseas_chinese_nationality",
+        "name": "感谢抗战贡献、保护海外侨胞并保留国籍",
+        "description": "在万隆场合感谢海外华人对抗战的支持，以国家力量保护海外侨胞权益，不推动侨民放弃中国国籍，并以侨务联络强化汇款渠道与对外经贸弹性；东南亚东道国对“双重效忠”的疑虑随之上升，印尼等国关系目标承压。",
+        "effects": [
+          "保护海外侨胞权益",
+          "保留华侨中国国籍",
+          "侨汇与开放度提高",
+          "东南亚关系承压"
+        ],
+        "durationMonths": 60,
+        "modifiers": [
+          { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.18 },
+          { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.03 },
+          { "target": "trade.opennessTarget", "operation": "add", "value": 0.04 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.015 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+          { "target": "diplomacy.relationTarget.indonesia", "operation": "add", "value": -12 },
+          { "target": "diplomacy.relationTarget.india", "operation": "add", "value": -4 },
+          { "target": "diplomacy.relationTarget.myanmar", "operation": "add", "value": -6 },
+          { "target": "society.stability", "operation": "add", "value": 1.5 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+        ]
+      }
+    ]
+  },
+  {
     "eventId": "industry_wide_joint_ownership_1956",
     "choices": [
       {
@@ -202,6 +231,51 @@
           { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.002, "durationMonths": 72 },
           { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0024, "durationMonths": 72 }
         ]
+      }
+    ]
+  },
+  {
+    "eventId": "japanese_war_criminals_amnesty_1956",
+    "choices": [
+      {
+        "id": "immediate_full_amnesty",
+        "name": "立即全部特赦遣返",
+        "description": "在特别军事法庭审判框架下迅速对在押日本战犯实行一次性全部特赦并集中遣返，以更强的人道主义姿态换取对日关系与国际声誉的更快回升；国内战争受害记忆与正义期待受到更大冲击。",
+        "effects": [
+          "对日本关系目标显著改善",
+          "国际声誉提升更快",
+          "国内稳定与幸福度承压更明显"
+        ],
+        "durationMonths": 36,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": 16 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 7 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": 0.5 },
+          { "target": "society.stability", "operation": "add", "value": -4 },
+          { "target": "society.happiness", "operation": "add", "value": -3 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.008, "delayMonths": 12, "durationMonths": 60 }
+        ]
+      },
+      {
+        "id": "refuse_amnesty_prosecute",
+        "name": "依法严惩、拒绝特赦",
+        "description": "不以特赦遣返结束战犯问题，坚持按战争罪责长期关押与从严惩处，回应国内受害群体的正义诉求并强化安全叙事；对日关系与国际声誉承压，史实意义上的特赦进程被阻止。",
+        "effects": [
+          "阻止史实特赦遣返进程",
+          "国内正义叙事与稳定感增强",
+          "对日本关系目标明显恶化",
+          "国际声誉承压"
+        ],
+        "durationMonths": 120,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": -12 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": -3 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": 3 },
+          { "target": "society.stability", "operation": "add", "value": 3 },
+          { "target": "society.happiness", "operation": "add", "value": 1.5 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.997 }
+        ],
+        "outcome": "prevented"
       }
     ]
   },
