@@ -87,6 +87,33 @@
     ]
   },
   {
+    "id": "three_views_education_1950",
+    "name": "三视教育运动",
+    "year": 1950,
+    "month": 11,
+    "category": "社会教育",
+    "impact": "mixed",
+    "description": "抗美援朝战争动员期间，全国开展以仇视、鄙视、蔑视美帝国主义为中心的时事宣传教育，以消除亲美、崇美、恐美思想并统一对美立场。运动强化战时认同与动员能力，同时挤占专业教学资源、削弱对西方经贸认知弹性，并固化对美及部分西方国家的敌对认知。",
+    "effects": [
+      "对美关系目标明显恶化",
+      "对英日等西方国家关系目标承压",
+      "对苏叙事协同略有加强",
+      "国际声誉承压并削弱对西方出口竞争力",
+      "战时安全认同增强，宣传挤占专业教学"
+    ],
+    "durationMonths": 36,
+    "modifiers": [
+      { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": -15 },
+      { "target": "diplomacy.relationTarget.united_kingdom", "operation": "add", "value": -5 },
+      { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": -4 },
+      { "target": "diplomacy.relationTarget.russia", "operation": "add", "value": 2 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": -3 },
+      { "target": "diplomacy.securityTarget", "operation": "add", "value": 2 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.995 },
+      { "target": "education.efficiency", "operation": "multiply", "value": 0.995 }
+    ]
+  },
+  {
     "id": "foreign_assets_reorganization",
     "name": "取消经济特权与清理在华外资企业",
     "year": 1950,

@@ -1,5 +1,13 @@
 [
   {
+    "eventId": "three_views_education_1950",
+    "sourceEventId": "korean_war_1950",
+    "sourceChoiceIds": ["oppose_korean_war"],
+    "modifierScale": 0.35,
+    "durationMultiplier": 0.6,
+    "contextEffect": "事前劝阻半岛开战，全国仇美动员缺乏史实动力，三视教育冲击显著减弱"
+  },
+  {
     "eventId": "three_year_difficulties_1959",
     "sourceEventId": "great_leap_forward_1958",
     "sourceChoiceIds": ["avoid_great_leap", "balanced_industrialization"],

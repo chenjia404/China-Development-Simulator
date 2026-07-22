@@ -110,6 +110,54 @@
     ]
   },
   {
+    "eventId": "three_views_education_1950",
+    "choices": [
+      {
+        "id": "limited_current_affairs_education",
+        "name": "有限度时事宣传、避免仇恨动员",
+        "description": "保留必要的战局说明与爱国主义宣传，但不发动全国性的仇视、鄙视、蔑视美帝运动，减少对专业教学和国际形象的冲击。",
+        "effects": [
+          "对美关系承压明显减轻",
+          "战时动员收益有限",
+          "教育与出口挤出较小",
+          "不对苏叙事大幅加分"
+        ],
+        "durationMonths": 24,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": -5 },
+          { "target": "diplomacy.relationTarget.united_kingdom", "operation": "add", "value": -2 },
+          { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": -1 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": -1 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": 1 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.998 },
+          { "target": "education.efficiency", "operation": "multiply", "value": 0.998 }
+        ]
+      },
+      {
+        "id": "avoid_three_views_education",
+        "name": "不发动三视教育",
+        "description": "不开展仇视、鄙视、蔑视美帝的全国性教育运动，保留社会对美认知的多元空间；战时仇恨叙事难以固化，专业教学与对西方经贸认知压力减轻，但动员凝聚力弱于史实路线。",
+        "effects": [
+          "避免固化全国性仇美叙事",
+          "对美及部分西方关系目标缓和",
+          "国际声誉小幅回正",
+          "专业教学与出口竞争力压力下降",
+          "失去史实级战时动员收益"
+        ],
+        "durationMonths": 60,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.usa", "operation": "add", "value": 8, "durationMonths": 60 },
+          { "target": "diplomacy.relationTarget.united_kingdom", "operation": "add", "value": 3, "durationMonths": 48 },
+          { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": 3, "durationMonths": 48 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2, "durationMonths": 48 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.005, "durationMonths": 36 },
+          { "target": "education.efficiency", "operation": "multiply", "value": 1.005, "durationMonths": 36 }
+        ],
+        "outcome": "prevented"
+      }
+    ]
+  },
+  {
     "eventId": "industry_wide_joint_ownership_1956",
     "choices": [
       {

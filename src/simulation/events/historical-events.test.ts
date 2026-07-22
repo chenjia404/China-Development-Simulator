@@ -218,6 +218,10 @@ describe("确定性历史事件", () => {
         eventId: "korean_war_1950",
         choiceId,
       });
+      // 后续月份还有三视教育等定时事件；多月推进时切自动，避免交互暂停截断比较窗口。
+      if (monthsAfterChoice > 1) {
+        engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+      }
       engine.dispatch({ type: "ADVANCE_MONTHS", months: monthsAfterChoice });
       return engine.getState();
     };
@@ -341,6 +345,134 @@ describe("确定性历史事件", () => {
         warRelation ?? Number.POSITIVE_INFINITY,
       );
     }
+  });
+
+  it("三视教育运动在1950年11月触发，可选阻止，且受朝战劝阻决策缩放", () => {
+    const choices = getHistoricalEventChoices("three_views_education_1950");
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "limited_current_affairs_education",
+      "avoid_three_views_education",
+    ]);
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.usa",
+      ),
+    ).toMatchObject({ operation: "add", value: -15 });
+    expect(choices[2]).toMatchObject({
+      id: "avoid_three_views_education",
+      outcome: "prevented",
+    });
+    expect(
+      choices[2]?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.usa",
+      )?.value,
+    ).toBe(8);
+
+    const state = createInitialGameState(1950, 1950, "interactive");
+    state.nation.date.month = 11;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+      "three_views_education_1950",
+    );
+    engine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "three_views_education_1950",
+      choiceId: "historical_path",
+    });
+    expect(engine.getState().nation.history.historicalEvents).toHaveLength(1);
+    expect(engine.getState().nation.history.historicalEvents[0]).toMatchObject({
+      id: "three_views_education_1950",
+      outcome: "occurred",
+    });
+    expect(
+      applyModifiers(
+        engine.getState().nation,
+        "diplomacy.relationTarget.usa",
+        0,
+      ),
+    ).toBe(-15);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.pendingHistoricalEventId).not.toBe(
+      "three_views_education_1950",
+    );
+
+    const preventedState = createInitialGameState(1950, 1950, "interactive");
+    preventedState.nation.date.month = 11;
+    const preventedEngine = createSimulationEngine(preventedState);
+    preventedEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    preventedEngine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "three_views_education_1950",
+      choiceId: "avoid_three_views_education",
+    });
+    expect(
+      preventedEngine.getState().nation.history.historicalEvents[0],
+    ).toMatchObject({
+      id: "three_views_education_1950",
+      choiceId: "avoid_three_views_education",
+      outcome: "prevented",
+    });
+    expect(
+      applyModifiers(
+        preventedEngine.getState().nation,
+        "diplomacy.relationTarget.usa",
+        0,
+      ),
+    ).toBe(8);
+
+    const scaledState = createInitialGameState(1950, 1950, "interactive");
+    scaledState.nation.date.month = 6;
+    const scaledEngine = createSimulationEngine(scaledState);
+    scaledEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(scaledEngine.getState().nation.pendingHistoricalEventId).toBe(
+      "land_reform_1950",
+    );
+    scaledEngine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "land_reform_1950",
+      choiceId: "historical_path",
+    });
+    scaledEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(scaledEngine.getState().nation.pendingHistoricalEventId).toBe(
+      "korean_war_1950",
+    );
+    scaledEngine.dispatch({
+      type: "RESOLVE_HISTORICAL_EVENT",
+      eventId: "korean_war_1950",
+      choiceId: "oppose_korean_war",
+    });
+    scaledEngine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+    scaledEngine.dispatch({ type: "ADVANCE_MONTHS", months: 5 });
+    expect(scaledEngine.getState().nation.date).toMatchObject({
+      year: 1950,
+      month: 11,
+    });
+    scaledEngine.dispatch({
+      type: "SET_HISTORICAL_EVENT_MODE",
+      mode: "interactive",
+    });
+    scaledEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(scaledEngine.getState().nation.pendingHistoricalEventId).toBe(
+      "three_views_education_1950",
+    );
+    const scaledChoices = getHistoricalEventChoices(
+      "three_views_education_1950",
+      scaledEngine.getState().nation,
+    );
+    const scaledHistorical = scaledChoices.find(
+      (choice) => choice.id === "historical_path",
+    );
+    expect(scaledHistorical?.effects).toContain(
+      "事前劝阻半岛开战，全国仇美动员缺乏史实动力，三视教育冲击显著减弱",
+    );
+    expect(scaledHistorical?.durationMonths).toBe(Math.round(36 * 0.6));
+    expect(
+      scaledHistorical?.modifiers.find(
+        (modifier) => modifier.target === "diplomacy.relationTarget.usa",
+      )?.value,
+    ).toBeCloseTo(-15 * 0.35, 6);
   });
 
   it("朝鲜战争军事贷款在战争期累积，1964年保留残债并于1965年清偿", () => {
