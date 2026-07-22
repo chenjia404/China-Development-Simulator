@@ -1,5 +1,6 @@
 import domesticDemandConfig from "../../data/config/domestic-demand.json";
 import { approach, clamp, safeDivide } from "../core/math";
+import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
 import type { NationState, SectorId } from "../state/game-state";
 import { remittanceDomesticIncome } from "./foreign-exchange";
@@ -69,10 +70,14 @@ export function updateHouseholdAndDomesticDemand(nation: NationState): void {
   const nominalGDP = Math.max(1, economy.nominalGDP);
   const welfareSpending = Math.max(
     0,
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "wellbeing.welfare",
-      fiscal.expenditure * fiscal.budget.welfare,
+      applyPolicyModifiers(
+        nation,
+        "wellbeing.welfare",
+        fiscal.expenditure * fiscal.budget.welfare,
+      ),
     ),
   );
   const socialProtectionIncome = Math.min(
@@ -100,10 +105,14 @@ export function updateHouseholdAndDomesticDemand(nation: NationState): void {
     economy.householdIncome * (1 - fiscal.effectiveTaxRate),
   );
   economy.consumptionPropensity = clamp(
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "economy.consumptionPropensity",
-      0.9 - Math.log1p(economy.realGDPPerCapita) / 40 + propensityBoost,
+      applyPolicyModifiers(
+        nation,
+        "economy.consumptionPropensity",
+        0.9 - Math.log1p(economy.realGDPPerCapita) / 40 + propensityBoost,
+      ),
     ),
     0.52,
     0.98,

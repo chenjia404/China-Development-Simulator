@@ -14,12 +14,16 @@ export function updateWellbeing(nation: NationState): void {
     1,
   );
   const welfareIntensity =
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "wellbeing.welfare",
-      safeDivide(
-        fiscal.expenditure * fiscal.budget.welfare,
-        economy.nominalGDP,
+      applyPolicyModifiers(
+        nation,
+        "wellbeing.welfare",
+        safeDivide(
+          fiscal.expenditure * fiscal.budget.welfare,
+          economy.nominalGDP,
+        ),
       ),
     ) +
     fiscalConfig.agriculturalTaxWelfareBoost *

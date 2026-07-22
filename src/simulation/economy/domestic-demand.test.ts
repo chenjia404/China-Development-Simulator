@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { addModifier } from "../events/modifiers";
 import { createInitialGameState } from "../state/initial-state";
 import { technologyTreeDefinitions } from "../technology/technology-tree";
 import {
   ensureDomesticDemandState,
   updateDemandDrivenCapacityUtilization,
+  updateHouseholdAndDomesticDemand,
 } from "./domestic-demand";
 import { calculateGDP } from "./gdp";
 import { updateIndustrialStructure } from "./industrial-structure";
@@ -11,6 +13,42 @@ import { calculateIndustryOutputs } from "./production";
 import { updateInternationalTrade } from "./trade";
 
 describe("内外需求与经济产出的传导", () => {
+  it("历史事件 modifier 可降低民生福利支出并压制消费倾向", () => {
+    const baseline = createInitialGameState(1956).nation;
+    baseline.fiscal.budget.welfare = 0.12;
+    baseline.fiscal.expenditure = baseline.economy.nominalGDP * 0.2;
+    const modified = structuredClone(baseline);
+    addModifier(modified, {
+      id: "test:wellbeing.welfare",
+      sourceId: "test",
+      target: "wellbeing.welfare",
+      operation: "multiply",
+      value: 0.5,
+      remainingMonths: 12,
+      stackRule: "stack",
+    });
+    addModifier(modified, {
+      id: "test:economy.consumptionPropensity",
+      sourceId: "test",
+      target: "economy.consumptionPropensity",
+      operation: "add",
+      value: -0.08,
+      remainingMonths: 12,
+      stackRule: "stack",
+    });
+
+    updateHouseholdAndDomesticDemand(baseline);
+    updateHouseholdAndDomesticDemand(modified);
+
+    expect(modified.economy.socialProtectionIncome).toBeCloseTo(
+      baseline.economy.socialProtectionIncome * 0.5,
+      6,
+    );
+    expect(modified.economy.consumptionPropensity).toBeLessThan(
+      baseline.economy.consumptionPropensity - 0.05,
+    );
+  });
+
   it("社会保障通过转移收入和降低预防性储蓄扩大内需，但不直接改写GDP", () => {
     const weakProtection = createInitialGameState(1949).nation;
     const strongProtection = structuredClone(weakProtection);

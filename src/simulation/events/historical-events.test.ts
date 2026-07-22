@@ -631,6 +631,19 @@ describe("确定性历史事件", () => {
       durationMonths: 96,
       outcome: "occurred",
     });
+    expect(choices[0]?.effects).toEqual(
+      expect.arrayContaining(["战俘超国民福利待遇强化相对剥夺感"]),
+    );
+    expect(
+      historicalEventDefinitions.find(
+        (event) => event.id === "japanese_war_criminals_amnesty_1956",
+      )?.description,
+    ).toContain("战俘超国民福利待遇");
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "wellbeing.welfare",
+      ),
+    ).toMatchObject({ operation: "multiply", value: 0.996 });
     expect(choices[1]).toMatchObject({
       id: "immediate_full_amnesty",
       name: "立即全部特赦遣返",
@@ -665,7 +678,7 @@ describe("确定性历史事件", () => {
         ?.modifiers.find((modifier) => modifier.target === "society.stability")
         ?.value;
     expect(stability("immediate_full_amnesty")).toBe(-4);
-    expect(stability("historical_path")).toBe(-1.5);
+    expect(stability("historical_path")).toBe(-2.5);
     expect(stability("refuse_amnesty_prosecute")).toBe(3);
 
     const state = createInitialGameState(1956, 1956, "interactive");
@@ -697,6 +710,9 @@ describe("确定性历史事件", () => {
       return runEngine.getState();
     };
 
+    const historicalEarly = runChoice("historical_path", 1);
+    const immediateEarly = runChoice("immediate_full_amnesty", 1);
+    const refusedEarly = runChoice("refuse_amnesty_prosecute", 1);
     const historical = runChoice("historical_path");
     const immediate = runChoice("immediate_full_amnesty");
     const refused = runChoice("refuse_amnesty_prosecute");
@@ -757,6 +773,25 @@ describe("确定性历史事件", () => {
     ).toBeGreaterThan(
       applyModifiers(immediate.nation, "society.stability", 50),
     );
+    expect(
+      applyModifiers(historical.nation, "wellbeing.welfare", 1),
+    ).toBeCloseTo(0.996, 6);
+    expect(
+      applyModifiers(immediate.nation, "wellbeing.welfare", 1),
+    ).toBe(1);
+    expect(
+      applyModifiers(refused.nation, "wellbeing.welfare", 1),
+    ).toBe(1);
+    expect(
+      historicalEarly.nation.economy.socialProtectionIncome,
+    ).toBeLessThan(refusedEarly.nation.economy.socialProtectionIncome);
+    expect(
+      historicalEarly.nation.economy.socialProtectionIncome,
+    ).toBeLessThan(immediateEarly.nation.economy.socialProtectionIncome);
+    expect(
+      historicalEarly.nation.economy.socialProtectionIncome /
+        Math.max(refusedEarly.nation.economy.socialProtectionIncome, 1e-9),
+    ).toBeCloseTo(0.996, 3);
     expect(
       choices.every(
         (choice) =>

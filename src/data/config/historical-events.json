@@ -247,11 +247,12 @@
     "month": 6,
     "category": "外交",
     "impact": "mixed",
-    "description": "对关押于抚顺战犯管理所的约一千一百零九名日本战犯，中国政府采取“宽大处理、一个不杀”方针：经特别军事法庭审判后，对多数人免予起诉或予以特赦，并在一九五六至一九六四年间分三批全部释放遣返。政策以人道主义与分化敌对阵营塑造国际声誉、缓和未来对日关系空间，但战争受害记忆下的国内正义期待会承受阶段性压力。",
+    "description": "对关押于抚顺战犯管理所的约一千一百零九名日本战犯，中国政府采取“宽大处理、一个不杀”方针：经特别军事法庭审判后，对多数人免予起诉或予以特赦，并在一九五六至一九六四年间分三批全部释放遣返。关押期间实行明显高于同期普通居民的生活、医疗与配给安排，形成“战俘超国民福利待遇”；政策以人道主义与分化敌对阵营塑造国际声誉、缓和未来对日关系空间，但战争受害记忆与相对剥夺感会使国内正义期待与民生观感承压。",
     "effects": [
       "对日本关系目标逐步改善",
       "国际声誉因宽大处理有所提升",
-      "受害群体正义期待承压，社会稳定小幅波动",
+      "战俘超国民福利待遇强化相对剥夺感",
+      "受害群体正义期待承压，社会稳定与幸福度波动",
       "为日后对日民间与官方接触保留弹性"
     ],
     "durationMonths": 96,
@@ -259,8 +260,9 @@
       { "target": "diplomacy.relationTarget.japan", "operation": "add", "value": 8 },
       { "target": "diplomacy.reputationTarget", "operation": "add", "value": 4 },
       { "target": "diplomacy.securityTarget", "operation": "add", "value": 1 },
-      { "target": "society.stability", "operation": "add", "value": -1.5 },
-      { "target": "society.happiness", "operation": "add", "value": -1 },
+      { "target": "society.stability", "operation": "add", "value": -2.5 },
+      { "target": "society.happiness", "operation": "add", "value": -2 },
+      { "target": "wellbeing.welfare", "operation": "multiply", "value": 0.996 },
       { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.004, "delayMonths": 24, "durationMonths": 72 }
     ]
   },
