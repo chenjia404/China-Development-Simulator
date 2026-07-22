@@ -1664,6 +1664,312 @@ describe("确定性历史事件", () => {
     });
   });
 
+  it("印尼排华暴乱在1998年5月触发，三线取舍区分对印关系、禁报代价与援助", () => {
+    const eventDefinition = historicalEventDefinitions.find(
+      (event) => event.id === "indonesia_anti_chinese_riots_1998",
+    );
+    expect(eventDefinition).toMatchObject({
+      year: 1998,
+      month: 5,
+      impact: "mixed",
+      durationMonths: 24,
+    });
+    expect(eventDefinition?.description).toContain("不对印尼公开谴责");
+    expect(eventDefinition?.description).toContain("禁止国内媒体报道");
+    expect(eventDefinition?.description).toContain("300万美元");
+    expect(eventDefinition?.description).toContain("4亿美元备用贷款");
+    expect(eventDefinition?.description).toContain("2亿美元出口信贷");
+    expect(eventDefinition?.effects).toEqual(
+      expect.arrayContaining([
+        "不公开谴责印尼，禁止国内媒体报道排华暴乱",
+        "对印度尼西亚关系因经济与金融支持加强",
+      ]),
+    );
+    expect(eventDefinition?.description).not.toMatch(/公开谴责雅加达|公开谴责印尼政府/);
+
+    const choices = getHistoricalEventChoices(
+      "indonesia_anti_chinese_riots_1998",
+    );
+    expect(choices.map((choice) => choice.id)).toEqual([
+      "historical_path",
+      "strong_evacuation_and_pressure",
+      "quiet_diplomacy_preserve_ties",
+    ]);
+    expect(choices[0]).toMatchObject({
+      isHistoricalPath: true,
+      durationMonths: 24,
+      outcome: "occurred",
+    });
+    expect(choices[1]).toMatchObject({
+      id: "strong_evacuation_and_pressure",
+      name: "公开谴责、大规模撤侨并中止对印支持",
+      durationMonths: 24,
+    });
+    expect(choices[1]?.description).toContain("公开谴责");
+    expect(choices[2]).toMatchObject({
+      id: "quiet_diplomacy_preserve_ties",
+      name: "低调交涉并加大援助修复",
+      durationMonths: 24,
+    });
+
+    const indonesiaRelation = (choiceId: string) =>
+      choices
+        .find((choice) => choice.id === choiceId)
+        ?.modifiers.find(
+          (modifier) =>
+            modifier.target === "diplomacy.relationTarget.indonesia",
+        );
+    expect(indonesiaRelation("historical_path")).toMatchObject({
+      operation: "add",
+      value: 10,
+      delayMonths: 3,
+    });
+    expect(indonesiaRelation("strong_evacuation_and_pressure")).toMatchObject({
+      operation: "add",
+      value: -35,
+      durationMonths: 36,
+    });
+    expect(indonesiaRelation("quiet_diplomacy_preserve_ties")).toMatchObject({
+      operation: "add",
+      value: 16,
+      delayMonths: 3,
+    });
+    expect(indonesiaRelation("quiet_diplomacy_preserve_ties")?.value ?? 0)
+      .toBeGreaterThan(indonesiaRelation("historical_path")?.value ?? 0);
+    expect(indonesiaRelation("historical_path")?.value ?? 0).toBeGreaterThan(
+      indonesiaRelation("strong_evacuation_and_pressure")?.value ?? 0,
+    );
+
+    const happiness = (choiceId: string) =>
+      choices
+        .find((choice) => choice.id === choiceId)
+        ?.modifiers.find((modifier) => modifier.target === "society.happiness")
+        ?.value ?? 0;
+    expect(happiness("strong_evacuation_and_pressure")).toBeGreaterThan(
+      happiness("historical_path"),
+    );
+    expect(happiness("quiet_diplomacy_preserve_ties")).toBeGreaterThan(
+      happiness("historical_path"),
+    );
+
+    const remittance = (choiceId: string) =>
+      choices
+        .find((choice) => choice.id === choiceId)
+        ?.modifiers.find(
+          (modifier) => modifier.target === "trade.remittanceInflows",
+        )?.value ?? 1;
+    expect(remittance("quiet_diplomacy_preserve_ties")).toBeGreaterThan(
+      remittance("historical_path"),
+    );
+    expect(remittance("historical_path")).toBeGreaterThan(
+      remittance("strong_evacuation_and_pressure"),
+    );
+
+    // 史实外汇强度按承诺敞口约 15% 有效占用年化：2500 万美元/年 × 8.28 = 2.07 亿人民币/年，持续 24 月。
+    expect(choices[0]?.foreignAidAdjustment).toMatchObject({
+      annualRmbDelta: 0,
+      annualForeignExchangeRmbDelta: 207_000_000,
+      durationMonths: 24,
+    });
+    expect(choices[1]?.foreignAidAdjustment).toMatchObject({
+      annualForeignExchangeRmbDelta: 0,
+      durationMonths: 24,
+    });
+    expect(choices[2]?.foreignAidAdjustment).toMatchObject({
+      annualForeignExchangeRmbDelta: 280_000_000,
+      durationMonths: 24,
+    });
+    expect(
+      choices[2]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
+    ).toBeGreaterThan(
+      choices[0]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
+    );
+    expect(
+      choices[0]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
+    ).toBeGreaterThan(
+      choices[1]?.foreignAidAdjustment?.annualForeignExchangeRmbDelta ?? 0,
+    );
+    for (const choice of choices) {
+      expect(choice.foreignAidAdjustment?.durationMonths).toBe(
+        choice.durationMonths,
+      );
+    }
+
+    const runChoice = (choiceId: string, monthsAfter = 6) => {
+      const runState = createInitialGameState(1998, 1998, "interactive");
+      runState.nation.date.month = 5;
+      const runEngine = createSimulationEngine(runState);
+      runEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      expect(runEngine.getState().nation.pendingHistoricalEventId).toBe(
+        "indonesia_anti_chinese_riots_1998",
+      );
+      runEngine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "indonesia_anti_chinese_riots_1998",
+        choiceId,
+      });
+      runEngine.dispatch({
+        type: "SET_HISTORICAL_EVENT_MODE",
+        mode: "automatic",
+      });
+      advanceMonthsDismissingFamineReports(runEngine, monthsAfter);
+      return runEngine.getState();
+    };
+
+    const indonesiaTarget = (gameState: GameState) =>
+      applyModifiers(
+        gameState.nation,
+        "diplomacy.relationTarget.indonesia",
+        0,
+      );
+    const relation = (gameState: GameState) =>
+      gameState.world.countries.find((country) => country.id === "indonesia")
+        ?.relationWithChina ?? Number.NaN;
+
+    // delayMonths: 3 对应 5 月决议后第 4 个完整结算月（8 月）才进入外交收敛。
+    const historicalBeforeAid = runChoice("historical_path", 2);
+    const strongBeforeAid = runChoice("strong_evacuation_and_pressure", 2);
+    expect(indonesiaTarget(historicalBeforeAid)).toBe(0);
+    expect(indonesiaTarget(strongBeforeAid)).toBe(-35);
+
+    const historical = runChoice("historical_path");
+    const strong = runChoice("strong_evacuation_and_pressure");
+    const quiet = runChoice("quiet_diplomacy_preserve_ties");
+
+    expect(
+      historical.nation.history.historicalEvents.find(
+        (event) => event.id === "indonesia_anti_chinese_riots_1998",
+      ),
+    ).toMatchObject({
+      choiceId: "historical_path",
+      outcome: "occurred",
+    });
+    expect(
+      strong.nation.history.historicalEvents.find(
+        (event) => event.id === "indonesia_anti_chinese_riots_1998",
+      ),
+    ).toMatchObject({
+      choiceId: "strong_evacuation_and_pressure",
+      outcome: "occurred",
+      choiceName: "公开谴责、大规模撤侨并中止对印支持",
+    });
+    expect(
+      quiet.nation.history.historicalEvents.find(
+        (event) => event.id === "indonesia_anti_chinese_riots_1998",
+      ),
+    ).toMatchObject({
+      choiceId: "quiet_diplomacy_preserve_ties",
+      outcome: "occurred",
+      choiceName: "低调交涉并加大援助修复",
+    });
+
+    expect(indonesiaTarget(historical)).toBe(10);
+    expect(indonesiaTarget(quiet)).toBe(16);
+    expect(indonesiaTarget(quiet)).toBeGreaterThan(indonesiaTarget(historical));
+    expect(indonesiaTarget(historical)).toBeGreaterThan(indonesiaTarget(strong));
+    expect(relation(quiet)).toBeGreaterThan(relation(historical));
+    expect(relation(historical)).toBeGreaterThan(relation(strong));
+    expect(
+      applyModifiers(strong.nation, "society.happiness", 50),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "society.happiness", 50),
+    );
+    expect(
+      applyModifiers(quiet.nation, "trade.remittanceInflows", 1),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "trade.remittanceInflows", 1),
+    );
+    expect(
+      applyModifiers(historical.nation, "trade.remittanceInflows", 1),
+    ).toBeGreaterThan(
+      applyModifiers(strong.nation, "trade.remittanceInflows", 1),
+    );
+    expect(
+      historical.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(18);
+    expect(
+      strong.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(18);
+    expect(
+      historical.nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment,
+    ).toBe(207_000_000);
+    expect(strong.nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment).toBe(
+      0,
+    );
+    expect(quiet.nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment).toBe(
+      280_000_000,
+    );
+    expect(historical.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb)
+      .toBe(207_000_000);
+    expect(strong.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb).toBe(
+      207_000_000,
+    );
+
+    const prepareAfterMonths = (choiceId: string, months: number) =>
+      runChoice(choiceId, months);
+    const annualReserveAdj = (state: GameState) =>
+      foreignAidReserveFlowAdjustment(state.nation);
+
+    const historicalM23 = prepareAfterMonths("historical_path", 23);
+    const strongM23 = prepareAfterMonths("strong_evacuation_and_pressure", 23);
+    const quietM23 = prepareAfterMonths("quiet_diplomacy_preserve_ties", 23);
+    expect(
+      historicalM23.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(1);
+    expect(
+      strongM23.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(1);
+    // 强硬中止援助相对史实少用汇，外储调整应更高；低调加大援助则更低。
+    expect(annualReserveAdj(strongM23)).toBeGreaterThan(
+      annualReserveAdj(historicalM23),
+    );
+    expect(annualReserveAdj(historicalM23)).toBeGreaterThan(
+      annualReserveAdj(quietM23),
+    );
+
+    const historicalM24 = prepareAfterMonths("historical_path", 24);
+    const strongM24 = prepareAfterMonths("strong_evacuation_and_pressure", 24);
+    expect(
+      historicalM24.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(0);
+    expect(
+      historicalM24.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb,
+    ).toBe(0);
+    expect(
+      historicalM24.nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment,
+    ).toBe(0);
+    expect(
+      strongM24.nation.diplomacy.foreignAidEventAdjustmentRemainingMonths,
+    ).toBe(0);
+    expect(strongM24.nation.diplomacy.foreignAidEventHistoricalFxBaselineRmb)
+      .toBe(0);
+    expect(strongM24.nation.diplomacy.foreignAidEventAnnualFxRmbAdjustment)
+      .toBe(0);
+
+    // 援助窗内强硬相对史实的外储信用应在窗关闭后消失：第 25 月差额应远小于第 23 月。
+    const historicalM25 = prepareAfterMonths("historical_path", 25);
+    const strongM25 = prepareAfterMonths("strong_evacuation_and_pressure", 25);
+    const reserveGapInWindow =
+      annualReserveAdj(strongM23) - annualReserveAdj(historicalM23);
+    const reserveGapAfterWindow =
+      annualReserveAdj(strongM25) - annualReserveAdj(historicalM25);
+    expect(reserveGapInWindow).toBeGreaterThan(20_000_000);
+    expect(Math.abs(reserveGapAfterWindow)).toBeLessThan(
+      reserveGapInWindow * 0.05,
+    );
+
+    expect(
+      quiet.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeGreaterThan(
+      historical.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    );
+    expect(
+      historical.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    ).toBeGreaterThan(
+      strong.nation.diplomacy.annualForeignAidForeignExchangeOutflow,
+    );
+  });
+
   it("不发动文革会长期保护教育、科研、制度和投资传导", () => {
     const choices = getHistoricalEventChoices(
       "cultural_revolution_disruption_1966",

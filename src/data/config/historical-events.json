@@ -775,6 +775,40 @@
     ]
   },
   {
+    "id": "indonesia_anti_chinese_riots_1998",
+    "name": "印尼排华暴乱与侨民保护",
+    "year": 1998,
+    "month": 5,
+    "category": "外交",
+    "impact": "mixed",
+    "description": "亚洲金融危机深化后，印尼社会动荡并爆发针对华人社区的暴力与财产侵害。史实路线不对印尼公开谴责，禁止国内媒体报道相关消息，并以非公开外交交涉、领事保护与有序撤侨应对；1998年8月向印尼提供约300万美元药品援助，同时继续履行危机期间对印金融支持承诺，包括4亿美元备用贷款承诺和约2亿美元出口信贷额度。官方对印关系因经济与金融支持加强，但侨汇渠道阶段性承压，国内知情与侨胞情感出口因禁报受到压制，撤侨与应急安排亦占用财政与外汇。",
+    "effects": [
+      "不公开谴责印尼，禁止国内媒体报道排华暴乱",
+      "非公开交涉、领事保护与有序撤侨",
+      "1998年8月提供约300万美元药品援助",
+      "继续履行4亿美元备用贷款承诺与约2亿美元出口信贷额度",
+      "对印度尼西亚关系因经济与金融支持加强",
+      "侨汇阶段性承压，国内幸福度因信息管控下降",
+      "短期稳定略有支撑，财政与外汇有占用"
+    ],
+    "durationMonths": 24,
+    "modifiers": [
+      { "target": "diplomacy.relationTarget.indonesia", "operation": "add", "value": 10, "delayMonths": 3 },
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.94 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.985 },
+      { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.008, "delayMonths": 3, "durationMonths": 18 },
+      { "target": "diplomacy.reputationTarget", "operation": "add", "value": 0.5 },
+      { "target": "society.stability", "operation": "add", "value": 1 },
+      { "target": "society.happiness", "operation": "add", "value": -1.5 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+    ],
+    "foreignAidAdjustment": {
+      "annualRmbDelta": 0,
+      "annualForeignExchangeRmbDelta": 207000000,
+      "durationMonths": 24
+    }
+  },
+  {
     "id": "wto_accession_2001",
     "name": "加入世界贸易组织",
     "year": 2001,

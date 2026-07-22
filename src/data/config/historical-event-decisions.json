@@ -946,6 +946,68 @@
     ]
   },
   {
+    "eventId": "indonesia_anti_chinese_riots_1998",
+    "choices": [
+      {
+        "id": "strong_evacuation_and_pressure",
+        "name": "公开谴责、大规模撤侨并中止对印支持",
+        "description": "公开谴责雅加达并允许国内舆论动员，优先大规模撤离侨民，同时削减乃至中止危机期对印药品援助与金融支持承诺；护侨象征与国内正义叙事最强，但对印关系大幅恶化，侨汇与区域贸易冲击加重，财政侧重撤侨动员而非援外。",
+        "effects": [
+          "公开谴责印尼并动员国内舆论",
+          "大规模撤侨，护侨力度显著提高",
+          "中止药品援助与危机期金融支持承诺",
+          "对印度尼西亚关系大幅恶化",
+          "侨汇与出口承压加重",
+          "国内稳定与幸福度因正义叙事上升"
+        ],
+        "durationMonths": 24,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.indonesia", "operation": "add", "value": -35, "durationMonths": 36 },
+          { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.9, "durationMonths": 36 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.97, "durationMonths": 36 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
+          { "target": "diplomacy.securityTarget", "operation": "add", "value": 2 },
+          { "target": "society.stability", "operation": "add", "value": 2 },
+          { "target": "society.happiness", "operation": "add", "value": 2 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
+        ],
+        "foreignAidAdjustment": {
+          "annualRmbDelta": 0,
+          "annualForeignExchangeRmbDelta": 0,
+          "durationMonths": 24
+        }
+      },
+      {
+        "id": "quiet_diplomacy_preserve_ties",
+        "name": "低调交涉并加大援助修复",
+        "description": "同样避免公开谴责，但不以强硬全面禁报为主轴；在有限领事协助之外，保留并略强化人道药品援助与危机期金融支持，以保全双边经贸与外交渠道。对印关系改善最明显，侨汇与贸易冲击最轻，但护侨象征不足，国内知情与正义期待回应偏弱。",
+        "effects": [
+          "避免公开谴责，低调保全双边渠道",
+          "加大药品援助与金融支持力度",
+          "对印度尼西亚关系进一步改善",
+          "侨汇与贸易冲击收敛",
+          "护侨象征与国内知情期待回应不足"
+        ],
+        "durationMonths": 24,
+        "modifiers": [
+          { "target": "diplomacy.relationTarget.indonesia", "operation": "add", "value": 16, "delayMonths": 3 },
+          { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.98 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.995 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.012, "delayMonths": 3, "durationMonths": 18 },
+          { "target": "diplomacy.reputationTarget", "operation": "add", "value": 1 },
+          { "target": "society.stability", "operation": "add", "value": -0.5 },
+          { "target": "society.happiness", "operation": "add", "value": -0.5 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+        ],
+        "foreignAidAdjustment": {
+          "annualRmbDelta": 0,
+          "annualForeignExchangeRmbDelta": 280000000,
+          "durationMonths": 24
+        }
+      }
+    ]
+  },
+  {
     "eventId": "covid_19_2020",
     "choices": [
       {
