@@ -143,6 +143,23 @@ describe("货币银行与国际收支", () => {
     expect(first.nation.financialSystem).toEqual(second.nation.financialSystem);
   });
 
+  it("旧存档同时缺失产业政策与资本市场时仍可确定性重建金融账户", () => {
+    const legacy = createInitialGameState(8508);
+    legacy.nation.financialSystem.monetary.broadMoney = 98_765_432;
+    delete (legacy.nation as Partial<NationState>).industrialPolicy;
+    delete (legacy.nation.financialSystem as Partial<
+      NationState["financialSystem"]
+    >).capitalMarket;
+    const first = structuredClone(legacy);
+    const second = structuredClone(legacy);
+    expect(() => ensureFinancialSystemState(first)).not.toThrow();
+    ensureFinancialSystemState(second);
+    expect(first.nation.industrialPolicy.creditAllocationBias).toBe(0);
+    expect(first.nation.financialSystem.capitalMarket).toBeDefined();
+    expect(first.nation.financialSystem.monetary.broadMoney).not.toBe(0);
+    expect(first.nation.financialSystem).toEqual(second.nation.financialSystem);
+  });
+
   it("旧存档仅缺失资本市场子账户时保留已有货币银行数据", () => {
     const legacy = createInitialGameState(8507);
     legacy.nation.financialSystem.monetary.broadMoney = 123_456_789;

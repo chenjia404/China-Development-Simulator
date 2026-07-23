@@ -1,5 +1,6 @@
 import financialData from "../../data/config/monetary-financial.json";
 import { approach, clamp, safeDivide } from "../core/math";
+import { ensureIndustrialPolicyState } from "../policies/industrial-policy";
 import type {
   FinancialSystemState,
   GameState,
@@ -128,6 +129,8 @@ function complete(value: FinancialSystemState | undefined): boolean {
 
 /** 旧存档缺失金融账户时从当前宏观存量确定性重建。 */
 export function ensureFinancialSystemState(state: GameState): void {
+  // 金融账户重建会读取产业政策信贷偏向，须先补齐旧存档缺失字段。
+  ensureIndustrialPolicyState(state.nation);
   if (complete(state.nation.financialSystem)) return;
   const existing = state.nation.financialSystem as
     | (Partial<FinancialSystemState> & {

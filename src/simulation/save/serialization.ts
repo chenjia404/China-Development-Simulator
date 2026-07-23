@@ -85,6 +85,7 @@ export function deserializeGameState(serialized: string): GameState {
   ensureEnterpriseSectorState(state.nation);
   ensureFiscalFederalismState(state.nation);
   ensureFiscalAgricultureTaxState(state.nation);
+  ensureIndustrialPolicyState(state.nation);
   ensureFinancialSystemState(state);
   ensureAgricultureSystemState(state.nation);
   ensureInfrastructureResourceState(state.nation);
@@ -95,7 +96,6 @@ export function deserializeGameState(serialized: string): GameState {
   ensureWorldTradeNetworkState(state);
   ensureSecurityDefenseState(state.nation);
   ensureInstitutionCausalityState(state.nation);
-  ensureIndustrialPolicyState(state.nation);
   ensureAchievementsState(state.nation);
   return state;
 }

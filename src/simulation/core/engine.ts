@@ -105,6 +105,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureEnterpriseSectorState(this.state.nation);
     ensureFiscalFederalismState(this.state.nation);
     ensureFiscalAgricultureTaxState(this.state.nation);
+    ensureIndustrialPolicyState(this.state.nation);
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
     ensureInfrastructureResourceState(this.state.nation);
@@ -115,7 +116,6 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureWorldTradeNetworkState(this.state);
     ensureSecurityDefenseState(this.state.nation);
     ensureInstitutionCausalityState(this.state.nation);
-    ensureIndustrialPolicyState(this.state.nation);
     ensureAchievementsState(this.state.nation);
   }
 
@@ -158,6 +158,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureEnterpriseSectorState(this.state.nation);
         ensureFiscalFederalismState(this.state.nation);
         ensureFiscalAgricultureTaxState(this.state.nation);
+        ensureIndustrialPolicyState(this.state.nation);
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
         ensureInfrastructureResourceState(this.state.nation);
@@ -168,7 +169,6 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureWorldTradeNetworkState(this.state);
         ensureSecurityDefenseState(this.state.nation);
         ensureInstitutionCausalityState(this.state.nation);
-        ensureIndustrialPolicyState(this.state.nation);
         ensureAchievementsState(this.state.nation);
         break;
       case "UPDATE_BUDGET":
