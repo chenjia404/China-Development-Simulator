@@ -16,6 +16,10 @@ import type {
   TechnologyIndustryPathId,
 } from "@/src/simulation";
 import { formatLarge, formatPercent } from "@/src/ui/format";
+import {
+  getPlayableEndYear,
+  isPastPlayableHorizon,
+} from "@/src/ui/playable-horizon";
 import { ShareDialog } from "./share-dialog";
 import {
   averageInternationalRelation,
@@ -2503,14 +2507,25 @@ export function SimulatorDashboard() {
     ) {
       return;
     }
+    if (game && isPastPlayableHorizon(game.nation.date)) {
+      useSimulationStore.getState().setAutoRunning(false);
+      return;
+    }
     const interval = window.setInterval(() => {
-      if (!useSimulationStore.getState().busy) {
-        void useSimulationStore.getState().advanceYear();
+      const state = useSimulationStore.getState();
+      if (state.busy) return;
+      const date = state.game?.nation.date;
+      if (date && isPastPlayableHorizon(date)) {
+        state.setAutoRunning(false);
+        return;
       }
+      void state.advanceYear();
     }, speed === 1 ? 1300 : speed === 5 ? 420 : 180);
     return () => window.clearInterval(interval);
   }, [
     autoRunning,
+    game?.nation.date.year,
+    game?.nation.date.month,
     game?.nation.pendingHistoricalEventId,
     game?.nation.famineMortality?.pendingReport,
     speed,
@@ -2519,6 +2534,8 @@ export function SimulatorDashboard() {
   const sectionTitle = useMemo(() => menuItems.find((item) => item.id === activeSection)?.label ?? "国家总览", [activeSection]);
   if (!game) return <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>;
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
+  const playableEndYear = getPlayableEndYear();
+  const pastPlayableHorizon = isPastPlayableHorizon(game.nation.date, playableEndYear);
   const awaitingHistoricalDecision = Boolean(game.nation.pendingHistoricalEventId);
   const awaitingFamineReport = Boolean(game.nation.famineMortality?.pendingReport);
   const awaitingBlockingPopup = awaitingHistoricalDecision || awaitingFamineReport;
@@ -2551,13 +2568,28 @@ export function SimulatorDashboard() {
             <button className="restart-button" disabled={busy} onClick={() => void handleRestart()}>重新开始</button>
             <button className="theme-button" onClick={() => store.setDarkMode(!darkMode)} aria-label="切换深色模式">{darkMode ? "日" : "夜"}</button>
             <div className="speed-control">{([1, 5, 10] as const).map((value) => <button className={speed === value ? "active" : ""} key={value} onClick={() => store.setSpeed(value)}>{value}×</button>)}</div>
-            <button className={autoRunning ? "control-button stop" : "control-button"} disabled={awaitingBlockingPopup} onClick={() => store.setAutoRunning(!autoRunning)}>{autoRunning ? "暂停" : "自动运行"}</button>
+            <button
+              className={autoRunning ? "control-button stop" : "control-button"}
+              disabled={!autoRunning && (awaitingBlockingPopup || pastPlayableHorizon)}
+              title={
+                autoRunning
+                  ? "暂停自动运行"
+                  : pastPlayableHorizon
+                    ? `已超过 ${playableEndYear} 年，自动运行已停止`
+                    : awaitingBlockingPopup
+                      ? "请先处理弹窗决策"
+                      : "按当前倍速逐年自动推进"
+              }
+              onClick={() => store.setAutoRunning(!autoRunning)}
+            >
+              {autoRunning ? "暂停" : "自动运行"}
+            </button>
             <button className="primary-button" disabled={busy || awaitingBlockingPopup} onClick={() => void store.advanceYear()}>{advanceYearLabel}</button>
           </div>
         </header>
         {error ? <div className="error-banner">{error}</div> : null}
         <div className="workspace">
-          <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || game.nation.date.year > new Date().getFullYear()} onClick={() => void store.runToCurrentYear()}>一键模拟至 {new Date().getFullYear()}</button></section>
+          <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
           {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
           {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
           {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}

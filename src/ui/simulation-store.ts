@@ -15,6 +15,7 @@ import {
   type SimulationCommand,
   type TechnologyIndustryPathId,
 } from "../simulation";
+import { getPlayableEndYear, isPastPlayableHorizon } from "./playable-horizon";
 import { clearAutoSave, loadAutoSave, saveAutoSave } from "./save-storage";
 import { getSimulationClient } from "./simulation-client";
 
@@ -126,14 +127,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ busy: true, error: null });
     try {
       const result = await getSimulationClient().dispatch(command);
+      const shouldStopAuto =
+        Boolean(result.state.nation.pendingHistoricalEventId) ||
+        Boolean(result.state.nation.famineMortality?.pendingReport) ||
+        isPastPlayableHorizon(result.state.nation.date);
       set({
         game: result.state,
         busy: false,
-        autoRunning:
-          result.state.nation.pendingHistoricalEventId ||
-          result.state.nation.famineMortality?.pendingReport
-            ? false
-            : get().autoRunning,
+        autoRunning: shouldStopAuto ? false : get().autoRunning,
       });
       await persist(result.state);
     } catch (error) {
@@ -146,13 +147,23 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   async advanceYear() {
+    const game = get().game;
+    if (!game) return;
+    // 自动运行到达可玩截止年后停止；手动「推进一年」仍允许继续探索。
+    if (isPastPlayableHorizon(game.nation.date) && get().autoRunning) {
+      set({ autoRunning: false });
+      return;
+    }
     await get().dispatch({ type: "ADVANCE_MONTHS", months: 12 });
   },
 
   async runToCurrentYear() {
     const game = get().game;
-    if (!game) return;
-    const currentYear = new Date().getFullYear();
+    if (!game || isPastPlayableHorizon(game.nation.date)) {
+      if (get().autoRunning) set({ autoRunning: false });
+      return;
+    }
+    const currentYear = getPlayableEndYear();
     const { year, month } = game.nation.date;
     const months = (currentYear - year) * 12 + (13 - month);
     if (months > 0) {
@@ -278,12 +289,16 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ speed });
   },
   setAutoRunning(autoRunning) {
-    set({
-      autoRunning:
-        get().game?.nation.pendingHistoricalEventId ||
-        get().game?.nation.famineMortality?.pendingReport
-          ? false
-          : autoRunning,
-    });
+    const game = get().game;
+    const blockedByPopup =
+      Boolean(game?.nation.pendingHistoricalEventId) ||
+      Boolean(game?.nation.famineMortality?.pendingReport);
+    const pastHorizon = game ? isPastPlayableHorizon(game.nation.date) : false;
+    // 暂停请求始终生效；只有在未越界且无阻塞弹窗时才允许启动自动运行。
+    if (!autoRunning) {
+      set({ autoRunning: false });
+      return;
+    }
+    set({ autoRunning: !blockedByPopup && !pastHorizon });
   },
 }));
