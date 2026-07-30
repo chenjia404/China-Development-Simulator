@@ -545,6 +545,18 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .famine-mortality-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
 .famine-mortality-actions button { min-width: 180px; padding: 11px 16px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
 
+.source-notice-overlay { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 24px; background: rgba(8, 15, 28, .72); backdrop-filter: blur(8px); }
+.source-notice-modal { width: min(480px, 100%); padding: 26px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line)); border-radius: 16px; box-shadow: 0 28px 80px rgba(0, 0, 0, .34); }
+.source-notice-header .eyebrow { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.source-notice-header h2 { margin: 10px 0 12px; font-size: 20px; line-height: 1.45; }
+.source-notice-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.source-notice-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+.source-notice-actions button { min-height: 44px; padding: 11px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.source-notice-secondary { color: var(--text); background: var(--surface-soft); border: 1px solid var(--line); }
+.source-notice-primary { color: white; background: var(--blue); border: 1px solid var(--blue); }
+.source-notice-repo { margin: 16px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; word-break: break-all; }
+.source-notice-repo a { color: var(--blue); }
+
 .world-table, .annual-table { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
 .world-head, .world-row { display: grid; grid-template-columns: 60px 1.2fr 1fr 1fr 80px; align-items: center; gap: 12px; min-height: 45px; padding: 0 16px; }
 .world-head, .annual-head { background: var(--surface-soft); color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
@@ -882,6 +894,24 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .famine-mortality-actions button {
     width: 100%;
     min-width: 0;
+    min-height: 48px;
+    font-size: 14px;
+  }
+  .source-notice-overlay {
+    place-items: end center;
+    padding: 0;
+  }
+  .source-notice-modal {
+    width: 100%;
+    max-width: 100%;
+    padding: 22px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-radius: 20px 20px 0 0;
+  }
+  .source-notice-header h2 { font-size: 18px; }
+  .source-notice-actions {
+    grid-template-columns: 1fr;
+  }
+  .source-notice-actions button {
     min-height: 48px;
     font-size: 14px;
   }
