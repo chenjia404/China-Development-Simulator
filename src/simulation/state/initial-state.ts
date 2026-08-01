@@ -74,15 +74,15 @@ import {
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
   health: 0.08,
-  agriculture: 0.10,
-  industry: 0.16,
+  agriculture: 0.12,
+  industry: 0.10,
   infrastructure: 0.15,
   transport: 0.08,
   research: 0.03,
-  housing: 0.02,
+  housing: 0.06,
   welfare: 0.08,
   defense: 0.1,
-  administration: 0.10,
+  administration: 0.1,
 };
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
