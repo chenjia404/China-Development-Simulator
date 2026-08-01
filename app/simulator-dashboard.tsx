@@ -98,6 +98,7 @@ const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "agriculture", label: "农业", mark: "农" },
   { id: "industry", label: "工业", mark: "工" },
   { id: "infrastructure", label: "基础设施", mark: "基" },
+  { id: "transport", label: "公共交通", mark: "交" },
   { id: "policies", label: "国策中心", mark: "策" },
   { id: "achievements", label: "国家成就", mark: "就" },
   { id: "diplomacy", label: "外交事务", mark: "外" },
@@ -569,23 +570,146 @@ function AgricultureSystemPanel({ game }: { game: GameState }) {
 
 function InfrastructureResourcePanel({ game }: { game: GameState }) {
   const state = game.nation.resources.infrastructureResources;
-  const transport = game.nation.transport;
   const energyNames: Record<string, string> = { coal: "煤炭", oil: "石油", gas: "天然气", hydro: "水电", nuclear: "核电", renewables: "可再生能源" };
   return <section className="panel national-accounts-panel">
-    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 运输网络 · 环境约束</span><h2>能源运输与资源环境</h2></div><span>物流效率 {state.logisticsEfficiencyIndex.toFixed(1)}</span></div>
+    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 环境约束</span><h2>能源与资源环境</h2></div><span>能源进口依赖 {formatPercent(state.energyImportDependence)}</span></div>
     <div className="account-flow-grid">{Object.values(state.energyMix).map((item) => <div key={item.id}><span>{energyNames[item.id]}</span><strong>{formatPercent(item.share)}</strong></div>)}</div>
     <div className="detail-grid">
       <article><span>发电量</span><strong>{formatLarge(state.electricityGeneration)}</strong><p>电网损耗 {formatPercent(state.gridLossRate)}</p></article>
-      <article><span>能源进口依赖</span><strong>{formatPercent(state.energyImportDependence)}</strong><p>油气进口与开放条件相关</p></article>
-      <article><span>铁路 / 公路</span><strong>{formatLarge(state.railNetworkKm)} / {formatLarge(state.highwayNetworkKm)} 公里</strong><p>高速公路 {formatLarge(transport.expresswayKm)} 公里</p></article>
-      <article><span>公共交通投资</span><strong>{formatPercent(game.nation.fiscal.budget.transport)}</strong><p>月度投入 {formatLarge(transport.monthlyTransportInvestment)} · 成本乘数 {transport.logisticsCostMultiplier.toFixed(3)}</p></article>
-      <article><span>货运负荷</span><strong>{formatPercent(state.freightCapacityUtilization)}</strong><p>需求超过能力会压低物流效率</p></article>
       <article><span>碳排放</span><strong>{formatLarge(state.carbonEmissions)}</strong><p>碳强度 {state.carbonIntensity.toExponential(2)}</p></article>
       <article><span>空气污染</span><strong>{state.airPollutionIndex.toFixed(1)}</strong><p>水压力 {formatPercent(state.waterStressIndex)}</p></article>
       <article><span>资源耗竭压力</span><strong>{formatPercent(state.resourceDepletionIndex)}</strong><p>化石能源结构与供需共同决定</p></article>
       <article><span>港口吞吐</span><strong>{formatLarge(state.portThroughputTonnes)} 吨</strong><p>由进出口与开放度形成</p></article>
     </div>
   </section>;
+}
+
+function PublicTransportPanel({ game }: { game: GameState }) {
+  const transport = game.nation.transport;
+  const infra = game.nation.resources.infrastructureResources;
+  const activeTransportPolicies = game.nation.policies.filter((policyId) =>
+    ["rail_priority", "rural_road_connectivity", "highway_national_network",
+      "public_transit_priority", "port_hub_development"].includes(policyId),
+  );
+  return <section className="panel national-accounts-panel">
+    <div className="panel-heading">
+      <div><span className="eyebrow">路网库存 · 货运能力 · 物流成本</span><h2>公共交通与运输网络</h2></div>
+      <span>物流效率 {transport.logisticsEfficiencyIndex.toFixed(1)}</span>
+    </div>
+    <div className="account-flow-grid">
+      <div><span>交通预算份额</span><strong>{formatPercent(game.nation.fiscal.budget.transport)}</strong></div>
+      <div><span>交通资本存量</span><strong>{transport.transportCapitalStock.toFixed(1)}</strong></div>
+      <div><span>物流成本乘数</span><strong>{transport.logisticsCostMultiplier.toFixed(3)}</strong></div>
+      <div><span>养护欠账</span><strong>{formatPercent(transport.maintenanceBacklog)}</strong></div>
+    </div>
+    <div className="detail-grid">
+      <article><span>铁路营业里程</span><strong>{formatLarge(transport.railNetworkKm)} 公里</strong><p>月度交通投资 {formatLarge(transport.monthlyTransportInvestment)}</p></article>
+      <article><span>公路通车里程</span><strong>{formatLarge(transport.highwayNetworkKm)} 公里</strong><p>高速公路 {formatLarge(transport.expresswayKm)} 公里</p></article>
+      <article><span>城市公共交通</span><strong>{formatLarge(transport.urbanTransitKm)} 公里</strong><p>地铁 / 轻轨 {formatLarge(transport.metroKm)} 公里</p></article>
+      <article><span>货运能力利用</span><strong>{formatPercent(transport.freightCapacityUtilization)}</strong><p>需求 {formatLarge(transport.freightDemand)} · 能力 {formatLarge(transport.freightCapacity)}</p></article>
+      <article><span>货运周转</span><strong>{formatLarge(transport.freightTonKm)}</strong><p>客运周转 {formatLarge(transport.passengerKm)} 人公里</p></article>
+      <article><span>基建综合指数</span><strong>{game.nation.economy.infrastructureIndex.toFixed(1)}</strong><p>与电网、市政等广义基础设施共同构成</p></article>
+      <article><span>同步物流指标</span><strong>{infra.logisticsEfficiencyIndex.toFixed(1)}</strong><p>资源环境账户中的货运网络效率</p></article>
+      <article><span>生效交通国策</span><strong>{activeTransportPolicies.length > 0 ? activeTransportPolicies.length : "无"}</strong><p>{activeTransportPolicies.length > 0 ? activeTransportPolicies.map((id) => nationalPolicyDefinitions.find((p) => p.id === id)?.name ?? id).join("、") : "可在国策中心启用铁路、公路、公交或港口专项政策"}</p></article>
+    </div>
+  </section>;
+}
+
+function TransportSection({ game, busy }: { game: GameState; busy: boolean }) {
+  const annual = game.nation.history.annual;
+  const chartRef = useRef<HTMLDivElement>(null);
+  const darkMode = useSimulationStore((store) => store.darkMode);
+
+  useEffect(() => {
+    if (!chartRef.current || annual.length === 0) return;
+    const element = chartRef.current;
+    let chart: ECharts | undefined;
+    let cancelled = false;
+    const observer = new ResizeObserver(() => chart?.resize());
+    observer.observe(element);
+    void import("@/src/ui/chart-runtime").then(({ createChart }) => {
+      if (cancelled) return;
+      chart = createChart(element);
+      const textColor = darkMode ? "#9cadc8" : "#68758a";
+      const gridColor = darkMode ? "#26324a" : "#e8edf5";
+      chart.setOption({
+        animationDuration: 450,
+        tooltip: { trigger: "axis" },
+        legend: {
+          data: ["铁路里程", "物流效率", "交通预算"],
+          top: 0,
+          textStyle: { color: textColor },
+        },
+        grid: { left: 62, right: 58, top: 42, bottom: 36 },
+        xAxis: {
+          type: "category",
+          data: annual.map((item) => item.year),
+          axisLine: { lineStyle: { color: gridColor } },
+          axisLabel: { color: textColor },
+        },
+        yAxis: [
+          {
+            type: "value",
+            axisLabel: { color: textColor, formatter: (value: number) => formatLarge(value) },
+            splitLine: { lineStyle: { color: gridColor } },
+          },
+          {
+            type: "value",
+            min: 0,
+            max: 1,
+            axisLabel: { color: textColor, formatter: (value: number) => formatPercent(value) },
+            splitLine: { show: false },
+          },
+        ],
+        series: [
+          {
+            name: "铁路里程",
+            type: "line",
+            smooth: true,
+            showSymbol: false,
+            data: annual.map((item) => item.railNetworkKm ?? 0),
+            lineStyle: { width: 3, color: "#2563eb" },
+          },
+          {
+            name: "物流效率",
+            type: "line",
+            yAxisIndex: 1,
+            smooth: true,
+            showSymbol: false,
+            data: annual.map((item) => item.logisticsEfficiencyIndex),
+            lineStyle: { width: 2, color: "#d39b23" },
+          },
+          {
+            name: "交通预算",
+            type: "line",
+            yAxisIndex: 1,
+            smooth: true,
+            showSymbol: false,
+            data: annual.map((item) => item.transportBudgetShare ?? 0),
+            lineStyle: { width: 2, color: "#16a34a" },
+          },
+        ],
+      });
+    });
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      chart?.dispose();
+    };
+  }, [annual, darkMode]);
+
+  return <>
+    <section className="panel detail-page">
+      <div className="detail-hero">
+        <span className="eyebrow">国家统计公报 · 交通专项</span>
+        <h2>公共交通</h2>
+        <p>交通预算通过专项资本存量影响路网里程、货运能力与物流成本，并间接降低工业中间投入与农产品损耗。</p>
+      </div>
+      <div ref={chartRef} className="history-chart" aria-label="交通长期发展曲线" />
+    </section>
+    <PublicTransportPanel game={game} />
+    <BudgetPanel game={game} busy={busy} />
+  </>;
 }
 
 function HumanDevelopmentPanel({ game }: { game: GameState }) {
@@ -665,14 +789,12 @@ function InstitutionCausalityPanel({ game }: { game: GameState }) {
 
 function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
   const n = game.nation;
-  const data: Record<Exclude<SectionId, "nation" | "policies" | "achievements" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
+  const data: Record<Exclude<SectionId, "nation" | "transport" | "technology" | "industry" | "policies" | "achievements" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总，受内外需求对产能利用的滞后影响"], ["内需规模", formatLarge(n.economy.domesticDemand), `约为名义 GDP 的 ${formatPercent(n.economy.domesticDemandShare)}`], ["居民消费", formatLarge(n.economy.householdConsumption), `消费倾向 ${formatPercent(n.economy.consumptionPropensity)}`], ["社保转移收入", formatLarge(n.economy.socialProtectionIncome), "降低预防性储蓄，但不直接计入 GDP"], ["居民可支配收入", formatLarge(n.economy.householdDisposableIncome), "税后收入、侨汇与社保转移的综合结果"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
     fiscal: [["财政收入", formatLarge(n.fiscal.revenue), `有效税率 ${formatPercent(n.fiscal.effectiveTaxRate)}`], ["财政支出", formatLarge(n.fiscal.expenditure), "含债务利息；援外为展示归因，不单独叠加"], ["对外援助", formatLarge(n.fiscal.foreignAidExpenditure), "与年度承诺同口径，不增减财政总支出"], ["政府债务", formatLarge(n.fiscal.governmentDebt), `债务率 ${formatPercent(n.fiscal.debtToGDP)}`], ["债务利率", formatPercent(n.fiscal.debtInterestRate), `利息 ${formatLarge(n.fiscal.interestExpense)}`]],
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)}`]],
     education: [["教育指数", n.education.index.toFixed(1), "长期滞后生效"], ["识字率", formatPercent(n.education.literacyRate), `平均受教育 ${n.education.averageYearsOfSchooling.toFixed(1)} 年`], ["大学招生能力", formatPercent(n.education.higherEducationAdmissionCapacity), `累计严重中断 ${n.education.educationDisruptionMonths} 个月`], ["学术体系连续性", formatPercent(n.education.academicContinuity), "恢复速度慢于停摆速度"], ["科研人才代际缺口", formatPercent(n.education.researchCohortGap), `现有科研人才 ${formatLarge(n.education.researchTalent)}`], ["科研人才永久损失", formatLarge(n.education.permanentResearchTalentLosses), "含迫害死亡与永久离岗"]],
-    technology: [["科技指数", n.technology.index.toFixed(1), `采用率 ${formatPercent(n.technology.adoptionRate)}`], ["科研点数", n.technology.researchPoints.toFixed(1), "累计知识存量"], ["本月科研产出", n.technology.monthlyResearchOutput.toFixed(2), "受人才与制度约束"], ["全要素生产率", n.economy.totalFactorProductivity.toFixed(3), "受年度软上限约束"]],
     agriculture: [["农业增加值", formatLarge(n.sectors.primary.valueAdded), `就业 ${formatLarge(n.sectors.primary.employment)}`], ["粮食产量", `${formatLarge(n.resources.foodProduction)} 吨`, "国内生产"], ["粮食需求", `${formatLarge(n.resources.foodDemand)} 吨`, "人口与收入驱动"], ["粮食供应率", formatPercent(n.resources.foodSupplyRatio), n.resources.foodSupplyRatio < 0.95 ? "存在短缺" : "供应稳定"]],
-    industry: [["工业增加值", formatLarge(n.sectors.secondary.valueAdded), `产能利用 ${formatPercent(n.sectors.secondary.capacityUtilization)}`], ["工业资本", formatLarge(n.sectors.secondary.capitalStock), "扣除折旧后"], ["工业就业", formatLarge(n.sectors.secondary.employment), `平均工资 ${formatLarge(n.sectors.secondary.averageWage)}`], ["能源供应率", formatPercent(n.resources.energySupplyRatio), "工业主要瓶颈"]],
     infrastructure: [["综合指数", n.economy.infrastructureIndex.toFixed(1), "交通、电网与通信"], ["住房指数", n.society.housingIndex.toFixed(1), "限制城市承载力"], ["城市化率", formatPercent(n.society.urbanizationRate), `${formatLarge(n.population.urbanPopulation)} 城市人口`], ["服务业增加值", formatLarge(n.sectors.tertiary.valueAdded), "受基础设施显著影响"]],
   };
   if (!(section in data)) return null;
@@ -2610,12 +2732,13 @@ export function SimulatorDashboard() {
             {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}
             {activeSection === "technology" ? <TechnologySection game={game} busy={busy} /> : null}
             {activeSection === "industry" ? <IndustrySection game={game} busy={busy} /> : null}
+            {activeSection === "transport" ? <TransportSection game={game} busy={busy} /> : null}
             {activeSection === "diplomacy" ? <DiplomacySection game={game} busy={busy} /> : null}
             {activeSection === "history" ? <HistoricalEventsSection game={game} /> : null}
             {activeSection === "international" ? <InternationalSection game={game} /> : null}
             {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
             {activeSection === "settings" ? <SettingsSection game={game} /> : null}
-            {!(["nation", "technology", "industry", "policies", "achievements", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+            {!(["nation", "technology", "industry", "transport", "policies", "achievements", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
           </div>
         </div>
         <button

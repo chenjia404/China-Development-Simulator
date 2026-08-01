@@ -147,6 +147,40 @@
     ]
   },
   {
+    "id": "national_trunk_highway_1988",
+    "name": "全国干线公路建设高潮",
+    "year": 1988,
+    "month": 10,
+    "category": "基础设施",
+    "impact": "mixed",
+    "description": "国家启动以干线公路和高速公路为重点的大规模交通建设，贷款修路、收费还贷与地方筹资并行，公路里程快速扩张，但财政与银行信贷占用显著上升。",
+    "effects": ["高速公路里程加速增长", "货运能力明显提高", "建设期财政与信贷压力上升"],
+    "durationMonths": 96,
+    "modifiers": [
+      { "target": "transport.expresswayInvestmentEfficiency", "operation": "multiply", "value": 1.15 },
+      { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 1.08 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 }
+    ]
+  },
+  {
+    "id": "high_speed_rail_era_2008",
+    "name": "高速铁路时代开启",
+    "year": 2008,
+    "month": 8,
+    "category": "基础设施",
+    "impact": "mixed",
+    "description": "京津城际铁路开通运营，高速铁路建设进入系统推进阶段。客运时效显著改善，但高铁网络需要巨额资本投入、长期运营补贴，并改变传统铁路货运配置。",
+    "effects": ["客运效率与城市群联通提升", "铁路投资强度上升", "高铁建设期债务与财政压力增加"],
+    "durationMonths": 120,
+    "modifiers": [
+      { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 1.12 },
+      { "target": "transport.urbanInvestmentEfficiency", "operation": "multiply", "value": 1.06 },
+      { "target": "transport.logisticsEfficiency", "operation": "multiply", "value": 1.04 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
+    ]
+  },
+  {
     "id": "unified_purchase_1953",
     "name": "粮食统购统销",
     "year": 1953,

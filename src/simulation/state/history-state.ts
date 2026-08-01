@@ -32,6 +32,10 @@ export interface MonthlySnapshot {
   dailyCaloriesPerCapita: number;
   energyImportDependence: number;
   logisticsEfficiencyIndex: number;
+  railNetworkKm: number;
+  expresswayKm: number;
+  transportBudgetShare: number;
+  logisticsCostMultiplier: number;
   carbonEmissions: number;
   airPollutionIndex: number;
   higherEducationEnrollmentRate: number;
