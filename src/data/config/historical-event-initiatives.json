@@ -576,5 +576,66 @@
       { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 }
     ]
+  },
+  {
+    "id": "early_national_trunk_highway",
+    "eventId": "national_trunk_highway_1988",
+    "name": "提前启动全国干线公路建设",
+    "category": "基础设施",
+    "description": "在财政能力与工业基础具备后，提前以贷款修路、收费还贷和地方筹资方式推进干线公路与高速公路建设；公路里程加速增长，但建设期财政与信贷占用同步上升。",
+    "availableFromYear": 1978,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 36,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978"],
+      "minimumMonthsSinceEvents": { "reform_and_opening_1978": 24 },
+      "minimumInstitutionalEfficiency": 0.38,
+      "minimumStability": 48,
+      "minimumOpenness": 0.06,
+      "minimumReputation": 40,
+      "minimumAverageRelation": -10,
+      "minimumTradeAgreements": 0,
+      "minimumInternationalInfluence": 8,
+      "minimumEducationIndex": 18,
+      "minimumTechnologyIndex": 12,
+      "minimumSecondarySectorShare": 0.32
+    },
+    "transitionEffects": ["项目前期准备与信贷安排提高财政支出", "建设准备期挤出部分民间投资", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 },
+      { "target": "transport.expresswayInvestmentEfficiency", "operation": "multiply", "value": 1.06 }
+    ]
+  },
+  {
+    "id": "early_high_speed_rail",
+    "eventId": "high_speed_rail_era_2008",
+    "name": "提前启动高速铁路建设",
+    "category": "基础设施",
+    "description": "在铁路干线、装备制造与财政能力具备后，提前系统推进高速铁路网络；客运效率与城市群联通改善，但资本投入与运营补贴压力会提前到来。",
+    "availableFromYear": 1990,
+    "diplomaticPointCost": 0,
+    "transitionDurationMonths": 48,
+    "requirements": {
+      "historicalEventIds": ["reform_and_opening_1978"],
+      "minimumMonthsSinceEvents": { "reform_and_opening_1978": 120 },
+      "minimumInstitutionalEfficiency": 0.45,
+      "minimumStability": 50,
+      "minimumOpenness": 0.15,
+      "minimumReputation": 45,
+      "minimumAverageRelation": 0,
+      "minimumTradeAgreements": 1,
+      "minimumInternationalInfluence": 15,
+      "minimumEducationIndex": 28,
+      "minimumTechnologyIndex": 22,
+      "minimumUrbanizationRate": 0.35,
+      "minimumSecondarySectorShare": 0.38
+    },
+    "transitionEffects": ["勘察设计与设备采购提高财政支出", "高铁建设期挤出部分沿海民间投资", "原史实节点不再重复触发"],
+    "transitionModifiers": [
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.018 },
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 },
+      { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 1.05 }
+    ]
   }
 ]

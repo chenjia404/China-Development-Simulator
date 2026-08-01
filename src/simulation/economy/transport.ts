@@ -185,11 +185,16 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
   );
 
   if (nation.date.year >= config.expresswayAvailableFromYear) {
-    const expresswayProgress = clamp(
-      (nation.date.year - config.expresswayAvailableFromYear) / 36 +
-        transport.transportCapitalStock / 120,
-      0,
+    const expresswayEfficiency = applyPolicyModifiers(
+      nation,
+      "transport.expresswayInvestmentEfficiency",
       1,
+    );
+    const expresswayProgress = clamp(
+      ((nation.date.year - config.expresswayAvailableFromYear) / 36 +
+        transport.transportCapitalStock / 120) * expresswayEfficiency,
+      0,
+      1.2,
     );
     transport.expresswayKm = Math.max(
       transport.expresswayKm,
@@ -225,6 +230,11 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
   }
 
   const shares = investmentShares(nation);
+  const portCapacityGrowth = applyPolicyModifiers(
+    nation,
+    "transport.portCapacityGrowth",
+    1,
+  );
   transport.freightDemand = Math.max(
     1,
     nation.sectors.primary.output * 0.35 +
@@ -236,7 +246,9 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
     transport.railNetworkKm * config.railFreightCapacityPerKm * shares.rail +
       transport.highwayNetworkKm * config.highwayFreightCapacityPerKm * shares.highway +
       transport.expresswayKm * config.expresswayFreightCapacityPerKm +
-      transport.transportCapitalStock * 18_000,
+      transport.transportCapitalStock * 18_000 +
+      (nation.trade.exports + nation.trade.imports) / 5_000_000 *
+        portCapacityGrowth * 50_000,
   );
   transport.freightCapacityUtilization = clamp(
     safeDivide(transport.freightDemand, transport.freightCapacity),
@@ -250,14 +262,20 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
     nation.population.urbanPopulation * 0.42 *
     (1 + transport.urbanTransitKm / 12_000 + transport.metroKm / 8_000);
 
+  const logisticsPolicyMultiplier = applyPolicyModifiers(
+    nation,
+    "transport.logisticsEfficiency",
+    1,
+  );
   transport.logisticsEfficiencyIndex = clamp(
-    config.baseLogisticsEfficiency +
+    (config.baseLogisticsEfficiency +
       economy.infrastructureIndex * 0.62 +
       economy.institutionalEfficiency * config.institutionalEfficiencyWeight +
       (transport.transportCapitalStock / 100) * 6 * transportBudgetBonus -
       Math.max(0, transport.freightCapacityUtilization - config.utilizationThreshold) *
         config.utilizationEfficiencyPenalty -
-      transport.maintenanceBacklog * config.maintenanceBacklogPenalty,
+      transport.maintenanceBacklog * config.maintenanceBacklogPenalty) *
+      logisticsPolicyMultiplier,
     0,
     100,
   );

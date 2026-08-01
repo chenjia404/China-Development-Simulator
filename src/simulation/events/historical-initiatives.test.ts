@@ -18,10 +18,10 @@ function prepareReformConditions(year: number) {
 }
 
 describe("历史转折国策", () => {
-  it("十九项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
-    expect(historicalInitiativeDefinitions).toHaveLength(19);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(19);
-    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(19);
+  it("二十一项主动国策具有唯一事件映射，战争危机与组织资格不属于可选国策", () => {
+    expect(historicalInitiativeDefinitions).toHaveLength(21);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.id)).size).toBe(21);
+    expect(new Set(historicalInitiativeDefinitions.map((item) => item.eventId)).size).toBe(21);
     expect(getHistoricalInitiative("early_wto_accession")).toBeUndefined();
     expect(
       historicalInitiativeDefinitions.map((item) => item.eventId),

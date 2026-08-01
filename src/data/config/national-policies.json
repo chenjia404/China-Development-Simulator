@@ -513,7 +513,7 @@
       "category": "发展",
       "description": "集中交通预算修建铁路干线，提升货运能力与内陆联通；公路与城轨建设相对放缓，财政占用上升。",
       "transitionMonths": 36,
-      "conflictsWith": ["rural_road_connectivity"],
+      "conflictsWith": ["rural_road_connectivity", "highway_national_network"],
       "modifiers": [
         { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 1.18 },
         { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 0.92 },
@@ -526,7 +526,7 @@
       "category": "发展",
       "description": "把交通投资重心投向农村公路与支线，改善农产品出村和市场接入；干线铁路投资效率相对下降。",
       "transitionMonths": 48,
-      "conflictsWith": ["rail_priority"],
+      "conflictsWith": ["rail_priority", "highway_national_network"],
       "requirements": {
         "availableFromYear": 1953,
         "minimumTransportBudgetShare": 0.05
@@ -535,6 +535,63 @@
         { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 1.14 },
         { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 0.94 },
         { "target": "agriculture.marketAccess", "operation": "multiply", "value": 1.06 }
+      ]
+    },
+    {
+      "id": "highway_national_network",
+      "name": "国道高速网建设",
+      "category": "发展",
+      "description": "集中建设干线公路与高速公路，显著提升公路里程与货运能力；占用大量土地、养护与建设资金，并抬高空气污染压力。",
+      "transitionMonths": 48,
+      "conflictsWith": ["rural_road_connectivity"],
+      "requirements": {
+        "availableFromYear": 1984,
+        "minimumTransportBudgetShare": 0.06,
+        "minimumStateCapacity": 0.35
+      },
+      "modifiers": [
+        { "target": "transport.expresswayInvestmentEfficiency", "operation": "multiply", "value": 1.2 },
+        { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 1.1 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 },
+        { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 0.95 }
+      ]
+    },
+    {
+      "id": "public_transit_priority",
+      "name": "公共交通优先",
+      "category": "发展",
+      "description": "把交通预算更多投向城市公交与轨道交通，提高客运周转与城市承载力；需要长期运营补贴，并挤占部分干线货运投资。",
+      "transitionMonths": 60,
+      "conflictsWith": [],
+      "requirements": {
+        "availableFromYear": 1969,
+        "minimumUrbanizationRate": 0.28,
+        "minimumTransportBudgetShare": 0.06
+      },
+      "modifiers": [
+        { "target": "transport.urbanInvestmentEfficiency", "operation": "multiply", "value": 1.22 },
+        { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 1.05 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 },
+        { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 0.94 }
+      ]
+    },
+    {
+      "id": "port_hub_development",
+      "name": "港口枢纽建设",
+      "category": "开放",
+      "description": "扩建沿海港口与集装箱吞吐能力，强化外贸物流与转口贸易；沿海集中投资会挤出部分内陆交通资源，并增加外部需求波动暴露。",
+      "transitionMonths": 42,
+      "conflictsWith": [],
+      "requirements": {
+        "availableFromYear": 1978,
+        "minimumOpenness": 0.08,
+        "minimumTransportBudgetShare": 0.05
+      },
+      "modifiers": [
+        { "target": "transport.portCapacityGrowth", "operation": "multiply", "value": 1.18 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
+        { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 0.96 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
       ]
     }
   ]

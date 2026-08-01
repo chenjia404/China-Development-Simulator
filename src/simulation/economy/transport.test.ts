@@ -80,4 +80,31 @@ describe("公共交通模块", () => {
     expect(first.nation.transport).toEqual(second.nation.transport);
     expect(first.nation.fiscal.budget.transport).toBeGreaterThan(0);
   });
+
+  it("国道高速网国策需满足年份与交通预算门槛", () => {
+    const engine = createSimulationEngine(createInitialGameState(9106));
+    expect(() =>
+      engine.dispatch({ type: "SET_POLICIES", policyIds: ["highway_national_network"] }),
+    ).toThrow(/1984/);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: (1984 - 1949) * 12 });
+    engine.dispatch({ type: "UPDATE_BUDGET", budget: { transport: 0.02 } });
+    expect(() =>
+      engine.dispatch({ type: "SET_POLICIES", policyIds: ["highway_national_network"] }),
+    ).toThrow(/交通预算/);
+    engine.dispatch({ type: "UPDATE_BUDGET", budget: { transport: 0.08 } });
+    engine.dispatch({ type: "SET_POLICIES", policyIds: ["highway_national_network"] });
+    expect(engine.exportState().nation.policies).toContain("highway_national_network");
+  });
+
+  it("全国干线公路史实事件提高高速公路投资效率", () => {
+    const engine = createSimulationEngine(createInitialGameState(9107));
+    for (let month = 0; month < (1988 - 1949) * 12 + 10; month += 1) {
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    }
+    const triggered = engine.exportState().nation.history.historicalEvents.some(
+      (record) => record.id === "national_trunk_highway_1988",
+    );
+    expect(triggered).toBe(true);
+    expect(engine.exportState().nation.transport.expresswayKm).toBeGreaterThan(0);
+  });
 });

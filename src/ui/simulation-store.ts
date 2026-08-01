@@ -29,6 +29,7 @@ export type SectionId =
   | "agriculture"
   | "industry"
   | "infrastructure"
+  | "transport"
   | "policies"
   | "achievements"
   | "diplomacy"

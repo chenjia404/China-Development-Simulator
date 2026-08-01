@@ -14,6 +14,8 @@ export interface NationalPolicyRequirements {
   availableFromYear?: number;
   minimumEducationBudgetShare?: number;
   minimumTransportBudgetShare?: number;
+  minimumUrbanizationRate?: number;
+  minimumOpenness?: number;
   minimumStateCapacity?: number;
   minimumLocalImplementationCapacity?: number;
   minimumStabilityIndex?: number;
@@ -65,6 +67,16 @@ export function nationalPolicyRequirementDescriptions(
   if (requirements.minimumTransportBudgetShare !== undefined) {
     descriptions.push(
       `交通预算至少占财政预算 ${(requirements.minimumTransportBudgetShare * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumUrbanizationRate !== undefined) {
+    descriptions.push(
+      `城市化率至少 ${(requirements.minimumUrbanizationRate * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumOpenness !== undefined) {
+    descriptions.push(
+      `开放度至少 ${(requirements.minimumOpenness * 100).toFixed(0)}%`,
     );
   }
   if (requirements.minimumStateCapacity !== undefined) {
@@ -131,6 +143,22 @@ export function nationalPolicyRequirementBlockers(
   ) {
     blockers.push(
       `交通预算占比需达到 ${(requirements.minimumTransportBudgetShare * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumUrbanizationRate !== undefined &&
+    nation.society.urbanizationRate < requirements.minimumUrbanizationRate
+  ) {
+    blockers.push(
+      `城市化率需达到 ${(requirements.minimumUrbanizationRate * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumOpenness !== undefined &&
+    nation.trade.openness < requirements.minimumOpenness
+  ) {
+    blockers.push(
+      `开放度需达到 ${(requirements.minimumOpenness * 100).toFixed(0)}%`,
     );
   }
   if (
