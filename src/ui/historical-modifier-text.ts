@@ -43,6 +43,7 @@ export const historicalModifierLabels: Readonly<Record<string, string>> = {
   "diplomacy.relationTarget.vietnam": "对越南关系",
   "economy.consumptionPropensity": "居民消费倾向",
   "economy.infrastructureInvestment": "基础设施投资",
+  "transport.investmentEfficiency": "交通投资效率",
   "economy.institutionalEfficiencyTarget": "制度效率目标",
   "economy.structuralProductivityGrowth": "结构性生产率增长",
   "society.happiness": "幸福度目标",

@@ -48,6 +48,7 @@ import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
 import { ensureInfrastructureResourceState } from "../economy/energy-transport-environment";
+import { ensureTransportState } from "../economy/transport";
 import { ensureHumanDevelopmentState } from "../society/human-development";
 import { ensureUrbanHousingState } from "../society/housing-urbanization";
 import { ensureRegionalEconomyState } from "../economy/regional-economy";
@@ -109,6 +110,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
     ensureInfrastructureResourceState(this.state.nation);
+    ensureTransportState(this.state.nation);
     ensureHumanDevelopmentState(this.state.nation);
     ensureUrbanHousingState(this.state.nation);
     ensureRegionalEconomyState(this.state.nation);
@@ -162,6 +164,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
         ensureInfrastructureResourceState(this.state.nation);
+        ensureTransportState(this.state.nation);
         ensureHumanDevelopmentState(this.state.nation);
         ensureUrbanHousingState(this.state.nation);
         ensureRegionalEconomyState(this.state.nation);

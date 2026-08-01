@@ -15,7 +15,7 @@ export type StrategyId =
   | "none";
 
 export interface AnnualDecision {
-  budget?: FiscalBudget;
+  budget?: Partial<FiscalBudget>;
   policyIds: string[];
 }
 
@@ -31,14 +31,15 @@ export const optimizedHistoricalStrategyIds: StrategyId[] = [
 const balancedBudget: FiscalBudget = {
   education: 0.1,
   health: 0.08,
-  agriculture: 0.12,
-  industry: 0.18,
+  agriculture: 0.10,
+  industry: 0.16,
   infrastructure: 0.15,
+  transport: 0.08,
   research: 0.03,
-  housing: 0.06,
+  housing: 0.02,
   welfare: 0.08,
   defense: 0.1,
-  administration: 0.1,
+  administration: 0.10,
 };
 
 function historicalDecision(year: number): AnnualDecision {

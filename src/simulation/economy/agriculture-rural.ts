@@ -4,6 +4,7 @@ import type {
   AgricultureSystemState,
   NationState,
 } from "../state/game-state";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 
 interface AgricultureConfig {
   initialCultivatedLandHectares: number;
@@ -106,9 +107,11 @@ export function updateAgricultureSystem(nation: NationState, initialize = false)
     4 + development * 260 + (hasModernAgronomy ? 70 : 0),
     initialize ? 1 : 0.015,
   );
+  const marketAccess = applyPolicyModifiers(nation, "agriculture.marketAccess", 1);
   const lossRate = clamp(
     config.basePostHarvestLossRate - state.mechanizationRate * 0.035 -
-      nation.economy.infrastructureIndex / 100 * 0.018,
+      nation.economy.infrastructureIndex / 100 * 0.018 -
+      nation.transport.logisticsEfficiencyIndex / 100 * 0.012 * marketAccess,
     config.minimumPostHarvestLossRate,
     config.basePostHarvestLossRate,
   );

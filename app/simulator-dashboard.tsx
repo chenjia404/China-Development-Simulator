@@ -113,6 +113,7 @@ const budgetLabels: Record<keyof FiscalBudget, string> = {
   agriculture: "农业",
   industry: "工业",
   infrastructure: "基础设施",
+  transport: "公共交通",
   research: "科研",
   housing: "住房",
   welfare: "社会保障",
@@ -568,6 +569,7 @@ function AgricultureSystemPanel({ game }: { game: GameState }) {
 
 function InfrastructureResourcePanel({ game }: { game: GameState }) {
   const state = game.nation.resources.infrastructureResources;
+  const transport = game.nation.transport;
   const energyNames: Record<string, string> = { coal: "煤炭", oil: "石油", gas: "天然气", hydro: "水电", nuclear: "核电", renewables: "可再生能源" };
   return <section className="panel national-accounts-panel">
     <div className="panel-heading"><div><span className="eyebrow">能源结构 · 运输网络 · 环境约束</span><h2>能源运输与资源环境</h2></div><span>物流效率 {state.logisticsEfficiencyIndex.toFixed(1)}</span></div>
@@ -575,7 +577,8 @@ function InfrastructureResourcePanel({ game }: { game: GameState }) {
     <div className="detail-grid">
       <article><span>发电量</span><strong>{formatLarge(state.electricityGeneration)}</strong><p>电网损耗 {formatPercent(state.gridLossRate)}</p></article>
       <article><span>能源进口依赖</span><strong>{formatPercent(state.energyImportDependence)}</strong><p>油气进口与开放条件相关</p></article>
-      <article><span>铁路 / 公路</span><strong>{formatLarge(state.railNetworkKm)} / {formatLarge(state.highwayNetworkKm)} 公里</strong><p>全国运输网络长度</p></article>
+      <article><span>铁路 / 公路</span><strong>{formatLarge(state.railNetworkKm)} / {formatLarge(state.highwayNetworkKm)} 公里</strong><p>高速公路 {formatLarge(transport.expresswayKm)} 公里</p></article>
+      <article><span>公共交通投资</span><strong>{formatPercent(game.nation.fiscal.budget.transport)}</strong><p>月度投入 {formatLarge(transport.monthlyTransportInvestment)} · 成本乘数 {transport.logisticsCostMultiplier.toFixed(3)}</p></article>
       <article><span>货运负荷</span><strong>{formatPercent(state.freightCapacityUtilization)}</strong><p>需求超过能力会压低物流效率</p></article>
       <article><span>碳排放</span><strong>{formatLarge(state.carbonEmissions)}</strong><p>碳强度 {state.carbonIntensity.toExponential(2)}</p></article>
       <article><span>空气污染</span><strong>{state.airPollutionIndex.toFixed(1)}</strong><p>水压力 {formatPercent(state.waterStressIndex)}</p></article>

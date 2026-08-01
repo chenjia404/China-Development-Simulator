@@ -506,6 +506,36 @@
       "modifiers": [
         { "target": "fiscal.monetizationShare", "operation": "add", "value": 0.35 }
       ]
+    },
+    {
+      "id": "rail_priority",
+      "name": "铁路优先",
+      "category": "发展",
+      "description": "集中交通预算修建铁路干线，提升货运能力与内陆联通；公路与城轨建设相对放缓，财政占用上升。",
+      "transitionMonths": 36,
+      "conflictsWith": ["rural_road_connectivity"],
+      "modifiers": [
+        { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 1.18 },
+        { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 0.92 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.012 }
+      ]
+    },
+    {
+      "id": "rural_road_connectivity",
+      "name": "城乡道路联通",
+      "category": "发展",
+      "description": "把交通投资重心投向农村公路与支线，改善农产品出村和市场接入；干线铁路投资效率相对下降。",
+      "transitionMonths": 48,
+      "conflictsWith": ["rail_priority"],
+      "requirements": {
+        "availableFromYear": 1953,
+        "minimumTransportBudgetShare": 0.05
+      },
+      "modifiers": [
+        { "target": "transport.highwayInvestmentEfficiency", "operation": "multiply", "value": 1.14 },
+        { "target": "transport.railInvestmentEfficiency", "operation": "multiply", "value": 0.94 },
+        { "target": "agriculture.marketAccess", "operation": "multiply", "value": 1.06 }
+      ]
     }
   ]
 }

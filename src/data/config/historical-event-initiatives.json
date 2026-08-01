@@ -108,7 +108,8 @@
     "transitionEffects": ["项目前期准备提高财政支出", "重工业配置进一步挤出部分民间投资", "原史实节点不再重复触发"],
     "transitionModifiers": [
       { "target": "fiscal.spending", "operation": "multiply", "value": 1.025 },
-      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 }
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.985 },
+      { "target": "transport.investmentEfficiency", "operation": "multiply", "value": 1.08 }
     ]
   },
   {
