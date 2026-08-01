@@ -15,6 +15,7 @@ import {
   calculateIndustrialStructureMetrics,
   updateIndustrialStructure,
 } from "./industrial-structure";
+import { logisticsProductionModifier } from "./transport";
 import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
 import { inputOutputConstraintForSector } from "./national-accounts";
 import { inventoryCycleConstraintForSector } from "./market-dynamics";
@@ -94,6 +95,8 @@ export function calculateSectorOutput(
     0.4,
     1.05,
   );
+  const logisticsModifier =
+    id === "secondary" ? logisticsProductionModifier(nation) : 1;
   const output =
     normalizedBaseOutput(id, sector, nation.economy.humanCapitalIndex) *
     energyModifier *
@@ -101,6 +104,7 @@ export function calculateSectorOutput(
     infrastructureModifier *
     institutionModifier *
     stabilityModifier *
+    logisticsModifier *
     inputOutputConstraintForSector(nation, id) *
     inventoryCycleConstraintForSector(nation, id) *
     clamp(

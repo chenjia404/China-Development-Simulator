@@ -46,6 +46,10 @@ import {
   updateInfrastructureResources,
 } from "../economy/energy-transport-environment";
 import {
+  createEmptyPublicTransportState,
+  updatePublicTransport,
+} from "../economy/transport";
+import {
   createEmptyHumanDevelopmentState,
   updateHumanDevelopment,
 } from "../society/human-development";
@@ -70,14 +74,15 @@ import {
 const INITIAL_BUDGET: FiscalBudget = {
   education: 0.1,
   health: 0.08,
-  agriculture: 0.12,
-  industry: 0.18,
+  agriculture: 0.10,
+  industry: 0.16,
   infrastructure: 0.15,
+  transport: 0.08,
   research: 0.03,
-  housing: 0.06,
+  housing: 0.02,
   welfare: 0.08,
   defense: 0.1,
-  administration: 0.1,
+  administration: 0.10,
 };
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
@@ -268,6 +273,7 @@ export function createInitialGameState(
         energyDemand: 25,
         energySupplyRatio: 0.96,
       },
+      transport: createEmptyPublicTransportState(),
       society: {
         happinessIndex: 42,
         stabilityIndex: 48,
@@ -376,6 +382,7 @@ export function createInitialGameState(
   };
   updateNationalAccounts(state.nation);
   updateAgricultureSystem(state.nation, true);
+  updatePublicTransport(state.nation, true);
   updateInfrastructureResources(state.nation, true);
   updateHumanDevelopment(state.nation);
   updateUrbanHousing(state.nation, true);

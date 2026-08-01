@@ -142,7 +142,8 @@
     "modifiers": [
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 },
       { "target": "sector.secondary.output", "operation": "multiply", "value": 1.045 },
-      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.985 }
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.985 },
+      { "target": "transport.investmentEfficiency", "operation": "multiply", "value": 1.12 }
     ]
   },
   {

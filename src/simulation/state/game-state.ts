@@ -177,11 +177,32 @@ export interface FiscalBudget {
   agriculture: number;
   industry: number;
   infrastructure: number;
+  transport: number;
   research: number;
   housing: number;
   welfare: number;
   defense: number;
   administration: number;
+}
+
+/** 公共交通与运输网络库存、流量与物流效率账户。 */
+export interface PublicTransportState {
+  railNetworkKm: number;
+  highwayNetworkKm: number;
+  expresswayKm: number;
+  urbanTransitKm: number;
+  metroKm: number;
+  transportCapitalStock: number;
+  maintenanceBacklog: number;
+  monthlyTransportInvestment: number;
+  monthlyMaintenanceSpend: number;
+  freightTonKm: number;
+  passengerKm: number;
+  freightCapacity: number;
+  freightDemand: number;
+  freightCapacityUtilization: number;
+  logisticsEfficiencyIndex: number;
+  logisticsCostMultiplier: number;
 }
 
 export interface FiscalState {
@@ -886,6 +907,7 @@ export interface NationState {
   humanDevelopment: HumanDevelopmentState;
   technology: TechnologyState;
   resources: ResourceState;
+  transport: PublicTransportState;
   society: SocietyState;
   trade: TradeState;
   privateEconomy: PrivateEconomyState;

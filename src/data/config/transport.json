@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "description": "公共交通与运输网络投资、库存、物流效率与成本传导参数。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm"
+    ]
+  },
+  "initialRailNetworkKm": 21800,
+  "initialHighwayNetworkKm": 80700,
+  "initialExpresswayKm": 0,
+  "initialUrbanTransitKm": 800,
+  "initialMetroKm": 0,
+  "transportCapitalMonthlyConvergence": 2.45,
+  "capitalToNetworkScale": 7.2,
+  "annualNetworkDrift": 0.022,
+  "highwayScaleExponent": 1.22,
+  "expresswayAvailableFromYear": 1984,
+  "metroAvailableFromYear": 1969,
+  "railFreightCapacityPerKm": 22000,
+  "highwayFreightCapacityPerKm": 7500,
+  "expresswayFreightCapacityPerKm": 12000,
+  "utilizationEfficiencyPenalty": 25,
+  "utilizationThreshold": 0.85,
+  "baseLogisticsEfficiency": 18,
+  "capitalEfficiencyWeight": 0.58,
+  "institutionalEfficiencyWeight": 18,
+  "maintenanceBacklogPenalty": 12,
+  "logisticsCostBaselineEfficiency": 35,
+  "logisticsCostSensitivity": 0.0032,
+  "minimumLogisticsCostMultiplier": 0.82,
+  "maximumLogisticsCostMultiplier": 1.08,
+  "maintenanceShareOfBudget": 0.18,
+  "maintenanceDeficitRecovery": 0.012,
+  "maintenanceDeficitRepair": 0.024,
+  "defaultRailInvestmentShare": 0.55,
+  "defaultHighwayInvestmentShare": 0.35,
+  "defaultUrbanInvestmentShare": 0.1
+}

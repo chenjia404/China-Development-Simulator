@@ -109,21 +109,25 @@ export function updateInfrastructureResources(nation: NationState, initialize = 
   );
   state.electricityGeneration = state.totalPrimaryEnergy *
     config.electricityPerEnergyUnit * (1 - state.gridLossRate);
-  const infrastructureScale = 1 + nation.economy.infrastructureIndex / 100 * 8 +
-    nation.date.elapsedMonths / 12 * 0.025;
-  state.railNetworkKm = config.initialRailNetworkKm * infrastructureScale;
-  state.highwayNetworkKm = config.initialHighwayNetworkKm * infrastructureScale ** 1.25;
+  const transport = nation.transport;
+  state.railNetworkKm = transport?.railNetworkKm ?? config.initialRailNetworkKm;
+  state.highwayNetworkKm = transport?.highwayNetworkKm ?? config.initialHighwayNetworkKm;
   state.portThroughputTonnes = Math.max(0, nation.trade.exports + nation.trade.imports) /
     1_000 * (0.8 + nation.trade.openness);
-  state.freightDemand = Math.max(1, nation.sectors.primary.output * 0.35 +
-    nation.sectors.secondary.output * 0.7 + state.portThroughputTonnes);
-  state.freightCapacity = Math.max(1, (state.railNetworkKm * 22_000 +
-    state.highwayNetworkKm * 7_500) *
-    (0.55 + nation.economy.infrastructureIndex / 100));
-  state.freightCapacityUtilization = clamp(
+  state.freightDemand = transport?.freightDemand ?? Math.max(
+    1,
+    nation.sectors.primary.output * 0.35 +
+      nation.sectors.secondary.output * 0.7 +
+      state.portThroughputTonnes,
+  );
+  state.freightCapacity = transport?.freightCapacity ?? Math.max(
+    1,
+    state.railNetworkKm * 22_000 + state.highwayNetworkKm * 7_500,
+  );
+  state.freightCapacityUtilization = transport?.freightCapacityUtilization ?? clamp(
     safeDivide(state.freightDemand, state.freightCapacity), 0, 1.5,
   );
-  state.logisticsEfficiencyIndex = clamp(
+  state.logisticsEfficiencyIndex = transport?.logisticsEfficiencyIndex ?? clamp(
     18 + nation.economy.infrastructureIndex * 0.62 +
       nation.economy.institutionalEfficiency * 18 -
       Math.max(0, state.freightCapacityUtilization - 0.85) * 25,

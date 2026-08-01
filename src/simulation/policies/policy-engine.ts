@@ -13,6 +13,7 @@ export interface NationalPolicyRequirements {
   requiredHistoricalEventIds?: string[];
   availableFromYear?: number;
   minimumEducationBudgetShare?: number;
+  minimumTransportBudgetShare?: number;
   minimumStateCapacity?: number;
   minimumLocalImplementationCapacity?: number;
   minimumStabilityIndex?: number;
@@ -59,6 +60,11 @@ export function nationalPolicyRequirementDescriptions(
   if (requirements.minimumEducationBudgetShare !== undefined) {
     descriptions.push(
       `教育预算至少占财政预算 ${(requirements.minimumEducationBudgetShare * 100).toFixed(0)}%`,
+    );
+  }
+  if (requirements.minimumTransportBudgetShare !== undefined) {
+    descriptions.push(
+      `交通预算至少占财政预算 ${(requirements.minimumTransportBudgetShare * 100).toFixed(0)}%`,
     );
   }
   if (requirements.minimumStateCapacity !== undefined) {
@@ -117,6 +123,14 @@ export function nationalPolicyRequirementBlockers(
   ) {
     blockers.push(
       `教育预算占比需达到 ${(requirements.minimumEducationBudgetShare * 100).toFixed(0)}%`,
+    );
+  }
+  if (
+    requirements.minimumTransportBudgetShare !== undefined &&
+    nation.fiscal.budget.transport < requirements.minimumTransportBudgetShare
+  ) {
+    blockers.push(
+      `交通预算占比需达到 ${(requirements.minimumTransportBudgetShare * 100).toFixed(0)}%`,
     );
   }
   if (

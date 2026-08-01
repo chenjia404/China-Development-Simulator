@@ -1672,6 +1672,18 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       `2026 年煤炭占比 ${(historical.finalState.nation.resources.infrastructureResources.energyMix.coal.share * 100).toFixed(1)}%、能源进口依赖 ${(historical.finalState.nation.resources.infrastructureResources.energyImportDependence * 100).toFixed(1)}%、物流效率 ${historical.finalState.nation.resources.infrastructureResources.logisticsEfficiencyIndex.toFixed(1)}、空气污染 ${historical.finalState.nation.resources.infrastructureResources.airPollutionIndex.toFixed(1)}`,
     ),
     makeCheck(
+      "public-transport-network",
+      "公共交通库存、货运能力与物流成本乘数保持有界且与预算投资一致",
+      historical.finalState.nation.transport.railNetworkKm > 20_000 &&
+        historical.finalState.nation.transport.highwayNetworkKm > 80_000 &&
+        historical.finalState.nation.transport.freightCapacity > 0 &&
+        historical.finalState.nation.transport.logisticsEfficiencyIndex >= 0 &&
+        historical.finalState.nation.transport.logisticsEfficiencyIndex <= 100 &&
+        historical.finalState.nation.transport.logisticsCostMultiplier >= 0.82 &&
+        historical.finalState.nation.transport.logisticsCostMultiplier <= 1.08,
+      `2026 年铁路 ${historical.finalState.nation.transport.railNetworkKm.toFixed(0)} 公里、公路 ${historical.finalState.nation.transport.highwayNetworkKm.toFixed(0)} 公里、物流效率 ${historical.finalState.nation.transport.logisticsEfficiencyIndex.toFixed(1)}、成本乘数 ${historical.finalState.nation.transport.logisticsCostMultiplier.toFixed(3)}`,
+    ),
+    makeCheck(
       "human-development-accounts",
       "学段人口、技能就业、基层医疗和疾病负担形成守恒细账",
       historical.finalState.nation.humanDevelopment.educationPopulationError < 1 &&
