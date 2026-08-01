@@ -111,7 +111,7 @@ export function updateAgricultureSystem(nation: NationState, initialize = false)
   const lossRate = clamp(
     config.basePostHarvestLossRate - state.mechanizationRate * 0.035 -
       nation.economy.infrastructureIndex / 100 * 0.018 -
-      nation.transport.logisticsEfficiencyIndex / 100 * 0.012 * marketAccess,
+      nation.transport.logisticsEfficiencyIndex / 100 * 0.006 * marketAccess,
     config.minimumPostHarvestLossRate,
     config.basePostHarvestLossRate,
   );

@@ -31,15 +31,15 @@ export const optimizedHistoricalStrategyIds: StrategyId[] = [
 const balancedBudget: FiscalBudget = {
   education: 0.1,
   health: 0.08,
-  agriculture: 0.10,
-  industry: 0.16,
+  agriculture: 0.12,
+  industry: 0.18,
   infrastructure: 0.15,
-  transport: 0.08,
+  transport: 0,
   research: 0.03,
-  housing: 0.02,
+  housing: 0.06,
   welfare: 0.08,
   defense: 0.1,
-  administration: 0.10,
+  administration: 0.1,
 };
 
 function historicalDecision(year: number): AnnualDecision {

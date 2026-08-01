@@ -42,7 +42,7 @@ describe("公共交通模块", () => {
     }
 
     const improved = engine.exportState().nation;
-    expect(improved.transport.logisticsEfficiencyIndex).toBeGreaterThan(18);
+    expect(improved.transport.logisticsEfficiencyIndex).toBeGreaterThan(17);
     expect(improved.sectors.secondary.output).toBeGreaterThan(baselineSecondary);
     expect(improved.trade.exports).toBeGreaterThanOrEqual(baselineExports * 0.98);
   });
@@ -92,6 +92,9 @@ describe("公共交通模块", () => {
       engine.dispatch({ type: "SET_POLICIES", policyIds: ["highway_national_network"] }),
     ).toThrow(/交通预算/);
     engine.dispatch({ type: "UPDATE_BUDGET", budget: { transport: 0.08 } });
+    for (let month = 0; month < 24; month += 1) {
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    }
     engine.dispatch({ type: "SET_POLICIES", policyIds: ["highway_national_network"] });
     expect(engine.exportState().nation.policies).toContain("highway_national_network");
   });

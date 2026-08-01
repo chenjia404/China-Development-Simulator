@@ -271,7 +271,7 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
     (config.baseLogisticsEfficiency +
       economy.infrastructureIndex * 0.62 +
       economy.institutionalEfficiency * config.institutionalEfficiencyWeight +
-      (transport.transportCapitalStock / 100) * 6 * transportBudgetBonus -
+      (transport.transportCapitalStock / 100) * 4 * transportBudgetBonus -
       Math.max(0, transport.freightCapacityUtilization - config.utilizationThreshold) *
         config.utilizationEfficiencyPenalty -
       transport.maintenanceBacklog * config.maintenanceBacklogPenalty) *
@@ -292,7 +292,7 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
 export function logisticsProductionModifier(nation: NationState): number {
   const marginalEfficiency = Math.max(
     0,
-    nation.transport.logisticsEfficiencyIndex - 24,
+    nation.transport.logisticsEfficiencyIndex - 42,
   );
   return clamp(
     applyModifiers(
@@ -301,11 +301,11 @@ export function logisticsProductionModifier(nation: NationState): number {
       applyPolicyModifiers(
         nation,
         "production.logisticsEfficiency",
-        0.992 + marginalEfficiency / 100 * 0.018,
+        1 + marginalEfficiency / 100 * 0.006,
       ),
     ),
-    0.97,
-    1.03,
+    0.99,
+    1.01,
   );
 }
 
