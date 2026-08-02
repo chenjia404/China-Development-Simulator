@@ -55,6 +55,12 @@ export interface TradePartnerAccount {
   otherCurrencySettlementShare: number;
 }
 
+/** 品类×伙伴出口矩阵；金额与 nation.trade.exports 同口径（名义人民币）。 */
+export interface CategoryPartnerExports {
+  industrial: Record<string, Record<string, number>>;
+  other: Record<string, number>;
+}
+
 /** 中国与世界国家之间的贸易、投资、债权和结算网络。 */
 export interface WorldTradeNetworkState {
   partners: Record<string, TradePartnerAccount>;
@@ -69,6 +75,16 @@ export interface WorldTradeNetworkState {
   importError: number;
   investmentError: number;
   externalDebtError: number;
+  /** 工业品类与农产服务等非工业出口按伙伴分解。 */
+  categoryPartnerExports: CategoryPartnerExports;
+  /** 各工业品类分配误差的最大值。 */
+  categoryExportError: number;
+  /** 非工业出口分配误差。 */
+  otherExportError: number;
+  /** 品类关税敏感度与伙伴制裁形成的出口壁垒暴露，0—1。 */
+  tradeBarrierExposure: number;
+  /** 出口品类集中度 HHI。 */
+  categoryConcentrationIndex: number;
 }
 
 export interface WorldState {

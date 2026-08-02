@@ -146,6 +146,8 @@ export function evaluateModelIntegrity(game: GameState): ModelIntegrityReport {
         relative(network.importError, nation.trade.imports),
         relative(network.investmentError, nation.trade.foreignInvestment),
         relative(network.externalDebtError, nation.trade.externalDebt),
+        relative(network.categoryExportError, nation.trade.exports),
+        relative(network.otherExportError, nation.trade.exports),
       ),
     ),
   ];

@@ -82,6 +82,22 @@
       ]
     },
     {
+      "id": "export_market_diversification",
+      "name": "出口市场多元化",
+      "category": "开放",
+      "description": "通过自贸协定、展会和海外仓建设分散出口伙伴集中度，降低制裁与贸易壁垒对单一市场的冲击；需要持续外交与物流投入。",
+      "transitionMonths": 48,
+      "conflictsWith": [],
+      "requirements": {
+        "minimumOpenness": 0.2
+      },
+      "modifiers": [
+        { "target": "trade.partnerDiversification", "operation": "add", "value": 0.85 },
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.05 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
+      ]
+    },
+    {
       "id": "developmental_finance",
       "name": "发展型金融",
       "category": "财政",

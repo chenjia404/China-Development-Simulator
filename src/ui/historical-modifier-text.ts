@@ -10,6 +10,7 @@ export const historicalModifierLabels: Readonly<Record<string, string>> = {
   "fiscal.spending": "财政支出",
   "trade.foreignInvestment": "外商投资",
   "trade.exportCompetitiveness": "出口竞争力",
+  "trade.partnerDiversification": "出口市场多元化",
   "trade.opennessTarget": "对外开放目标",
   "trade.remittanceInflows": "侨汇流入",
   "trade.remittanceTransferEfficiency": "侨汇到户效率",

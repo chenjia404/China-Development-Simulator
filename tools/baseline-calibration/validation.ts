@@ -215,8 +215,12 @@ export function validateGameState(state: GameState): void {
     tradeNetwork.importError / Math.max(1, nation.trade.imports) > 1e-10 ||
     tradeNetwork.investmentError / Math.max(1, nation.trade.foreignInvestment) > 1e-10 ||
     tradeNetwork.externalDebtError / Math.max(1, nation.trade.externalDebt) > 1e-10 ||
+    tradeNetwork.categoryExportError / Math.max(1, nation.trade.exports) > 1e-10 ||
+    tradeNetwork.otherExportError / Math.max(1, nation.trade.exports) > 1e-10 ||
     tradeNetwork.renminbiSettlementShare < 0 ||
-    tradeNetwork.renminbiSettlementShare > 1
+    tradeNetwork.renminbiSettlementShare > 1 ||
+    tradeNetwork.tradeBarrierExposure < 0 ||
+    tradeNetwork.tradeBarrierExposure > 1
   ) throw new Error("世界贸易与国际金融网络未守恒");
   const defense = nation.securityDefense;
   if (

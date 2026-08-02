@@ -1,0 +1,170 @@
+{
+  "metadata": {
+    "description": "贸易结构深化：品类伙伴偏好、关税敏感度与出口市场多元化参数。",
+    "sources": [
+      "https://www.customs.gov.cn/",
+      "https://www.wto.org/"
+    ]
+  },
+  "gdpWeightExponent": 0.58,
+  "sanctionTariffPenalty": 0.82,
+  "tradeBarrierExportPenalty": 0.34,
+  "diversificationWeightFloor": 0.08,
+  "partnerGroups": {
+    "developed_west": [
+      "usa",
+      "canada",
+      "united_kingdom",
+      "france",
+      "germany",
+      "italy",
+      "netherlands",
+      "switzerland",
+      "belgium",
+      "austria",
+      "denmark",
+      "finland",
+      "sweden",
+      "norway",
+      "australia",
+      "new_zealand",
+      "spain",
+      "portugal",
+      "greece",
+      "ireland"
+    ],
+    "east_asia": [
+      "japan",
+      "south_korea",
+      "singapore",
+      "malaysia",
+      "thailand",
+      "vietnam",
+      "philippines",
+      "indonesia"
+    ],
+    "resource_importer": [
+      "japan",
+      "south_korea",
+      "germany",
+      "india",
+      "italy",
+      "turkey",
+      "saudi_arabia"
+    ],
+    "global_south": [
+      "india",
+      "brazil",
+      "mexico",
+      "indonesia",
+      "vietnam",
+      "thailand",
+      "philippines",
+      "pakistan",
+      "bangladesh",
+      "nigeria",
+      "egypt",
+      "south_africa",
+      "argentina",
+      "chile",
+      "colombia",
+      "peru",
+      "kenya",
+      "ghana",
+      "ethiopia",
+      "morocco",
+      "algeria",
+      "angola",
+      "tanzania",
+      "congo_kinshasa"
+    ]
+  },
+  "categoryGroupAffinity": {
+    "mining_energy": {
+      "developed_west": 0.92,
+      "east_asia": 1.18,
+      "resource_importer": 1.35,
+      "global_south": 0.88
+    },
+    "basic_materials": {
+      "developed_west": 0.95,
+      "east_asia": 1.22,
+      "resource_importer": 1.28,
+      "global_south": 0.9
+    },
+    "consumer_goods": {
+      "developed_west": 1.28,
+      "east_asia": 1.12,
+      "resource_importer": 0.95,
+      "global_south": 0.86
+    },
+    "construction": {
+      "developed_west": 0.82,
+      "east_asia": 1.05,
+      "resource_importer": 1.08,
+      "global_south": 1.18
+    },
+    "general_machinery": {
+      "developed_west": 1.12,
+      "east_asia": 1.18,
+      "resource_importer": 1.05,
+      "global_south": 0.92
+    },
+    "transport_equipment": {
+      "developed_west": 1.18,
+      "east_asia": 1.15,
+      "resource_importer": 1.02,
+      "global_south": 0.88
+    },
+    "chemicals_pharmaceuticals": {
+      "developed_west": 1.22,
+      "east_asia": 1.08,
+      "resource_importer": 1.02,
+      "global_south": 0.84
+    },
+    "electrical_equipment": {
+      "developed_west": 1.15,
+      "east_asia": 1.28,
+      "resource_importer": 0.98,
+      "global_south": 0.82
+    },
+    "electronics_communications": {
+      "developed_west": 1.32,
+      "east_asia": 1.42,
+      "resource_importer": 0.9,
+      "global_south": 0.78
+    },
+    "precision_medical": {
+      "developed_west": 1.28,
+      "east_asia": 1.18,
+      "resource_importer": 0.95,
+      "global_south": 0.8
+    },
+    "aerospace_advanced": {
+      "developed_west": 1.35,
+      "east_asia": 1.05,
+      "resource_importer": 0.92,
+      "global_south": 0.72
+    },
+    "other_exports": {
+      "developed_west": 1.05,
+      "east_asia": 1.08,
+      "resource_importer": 0.98,
+      "global_south": 0.95
+    }
+  },
+  "categoryTariffSensitivity": {
+    "mining_energy": 0.28,
+    "basic_materials": 0.42,
+    "consumer_goods": 0.55,
+    "construction": 0.22,
+    "general_machinery": 0.72,
+    "transport_equipment": 0.78,
+    "chemicals_pharmaceuticals": 0.82,
+    "electrical_equipment": 0.88,
+    "electronics_communications": 1,
+    "precision_medical": 0.92,
+    "aerospace_advanced": 0.98,
+    "other_exports": 0.35
+  }
+}
