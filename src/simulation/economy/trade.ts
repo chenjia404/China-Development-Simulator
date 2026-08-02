@@ -16,6 +16,7 @@ import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctri
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
 import { calculateForeignExportDemandMultiplier } from "../world/foreign-market-demand";
+import { calculateTradeBarrierExportMultiplier } from "./trade-structure";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -102,6 +103,7 @@ export function updateInternationalTrade(state: GameState): void {
     foreignAidEffects.exportCompetitivenessMultiplier *
     normalizationEffects.exportCompetitivenessMultiplier;
   const foreignMarketDemand = calculateForeignExportDemandMultiplier(state);
+  const tradeBarrierMultiplier = calculateTradeBarrierExportMultiplier(state);
   const policyCompetitiveness = applyModifiers(
     nation,
     "trade.exportCompetitiveness",
@@ -118,6 +120,7 @@ export function updateInternationalTrade(state: GameState): void {
       basicMarketAccess *
       policyCompetitiveness *
       foreignMarketDemand *
+      tradeBarrierMultiplier *
       access.marketAccessMultiplier,
   );
   const targetExports = Math.min(

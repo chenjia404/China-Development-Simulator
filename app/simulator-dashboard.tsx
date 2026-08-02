@@ -15,7 +15,8 @@ import type {
   TargetComparisonMetric,
   TechnologyIndustryPathId,
 } from "@/src/simulation";
-import { formatLarge, formatPercent } from "@/src/ui/format";
+import { formatLarge, formatPercent, formatUsdLarge } from "@/src/ui/format";
+import { nominalToUsd } from "@/src/simulation/economy/currency-conversion";
 import {
   getPlayableEndYear,
   isPastPlayableHorizon,
@@ -811,7 +812,7 @@ function RegionalEconomyPanel({ game }: { game: GameState }) {
     <div className="panel-heading"><div><span className="eyebrow">区域差距 · 人口 · 资本 · 财政</span><h2>六大区域经济</h2></div><span>最高/最低人均 GDP {regional.regionalGDPPerCapitaRatio.toFixed(2)} 倍</span></div>
     <div className="enterprise-ownership-grid">{economicRegionDefinitions.map((definition) => {
       const item = regional.regions[definition.id];
-      return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(item.realGDP / Math.max(game.nation.economy.realGDP, 1))}</span></div><p>人口 {formatLarge(item.population)} · GDP {formatLarge(item.realGDP)}</p><p>投资 {formatLarge(item.investment)} · 出口 ${formatLarge(item.exports)}</p><small>迁移 {item.netInterregionalMigration >= 0 ? "+" : ""}{formatLarge(item.netInterregionalMigration)} · 财政净转移 {formatLarge(item.netFiscalTransfer)}</small></article>;
+      return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(item.realGDP / Math.max(game.nation.economy.realGDP, 1))}</span></div><p>人口 {formatLarge(item.population)} · GDP {formatLarge(item.realGDP)}</p><p>投资 {formatLarge(item.investment)} · 出口 {formatUsdLarge(nominalToUsd(game.nation, item.exports))}</p><small>迁移 {item.netInterregionalMigration >= 0 ? "+" : ""}{formatLarge(item.netInterregionalMigration)} · 财政净转移 {formatLarge(item.netFiscalTransfer)}</small></article>;
     })}</div>
     <div className="account-flow-grid"><div><span>沿海 GDP</span><strong>{formatPercent(regional.coastalGDPShare)}</strong></div><div><span>西部发展指数</span><strong>{formatPercent(regional.westernDevelopmentIndex)}</strong></div><div><span>区域人口误差</span><strong>{regional.populationError.toFixed(2)}</strong></div><div><span>跨区财政净额</span><strong>{regional.fiscalTransferError.toFixed(2)}</strong></div></div>
   </section>;
@@ -908,7 +909,7 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
         <MetricCard label="工业增加值" value={formatLarge(nation.sectors.secondary.valueAdded)} detail={`占实际 GDP ${formatPercent(nation.sectors.secondary.valueAdded / Math.max(nation.economy.realGDP, 1))}`} tone="blue" />
         <MetricCard label="工业复杂度" value={metrics.complexityIndex.toFixed(1)} detail={`产出能力倍率 ${metrics.outputMultiplier.toFixed(3)}`} tone="green" />
         <MetricCard label="高技术工业" value={formatPercent(metrics.highTechnologyShare)} detail="化工医药、电气电子、精密医疗和高端装备" tone="gold" />
-        <MetricCard label="工业品出口" value={`$${formatLarge(industrialExports)}`} detail={`占总出口 ${formatPercent(metrics.industrialExportShare)}`} tone="red" />
+        <MetricCard label="工业品出口" value={formatUsdLarge(nominalToUsd(nation, industrialExports))} detail={`占总出口 ${formatPercent(metrics.industrialExportShare)}`} tone="red" />
         <MetricCard label="产业政策财政成本" value={formatLarge(nation.industrialPolicy.annualFiscalCost)} detail="年度承诺，进入政府支出与赤字闭环" tone="gold" />
         <MetricCard
           label="优先扶持份额"
@@ -928,7 +929,7 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
         <div className="enterprise-ownership-grid">
           {enterpriseOwnershipDefinitions.map((definition) => {
             const account = nation.enterprises.ownership[definition.id];
-            return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(account.valueAddedShare)}</span></div><p>增加值 {formatLarge(account.valueAdded)} · 就业 {formatLarge(account.employment)}</p><p>投资 {formatLarge(account.investment)} · 出口 ${formatLarge(account.exports)}</p><small>生产率 {account.productivityIndex.toFixed(3)} · 融资可得 {formatPercent(account.financingAccess)}</small></article>;
+            return <article key={definition.id}><div><strong>{definition.name}</strong><span>{formatPercent(account.valueAddedShare)}</span></div><p>增加值 {formatLarge(account.valueAdded)} · 就业 {formatLarge(account.employment)}</p><p>投资 {formatLarge(account.investment)} · 出口 {formatUsdLarge(nominalToUsd(nation, account.exports))}</p><small>生产率 {account.productivityIndex.toFixed(3)} · 融资可得 {formatPercent(account.financingAccess)}</small></article>;
           })}
         </div>
       </section>
@@ -958,7 +959,7 @@ function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
               <p>{definition.description}</p>
               <div className="industry-category-values">
                 <span><small>增加值</small><strong>{formatLarge(category.valueAdded)}</strong></span>
-                <span><small>出口</small><strong>${formatLarge(category.exportValue)}</strong></span>
+                <span><small>出口</small><strong>{formatUsdLarge(nominalToUsd(nation, category.exportValue))}</strong></span>
                 <span><small>生产率</small><strong>{category.productivityIndex.toFixed(1)}</strong></span>
               </div>
               <div className="industry-category-track"><i style={{ width: `${category.technologyReadiness * 100}%` }} /></div>
@@ -2375,6 +2376,19 @@ function InternationalSection({ game }: { game: GameState }) {
   const financial = game.nation.financialSystem;
   const tradeNetwork = game.world.tradeNetwork;
   const reserveChangePrefix = trade.monthlyReserveChange >= 0 ? "+" : "";
+  const formatTradeUsd = (nominal: number) =>
+    formatUsdLarge(nominalToUsd(game.nation, nominal));
+  const topCategoryExports = industrialCategoryDefinitions
+    .map((definition) => ({
+      id: definition.id,
+      name: definition.name,
+      value: game.nation.industries[definition.id].exportValue,
+    }))
+    .toSorted((left, right) => right.value - left.value)
+    .slice(0, 5);
+  const topStructuredPartners = Object.values(tradeNetwork.partners)
+    .toSorted((left, right) => right.exports - left.exports)
+    .slice(0, 5);
   const countries = [
     { id: "china", name: "中国", nominalGDP: game.nation.economy.internationalComparableGDP, population: game.nation.population.total, technology: game.nation.technology.index },
     ...game.world.countries.map((country) => ({ id: country.id, name: country.name, nominalGDP: country.nominalGDP, population: country.population, technology: country.technologyIndex })),
@@ -2460,13 +2474,36 @@ function InternationalSection({ game }: { game: GameState }) {
       <div className="panel-heading"><div><span className="eyebrow">伙伴分布 · 结算币种 · 航运风险</span><h2>世界贸易与金融网络</h2></div><span>人民币结算 {formatPercent(tradeNetwork.renminbiSettlementShare)}</span></div>
       <div className="diplomacy-metrics foreign-exchange-metrics">
         <MetricCard label="出口集中度 HHI" value={tradeNetwork.exportConcentrationIndex.toFixed(3)} detail={`最大伙伴 ${game.world.countries.find((item) => item.id === tradeNetwork.topExportPartnerId)?.name ?? "—"}`} tone="blue" />
+        <MetricCard label="品类集中度 HHI" value={tradeNetwork.categoryConcentrationIndex.toFixed(3)} detail="工业品类与农产服务等非工业出口" tone="blue" />
+        <MetricCard label="贸易壁垒暴露" value={formatPercent(tradeNetwork.tradeBarrierExposure)} detail="品类关税敏感度与伙伴制裁加权" tone={tradeNetwork.tradeBarrierExposure < 0.15 ? "green" : "red"} />
         <MetricCard label="进口集中度 HHI" value={tradeNetwork.importConcentrationIndex.toFixed(3)} detail={`最大伙伴 ${game.world.countries.find((item) => item.id === tradeNetwork.topImportPartnerId)?.name ?? "—"}`} tone="gold" />
         <MetricCard label="平均航运风险" value={formatPercent(tradeNetwork.averageShippingRisk)} detail="关系、制裁与基础航线风险加权" tone={tradeNetwork.averageShippingRisk < 0.3 ? "green" : "red"} />
         <MetricCard label="制裁暴露" value={formatPercent(tradeNetwork.sanctionExposure)} detail="按出口伙伴份额加权" tone={tradeNetwork.sanctionExposure < 0.1 ? "green" : "red"} />
       </div>
       <div className="world-table">
         <div className="world-head"><span>伙伴</span><span>出口</span><span>进口</span><span>外资</span><span>人民币结算</span></div>
-        {Object.values(tradeNetwork.partners).toSorted((a, b) => b.exports + b.imports - a.exports - a.imports).slice(0, 10).map((partner) => <div className="world-row" key={partner.countryId}><strong>{game.world.countries.find((item) => item.id === partner.countryId)?.name ?? partner.countryId}</strong><span>${formatLarge(partner.exports)}</span><span>${formatLarge(partner.imports)}</span><span>${formatLarge(partner.foreignDirectInvestment)}</span><span>{formatPercent(partner.renminbiSettlementShare)}</span></div>)}
+        {Object.values(tradeNetwork.partners).toSorted((a, b) => b.exports + b.imports - a.exports - a.imports).slice(0, 10).map((partner) => <div className="world-row" key={partner.countryId}><strong>{game.world.countries.find((item) => item.id === partner.countryId)?.name ?? partner.countryId}</strong><span>{formatTradeUsd(partner.exports)}</span><span>{formatTradeUsd(partner.imports)}</span><span>{formatTradeUsd(partner.foreignDirectInvestment)}</span><span>{formatPercent(partner.renminbiSettlementShare)}</span></div>)}
+      </div>
+      <div className="panel-heading"><div><span className="eyebrow">品类结构 · 伙伴分解</span><h2>出口贸易结构</h2></div><span>伙伴金额已按当年汇率折算美元等值</span></div>
+      <div className="world-table">
+        <div className="world-head"><span>工业品类</span><span>出口额</span><span>最大伙伴</span><span>伙伴出口</span><span>占比</span></div>
+        {topCategoryExports.map((category) => {
+          const partnerRows = Object.entries(
+            tradeNetwork.categoryPartnerExports.industrial[category.id] ?? {},
+          ).toSorted((left, right) => right[1] - left[1]);
+          const topPartner = partnerRows[0];
+          const partnerName = topPartner
+            ? game.world.countries.find((item) => item.id === topPartner[0])?.name ?? topPartner[0]
+            : "—";
+          return <div className="world-row" key={category.id}><strong>{category.name}</strong><span>{formatTradeUsd(category.value)}</span><span>{partnerName}</span><span>{topPartner ? formatTradeUsd(topPartner[1]) : "—"}</span><span>{formatPercent(category.value / Math.max(trade.exports, 1))}</span></div>;
+        })}
+      </div>
+      <div className="world-table">
+        <div className="world-head"><span>伙伴</span><span>电子通信</span><span>消费品</span><span>机械装备</span><span>合计出口</span></div>
+        {topStructuredPartners.map((partner) => {
+          const industrial = tradeNetwork.categoryPartnerExports.industrial;
+          return <div className="world-row" key={partner.countryId}><strong>{game.world.countries.find((item) => item.id === partner.countryId)?.name ?? partner.countryId}</strong><span>{formatTradeUsd(industrial.electronics_communications?.[partner.countryId] ?? 0)}</span><span>{formatTradeUsd(industrial.consumer_goods?.[partner.countryId] ?? 0)}</span><span>{formatTradeUsd((industrial.general_machinery?.[partner.countryId] ?? 0) + (industrial.transport_equipment?.[partner.countryId] ?? 0))}</span><span>{formatTradeUsd(partner.exports)}</span></div>;
+        })}
       </div>
     </section>
   );

@@ -7,6 +7,12 @@ import type {
   WorldTradeNetworkState,
 } from "../state/world-state";
 import { technologyNormalizedEffect } from "../technology/technology-growth";
+import { applyPolicyModifiers } from "../policies/policy-engine";
+import {
+  createEmptyTradeStructureState,
+  ensureTradeStructureState,
+  updateTradeStructure,
+} from "./trade-structure";
 
 interface NetworkConfig {
   relationWeight: number;
@@ -24,17 +30,31 @@ function emptyPartner(countryId: string): TradePartnerAccount {
     renminbiSettlementShare: 0, otherCurrencySettlementShare: 0.3 };
 }
 export function createEmptyWorldTradeNetworkState(): WorldTradeNetworkState {
-  return { partners: {}, exportConcentrationIndex: 0, importConcentrationIndex: 0,
-    topExportPartnerId: null, topImportPartnerId: null, averageShippingRisk: 0,
-    sanctionExposure: 0, renminbiSettlementShare: 0, exportError: 0,
-    importError: 0, investmentError: 0, externalDebtError: 0 };
+  return {
+    partners: {},
+    exportConcentrationIndex: 0,
+    importConcentrationIndex: 0,
+    topExportPartnerId: null,
+    topImportPartnerId: null,
+    averageShippingRisk: 0,
+    sanctionExposure: 0,
+    renminbiSettlementShare: 0,
+    exportError: 0,
+    importError: 0,
+    investmentError: 0,
+    externalDebtError: 0,
+    ...createEmptyTradeStructureState(),
+  };
 }
 export function ensureWorldTradeNetworkState(state: GameState): void {
   const network = state.world.tradeNetwork as Partial<WorldTradeNetworkState> | undefined;
   if (network?.partners && state.world.countries.every((country) =>
     network.partners?.[country.id] &&
     Number.isFinite(network.partners[country.id].exports)
-  )) return;
+  )) {
+    ensureTradeStructureState(state);
+    return;
+  }
   state.world.tradeNetwork = createEmptyWorldTradeNetworkState();
   for (const country of state.world.countries) {
     state.world.tradeNetwork.partners[country.id] = emptyPartner(country.id);
@@ -67,8 +87,30 @@ export function updateWorldTradeNetwork(state: GameState): void {
   for (const country of state.world.countries) {
     network.partners[country.id] ??= emptyPartner(country.id);
   }
+  const totalExports = state.nation.trade.exports;
+  const diversification = applyPolicyModifiers(
+    state.nation,
+    "trade.partnerDiversification",
+    0,
+  );
   const exports = allocate(state.nation.trade.exports, state.world.countries,
-    (country) => country.nominalGDP ** 0.58 * access(country));
+    (country) => {
+      let weight = country.nominalGDP ** 0.58 * access(country);
+      if (diversification > 0 && totalExports > 0) {
+        const previousShare = safeDivide(
+          network.partners[country.id]?.exports ?? 0,
+          totalExports,
+        );
+        weight *= clamp(
+          1 -
+            clamp(previousShare * 2.4, 0, 1) * diversification * 0.28 +
+            0.08 * diversification,
+          0.55,
+          1.35,
+        );
+      }
+      return weight;
+    });
   const imports = allocate(state.nation.trade.imports, state.world.countries,
     (country) => country.nominalGDP ** 0.55 *
       (0.75 + technologyNormalizedEffect(country.technologyIndex) * 0.25) * access(country));
@@ -137,4 +179,6 @@ export function updateWorldTradeNetwork(state: GameState): void {
   network.importError = Math.abs(sum("imports") - state.nation.trade.imports);
   network.investmentError = Math.abs(sum("foreignDirectInvestment") - state.nation.trade.foreignInvestment);
   network.externalDebtError = Math.abs(sum("externalDebtClaims") - state.nation.trade.externalDebt);
+  ensureTradeStructureState(state);
+  updateTradeStructure(state);
 }

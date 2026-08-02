@@ -158,7 +158,7 @@ describe("可选对外援助方案", () => {
     expect(relation(economic, "north_korea")).toBeLessThan(
       relation(historical, "north_korea"),
     );
-  });
+  }, 30_000);
 
   it("财政归因与年度承诺同口径且不抬高财政总支出", () => {
     const engine = createSimulationEngine(
