@@ -439,12 +439,13 @@
     "impact": "positive",
     "description": "国民经济进入调整期，压缩过度扩张的建设规模，恢复农业和轻工业，改善基本生活资料供给。史实上 1963—1965 年工农业产出明显回升，恢复是渐进的。",
     "effects": ["农业与粮食逐步恢复", "轻工业与必要工业产能回升", "过热重工业投资收缩", "宏观秩序改善"],
-    "durationMonths": 48,
+    "durationMonths": 54,
     "modifiers": [
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.04 },
-      { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.008 },
-      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.025 }
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.048 },
+      { "target": "sector.primary.output", "operation": "multiply", "value": 1.057 },
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.035 },
+      { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.012 },
+      { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.03 }
     ]
   },
   {

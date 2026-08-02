@@ -15,6 +15,7 @@ import { calculatePrivateEconomyMultipliers } from "./private-economy";
 import { foreignPolicyDoctrineEffects } from "../diplomacy/foreign-policy-doctrine";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 import { sinoUSNormalizationEffects } from "../diplomacy/sino-us-normalization";
+import { calculateForeignExportDemandMultiplier } from "../world/foreign-market-demand";
 
 export interface TradeAccessMetrics {
   weightedRelation: number;
@@ -66,7 +67,7 @@ export function calculateTradeAccess(state: GameState): TradeAccessMetrics {
 }
 
 export function updateInternationalTrade(state: GameState): void {
-  const { nation, world } = state;
+  const { nation } = state;
   const access = calculateTradeAccess(state);
   const strategyEffects = diplomaticStrategyEffects(nation);
   const doctrineEffects = foreignPolicyDoctrineEffects(nation);
@@ -100,11 +101,7 @@ export function updateInternationalTrade(state: GameState): void {
   ) * privateEconomy.exports *
     foreignAidEffects.exportCompetitivenessMultiplier *
     normalizationEffects.exportCompetitivenessMultiplier;
-  const globalDemand = clamp(
-    0.9 + Math.log(Math.max(1, world.globalDemandIndex)) / Math.log(8) * 0.25,
-    0.85,
-    1.2,
-  );
+  const foreignMarketDemand = calculateForeignExportDemandMultiplier(state);
   const policyCompetitiveness = applyModifiers(
     nation,
     "trade.exportCompetitiveness",
@@ -120,7 +117,7 @@ export function updateInternationalTrade(state: GameState): void {
       exportCapacityShare *
       basicMarketAccess *
       policyCompetitiveness *
-      globalDemand *
+      foreignMarketDemand *
       access.marketAccessMultiplier,
   );
   const targetExports = Math.min(

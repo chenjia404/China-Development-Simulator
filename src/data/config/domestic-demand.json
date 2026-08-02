@@ -14,7 +14,7 @@
     "consumption": 0.45,
     "investment": 0.05,
     "government": 0.028,
-    "exports": 0.02,
+    "exports": 0.024,
     "imports": 0.016
   },
   "sectorDemandWeights": {
@@ -23,7 +23,7 @@
       "consumption": 0.16,
       "investment": 0.002,
       "government": 0.04,
-      "exports": 0.06,
+      "exports": 0.065,
       "imports": -0.02
     },
     "secondary": {
@@ -31,7 +31,7 @@
       "consumption": 0.05,
       "investment": 0.005,
       "government": 0.03,
-      "exports": 0.12,
+      "exports": 0.15,
       "imports": -0.03
     },
     "tertiary": {
@@ -39,7 +39,7 @@
       "consumption": 0.18,
       "investment": 0.002,
       "government": 0.15,
-      "exports": 0.04,
+      "exports": 0.05,
       "imports": -0.01
     }
   }

@@ -20,6 +20,8 @@ export interface WorldCountryState {
   internationalInfluence: number;
   baseGrowthPotential: number;
   developmentStage: DevelopmentStage;
+  /** 相对同发展阶段基准的进口吸收倾向，贸易枢纽国家通常更高。 */
+  importPropensity: number;
   relationWithChina: number;
   diplomaticStatus: "neutral" | "partner" | "strategic_partner" | "sanctioned";
   tradeAgreement: boolean;
@@ -73,6 +75,12 @@ export interface WorldState {
   countries: WorldCountryState[];
   rankings: WorldRankings;
   globalDemandIndex: number;
+  /** 外国可及进口吸收池的累积指数，影响中国出口目标。 */
+  foreignImportDemandIndex: number;
+  /** 上月全部可及外国进口吸收池名义规模。 */
+  foreignImportPool: number;
+  /** 追踪各国名义 GDP，用于计算实际外国增长。 */
+  lastForeignNominalGDP: Record<string, number>;
   worldPriceLevel: number;
   tradeNetwork: WorldTradeNetworkState;
 }

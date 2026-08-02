@@ -44,12 +44,12 @@
     { "year": 2026, "factor": 0.1534 }
   ],
   "worldPeerNominalGDPScaleFactors": [
-    { "year": 1949, "factor": 0.4 },
-    { "year": 1978, "factor": 0.3593 },
-    { "year": 1990, "factor": 0.509 },
-    { "year": 2000, "factor": 0.342 },
-    { "year": 2010, "factor": 0.4839 },
-    { "year": 2020, "factor": 0.8028 },
-    { "year": 2026, "factor": 0.7883 }
+    { "year": 1949, "factor": 0.34 },
+    { "year": 1978, "factor": 0.292 },
+    { "year": 1990, "factor": 0.395 },
+    { "year": 2000, "factor": 0.252 },
+    { "year": 2010, "factor": 0.358 },
+    { "year": 2020, "factor": 0.645 },
+    { "year": 2026, "factor": 0.632 }
   ]
 }

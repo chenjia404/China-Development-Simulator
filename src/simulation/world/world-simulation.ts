@@ -7,6 +7,8 @@ import {
   type WorldCountryConfig,
   worldCountryConfigs,
 } from "./countries";
+import { applyWorldCountryCalibration } from "./world-calibration";
+import { updateForeignMarketIndices } from "./foreign-market-demand";
 
 /**
  * 加入阿尔巴尼亚之前冻结的世界国家共享随机流顺序。
@@ -121,6 +123,11 @@ function simulateOneCountry(
     0.035,
   );
   country.realGDP *= (1 + annualGrowth) ** (1 / 12);
+  country.realGDP = applyWorldCountryCalibration(
+    country.id,
+    year,
+    country.realGDP,
+  );
   country.population *= (1 + populationGrowth) ** (1 / 12);
   country.priceLevelIndex *= 1.02 ** (1 / 12);
   country.nominalGDP = country.realGDP * country.priceLevelIndex;
@@ -191,13 +198,6 @@ export function simulateWorldCountries(
     simulateOneCountry(state, country.id, isolated, frontierTechnology);
   }
 
-  const sharedCountries = state.world.countries.filter((country) =>
-    (legacySharedWorldCountryIds as readonly string[]).includes(country.id),
-  );
-  const averageGrowth = sharedCountries.reduce(
-    (total, country) => total + country.baseGrowthPotential,
-    0,
-  ) / Math.max(sharedCountries.length, 1);
-  state.world.globalDemandIndex *= (1 + averageGrowth) ** (1 / 12);
+  updateForeignMarketIndices(state);
   state.world.worldPriceLevel *= 1.02 ** (1 / 12);
 }

@@ -12,6 +12,7 @@
     "baseGrowth": 0.027,
     "populationGrowth": 0.012,
     "stage": "高收入",
+    "importPropensity": 1.08,
     "phases": [
       {
         "startYear": 1949,
@@ -29,7 +30,7 @@
     "id": "japan",
     "name": "日本",
     "population": 81800000,
-    "realGDP": 155000000000,
+    "realGDP": 56000000000,
     "technology": 27,
     "education": 45,
     "lifeExpectancy": 60,
@@ -38,6 +39,7 @@
     "baseGrowth": 0.025,
     "populationGrowth": 0.009,
     "stage": "中低收入",
+    "importPropensity": 1.12,
     "phases": [
       {
         "startYear": 1956,
@@ -64,6 +66,7 @@
     "baseGrowth": 0.033,
     "populationGrowth": 0.017,
     "stage": "低收入",
+    "importPropensity": 1.28,
     "phases": [
       {
         "startYear": 1962,
@@ -230,6 +233,7 @@
     "baseGrowth": 0.04,
     "populationGrowth": 0.014,
     "stage": "中低收入",
+    "importPropensity": 1.65,
     "phases": [
       {
         "startYear": 1965,
@@ -308,7 +312,7 @@
     "id": "mexico",
     "name": "墨西哥",
     "population": 28500000,
-    "realGDP": 51000000000,
+    "realGDP": 42000000000,
     "technology": 15,
     "education": 30,
     "lifeExpectancy": 50,
@@ -428,6 +432,7 @@
     "baseGrowth": 0.023,
     "populationGrowth": 0.006,
     "stage": "高收入",
+    "importPropensity": 1.42,
     "phases": []
   },
   {
