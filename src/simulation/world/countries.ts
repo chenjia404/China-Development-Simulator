@@ -2,6 +2,7 @@ import countryData from "../../data/config/world-countries.json";
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import type { DevelopmentStage, WorldCountryState, WorldState } from "../state/world-state";
 import { createEmptyWorldTradeNetworkState } from "../economy/international-network";
+import { cityStateRelationForCountry } from "./city-state-relations";
 
 export interface CountryGrowthPhase {
   startYear: number;
@@ -51,6 +52,7 @@ function createWorldCountryState(config: WorldCountryConfig): WorldCountryState 
     baseGrowthPotential: config.baseGrowth,
     developmentStage: config.stage,
     importPropensity: config.importPropensity ?? 1,
+    cityStateRelation: cityStateRelationForCountry(config.id),
     relationWithChina:
       diplomacyConfig.initialRelations[
         config.id as keyof typeof diplomacyConfig.initialRelations
@@ -85,6 +87,13 @@ export function ensureWorldCountriesState(world: WorldState): boolean {
     const config = worldCountryConfigs.find((item) => item.id === country.id);
     if (!Number.isFinite(country.importPropensity)) {
       country.importPropensity = config?.importPropensity ?? 1;
+      changed = true;
+    }
+    const expectedRelation = config
+      ? cityStateRelationForCountry(config.id)
+      : country.cityStateRelation ?? "trade_partner";
+    if (country.cityStateRelation !== expectedRelation) {
+      country.cityStateRelation = expectedRelation;
       changed = true;
     }
   }

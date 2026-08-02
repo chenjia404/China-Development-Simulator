@@ -6,6 +6,12 @@ export type DevelopmentStage =
   | "中高收入"
   | "高收入";
 
+/** 文明式城邦关系：贸易伙伴、援助对象或竞争对手。 */
+export type CityStateRelationKind =
+  | "trade_partner"
+  | "aid_recipient"
+  | "competitor";
+
 export interface WorldCountryState {
   id: string;
   name: string;
@@ -22,6 +28,8 @@ export interface WorldCountryState {
   developmentStage: DevelopmentStage;
   /** 相对同发展阶段基准的进口吸收倾向，贸易枢纽国家通常更高。 */
   importPropensity: number;
+  /** 文明式城邦关系标签，调制进口吸收权重。 */
+  cityStateRelation: CityStateRelationKind;
   relationWithChina: number;
   diplomaticStatus: "neutral" | "partner" | "strategic_partner" | "sanctioned";
   tradeAgreement: boolean;

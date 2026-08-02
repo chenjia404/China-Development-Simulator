@@ -2,6 +2,7 @@ import demandConfig from "../../data/config/world-trade-demand.json";
 import { clamp, safeDivide } from "../core/math";
 import type { GameState } from "../state/game-state";
 import type { DevelopmentStage, WorldCountryState } from "../state/world-state";
+import { cityStateImportAbsorptionMultiplier } from "./city-state-relations";
 
 interface WorldTradeDemandConfig {
   importOpennessByStage: Record<DevelopmentStage, number>;
@@ -36,7 +37,8 @@ export function calculateCountryImportDemand(
 ): number {
   const openness = config.importOpennessByStage[country.developmentStage] ?? 0.16;
   const propensity = country.importPropensity ?? config.defaultImportPropensity;
-  return country.nominalGDP * openness * propensity * countryMarketAccess(country);
+  const cityStateWeight = cityStateImportAbsorptionMultiplier(country.cityStateRelation);
+  return country.nominalGDP * openness * propensity * cityStateWeight * countryMarketAccess(country);
 }
 
 /** 全部可及外国市场的进口吸收总量。 */
