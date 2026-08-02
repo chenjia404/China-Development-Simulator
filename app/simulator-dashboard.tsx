@@ -83,6 +83,7 @@ import {
   endogenousRiskDefinitions,
   evaluateModelIntegrity,
   cityStateRelationLabels,
+  cityStateRelationDescriptions,
   cityStateImportAbsorptionMultiplier,
 } from "@/src/simulation";
 import {
@@ -1546,7 +1547,7 @@ function diplomaticActionUnavailableReason(
 
 const diplomaticStatusLabels = {
   neutral: "一般关系",
-  partner: "贸易伙伴",
+  partner: "贸易协定",
   strategic_partner: "战略伙伴",
   sanctioned: "制裁中",
 } as const;
@@ -1950,7 +1951,7 @@ function DiplomacySection({ game, busy }: { game: GameState; busy: boolean }) {
               const sanctionReason = diplomaticActionUnavailableReason(game, country, "impose_sanctions");
               return (
                 <article className="relation-row" key={country.id}>
-                  <div className="relation-country"><strong>{country.name}</strong><span>{cityStateRelationLabels[country.cityStateRelation]} · {diplomaticStatusLabels[country.diplomaticStatus]}</span></div>
+                  <div className="relation-country"><strong>{country.name}</strong><span title={cityStateRelationDescriptions[country.cityStateRelation]}>{cityStateRelationLabels[country.cityStateRelation]} · {diplomaticStatusLabels[country.diplomaticStatus]}</span></div>
                   <div className="relation-score"><strong>{formatPercent(cityStateImportAbsorptionMultiplier(country.cityStateRelation), 0)}</strong><span>进口吸收权重</span></div>
                   <div className={country.relationWithChina >= 35 ? "relation-score positive" : country.relationWithChina < 0 ? "relation-score negative" : "relation-score"}><strong>{country.relationWithChina.toFixed(1)}</strong><span>双边关系</span></div>
                   <div className="relation-actions">
@@ -2470,7 +2471,7 @@ function InternationalSection({ game }: { game: GameState }) {
         <div className="world-head"><span>主要经济体排名</span><span>国家</span><span>城邦关系</span><span>名义 GDP</span><span>人均 GDP</span><span>科技</span></div>
         {countries.map((country, index) => (
           <div className={country.id === "china" ? "world-row is-china" : "world-row"} key={country.id}>
-            <span>{index + 1}</span><strong>{country.name}</strong><span>{country.cityStateRelation ? cityStateRelationLabels[country.cityStateRelation] : "本国"}</span><span>{formatLarge(country.nominalGDP)}</span><span>{formatLarge(country.nominalGDP / country.population)}</span><span>{country.technology.toFixed(1)}</span>
+            <span>{index + 1}</span><strong>{country.name}</strong><span title={country.cityStateRelation ? cityStateRelationDescriptions[country.cityStateRelation] : undefined}>{country.cityStateRelation ? cityStateRelationLabels[country.cityStateRelation] : "本国"}</span><span>{formatLarge(country.nominalGDP)}</span><span>{formatLarge(country.nominalGDP / country.population)}</span><span>{country.technology.toFixed(1)}</span>
           </div>
         ))}
       </div>

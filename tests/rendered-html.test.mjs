@@ -363,9 +363,9 @@ test("客户端展示能源结构、运输网络和环境压力", async () => {
   const dashboardFile = files.find((file) => file.startsWith("simulator-dashboard-") && file.endsWith(".js"));
   assert.ok(dashboardFile, "应生成模拟器客户端代码块");
   const source = await readFile(new URL(dashboardFile, assetsDirectory), "utf8");
-  assert.match(source, /能源运输与资源环境/);
+  assert.match(source, /能源与资源环境/);
   assert.match(source, /能源进口依赖/);
-  assert.match(source, /货运负荷/);
+  assert.match(source, /货运能力利用/);
   assert.match(source, /空气污染/);
   assert.match(source, /资源耗竭压力/);
 });
