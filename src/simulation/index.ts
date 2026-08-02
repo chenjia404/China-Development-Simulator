@@ -49,6 +49,7 @@ export * from "./analysis/uncertainty";
 export * from "./analysis/automatic-calibration";
 export * from "./analysis/model-integrity";
 export * from "./world/countries";
+export * from "./world/city-state-relations";
 export * from "./world/rankings";
 export * from "./world/world-simulation";
 export * from "./save/schema";

@@ -250,7 +250,12 @@ export function validateGameState(state: GameState): void {
   ) {
     throw new Error("价格或工资指数必须大于零");
   }
-  if (state.world.countries.some((country) => country.population <= 0 || country.realGDP <= 0)) {
-    throw new Error("世界国家出现非正人口或 GDP");
-  }
+  if (
+    state.world.countries.some(
+      (country) =>
+        country.population <= 0 ||
+        country.realGDP <= 0 ||
+        !country.cityStateRelation,
+    )
+  ) throw new Error("世界国家出现非正人口、GDP 或缺少城邦关系标签");
 }

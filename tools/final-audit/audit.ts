@@ -39,6 +39,7 @@ import {
   industrialCategoryDefinitions,
   updateIndustrialStructure,
   validateIndustrialCategoryDefinitions,
+  validateCityStateRelations,
   validateIndustrialPolicyConfiguration,
   validateMarketDynamicsDefinitions,
   validateDemographicCohortDefinitions,
@@ -222,6 +223,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     validateIndustrialCategoryDefinitions();
   } catch (error) {
     industrialCategoryValidationError = error instanceof Error
+      ? error.message
+      : String(error);
+  }
+  let cityStateRelationValidationError: string | null = null;
+  try {
+    validateCityStateRelations();
+  } catch (error) {
+    cityStateRelationValidationError = error instanceof Error
       ? error.message
       : String(error);
   }
@@ -1413,6 +1422,20 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           technologyConstrainedTrade.nation.trade.exports,
       technologyTreeValidationError ??
         `史实路线完成 ${historicalTechnologyTree.completedCount}/${historicalTechnologyTree.totalCount} 个节点、产业科技第 ${historicalTechnologyTree.industryTier} 层、升级准备度 ${(historicalTechnologyTree.industrialUpgradeReadiness * 100).toFixed(1)}%；同为科技指数 80 时，无节点/具备第四层节点的产业升级出口倍率 ${constrainedUpgradeBenefit.toFixed(3)}/${capableUpgradeBenefit.toFixed(3)}，月度出口 ${technologyConstrainedTrade.nation.trade.exports.toFixed(0)}/${technologyCapableTrade.nation.trade.exports.toFixed(0)}`,
+    ),
+    makeCheck(
+      "city-state-relations",
+      "64 国城邦关系标签完整并调制外国进口吸收权重",
+      cityStateRelationValidationError === null &&
+        historical.finalState.world.countries.length === 64 &&
+        historical.finalState.world.countries.every(
+          (country) =>
+            country.cityStateRelation === "trade_partner" ||
+            country.cityStateRelation === "aid_recipient" ||
+            country.cityStateRelation === "competitor",
+        ),
+      cityStateRelationValidationError ??
+        `贸易伙伴 ${historical.finalState.world.countries.filter((country) => country.cityStateRelation === "trade_partner").length} 国、援助对象 ${historical.finalState.world.countries.filter((country) => country.cityStateRelation === "aid_recipient").length} 国、竞争对手 ${historical.finalState.world.countries.filter((country) => country.cityStateRelation === "competitor").length} 国`,
     ),
     makeCheck(
       "industrial-category-structure",
