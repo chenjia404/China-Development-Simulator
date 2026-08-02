@@ -1,19 +1,11 @@
-import networkData from "../../data/config/international-network.json";
 import structureData from "../../data/config/world-trade-structure.json";
 import { clamp, safeDivide } from "../core/math";
 import type { GameState } from "../state/game-state";
-import type { WorldCountryState, WorldTradeNetworkState } from "../state/world-state";
-import { applyPolicyModifiers } from "../policies/policy-engine";
+import type { WorldTradeNetworkState } from "../state/world-state";
 import {
   ensureIndustrialStructureState,
   industrialCategoryDefinitions,
 } from "./industrial-structure";
-
-interface NetworkConfig {
-  relationWeight: number;
-  tradeAgreementBonus: number;
-  sanctionPenalty: number;
-}
 
 interface StructureConfig {
   gdpWeightExponent: number;
@@ -25,19 +17,9 @@ interface StructureConfig {
   categoryTariffSensitivity: Record<string, number>;
 }
 
-const networkConfig = networkData as NetworkConfig;
 const structureConfig = structureData as StructureConfig;
 const INDUSTRIAL_CATEGORY_IDS = industrialCategoryDefinitions.map((item) => item.id);
 const OTHER_EXPORTS_KEY = "other_exports";
-
-const partnerGroupByCountry = new Map<string, string[]>();
-for (const [groupId, countryIds] of Object.entries(structureConfig.partnerGroups)) {
-  for (const countryId of countryIds) {
-    const existing = partnerGroupByCountry.get(countryId) ?? [];
-    existing.push(groupId);
-    partnerGroupByCountry.set(countryId, existing);
-  }
-}
 
 function emptyCategoryPartnerExports(): WorldTradeNetworkState["categoryPartnerExports"] {
   return { industrial: {}, other: {} };
@@ -83,76 +65,6 @@ export function ensureTradeStructureState(state: GameState): void {
   }
 }
 
-function marketAccess(country: WorldCountryState): number {
-  const relation = clamp((country.relationWithChina + 100) / 200, 0, 1);
-  return Math.max(
-    0.001,
-    (1 +
-      relation * networkConfig.relationWeight +
-      (country.tradeAgreement ? networkConfig.tradeAgreementBonus : 0)) *
-      (1 - country.sanctionLevel * networkConfig.sanctionPenalty),
-  );
-}
-
-function groupAffinity(categoryId: string, countryId: string): number {
-  const groups = partnerGroupByCountry.get(countryId) ?? [];
-  if (groups.length === 0) return 1;
-  const affinities = structureConfig.categoryGroupAffinity[categoryId];
-  if (!affinities) return 1;
-  let total = 0;
-  for (const groupId of groups) {
-    total += affinities[groupId] ?? 1;
-  }
-  return total / groups.length;
-}
-
-function diversificationMultiplier(
-  nation: GameState["nation"],
-  country: WorldCountryState,
-  partnerExportShare: number,
-): number {
-  const diversification = applyPolicyModifiers(
-    nation,
-    "trade.partnerDiversification",
-    0,
-  );
-  if (diversification <= 0) return 1;
-  const concentrationPenalty = clamp(partnerExportShare * 2.4, 0, 1);
-  return clamp(
-    1 -
-      concentrationPenalty * diversification * 0.28 +
-      structureConfig.diversificationWeightFloor * diversification,
-    0.55,
-    1.35,
-  );
-}
-
-function categoryPartnerWeight(
-  state: GameState,
-  categoryId: string,
-  country: WorldCountryState,
-  partnerExportShare: number,
-): number {
-  const tariffSensitivity =
-    structureConfig.categoryTariffSensitivity[categoryId] ?? 0.5;
-  const sanctionDrag = clamp(
-    1 -
-      country.sanctionLevel *
-        structureConfig.sanctionTariffPenalty *
-        tariffSensitivity,
-    0.05,
-    1,
-  );
-  return Math.max(
-    0,
-    country.nominalGDP ** structureConfig.gdpWeightExponent *
-      marketAccess(country) *
-      groupAffinity(categoryId, country.id) *
-      sanctionDrag *
-      diversificationMultiplier(state.nation, country, partnerExportShare),
-  );
-}
-
 function buildCategoryPartnerMatrix(
   state: GameState,
   categoryTotals: Record<string, number>,
@@ -165,62 +77,12 @@ function buildCategoryPartnerMatrix(
   const matrix: Record<string, Record<string, number>> = Object.fromEntries(
     categoryIds.map((categoryId) => [categoryId, {}]),
   );
-  if (totalExports <= 0) {
-    for (const country of countries) {
-      for (const categoryId of categoryIds) {
-        matrix[categoryId][country.id] = 0;
-      }
-    }
-    return matrix;
-  }
-  const partnerExportShares = Object.fromEntries(
-    countries.map((country) => [
-      country.id,
-      safeDivide(network.partners[country.id]?.exports ?? 0, totalExports),
-    ]),
-  );
   for (const country of countries) {
     const partnerExport = network.partners[country.id]?.exports ?? 0;
-    const weights = categoryIds.map((categoryId) => {
-      const baseShare = safeDivide(categoryTotals[categoryId] ?? 0, totalExports);
-      return baseShare * categoryPartnerWeight(
-        state,
-        categoryId,
-        country,
-        partnerExportShares[country.id] ?? 0,
-      );
-    });
-    const weightSum = weights.reduce((sum, value) => sum + value, 0);
-    for (const [index, categoryId] of categoryIds.entries()) {
-      matrix[categoryId][country.id] = weightSum > 0
-        ? partnerExport * safeDivide(weights[index] ?? 0, weightSum)
-        : 0;
-    }
-  }
-  for (let iteration = 0; iteration < 4; iteration += 1) {
     for (const categoryId of categoryIds) {
-      const rowSum = countries.reduce(
-        (sum, country) => sum + (matrix[categoryId][country.id] ?? 0),
-        0,
-      );
-      const target = categoryTotals[categoryId] ?? 0;
-      if (rowSum <= 0 || target <= 0) continue;
-      const scale = target / rowSum;
-      for (const country of countries) {
-        matrix[categoryId][country.id] = (matrix[categoryId][country.id] ?? 0) * scale;
-      }
-    }
-    for (const country of countries) {
-      const target = network.partners[country.id]?.exports ?? 0;
-      const columnSum = categoryIds.reduce(
-        (sum, categoryId) => sum + (matrix[categoryId][country.id] ?? 0),
-        0,
-      );
-      if (columnSum <= 0 || target <= 0) continue;
-      const scale = target / columnSum;
-      for (const categoryId of categoryIds) {
-        matrix[categoryId][country.id] = (matrix[categoryId][country.id] ?? 0) * scale;
-      }
+      matrix[categoryId][country.id] = totalExports > 0
+        ? partnerExport * safeDivide(categoryTotals[categoryId] ?? 0, totalExports)
+        : 0;
     }
   }
   return matrix;
@@ -231,7 +93,6 @@ export function updateTradeStructure(state: GameState): void {
   ensureTradeStructureState(state);
   const { nation, world } = state;
   const network = world.tradeNetwork;
-  const countries = world.countries;
   const totalExports = nation.trade.exports;
   ensureIndustrialStructureState(nation);
   const categoryTotals = Object.fromEntries(
@@ -318,7 +179,10 @@ export function calculateTradeBarrierExposure(state: GameState): number {
 
 /** 贸易壁垒经中间变量削弱出口竞争力，不直接改写 GDP。 */
 export function calculateTradeBarrierExportMultiplier(state: GameState): number {
-  const exposure = calculateTradeBarrierExposure(state);
+  ensureTradeStructureState(state);
+  const exposure = Number.isFinite(state.world.tradeNetwork.tradeBarrierExposure)
+    ? state.world.tradeNetwork.tradeBarrierExposure
+    : calculateTradeBarrierExposure(state);
   return clamp(
     1 - exposure * structureConfig.tradeBarrierExportPenalty,
     0.55,

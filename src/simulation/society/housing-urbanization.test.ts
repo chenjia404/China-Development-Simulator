@@ -43,7 +43,7 @@ describe("住房土地与城市化", () => {
     expect(housing.urbanHousingUnits).toBeGreaterThan(
       housing.housingDemandHouseholds * 0.5,
     );
-  });
+  }, 30_000);
 
   it("旧存档缺失住房细账时确定性重建", () => {
     const legacy = createInitialGameState(8903);

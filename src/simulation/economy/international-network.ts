@@ -7,6 +7,7 @@ import type {
   WorldTradeNetworkState,
 } from "../state/world-state";
 import { technologyNormalizedEffect } from "../technology/technology-growth";
+import { applyPolicyModifiers } from "../policies/policy-engine";
 import {
   createEmptyTradeStructureState,
   ensureTradeStructureState,
@@ -86,8 +87,30 @@ export function updateWorldTradeNetwork(state: GameState): void {
   for (const country of state.world.countries) {
     network.partners[country.id] ??= emptyPartner(country.id);
   }
+  const totalExports = state.nation.trade.exports;
+  const diversification = applyPolicyModifiers(
+    state.nation,
+    "trade.partnerDiversification",
+    0,
+  );
   const exports = allocate(state.nation.trade.exports, state.world.countries,
-    (country) => country.nominalGDP ** 0.58 * access(country));
+    (country) => {
+      let weight = country.nominalGDP ** 0.58 * access(country);
+      if (diversification > 0 && totalExports > 0) {
+        const previousShare = safeDivide(
+          network.partners[country.id]?.exports ?? 0,
+          totalExports,
+        );
+        weight *= clamp(
+          1 -
+            clamp(previousShare * 2.4, 0, 1) * diversification * 0.28 +
+            0.08 * diversification,
+          0.55,
+          1.35,
+        );
+      }
+      return weight;
+    });
   const imports = allocate(state.nation.trade.imports, state.world.countries,
     (country) => country.nominalGDP ** 0.55 *
       (0.75 + technologyNormalizedEffect(country.technologyIndex) * 0.25) * access(country));
