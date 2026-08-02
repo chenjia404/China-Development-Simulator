@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "description": "外国经济体进口吸收能力与对华出口需求传导参数。进口开放度按发展阶段区分，高贸易依存经济体可单独覆盖。",
+    "sources": [
+      "https://data.worldbank.org/indicator/TM.VAL.MRCH.WT.GD.ZS",
+      "https://data.worldbank.org/indicator/BX.GSR.MRCH.CD?locations=CN"
+    ]
+  },
+  "importOpennessByStage": {
+    "低收入": 0.1,
+    "中低收入": 0.16,
+    "中高收入": 0.22,
+    "高收入": 0.28
+  },
+  "defaultImportPropensity": 1,
+  "relationAccessWeight": 0.32,
+  "tradeAgreementAccessBonus": 0.18,
+  "sanctionAccessPenalty": 0.72,
+  "tradeDemandElasticity": 0.42,
+  "globalDemandElasticity": 0.28,
+  "foreignDemandMultiplierRange": [0.82, 1.32],
+  "foreignDemandLogBase": 14,
+  "foreignDemandLogScale": 0.24,
+  "globalDemandLogBase": 8,
+  "globalDemandLogScale": 0.22
+}

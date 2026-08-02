@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "description": "主要世界经济体不变价 GDP 历史锚点，用于轻量世界模拟的温和校准。数值与 world-countries.json 使用同一内部不变价口径，按公开历史规模与中国经济校准目标推算相对比例。",
+    "sources": [
+      "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD",
+      "https://data.worldbank.org/indicator/NY.GDP.MKTP.KD",
+      "src/data/config/calibration-targets.json",
+      "src/data/config/comparison-economy-targets.json"
+    ]
+  },
+  "monthlyCalibrationStrength": 0.042,
+  "maximumMonthlyCalibrationAdjustment": 0.008,
+  "overshootCalibrationMultiplier": 2.2,
+  "countries": [
+    {
+      "id": "usa",
+      "anchors": [
+        { "year": 1949, "realGDP": 1450000000000 },
+        { "year": 1978, "realGDP": 4680000000000 },
+        { "year": 1990, "realGDP": 8200000000000 },
+        { "year": 2000, "realGDP": 11800000000000 },
+        { "year": 2010, "realGDP": 15800000000000 },
+        { "year": 2020, "realGDP": 19800000000000 }
+      ]
+    },
+    {
+      "id": "japan",
+      "anchors": [
+        { "year": 1949, "realGDP": 56000000000 },
+        { "year": 1978, "realGDP": 2850000000000 },
+        { "year": 1990, "realGDP": 5400000000000 },
+        { "year": 2000, "realGDP": 4700000000000 },
+        { "year": 2010, "realGDP": 5100000000000 },
+        { "year": 2020, "realGDP": 4700000000000 }
+      ]
+    },
+    {
+      "id": "germany",
+      "anchors": [
+        { "year": 1949, "realGDP": 420000000000 },
+        { "year": 1978, "realGDP": 2100000000000 },
+        { "year": 1990, "realGDP": 2800000000000 },
+        { "year": 2000, "realGDP": 3600000000000 },
+        { "year": 2020, "realGDP": 4300000000000 }
+      ]
+    },
+    {
+      "id": "united_kingdom",
+      "anchors": [
+        { "year": 1949, "realGDP": 390000000000 },
+        { "year": 1978, "realGDP": 1080000000000 },
+        { "year": 2000, "realGDP": 2450000000000 },
+        { "year": 2020, "realGDP": 3100000000000 }
+      ]
+    },
+    {
+      "id": "france",
+      "anchors": [
+        { "year": 1949, "realGDP": 330000000000 },
+        { "year": 1978, "realGDP": 980000000000 },
+        { "year": 2000, "realGDP": 2200000000000 },
+        { "year": 2020, "realGDP": 2850000000000 }
+      ]
+    },
+    {
+      "id": "russia",
+      "anchors": [
+        { "year": 1949, "realGDP": 480000000000 },
+        { "year": 1978, "realGDP": 1180000000000 },
+        { "year": 1990, "realGDP": 920000000000 },
+        { "year": 2000, "realGDP": 620000000000 },
+        { "year": 2020, "realGDP": 1950000000000 }
+      ]
+    },
+    {
+      "id": "india",
+      "anchors": [
+        { "year": 1949, "realGDP": 98000000000 },
+        { "year": 1978, "realGDP": 340000000000 },
+        { "year": 2000, "realGDP": 820000000000 },
+        { "year": 2010, "realGDP": 2100000000000 },
+        { "year": 2020, "realGDP": 3600000000000 }
+      ]
+    },
+    {
+      "id": "south_korea",
+      "anchors": [
+        { "year": 1949, "realGDP": 18000000000 },
+        { "year": 1978, "realGDP": 175000000000 },
+        { "year": 1990, "realGDP": 400000000000 },
+        { "year": 2000, "realGDP": 920000000000 },
+        { "year": 2020, "realGDP": 1850000000000 }
+      ]
+    },
+    {
+      "id": "brazil",
+      "anchors": [
+        { "year": 1949, "realGDP": 72000000000 },
+        { "year": 1978, "realGDP": 520000000000 },
+        { "year": 2000, "realGDP": 1200000000000 },
+        { "year": 2020, "realGDP": 2100000000000 }
+      ]
+    },
+    {
+      "id": "indonesia",
+      "anchors": [
+        { "year": 1949, "realGDP": 27000000000 },
+        { "year": 1978, "realGDP": 180000000000 },
+        { "year": 2000, "realGDP": 420000000000 },
+        { "year": 2020, "realGDP": 1300000000000 }
+      ]
+    },
+    {
+      "id": "singapore",
+      "anchors": [
+        { "year": 1949, "realGDP": 1900000000 },
+        { "year": 1978, "realGDP": 18000000000 },
+        { "year": 2000, "realGDP": 125000000000 },
+        { "year": 2020, "realGDP": 380000000000 }
+      ]
+    },
+    {
+      "id": "italy",
+      "anchors": [
+        { "year": 1949, "realGDP": 190000000000 },
+        { "year": 1978, "realGDP": 720000000000 },
+        { "year": 1990, "realGDP": 980000000000 },
+        { "year": 2000, "realGDP": 820000000000 },
+        { "year": 2020, "realGDP": 1100000000000 }
+      ]
+    },
+    {
+      "id": "mexico",
+      "anchors": [
+        { "year": 1949, "realGDP": 42000000000 },
+        { "year": 1978, "realGDP": 240000000000 },
+        { "year": 1990, "realGDP": 195000000000 },
+        { "year": 2000, "realGDP": 720000000000 },
+        { "year": 2020, "realGDP": 1250000000000 }
+      ]
+    }
+  ]
+}

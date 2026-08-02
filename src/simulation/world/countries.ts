@@ -28,6 +28,7 @@ export interface WorldCountryConfig {
   baseGrowth: number;
   populationGrowth: number;
   stage: DevelopmentStage;
+  importPropensity?: number;
   phases: CountryGrowthPhase[];
   populationPhases?: CountryPopulationPhase[];
 }
@@ -49,6 +50,7 @@ function createWorldCountryState(config: WorldCountryConfig): WorldCountryState 
     internationalInfluence: config.influence,
     baseGrowthPotential: config.baseGrowth,
     developmentStage: config.stage,
+    importPropensity: config.importPropensity ?? 1,
     relationWithChina:
       diplomacyConfig.initialRelations[
         config.id as keyof typeof diplomacyConfig.initialRelations
@@ -79,6 +81,13 @@ export function ensureWorldCountriesState(world: WorldState): boolean {
   const ordered = worldCountryConfigs.map((config) => byId.get(config.id)!);
   const extras = world.countries.filter((country) => !knownIds.has(country.id));
   const next = extras.length > 0 ? [...ordered, ...extras] : ordered;
+  for (const country of next) {
+    const config = worldCountryConfigs.find((item) => item.id === country.id);
+    if (!Number.isFinite(country.importPropensity)) {
+      country.importPropensity = config?.importPropensity ?? 1;
+      changed = true;
+    }
+  }
   const orderChanged = next.length !== world.countries.length ||
     next.some((country, index) => country.id !== world.countries[index]?.id);
   if (orderChanged) {
@@ -105,6 +114,9 @@ export function createInitialWorldState(): WorldState {
       influence: {},
     },
     globalDemandIndex: 1,
+    foreignImportDemandIndex: 1,
+    foreignImportPool: 0,
+    lastForeignNominalGDP: {},
     worldPriceLevel: 1,
     tradeNetwork: createEmptyWorldTradeNetworkState(),
   };
