@@ -35,6 +35,7 @@ export interface MonthlySnapshot {
   railNetworkKm: number;
   expresswayKm: number;
   transportBudgetShare: number;
+  annualTransportInvestment: number;
   logisticsCostMultiplier: number;
   carbonEmissions: number;
   airPollutionIndex: number;

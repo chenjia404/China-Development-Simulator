@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "description": "史实参考财政预算轨迹。交互模式在未手动调整预算时，每年 1 月自动对齐此配置。",
+    "sources": [
+      "tools/baseline-calibration/strategies.ts historicalDecision"
+    ]
+  },
+  "baseline": {
+    "education": 0.1,
+    "health": 0.08,
+    "agriculture": 0.12,
+    "industry": 0.18,
+    "infrastructure": 0.15,
+    "transport": 0,
+    "research": 0.03,
+    "housing": 0.06,
+    "welfare": 0.08,
+    "defense": 0.1,
+    "administration": 0.1
+  },
+  "periods": [
+    {
+      "untilYear": 1957,
+      "overrides": {
+        "agriculture": 0.22,
+        "industry": 0.19,
+        "infrastructure": 0.16,
+        "education": 0.08,
+        "welfare": 0.03
+      }
+    },
+    {
+      "untilYear": 1978,
+      "overrides": {
+        "agriculture": 0.14,
+        "industry": 0.27,
+        "infrastructure": 0.18,
+        "education": 0.07,
+        "research": 0.025,
+        "welfare": 0.025
+      }
+    },
+    {
+      "untilYear": 2000,
+      "overrides": {
+        "agriculture": 0.09,
+        "industry": 0.22,
+        "infrastructure": 0.2,
+        "education": 0.11,
+        "research": 0.05,
+        "administration": 0.07
+      }
+    },
+    {
+      "untilYear": 2012,
+      "overrides": {
+        "agriculture": 0.055,
+        "industry": 0.16,
+        "infrastructure": 0.18,
+        "education": 0.16,
+        "health": 0.11,
+        "research": 0.1,
+        "administration": 0.055
+      }
+    },
+    {
+      "untilYear": 9999,
+      "overrides": {
+        "agriculture": 0.05,
+        "industry": 0.13,
+        "infrastructure": 0.16,
+        "education": 0.17,
+        "health": 0.12,
+        "research": 0.11,
+        "welfare": 0.1,
+        "administration": 0.05
+      }
+    }
+  ]
+}

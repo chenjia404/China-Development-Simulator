@@ -6,6 +6,8 @@ interface HousingConfig {
   initialHousingCoverage: number;
   annualDemolitionRate: number;
   constructionUnitsPerBillion: number;
+  shortageCatchUpRate: number;
+  maxAnnualCompletionShareOfDemand: number;
   averageFloorAreaPerUnit: number;
   floorAreaPerLandHectare: number;
   baseVacancyTarget: number;
@@ -47,10 +49,15 @@ export function updateUrbanHousing(nation: NationState, initialize = false): voi
       config.initialHousingCoverage;
   }
   const constructionValue = nation.industries.construction.valueAdded;
-  state.annualNewCompletions = Math.max(
+  const constructionCompletions = Math.max(
     0,
     constructionValue / 1_000_000_000 * config.constructionUnitsPerBillion *
       (0.72 + nation.fiscal.budget.housing * 1.8),
+  );
+  const shortageCatchUp = state.housingShortageUnits * config.shortageCatchUpRate;
+  state.annualNewCompletions = Math.min(
+    constructionCompletions + shortageCatchUp,
+    state.housingDemandHouseholds * config.maxAnnualCompletionShareOfDemand,
   );
   state.monthlyDemolitions = state.urbanHousingUnits *
     config.annualDemolitionRate / 12;

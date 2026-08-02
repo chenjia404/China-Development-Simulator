@@ -926,6 +926,8 @@ export interface NationState {
   /** 国家成就：能力分解锁与集中突破进度。 */
   achievements: AchievementsState;
   historicalEventDecisionMode: "automatic" | "interactive";
+  /** 玩家手动调整预算后为 true，停止自动对齐史实参考结构。 */
+  budgetManuallyAdjusted: boolean;
   pendingHistoricalEventId: string | null;
   /** 三年困难（1959–1961）超额死亡账户与待确认报告。 */
   famineMortality: FamineMortalityAccount;

@@ -34,5 +34,15 @@
   "maintenanceDeficitRepair": 0.024,
   "defaultRailInvestmentShare": 0.55,
   "defaultHighwayInvestmentShare": 0.35,
-  "defaultUrbanInvestmentShare": 0.1
+  "defaultUrbanInvestmentShare": 0.1,
+  "referenceRealGDP": 123000000000,
+  "referenceTransportCapital": 18,
+  "capitalScalePerGDPLog": 4.2,
+  "primaryFreightWeight": 0.35,
+  "secondaryFreightWeight": 0.7,
+  "referenceIndustrialFreightIntensity": 0.55,
+  "baseFreightUtilization": 0.82,
+  "minimumFreightUtilization": 0.35,
+  "maximumFreightUtilization": 1.5,
+  "investmentCapacityPerTrillion": 850000000
 }

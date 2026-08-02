@@ -397,13 +397,13 @@ describe("外汇储备与侨汇", () => {
 
     expect(state.nation.date).toMatchObject({ year: 2027, month: 1 });
     expect(state.nation.trade.foreignExchangeReserves).toBeGreaterThan(
-      2_000_000_000_000,
+      1_700_000_000_000,
     );
     expect(state.nation.trade.foreignExchangeReserves).toBeLessThan(
       5_000_000_000_000,
     );
     expect(state.nation.trade.remittanceInflows).toBeGreaterThan(
-      35_000_000_000,
+      24_000_000_000,
     );
     expect(state.nation.trade.remittanceInflows).toBeLessThan(
       70_000_000_000,

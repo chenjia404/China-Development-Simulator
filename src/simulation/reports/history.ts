@@ -97,6 +97,7 @@ export function recordHistory(state: GameState): void {
     railNetworkKm: nation.transport.railNetworkKm,
     expresswayKm: nation.transport.expresswayKm,
     transportBudgetShare: nation.fiscal.budget.transport,
+    annualTransportInvestment: nation.transport.monthlyTransportInvestment * 12,
     logisticsCostMultiplier: nation.transport.logisticsCostMultiplier,
     carbonEmissions:
       nation.resources.infrastructureResources.carbonEmissions,

@@ -2,7 +2,6 @@ import { createGameDate } from "../core/time";
 import { createEmptyAchievementsState } from "../events/national-achievements";
 import { SAVE_SCHEMA_VERSION, SIMULATION_VERSION } from "../save/schema";
 import type {
-  FiscalBudget,
   GameState,
   SectorId,
   SectorState,
@@ -70,20 +69,9 @@ import {
   createEmptyInstitutionCausalityState,
   updateInstitutionCausality,
 } from "../institutions/institution-causality";
-
-const INITIAL_BUDGET: FiscalBudget = {
-  education: 0.1,
-  health: 0.08,
-  agriculture: 0.12,
-  industry: 0.10,
-  infrastructure: 0.15,
-  transport: 0.08,
-  research: 0.03,
-  housing: 0.06,
-  welfare: 0.08,
-  defense: 0.1,
-  administration: 0.1,
-};
+import {
+  getHistoricalReferenceBudget,
+} from "../fiscal/historical-budget";
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
 const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
@@ -224,7 +212,7 @@ export function createInitialGameState(
         agriculturalTaxRevenue:
           INITIAL_FISCAL_REVENUE * INITIAL_AGRICULTURAL_TAX_SHARE,
         agriculturalTaxAbolished: false,
-        budget: { ...INITIAL_BUDGET },
+        budget: { ...getHistoricalReferenceBudget(startYear) },
         federalism: createEmptyFiscalFederalismState(),
       },
       education: {
@@ -374,6 +362,7 @@ export function createInitialGameState(
       modifiers: [],
       achievements: createEmptyAchievementsState(),
       historicalEventDecisionMode,
+      budgetManuallyAdjusted: false,
       pendingHistoricalEventId: null,
       famineMortality: createEmptyFamineMortalityAccount(),
       history: { monthly: [], annual: [], reports: [], historicalEvents: [] },

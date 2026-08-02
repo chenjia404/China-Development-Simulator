@@ -1,4 +1,5 @@
 import type { FiscalBudget } from "../../src/simulation/index";
+import { getHistoricalReferenceBudget } from "../../src/simulation/fiscal/historical-budget";
 
 export type StrategyId =
   | "historical"
@@ -45,19 +46,19 @@ const balancedBudget: FiscalBudget = {
 function historicalDecision(year: number): AnnualDecision {
   if (year < 1957) {
     return {
-      budget: { ...balancedBudget, agriculture: 0.22, industry: 0.19, infrastructure: 0.16, education: 0.08, welfare: 0.03 },
+      budget: getHistoricalReferenceBudget(year),
       policyIds: ["agriculture_priority"],
     };
   }
   if (year < 1978) {
     return {
-      budget: { ...balancedBudget, agriculture: 0.14, industry: 0.27, infrastructure: 0.18, education: 0.07, research: 0.025, welfare: 0.025 },
+      budget: getHistoricalReferenceBudget(year),
       policyIds: ["industry_priority"],
     };
   }
   if (year < 2000) {
     return {
-      budget: { ...balancedBudget, agriculture: 0.09, industry: 0.22, infrastructure: 0.2, education: 0.11, research: 0.05, administration: 0.07 },
+      budget: getHistoricalReferenceBudget(year),
       policyIds: year < 1992
         ? ["industry_priority"]
         : ["industry_priority", "expand_opening"],
@@ -65,16 +66,7 @@ function historicalDecision(year: number): AnnualDecision {
   }
   if (year < 2012) {
     return {
-      budget: {
-        ...balancedBudget,
-        agriculture: 0.055,
-        industry: 0.16,
-        infrastructure: 0.18,
-        education: 0.16,
-        health: 0.11,
-        research: 0.1,
-        administration: 0.055,
-      },
+      budget: getHistoricalReferenceBudget(year),
       // 入世后逐步淡出工业优先，避免 2010s 二产资本份额持续偏高。
       policyIds: year < 2005
         ? ["expand_opening", "technology_priority", "industry_priority"]
@@ -82,17 +74,7 @@ function historicalDecision(year: number): AnnualDecision {
     };
   }
   return {
-    budget: {
-      ...balancedBudget,
-      agriculture: 0.05,
-      industry: 0.13,
-      infrastructure: 0.16,
-      education: 0.17,
-      health: 0.12,
-      research: 0.11,
-      welfare: 0.1,
-      administration: 0.05,
-    },
+    budget: getHistoricalReferenceBudget(year),
     policyIds: ["expand_opening", "technology_priority", "livelihood_priority"],
   };
 }

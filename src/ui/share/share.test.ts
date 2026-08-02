@@ -49,6 +49,7 @@ function stubAnnual(
     railNetworkKm: 21_800,
     expresswayKm: 0,
     transportBudgetShare: 0.08,
+    annualTransportInvestment: 0,
     logisticsCostMultiplier: 1,
     carbonEmissions: 1,
     airPollutionIndex: 1,
