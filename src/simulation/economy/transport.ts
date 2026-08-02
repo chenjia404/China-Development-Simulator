@@ -36,6 +36,16 @@ interface TransportConfig {
   defaultRailInvestmentShare: number;
   defaultHighwayInvestmentShare: number;
   defaultUrbanInvestmentShare: number;
+  referenceRealGDP: number;
+  referenceTransportCapital: number;
+  capitalScalePerGDPLog: number;
+  primaryFreightWeight: number;
+  secondaryFreightWeight: number;
+  referenceIndustrialFreightIntensity: number;
+  baseFreightUtilization: number;
+  minimumFreightUtilization: number;
+  maximumFreightUtilization: number;
+  investmentCapacityPerTrillion: number;
 }
 
 const config = transportConfig as TransportConfig;
@@ -143,15 +153,19 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
     applyPolicyModifiers(
       nation,
       "transport.investmentEfficiency",
-      fiscal.budget.transport *
-        safeDivide(fiscal.expenditure, economy.nominalGDP, 0),
+      fiscal.budget.transport,
     ),
+  );
+  const economyScale = Math.log1p(
+    safeDivide(economy.realGDP, config.referenceRealGDP, 1),
   );
 
   if (!initialize) {
     transport.transportCapitalStock = clamp(
       transport.transportCapitalStock +
-        transportBudgetEffort * config.transportCapitalMonthlyConvergence,
+        transportBudgetEffort *
+          config.transportCapitalMonthlyConvergence *
+          (1 + economyScale * 0.12),
       0,
       100,
     );
@@ -235,11 +249,24 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
     "transport.portCapacityGrowth",
     1,
   );
-  transport.freightDemand = Math.max(
-    1,
-    nation.sectors.primary.output * 0.35 +
-      nation.sectors.secondary.output * 0.7 +
-      (nation.trade.exports + nation.trade.imports) / 1_000,
+  const industrialFreightIntensity = clamp(
+    safeDivide(
+      nation.sectors.primary.output * config.primaryFreightWeight +
+        nation.sectors.secondary.output * config.secondaryFreightWeight,
+      economy.realGDP,
+      0,
+    ) / config.referenceIndustrialFreightIntensity,
+    0.45,
+    2.4,
+  );
+  const investmentAdequacy = clamp(
+    safeDivide(
+      transport.transportCapitalStock,
+      config.referenceTransportCapital + economyScale * config.capitalScalePerGDPLog,
+      0,
+    ),
+    0.2,
+    1.8,
   );
   transport.freightCapacity = Math.max(
     1,
@@ -247,13 +274,22 @@ export function updatePublicTransport(nation: NationState, initialize = false): 
       transport.highwayNetworkKm * config.highwayFreightCapacityPerKm * shares.highway +
       transport.expresswayKm * config.expresswayFreightCapacityPerKm +
       transport.transportCapitalStock * 18_000 +
+      (transport.monthlyTransportInvestment * 12) /
+        1_000_000_000_000 *
+        config.investmentCapacityPerTrillion +
       (nation.trade.exports + nation.trade.imports) / 5_000_000 *
         portCapacityGrowth * 50_000,
   );
   transport.freightCapacityUtilization = clamp(
-    safeDivide(transport.freightDemand, transport.freightCapacity),
-    0,
-    1.5,
+    config.baseFreightUtilization *
+      industrialFreightIntensity /
+      Math.max(investmentAdequacy, 0.25),
+    config.minimumFreightUtilization,
+    config.maximumFreightUtilization,
+  );
+  transport.freightDemand = Math.max(
+    1,
+    transport.freightCapacity * transport.freightCapacityUtilization,
   );
 
   transport.freightTonKm =

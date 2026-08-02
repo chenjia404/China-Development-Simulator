@@ -99,6 +99,21 @@ describe("公共交通模块", () => {
     expect(engine.exportState().nation.policies).toContain("highway_national_network");
   });
 
+  it("交通预算份额不变时绝对投入随名义支出上升", () => {
+    const engine = createSimulationEngine(createInitialGameState(9108));
+    engine.dispatch({ type: "UPDATE_BUDGET", budget: { transport: 0.08 } });
+    for (let month = 0; month < 240; month += 1) {
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    }
+    const early = engine.exportState().nation.transport.monthlyTransportInvestment;
+    for (let month = 0; month < 240; month += 1) {
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    }
+    const later = engine.exportState().nation.transport.monthlyTransportInvestment;
+    expect(later).toBeGreaterThan(early * 1.5);
+    expect(engine.exportState().nation.transport.freightCapacityUtilization).toBeLessThan(1.5);
+  });
+
   it("全国干线公路史实事件提高高速公路投资效率", () => {
     const engine = createSimulationEngine(createInitialGameState(9107));
     for (let month = 0; month < (1988 - 1949) * 12 + 10; month += 1) {

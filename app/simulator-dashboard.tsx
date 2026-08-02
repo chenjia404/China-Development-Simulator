@@ -220,6 +220,38 @@ function HistoryChart({ annual, darkMode }: { annual: AnnualSnapshot[]; darkMode
   return <div ref={chartRef} className="history-chart" aria-label="国家长期发展曲线" />;
 }
 
+function BudgetSlider({
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  disabled: boolean;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="budget-row">
+      <span>{label}</span>
+      <div className="budget-slider-shell">
+        <input
+          className="budget-slider"
+          type="range"
+          min="0"
+          max="0.5"
+          step="0.005"
+          value={value}
+          disabled={disabled}
+          onInput={(event) => onChange(Number(event.currentTarget.value))}
+          onChange={(event) => onChange(Number(event.target.value))}
+        />
+      </div>
+      <strong>{formatPercent(value, 1)}</strong>
+    </label>
+  );
+}
+
 function BudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
   const updateBudget = useSimulationStore((store) => store.updateBudget);
   const entries = Object.entries(game.nation.fiscal.budget) as Array<
@@ -236,19 +268,13 @@ function BudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
       </div>
       <div className="budget-list">
         {entries.map(([key, value]) => (
-          <label className="budget-row" key={key}>
-            <span>{budgetLabels[key]}</span>
-            <input
-              type="range"
-              min="0"
-              max="0.5"
-              step="0.005"
-              value={value}
-              disabled={busy}
-              onChange={(event) => void updateBudget(key, Number(event.target.value))}
-            />
-            <strong>{formatPercent(value, 1)}</strong>
-          </label>
+          <BudgetSlider
+            key={key}
+            label={budgetLabels[key]}
+            value={value}
+            disabled={busy}
+            onChange={(nextValue) => void updateBudget(key, nextValue)}
+          />
         ))}
       </div>
       <p className="panel-note">预算改变系统投入能力，效果通过资本、人才和公共服务逐月释放，不会直接增加 GDP。</p>
@@ -598,6 +624,7 @@ function PublicTransportPanel({ game }: { game: GameState }) {
     </div>
     <div className="account-flow-grid">
       <div><span>交通预算份额</span><strong>{formatPercent(game.nation.fiscal.budget.transport)}</strong></div>
+      <div><span>年度交通投入</span><strong>{formatLarge(transport.monthlyTransportInvestment * 12)}</strong></div>
       <div><span>交通资本存量</span><strong>{transport.transportCapitalStock.toFixed(1)}</strong></div>
       <div><span>物流成本乘数</span><strong>{transport.logisticsCostMultiplier.toFixed(3)}</strong></div>
       <div><span>养护欠账</span><strong>{formatPercent(transport.maintenanceBacklog)}</strong></div>
@@ -613,6 +640,35 @@ function PublicTransportPanel({ game }: { game: GameState }) {
       <article><span>生效交通国策</span><strong>{activeTransportPolicies.length > 0 ? activeTransportPolicies.length : "无"}</strong><p>{activeTransportPolicies.length > 0 ? activeTransportPolicies.map((id) => nationalPolicyDefinitions.find((p) => p.id === id)?.name ?? id).join("、") : "可在国策中心启用铁路、公路、公交或港口专项政策"}</p></article>
     </div>
   </section>;
+}
+
+function TransportBudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
+  const updateBudget = useSimulationStore((store) => store.updateBudget);
+  const transportShare = game.nation.fiscal.budget.transport;
+  const annualInvestment = game.nation.transport.monthlyTransportInvestment * 12;
+
+  return (
+    <section className="panel budget-panel transport-budget-panel">
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">交通专项</span>
+          <h2>公共交通预算</h2>
+        </div>
+        <span className="budget-total">年度投入 {formatLarge(annualInvestment)}</span>
+      </div>
+      <div className="budget-list">
+        <BudgetSlider
+          label="交通"
+          value={transportShare}
+          disabled={busy}
+          onChange={(value) => void updateBudget("transport", value)}
+        />
+      </div>
+      <p className="panel-note">
+        预算份额决定财政支出中的交通占比；GDP 增长后即使份额不变，绝对投入也会随名义支出同步上升，并转化为路网与货运能力。
+      </p>
+    </section>
+  );
 }
 
 function TransportSection({ game, busy }: { game: GameState; busy: boolean }) {
@@ -636,7 +692,7 @@ function TransportSection({ game, busy }: { game: GameState; busy: boolean }) {
         animationDuration: 450,
         tooltip: { trigger: "axis" },
         legend: {
-          data: ["铁路里程", "物流效率", "交通预算"],
+          data: ["铁路里程", "物流效率", "交通投入"],
           top: 0,
           textStyle: { color: textColor },
         },
@@ -656,8 +712,8 @@ function TransportSection({ game, busy }: { game: GameState; busy: boolean }) {
           {
             type: "value",
             min: 0,
-            max: 1,
-            axisLabel: { color: textColor, formatter: (value: number) => formatPercent(value) },
+            max: 100,
+            axisLabel: { color: textColor },
             splitLine: { show: false },
           },
         ],
@@ -680,12 +736,11 @@ function TransportSection({ game, busy }: { game: GameState; busy: boolean }) {
             lineStyle: { width: 2, color: "#d39b23" },
           },
           {
-            name: "交通预算",
+            name: "交通投入",
             type: "line",
-            yAxisIndex: 1,
             smooth: true,
             showSymbol: false,
-            data: annual.map((item) => item.transportBudgetShare ?? 0),
+            data: annual.map((item) => item.annualTransportInvestment ?? 0),
             lineStyle: { width: 2, color: "#16a34a" },
           },
         ],
@@ -708,7 +763,7 @@ function TransportSection({ game, busy }: { game: GameState; busy: boolean }) {
       <div ref={chartRef} className="history-chart" aria-label="交通长期发展曲线" />
     </section>
     <PublicTransportPanel game={game} />
-    <BudgetPanel game={game} busy={busy} />
+    <TransportBudgetPanel game={game} busy={busy} />
   </>;
 }
 

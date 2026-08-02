@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { createSimulationEngine } from "../core/engine";
 import type { NationState } from "../state/game-state";
 import { createInitialGameState } from "../state/initial-state";
 import {
@@ -28,6 +29,20 @@ describe("住房土地与城市化", () => {
       .toBeGreaterThan(balanced.nation.society.urbanHousing.homePriceIndex);
     expect(shortage.nation.society.urbanHousing.informalHousingShare)
       .toBeGreaterThan(balanced.nation.society.urbanHousing.informalHousingShare);
+  });
+
+  it("长期推进后住房短缺不会失控累积", () => {
+    const engine = createSimulationEngine(createInitialGameState(8904));
+    for (let month = 0; month < (2026 - 1949) * 12; month += 1) {
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    }
+    const housing = engine.exportState().nation.society.urbanHousing;
+    const shortageRate = housing.housingShortageUnits /
+      Math.max(housing.housingDemandHouseholds, 1);
+    expect(shortageRate).toBeLessThan(0.35);
+    expect(housing.urbanHousingUnits).toBeGreaterThan(
+      housing.housingDemandHouseholds * 0.5,
+    );
   });
 
   it("旧存档缺失住房细账时确定性重建", () => {
