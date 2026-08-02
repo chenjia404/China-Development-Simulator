@@ -19,6 +19,7 @@ export * from "./fiscal/debt";
 export * from "./fiscal/revenue";
 export * from "./fiscal/agricultural-tax";
 export * from "./fiscal/spending";
+export * from "./fiscal/historical-budget";
 export * from "./society/education";
 export * from "./society/health";
 export * from "./society/wellbeing";

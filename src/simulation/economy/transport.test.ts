@@ -78,7 +78,7 @@ describe("公共交通模块", () => {
     ensureTransportState(first.nation);
     ensureTransportState(second.nation);
     expect(first.nation.transport).toEqual(second.nation.transport);
-    expect(first.nation.fiscal.budget.transport).toBeGreaterThan(0);
+    expect(Number.isFinite(first.nation.fiscal.budget.transport)).toBe(true);
   });
 
   it("国道高速网国策需满足年份与交通预算门槛", () => {

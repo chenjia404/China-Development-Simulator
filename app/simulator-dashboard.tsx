@@ -277,7 +277,11 @@ function BudgetPanel({ game, busy }: { game: GameState; busy: boolean }) {
           />
         ))}
       </div>
-      <p className="panel-note">预算改变系统投入能力，效果通过资本、人才和公共服务逐月释放，不会直接增加 GDP。</p>
+      <p className="panel-note">
+        {game.nation.budgetManuallyAdjusted
+          ? "预算已手动调整，不再自动跟随史实参考结构；效果通过资本、人才和公共服务逐月释放，不会直接增加 GDP。"
+          : "预算每年 1 月自动对齐史实参考结构；手动调整后停止自动更新。效果通过资本、人才和公共服务逐月释放，不会直接增加 GDP。"}
+      </p>
       <div className="fiscal-level-grid">
         <article><span>中央财政</span><strong>{formatLarge(federalism.central.revenue)} / {formatLarge(federalism.central.expenditure)}</strong><p>收入 / 支出 · 债务 {formatLarge(federalism.central.debt)}</p></article>
         <article><span>地方财政</span><strong>{formatLarge(federalism.local.revenue)} / {formatLarge(federalism.local.expenditure)}</strong><p>收入 / 支出 · 债务 {formatLarge(federalism.local.debt)}</p></article>

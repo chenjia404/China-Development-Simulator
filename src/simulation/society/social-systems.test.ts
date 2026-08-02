@@ -20,6 +20,7 @@ describe("教育、医疗和科技", () => {
     const invested = createSimulationEngine(createInitialGameState(11));
     const neglectedState = createInitialGameState(11);
     neglectedState.nation.fiscal.budget.education = 0;
+    neglectedState.nation.budgetManuallyAdjusted = true;
     const neglected = createSimulationEngine(neglectedState);
 
     invested.dispatch({ type: "ADVANCE_MONTHS", months: 240 });
@@ -37,6 +38,7 @@ describe("教育、医疗和科技", () => {
     const supported = createInitialGameState(2);
     const neglected = createInitialGameState(2);
     neglected.nation.fiscal.budget.health = 0;
+    neglected.nation.budgetManuallyAdjusted = true;
 
     for (let month = 0; month < 240; month += 1) {
       updateHealth(supported.nation);

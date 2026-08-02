@@ -73,7 +73,7 @@ export function createEmptyPublicTransportState(): PublicTransportState {
 
 /** 旧存档缺少交通细账时，从既有基建指数与资源账户确定性重建。 */
 export function ensureTransportState(nation: NationState): void {
-  if (!nation.fiscal.budget.transport) {
+  if (!Number.isFinite(nation.fiscal.budget.transport)) {
     nation.fiscal.budget.transport = 0.08;
     nation.fiscal.budget.infrastructure = Math.max(
       0.05,
