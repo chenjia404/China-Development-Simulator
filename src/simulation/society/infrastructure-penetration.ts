@@ -124,18 +124,51 @@ export function calculateInfrastructurePenetrationTargets(
   };
 }
 
+function finiteOr(value: number | undefined, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
 export function ensureInfrastructurePenetrationState(nation: NationState): void {
   const existing = nation.society.infrastructurePenetration as
     | Partial<InfrastructurePenetrationState> | undefined;
-  if (
+  const isComplete = Boolean(
     existing &&
-    Number.isFinite(existing.electricityPenetration) &&
-    Number.isFinite(existing.internetPenetration)
-  ) {
+      Number.isFinite(existing.electricityPenetration) &&
+      Number.isFinite(existing.televisionPenetration) &&
+      Number.isFinite(existing.mobilePenetration) &&
+      Number.isFinite(existing.internetPenetration),
+  );
+  if (isComplete) {
     return;
   }
-  nation.society.infrastructurePenetration = createEmptyInfrastructurePenetrationState();
-  updateInfrastructurePenetration(nation, true);
+
+  const baseline = createEmptyInfrastructurePenetrationState();
+  nation.society.infrastructurePenetration = {
+    electricityPenetration: finiteOr(existing?.electricityPenetration, baseline.electricityPenetration),
+    televisionPenetration: finiteOr(existing?.televisionPenetration, baseline.televisionPenetration),
+    mobilePenetration: finiteOr(existing?.mobilePenetration, baseline.mobilePenetration),
+    internetPenetration: finiteOr(existing?.internetPenetration, baseline.internetPenetration),
+  };
+
+  if (!existing) {
+    updateInfrastructurePenetration(nation, true);
+    return;
+  }
+
+  const targets = calculateInfrastructurePenetrationTargets(nation);
+  const state = nation.society.infrastructurePenetration;
+  if (!Number.isFinite(existing.electricityPenetration)) {
+    state.electricityPenetration = targets.electricityPenetration * 0.85;
+  }
+  if (!Number.isFinite(existing.televisionPenetration)) {
+    state.televisionPenetration = targets.televisionPenetration * 0.8;
+  }
+  if (!Number.isFinite(existing.mobilePenetration)) {
+    state.mobilePenetration = targets.mobilePenetration * 0.75;
+  }
+  if (!Number.isFinite(existing.internetPenetration)) {
+    state.internetPenetration = targets.internetPenetration * 0.7;
+  }
 }
 
 /** 基础设施普及率是慢变量，按月向由能源、收入、教育与科技决定的目标收敛。 */

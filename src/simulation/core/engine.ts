@@ -54,6 +54,7 @@ import {
 } from "../fiscal/historical-budget";
 import { ensureHumanDevelopmentState } from "../society/human-development";
 import { ensureUrbanHousingState } from "../society/housing-urbanization";
+import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
 import { ensureRegionalEconomyState } from "../economy/regional-economy";
 import { ensureWorldTradeNetworkState } from "../economy/international-network";
 import { ensureWorldCountriesState } from "../world/countries";
@@ -117,6 +118,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureTransportState(this.state.nation);
     ensureHumanDevelopmentState(this.state.nation);
     ensureUrbanHousingState(this.state.nation);
+    ensureInfrastructurePenetrationState(this.state.nation);
     ensureRegionalEconomyState(this.state.nation);
     ensureWorldCountriesState(this.state.world);
     ensureForeignMarketState(this.state);
@@ -173,6 +175,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureTransportState(this.state.nation);
         ensureHumanDevelopmentState(this.state.nation);
         ensureUrbanHousingState(this.state.nation);
+        ensureInfrastructurePenetrationState(this.state.nation);
         ensureRegionalEconomyState(this.state.nation);
         ensureWorldCountriesState(this.state.world);
         ensureForeignMarketState(this.state);
