@@ -41,6 +41,7 @@ export * from "./economy/energy-transport-environment";
 export * from "./economy/transport";
 export * from "./society/human-development";
 export * from "./society/housing-urbanization";
+export * from "./society/infrastructure-penetration";
 export * from "./economy/regional-economy";
 export * from "./economy/international-network";
 export * from "./security/defense-security";

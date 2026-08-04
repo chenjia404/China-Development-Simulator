@@ -3,6 +3,7 @@ import { advanceMonth } from "./time";
 import type { GameState } from "../state/game-state";
 import { updateDemographics } from "../population/demographics";
 import { updateLaborForce } from "../population/labor-force";
+import { updateInfrastructurePenetration } from "../society/infrastructure-penetration";
 import { updateCapitalAndInvestment } from "../economy/capital";
 import {
   allocateLabor,
@@ -73,6 +74,7 @@ export function simulateMonth(
   updateDiplomacy(state);
   checkAutomaticInternationalOrganizations(state);
   updatePrivateEconomy(state.nation);
+  updateInfrastructurePenetration(state.nation);
   updateDemographics(state.nation, _random);
   tickFamineMortalityAccount(state.nation);
   updateDemographicCohorts(state.nation);

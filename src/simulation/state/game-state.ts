@@ -424,6 +424,14 @@ export interface AgricultureSystemState {
   massBalanceError: number;
 }
 
+/** 电力、电视、手机与互联网普及率（0–1，手机可略高于 1 表示多终端）。 */
+export interface InfrastructurePenetrationState {
+  electricityPenetration: number;
+  televisionPenetration: number;
+  mobilePenetration: number;
+  internetPenetration: number;
+}
+
 export interface SocietyState {
   happinessIndex: number;
   stabilityIndex: number;
@@ -433,6 +441,7 @@ export interface SocietyState {
   medianDisposableIncome: number;
   housingIndex: number;
   urbanHousing: UrbanHousingState;
+  infrastructurePenetration: InfrastructurePenetrationState;
 }
 
 /** 城镇住房存量、家庭需求、土地转用与公共服务承载账户。 */

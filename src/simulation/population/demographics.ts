@@ -23,21 +23,80 @@ function distributeDeaths(
   ];
 }
 
+function developmentEraFactor(
+  year: number,
+  startYear: number,
+  maturityYears: number,
+): number {
+  return clamp((year - startYear) / maturityYears, 0, 1);
+}
+
 export function updateDemographics(
   nation: NationState,
   random: RandomGenerator,
 ): void {
-  const { population, society, economy, education, health, resources } = nation;
+  const {
+    population,
+    society,
+    economy,
+    education,
+    health,
+    resources,
+    date,
+  } = nation;
+  const penetration = society.infrastructurePenetration;
+  const households = population.demographicDetail.households;
   const urbanization = safeDivide(population.urbanPopulation, population.total);
   const incomeDevelopment = clamp(
     Math.log1p(Math.max(economy.realGDPPerCapita, 0)) / Math.log(60_001),
     0,
     1,
   );
-  const birthSuppression =
+  const elderlyShare = safeDivide(
+    population.ageGroups.elderly,
+    population.total,
+  );
+  const workingShare = safeDivide(
+    population.ageGroups.workingAge,
+    population.total,
+  );
+  const mediaInformationEffect = clamp(
+    penetration.televisionPenetration * 0.45 +
+      penetration.mobilePenetration * 0.35 +
+      penetration.internetPenetration * 0.2,
+    0,
+    1,
+  );
+  const penetrationEra = developmentEraFactor(
+    date.year,
+    populationConfig.penetrationEffectStartYear,
+    populationConfig.penetrationEffectMaturityYears,
+  );
+  const structureEra = developmentEraFactor(
+    date.year,
+    populationConfig.structureEffectStartYear,
+    populationConfig.structureEffectMaturityYears,
+  );
+  const coreBirthSuppression =
     urbanization * populationConfig.urbanBirthSuppression +
     (education.index / 100) * populationConfig.educationBirthSuppression +
     incomeDevelopment * populationConfig.incomeBirthSuppression;
+  const structureBirthSuppression = clamp(
+    structureEra * (
+      education.secondaryCoverage * populationConfig.secondaryEducationBirthSuppression +
+      education.universityCoverage * populationConfig.universityEducationBirthSuppression +
+      elderlyShare * populationConfig.elderlyShareBirthSuppression +
+      households.childDependencyRatio * populationConfig.childDependencyBirthSuppression +
+      mediaInformationEffect * populationConfig.mediaInformationBirthSuppression
+    ),
+    0,
+    0.05,
+  );
+  const birthSuppression = clamp(
+    coreBirthSuppression + structureBirthSuppression,
+    0,
+    0.9,
+  );
   const annualBirthRate = clamp(
     applyModifiers(
       nation,
@@ -54,20 +113,26 @@ export function updateDemographics(
   );
 
   const foodShortage = Math.max(0, 1 - resources.foodSupplyRatio);
-  const elderlyShare = safeDivide(
-    population.ageGroups.elderly,
-    population.total,
+  const healthProtection = clamp(
+    health.index / 100,
+    0,
+    1,
+  ) * populationConfig.healthMortalityProtection;
+  const infrastructureProtection = clamp(
+  penetrationEra * (
+      penetration.electricityPenetration * populationConfig.electricityMortalityProtection +
+      mediaInformationEffect * populationConfig.mediaHealthMortalityProtection
+    ),
+    0,
+    0.15,
   );
-  const healthProtection =
-    clamp(health.index / 100, 0, 1) *
-    populationConfig.healthMortalityProtection;
   const annualDeathRate = clamp(
     applyModifiers(
       nation,
       "population.deathRate",
       populationConfig.baseAnnualDeathRate *
-      (1 - healthProtection) *
-      (1 + foodShortage * 2.5 + elderlyShare * 0.65),
+      (1 - clamp(healthProtection + infrastructureProtection, 0, 0.88)) *
+      (1 + foodShortage * 2.5 + elderlyShare * populationConfig.elderlyShareMortalityPressure),
     ) +
       random.nextNormal(0, populationConfig.deathRateNoise),
     populationConfig.minimumAnnualDeathRate,
@@ -113,7 +178,12 @@ export function updateDemographics(
   const migrationCapacity = clamp(
     (economy.infrastructureIndex / 100) * 0.45 +
       (society.housingIndex / 100) * 0.35 +
-      (health.coverageRate * 0.2),
+      health.coverageRate * 0.2 +
+      penetrationEra * (
+        penetration.electricityPenetration * populationConfig.urbanMigrationElectricityWeight +
+        mediaInformationEffect * populationConfig.urbanMigrationMediaWeight
+      ) +
+      workingShare * populationConfig.urbanMigrationWorkingAgeWeight * structureEra,
     0.05,
     1,
   );

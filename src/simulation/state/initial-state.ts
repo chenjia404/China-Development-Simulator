@@ -56,6 +56,7 @@ import {
   createEmptyUrbanHousingState,
   updateUrbanHousing,
 } from "../society/housing-urbanization";
+import { createEmptyInfrastructurePenetrationState, updateInfrastructurePenetration } from "../society/infrastructure-penetration";
 import {
   createEmptyRegionalEconomyState,
   updateRegionalEconomy,
@@ -271,6 +272,7 @@ export function createInitialGameState(
         medianDisposableIncome: 85,
         housingIndex: 18,
         urbanHousing: createEmptyUrbanHousingState(),
+        infrastructurePenetration: createEmptyInfrastructurePenetrationState(),
       },
       trade: {
         exports: 2_000_000_000,
@@ -373,6 +375,7 @@ export function createInitialGameState(
   updateAgricultureSystem(state.nation, true);
   updatePublicTransport(state.nation, true);
   updateInfrastructureResources(state.nation, true);
+  updateInfrastructurePenetration(state.nation, true);
   updateHumanDevelopment(state.nation);
   updateUrbanHousing(state.nation, true);
   updateRegionalEconomy(state.nation);
