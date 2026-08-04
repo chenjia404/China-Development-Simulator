@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "description": "发电量、装机容量、分部门用电需求与电力短缺传导参数。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://www.iea.org/countries/china"
+    ]
+  },
+  "demandPerEnergyUnit": 17.4,
+  "initialTotalCapacity": 920,
+  "monthlyCapacityDepreciationRate": 0.0018,
+  "capacityPerInfrastructureBillion": 52,
+  "capacityPerMiningBillion": 7.5,
+  "capacityPerElectricalEquipmentBillion": 2.8,
+  "powerSectorFuelShare": 0.88,
+  "minimumSupplyRatio": 0.08,
+  "maximumSupplyRatio": 1.18,
+  "shortageProductionSensitivity": 0.42,
+  "shortageInflationWeight": 0.08,
+  "shortageWellbeingWeight": 0.12,
+  "capacityFactors": {
+    "coal": 0.58,
+    "oil": 0.32,
+    "gas": 0.48,
+    "hydro": 0.42,
+    "nuclear": 0.82,
+    "renewables": 0.24
+  },
+  "consumptionSectorWeights": {
+    "residential": 0.16,
+    "industrial": 0.44,
+    "commercial": 0.27,
+    "agriculture": 0.13
+  },
+  "residentialDemandFactors": {
+    "urbanization": 0.38,
+    "incomeDevelopment": 0.22,
+    "electricityPenetration": 0.28,
+    "baseLevel": 0.42
+  },
+  "industrialDemandFactors": {
+    "secondaryOutputElasticity": 0.72,
+    "energyIntensityElasticity": 0.18,
+    "policyElasticity": 0.1
+  },
+  "commercialDemandFactors": {
+    "tertiaryOutputElasticity": 0.68,
+    "urbanization": 0.14,
+    "digitalization": 0.12
+  },
+  "agriculturalDemandFactors": {
+    "primaryOutputElasticity": 0.45,
+    "mechanization": 0.35,
+    "irrigation": 0.2
+  }
+}

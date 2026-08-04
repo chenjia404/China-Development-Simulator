@@ -22,6 +22,7 @@ import { ensureFiscalFederalismState } from "../fiscal/fiscal-federalism";
 import { ensureFinancialSystemState } from "../economy/monetary-financial";
 import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
 import { ensureInfrastructureResourceState } from "../economy/energy-transport-environment";
+import { ensureElectricitySystemState } from "../economy/electricity-system";
 import { ensureHumanDevelopmentState } from "../society/human-development";
 import { ensureUrbanHousingState } from "../society/housing-urbanization";
 import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
@@ -90,6 +91,7 @@ export function deserializeGameState(serialized: string): GameState {
   ensureIndustrialPolicyState(state.nation);
   ensureFinancialSystemState(state);
   ensureAgricultureSystemState(state.nation);
+  ensureElectricitySystemState(state.nation);
   ensureInfrastructureResourceState(state.nation);
   ensureHumanDevelopmentState(state.nation);
   ensureUrbanHousingState(state.nation);

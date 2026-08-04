@@ -44,6 +44,7 @@ import { updateFiscalFederalism } from "../fiscal/fiscal-federalism";
 import { updateFinancialSystem } from "../economy/monetary-financial";
 import { updateAgricultureSystem } from "../economy/agriculture-rural";
 import { updateInfrastructureResources } from "../economy/energy-transport-environment";
+import { updateElectricitySystem } from "../economy/electricity-system";
 import { updatePublicTransport } from "../economy/transport";
 import { updateHumanDevelopment } from "../society/human-development";
 import { updateUrbanHousing } from "../society/housing-urbanization";
@@ -87,6 +88,7 @@ export function simulateMonth(
   updatePublicTransport(state.nation);
   allocateLabor(state.nation);
   updateResourceSupply(state.nation);
+  updateElectricitySystem(state.nation);
   updateInfrastructureResources(state.nation);
   updateDemandDrivenCapacityUtilization(state.nation);
   calculateIndustryOutputs(state.nation);

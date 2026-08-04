@@ -354,12 +354,38 @@ export interface TechnologyState {
   lastDevelopmentPathChangeMonth: number | null;
 }
 
+export type ElectricityBreakdown = Record<EnergySourceId, number>;
+
+/** 发电装机、分部门用电与电力供需平衡账户。 */
+export interface ElectricitySystemState {
+  capacity: ElectricityBreakdown;
+  generation: ElectricityBreakdown;
+  consumption: {
+    residential: number;
+    industrial: number;
+    commercial: number;
+    agriculture: number;
+  };
+  grossGeneration: number;
+  gridLosses: number;
+  netGeneration: number;
+  totalConsumption: number;
+  electricityDemand: number;
+  electricitySupplyRatio: number;
+  capacityUtilization: number;
+  reserveMargin: number;
+  perCapitaConsumption: number;
+  unmetDemand: number;
+  balanceError: number;
+}
+
 export interface ResourceState {
   foodProduction: number;
   foodDemand: number;
   foodSupplyRatio: number;
   agriculture: AgricultureSystemState;
   infrastructureResources: InfrastructureResourceState;
+  electricity: ElectricitySystemState;
   energySupply: number;
   energyDemand: number;
   energySupplyRatio: number;

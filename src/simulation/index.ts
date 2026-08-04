@@ -38,6 +38,7 @@ export * from "./fiscal/fiscal-federalism";
 export * from "./economy/monetary-financial";
 export * from "./economy/agriculture-rural";
 export * from "./economy/energy-transport-environment";
+export * from "./economy/electricity-system";
 export * from "./economy/transport";
 export * from "./society/human-development";
 export * from "./society/housing-urbanization";

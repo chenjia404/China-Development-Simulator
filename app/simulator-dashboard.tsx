@@ -604,15 +604,22 @@ function AgricultureSystemPanel({ game }: { game: GameState }) {
 
 function InfrastructureResourcePanel({ game }: { game: GameState }) {
   const state = game.nation.resources.infrastructureResources;
+  const electricity = game.nation.resources.electricity;
   const energyNames: Record<string, string> = { coal: "煤炭", oil: "石油", gas: "天然气", hydro: "水电", nuclear: "核电", renewables: "可再生能源" };
   return <section className="panel national-accounts-panel">
-    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 环境约束</span><h2>能源与资源环境</h2></div><span>能源进口依赖 {formatPercent(state.energyImportDependence)}</span></div>
+    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 电力平衡 · 环境约束</span><h2>能源与资源环境</h2></div><span>电力供应率 {formatPercent(electricity.electricitySupplyRatio)} · 能源进口依赖 {formatPercent(state.energyImportDependence)}</span></div>
     <div className="account-flow-grid">{Object.values(state.energyMix).map((item) => <div key={item.id}><span>{energyNames[item.id]}</span><strong>{formatPercent(item.share)}</strong></div>)}</div>
     <div className="detail-grid">
-      <article><span>发电量</span><strong>{formatLarge(state.electricityGeneration)}</strong><p>电网损耗 {formatPercent(state.gridLossRate)}</p></article>
+      <article><span>发电总量</span><strong>{formatLarge(electricity.grossGeneration)}</strong><p>净供电 {formatLarge(electricity.netGeneration)} · 装机利用 {formatPercent(electricity.capacityUtilization)}</p></article>
+      <article><span>用电总量</span><strong>{formatLarge(electricity.totalConsumption)}</strong><p>人均 {electricity.perCapitaConsumption.toExponential(2)} · 未满足 {formatLarge(electricity.unmetDemand)}</p></article>
+      <article><span>居民用电</span><strong>{formatLarge(electricity.consumption.residential)}</strong><p>城市化与入户电气化驱动</p></article>
+      <article><span>工业用电</span><strong>{formatLarge(electricity.consumption.industrial)}</strong><p>二产产出与产业政策共同决定</p></article>
+      <article><span>商业服务用电</span><strong>{formatLarge(electricity.consumption.commercial)}</strong><p>三产与数字化需求</p></article>
+      <article><span>农业用电</span><strong>{formatLarge(electricity.consumption.agriculture)}</strong><p>机械化与灌溉覆盖</p></article>
+      <article><span>发电量（净口径）</span><strong>{formatLarge(state.electricityGeneration)}</strong><p>电网损耗 {formatPercent(state.gridLossRate)}</p></article>
       <article><span>碳排放</span><strong>{formatLarge(state.carbonEmissions)}</strong><p>碳强度 {state.carbonIntensity.toExponential(2)}</p></article>
       <article><span>空气污染</span><strong>{state.airPollutionIndex.toFixed(1)}</strong><p>水压力 {formatPercent(state.waterStressIndex)}</p></article>
-      <article><span>资源耗竭压力</span><strong>{formatPercent(state.resourceDepletionIndex)}</strong><p>化石能源结构与供需共同决定</p></article>
+      <article><span>资源耗竭压力</span><strong>{formatPercent(state.resourceDepletionIndex)}</strong><p>备用裕度 {formatPercent(Math.max(0, electricity.reserveMargin))}</p></article>
       <article><span>港口吞吐</span><strong>{formatLarge(state.portThroughputTonnes)} 吨</strong><p>由进出口与开放度形成</p></article>
     </div>
   </section>;
@@ -858,7 +865,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
     population: [["儿童人口", formatLarge(n.population.ageGroups.children), "0—14 岁"], ["劳动年龄人口", formatLarge(n.population.ageGroups.workingAge), `参与率 ${formatPercent(n.labor.participationRate)}`], ["老年人口", formatLarge(n.population.ageGroups.elderly), "65 岁及以上"], ["月度自然增长", formatLarge(n.population.monthlyBirths - n.population.monthlyDeaths), `出生率 ${formatPercent(n.population.annualBirthRate)} · 死亡率 ${formatPercent(n.population.annualDeathRate)}`], ["抚养比", formatPercent(n.population.demographicDetail.households.totalDependencyRatio), `少儿 ${formatPercent(n.population.demographicDetail.households.childDependencyRatio)} · 老年 ${formatPercent(n.population.demographicDetail.households.elderlyDependencyRatio)}`]],
     education: [["教育指数", n.education.index.toFixed(1), "长期滞后生效"], ["识字率", formatPercent(n.education.literacyRate), `平均受教育 ${n.education.averageYearsOfSchooling.toFixed(1)} 年`], ["大学招生能力", formatPercent(n.education.higherEducationAdmissionCapacity), `累计严重中断 ${n.education.educationDisruptionMonths} 个月`], ["学术体系连续性", formatPercent(n.education.academicContinuity), "恢复速度慢于停摆速度"], ["科研人才代际缺口", formatPercent(n.education.researchCohortGap), `现有科研人才 ${formatLarge(n.education.researchTalent)}`], ["科研人才永久损失", formatLarge(n.education.permanentResearchTalentLosses), "含迫害死亡与永久离岗"]],
     agriculture: [["农业增加值", formatLarge(n.sectors.primary.valueAdded), `就业 ${formatLarge(n.sectors.primary.employment)}`], ["粮食产量", `${formatLarge(n.resources.foodProduction)} 吨`, "国内生产"], ["粮食需求", `${formatLarge(n.resources.foodDemand)} 吨`, "人口与收入驱动"], ["粮食供应率", formatPercent(n.resources.foodSupplyRatio), n.resources.foodSupplyRatio < 0.95 ? "存在短缺" : "供应稳定"]],
-    infrastructure: [["综合指数", n.economy.infrastructureIndex.toFixed(1), "交通、电网与通信"], ["电力普及率", formatPercent(n.society.infrastructurePenetration.electricityPenetration), "入户用电与照明"], ["电视普及率", formatPercent(n.society.infrastructurePenetration.televisionPenetration), "信息传播与观念变迁"], ["手机普及率", formatPercent(Math.min(n.society.infrastructurePenetration.mobilePenetration, 1)), "移动通信覆盖"], ["互联网普及率", formatPercent(n.society.infrastructurePenetration.internetPenetration), "数字接入与在线服务"], ["住房指数", n.society.housingIndex.toFixed(1), "限制城市承载力"], ["城市化率", formatPercent(n.society.urbanizationRate), `${formatLarge(n.population.urbanPopulation)} 城市人口`], ["服务业增加值", formatLarge(n.sectors.tertiary.valueAdded), "受基础设施显著影响"]],
+    infrastructure: [["综合指数", n.economy.infrastructureIndex.toFixed(1), "交通、电网与通信"], ["发电总量", formatLarge(n.resources.electricity.grossGeneration), `净供电 ${formatLarge(n.resources.electricity.netGeneration)}`], ["用电总量", formatLarge(n.resources.electricity.totalConsumption), `供应率 ${formatPercent(n.resources.electricity.electricitySupplyRatio)}`], ["人均用电", n.resources.electricity.perCapitaConsumption.toExponential(2), `工业 ${formatPercent(n.resources.electricity.consumption.industrial / Math.max(n.resources.electricity.totalConsumption, 1))}`], ["电力普及率", formatPercent(n.society.infrastructurePenetration.electricityPenetration), "入户用电与照明"], ["电视普及率", formatPercent(n.society.infrastructurePenetration.televisionPenetration), "信息传播与观念变迁"], ["手机普及率", formatPercent(Math.min(n.society.infrastructurePenetration.mobilePenetration, 1)), "移动通信覆盖"], ["互联网普及率", formatPercent(n.society.infrastructurePenetration.internetPenetration), "数字接入与在线服务"], ["住房指数", n.society.housingIndex.toFixed(1), "限制城市承载力"], ["城市化率", formatPercent(n.society.urbanizationRate), `${formatLarge(n.population.urbanPopulation)} 城市人口`], ["服务业增加值", formatLarge(n.sectors.tertiary.valueAdded), "受基础设施显著影响"]],
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";

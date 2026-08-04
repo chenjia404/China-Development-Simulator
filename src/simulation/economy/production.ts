@@ -194,6 +194,14 @@ export function updateResourceSupply(nation: NationState): void {
       secondaryCapitalScale ** 0.72 *
       (0.88 + technologyNormalizedEffect(nation.technology.index) * 0.8),
   );
+  const electricitySupplyRatio =
+    nation.resources.electricity?.electricitySupplyRatio ?? 1;
+  const electricityShortageDemandMultiplier = electricitySupplyRatio < 0.85
+    ? 1 +
+      (nation.resources.electricity?.unmetDemand ?? 0) /
+        Math.max(nation.resources.electricity?.electricityDemand ?? 1, 1) *
+        0.08
+    : 1;
   nation.resources.energyDemand = Math.max(
     1,
     applyPolicyModifiers(
@@ -201,7 +209,8 @@ export function updateResourceSupply(nation: NationState): void {
       "resources.energyDemand",
       (8 + nation.sectors.secondary.output / 2_000_000_000) *
         technologyIndustryEnergyDemandMultiplier(nation) *
-        calculateIndustrialPolicyAggregateEffects(nation).energyDemandMultiplier,
+        calculateIndustrialPolicyAggregateEffects(nation).energyDemandMultiplier *
+        electricityShortageDemandMultiplier,
     ),
   );
   nation.resources.energySupplyRatio = clamp(
