@@ -45,6 +45,10 @@ import {
   updateInfrastructureResources,
 } from "../economy/energy-transport-environment";
 import {
+  createEmptyElectricitySystemState,
+  updateElectricitySystem,
+} from "../economy/electricity-system";
+import {
   createEmptyPublicTransportState,
   updatePublicTransport,
 } from "../economy/transport";
@@ -258,6 +262,7 @@ export function createInitialGameState(
         foodSupplyRatio: 0.942,
         agriculture: createEmptyAgricultureSystemState(),
         infrastructureResources: createEmptyInfrastructureResourceState(),
+        electricity: createEmptyElectricitySystemState(),
         energySupply: 24,
         energyDemand: 25,
         energySupplyRatio: 0.96,
@@ -374,6 +379,7 @@ export function createInitialGameState(
   updateNationalAccounts(state.nation);
   updateAgricultureSystem(state.nation, true);
   updatePublicTransport(state.nation, true);
+  updateElectricitySystem(state.nation, true);
   updateInfrastructureResources(state.nation, true);
   updateInfrastructurePenetration(state.nation, true);
   updateHumanDevelopment(state.nation);

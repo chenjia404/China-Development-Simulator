@@ -51,7 +51,7 @@ export function ensureInfrastructureResourceState(nation: NationState): void {
   updateInfrastructureResources(nation, true);
 }
 
-function normalizedShares(nation: NationState): Record<EnergySourceId, number> {
+export function normalizedEnergyShares(nation: NationState): Record<EnergySourceId, number> {
   const development = clamp(
     Math.log1p(nation.economy.realGDPPerCapita) / Math.log(60_001), 0, 1,
   );
@@ -77,7 +77,7 @@ export function updateInfrastructureResources(nation: NationState, initialize = 
     initialize = true;
   }
   const state = nation.resources.infrastructureResources;
-  const shares = normalizedShares(nation);
+  const shares = normalizedEnergyShares(nation);
   const development = clamp(
     Math.log1p(nation.economy.realGDPPerCapita) / Math.log(60_001), 0, 1,
   );
@@ -107,8 +107,13 @@ export function updateInfrastructureResources(nation: NationState, initialize = 
     config.minimumGridLossRate,
     config.baseGridLossRate,
   );
-  state.electricityGeneration = state.totalPrimaryEnergy *
-    config.electricityPerEnergyUnit * (1 - state.gridLossRate);
+  state.electricityGeneration = Math.max(
+    0,
+    nation.resources.electricity?.netGeneration ??
+      state.totalPrimaryEnergy *
+        config.electricityPerEnergyUnit *
+        (1 - state.gridLossRate),
+  );
   const transport = nation.transport;
   state.railNetworkKm = transport?.railNetworkKm ?? config.initialRailNetworkKm;
   state.highwayNetworkKm = transport?.highwayNetworkKm ?? config.initialHighwayNetworkKm;

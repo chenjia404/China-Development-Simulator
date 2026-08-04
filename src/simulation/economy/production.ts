@@ -201,7 +201,9 @@ export function updateResourceSupply(nation: NationState): void {
       "resources.energyDemand",
       (8 + nation.sectors.secondary.output / 2_000_000_000) *
         technologyIndustryEnergyDemandMultiplier(nation) *
-        calculateIndustrialPolicyAggregateEffects(nation).energyDemandMultiplier,
+        calculateIndustrialPolicyAggregateEffects(nation).energyDemandMultiplier *
+        (1 + (nation.resources.electricity?.unmetDemand ?? 0) /
+          Math.max(nation.resources.electricity?.electricityDemand ?? 1, 1) * 0.08),
     ),
   );
   nation.resources.energySupplyRatio = clamp(

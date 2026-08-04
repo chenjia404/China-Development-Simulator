@@ -179,6 +179,15 @@ export function validateGameState(state: GameState): void {
     infrastructureResources.airPollutionIndex < 0 ||
     infrastructureResources.airPollutionIndex > 100
   ) throw new Error("能源运输环境账户无效或能源份额未守恒");
+  const electricity = nation.resources.electricity;
+  if (
+    !electricity ||
+    electricity.balanceError > 1e-8 ||
+    electricity.grossGeneration < 0 ||
+    electricity.totalConsumption <= 0 ||
+    electricity.electricitySupplyRatio < 0 ||
+    electricity.electricitySupplyRatio > 1.25
+  ) throw new Error("电力发电与用电账户无效或未守恒");
   const humanDevelopment = nation.humanDevelopment;
   if (
     humanDevelopment.educationPopulationError > 1 ||

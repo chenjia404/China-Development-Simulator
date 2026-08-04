@@ -292,6 +292,15 @@ export function updateIndustrialStructure(nation: NationState): void {
       0.45,
       1,
     );
+    const electricityRatio =
+      nation.resources.electricity?.electricitySupplyRatio ?? 1;
+    const electricityFactor = electricityRatio < 0.8
+      ? clamp(
+        1 - definition.energyIntensity * Math.max(0, 1 - electricityRatio) * 0.45,
+        0.4,
+        1,
+      )
+      : 1;
     const energyFactor = clamp(
       1 - definition.energyIntensity * Math.max(0, 1 - nation.resources.energySupplyRatio) * 0.7,
       0.35,
@@ -307,6 +316,7 @@ export function updateIndustrialStructure(nation: NationState): void {
       (0.66 + readiness * 0.72) *
       skillFactor *
       energyFactor *
+      electricityFactor *
       technologyEffects.productivityMultiplier ** 0.35 *
       highTechnologyExpansionFactor *
       demandFactor(nation, definition) *

@@ -61,11 +61,19 @@ export function calculateInfrastructurePenetrationTargets(
     resources.infrastructureResources.electricityGeneration,
     population.total,
   );
-  const normalizedElectricity = clamp(
+  const electricityRatio = clamp(
+    nation.resources.electricity?.electricitySupplyRatio ??
+      resources.energySupplyRatio,
+    0,
+    1.25,
+  );
+  const perCapitaComponent = clamp(
     perCapitaElectricity / config.electricityPerCapitaSaturation,
     0,
     1,
   );
+  const supplyComponent = clamp(electricityRatio, 0, 1);
+  const normalizedElectricity = perCapitaComponent * 0.62 + supplyComponent * 0.38;
   const electrificationEra = clamp(
     (year - config.electrificationStartYear) / config.electrificationMaturityYears,
     0.04,
