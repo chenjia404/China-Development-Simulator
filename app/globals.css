@@ -606,6 +606,46 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .source-notice-repo { margin: 16px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; word-break: break-all; }
 .source-notice-repo a { color: var(--blue); }
 
+.game-goal-overlay { position: fixed; inset: 0; z-index: 121; display: grid; place-items: center; padding: 24px; background: rgba(8, 15, 28, .72); backdrop-filter: blur(8px); }
+.game-goal-modal { width: min(520px, 100%); padding: 28px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line)); border-radius: 16px; box-shadow: 0 28px 80px rgba(0, 0, 0, .34); }
+.game-goal-header .eyebrow { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.game-goal-header h2 { margin: 10px 0 12px; font-size: 22px; line-height: 1.4; }
+.game-goal-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
+.game-goal-header strong { color: var(--text); }
+.game-goal-points { margin: 18px 0 0; padding-left: 18px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.game-goal-actions { margin-top: 22px; }
+.game-goal-primary { width: 100%; min-height: 46px; padding: 12px 16px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; }
+
+.victory-overlay { position: fixed; inset: 0; z-index: 110; display: grid; place-items: center; padding: 24px; background: rgba(8, 15, 28, .78); backdrop-filter: blur(10px); }
+.victory-modal { width: min(560px, 100%); max-height: calc(100vh - 48px); overflow-y: auto; padding: 24px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--gold) 55%, var(--line)); border-radius: 18px; box-shadow: 0 32px 90px rgba(0, 0, 0, .38); }
+.victory-header .eyebrow { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.victory-header h2 { margin: 8px 0 10px; font-size: 28px; letter-spacing: -0.02em; }
+.victory-header p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.75; }
+.victory-poster { margin-top: 18px; padding: 22px; color: #f8f4ea; background: linear-gradient(160deg, #0f1f3d 0%, #173a63 42%, #8b1f1f 100%); border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+.victory-poster-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.victory-poster-mark { display: grid; place-items: center; width: 42px; height: 42px; color: #8b1f1f; background: linear-gradient(135deg, #f6d36b, #d4a017); border-radius: 10px; font-size: 20px; font-weight: 800; }
+.victory-poster-brand strong { display: block; font-size: 14px; }
+.victory-poster-brand small { color: rgba(248, 244, 234, .72); font-size: 9px; letter-spacing: .12em; }
+.victory-poster-eyebrow { color: #f6d36b; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.victory-poster-title { margin: 8px 0 16px; font-size: 24px; line-height: 1.25; }
+.victory-poster-hero { padding: 14px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .12); border-radius: 12px; }
+.victory-poster-hero span { display: block; color: rgba(248, 244, 234, .72); font-size: 10px; }
+.victory-poster-hero strong { display: block; margin-top: 6px; font-size: 34px; letter-spacing: -0.03em; }
+.victory-poster-hero small { display: block; margin-top: 6px; color: rgba(248, 244, 234, .72); font-size: 10px; }
+.victory-poster-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.victory-poster-metric { padding: 10px 12px; background: rgba(0, 0, 0, .18); border-radius: 10px; }
+.victory-poster-metric span { display: block; color: rgba(248, 244, 234, .68); font-size: 9px; }
+.victory-poster-metric strong { display: block; margin-top: 4px; font-size: 15px; }
+.victory-poster-metric small { display: block; margin-top: 4px; color: rgba(248, 244, 234, .62); font-size: 8px; line-height: 1.45; }
+.victory-poster-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .12); color: rgba(248, 244, 234, .62); font-size: 8px; }
+.victory-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.victory-actions button { min-height: 44px; padding: 11px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.victory-secondary { color: var(--text); background: var(--surface-soft); border: 1px solid var(--line); }
+.victory-primary { color: white; background: var(--blue); border: 1px solid var(--blue); }
+.victory-status { margin: 12px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
+.victory-review-button { color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line)); }
+.status-strip .victory-goal-hint strong { color: var(--gold); }
+
 .world-table, .annual-table { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; }
 .world-head, .world-row { display: grid; grid-template-columns: 60px 1.2fr 1fr 1fr 80px; align-items: center; gap: 12px; min-height: 45px; padding: 0 16px; }
 .world-head, .annual-head { background: var(--surface-soft); color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }

@@ -371,6 +371,7 @@ export function createInitialGameState(
       historicalEventDecisionMode,
       budgetManuallyAdjusted: false,
       pendingHistoricalEventId: null,
+      victoryYear: null,
       famineMortality: createEmptyFamineMortalityAccount(),
       history: { monthly: [], annual: [], reports: [], historicalEvents: [] },
     },

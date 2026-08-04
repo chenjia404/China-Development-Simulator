@@ -964,6 +964,8 @@ export interface NationState {
   /** 玩家手动调整预算后为 true，停止自动对齐史实参考结构。 */
   budgetManuallyAdjusted: boolean;
   pendingHistoricalEventId: string | null;
+  /** 首次达成全球名义 GDP 排名第一的年份；未达成时为 null。 */
+  victoryYear: number | null;
   /** 三年困难（1959–1961）超额死亡账户与待确认报告。 */
   famineMortality: FamineMortalityAccount;
   history: NationHistory;

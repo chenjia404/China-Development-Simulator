@@ -1,5 +1,6 @@
 import type { GameState } from "../../simulation/state/game-state";
 import type { AnnualSnapshot } from "../../simulation/state/history-state";
+import { hasRecordedVictory } from "../../simulation/victory/victory";
 import { formatLarge, formatPercent, formatUsd } from "../format";
 
 export interface ShareMilestoneMetric {
@@ -271,6 +272,32 @@ export const shareMilestoneDefinitions: readonly ShareMilestoneDefinition[] = [
         {
           label: "综合评分",
           value: data.score === null ? "—" : data.score.toFixed(1),
+        },
+      ];
+    },
+  },
+  {
+    id: "gdp_rank_1",
+    title: "GDP 全球第一",
+    description: "名义 GDP 登顶世界第一，达成游戏胜利目标。",
+    resolveReachedYear: (game) => {
+      if (hasRecordedVictory(game)) return game.nation.victoryYear;
+      return resolveRankMilestoneYear(game, 1);
+    },
+    metrics: (game, reachedYear) => {
+      const data = snapshotOrCurrentLive(game, reachedYear);
+      return [
+        {
+          label: "GDP 世界排名",
+          value: data.gdpRank === null ? "—" : `第 ${data.gdpRank} 名`,
+        },
+        {
+          label: "实际 GDP",
+          value: formatOrDash(data.realGDP, formatLarge),
+        },
+        {
+          label: "人均美元",
+          value: formatOrDash(data.currentUSDGDPPerCapita, formatUsd),
         },
       ];
     },
