@@ -10,8 +10,11 @@ import {
   type ForeignPolicyDoctrineId,
   type ForeignAidProgramId,
   type GameState,
+  type EnterpriseInstitutionStance,
   type IndustrialCategoryId,
   type IndustrialPolicyStance,
+  type LandInstitutionStance,
+  type PriceInstitutionStance,
   type SimulationCommand,
   type TechnologyIndustryPathId,
 } from "../simulation";
@@ -86,6 +89,13 @@ interface SimulationStore {
   setIndustrialPolicy(
     industryId: IndustrialCategoryId,
     stance: IndustrialPolicyStance,
+  ): Promise<void>;
+  setEconomicCoordinationStance(
+    axis: "land" | "enterprise" | "price",
+    stance:
+      | LandInstitutionStance
+      | EnterpriseInstitutionStance
+      | PriceInstitutionStance,
   ): Promise<void>;
   newGame(seed?: number): Promise<void>;
   importSave(serialized: string): Promise<void>;
@@ -295,6 +305,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     await get().dispatch({
       type: "SET_INDUSTRIAL_POLICY",
       industryId,
+      stance,
+    });
+  },
+
+  async setEconomicCoordinationStance(axis, stance) {
+    await get().dispatch({
+      type: "SET_ECONOMIC_COORDINATION_STANCE",
+      axis,
       stance,
     });
   },

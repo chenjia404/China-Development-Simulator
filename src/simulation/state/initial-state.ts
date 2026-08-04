@@ -11,6 +11,7 @@ import { calculateWorldRankings } from "../world/rankings";
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
 import { createInitialIndustrialPolicyState } from "../policies/industrial-policy";
+import { createInitialEconomicCoordinationState } from "../economy/economic-coordination";
 import { createInitialPrivateEconomyState } from "../economy/private-economy";
 import { createEmptyFamineMortalityAccount } from "../population/famine-mortality-account";
 import sinoUSNormalizationConfig from "../../data/config/sino-us-normalization.json";
@@ -201,6 +202,7 @@ export function createInitialGameState(
       },
       industries: createInitialIndustrialCategories(28_000_000_000),
       industrialPolicy: createInitialIndustrialPolicyState(),
+      economicCoordination: createInitialEconomicCoordinationState(),
       fiscal: {
         revenue: INITIAL_FISCAL_REVENUE,
         expenditure: 13_000_000_000,

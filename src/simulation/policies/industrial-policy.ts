@@ -1,5 +1,6 @@
 import industrialPolicyConfig from "../../data/config/industrial-policies.json";
 import { clamp } from "../core/math";
+import { economicCoordinationDistortionBias } from "../economy/economic-coordination";
 import type {
   IndustrialCategoryId,
   IndustrialPolicyCategoryState,
@@ -365,26 +366,30 @@ export function industrialPolicyEffect(
 export function calculateIndustrialPolicyAggregateEffects(
   nation: NationState,
 ): IndustrialPolicyAggregateEffects {
-  if (
+  const coordinationDistortion = economicCoordinationDistortionBias(nation);
+  const industrialNeutral =
     nation.industrialPolicy.annualFiscalCost <= 1e-12 &&
     Math.abs(nation.industrialPolicy.creditAllocationBias) <= 1e-12 &&
     nation.industrialPolicy.distortionIndex <= 1e-12 &&
     nation.industrialPolicy.laborDisplacementPressure <= 1e-12 &&
-    nation.industrialPolicy.supplyChainConstraint >= 1 - 1e-12
-  ) {
+    nation.industrialPolicy.supplyChainConstraint >= 1 - 1e-12;
+  if (industrialNeutral && coordinationDistortion <= 1e-12) {
     return neutralIndustrialPolicyAggregateEffects;
   }
   let investmentDelta = 0;
   let researchDelta = 0;
   let energyDelta = 0;
-  for (const industryId of industrialPolicyCategoryIds) {
-    const share = nation.industries[industryId].outputShare;
-    const effect = industrialPolicyEffect(nation, industryId);
-    investmentDelta += share * (effect.investmentMultiplier - 1);
-    researchDelta += share * (effect.researchMultiplier - 1);
-    energyDelta += share * (effect.energyDemandMultiplier - 1);
+  if (!industrialNeutral) {
+    for (const industryId of industrialPolicyCategoryIds) {
+      const share = nation.industries[industryId].outputShare;
+      const effect = industrialPolicyEffect(nation, industryId);
+      investmentDelta += share * (effect.investmentMultiplier - 1);
+      researchDelta += share * (effect.researchMultiplier - 1);
+      energyDelta += share * (effect.energyDemandMultiplier - 1);
+    }
   }
-  const distortionPenalty = nation.industrialPolicy.distortionIndex * 0.35;
+  const distortionPenalty =
+    (nation.industrialPolicy.distortionIndex + coordinationDistortion) * 0.35;
   return {
     investmentMultiplier: clamp(1 + investmentDelta - distortionPenalty, 0.7, 1.25),
     researchMultiplier: clamp(1 + researchDelta - distortionPenalty * 0.45, 0.72, 1.2),

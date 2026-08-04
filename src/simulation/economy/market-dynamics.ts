@@ -11,6 +11,10 @@ import {
   inputCoefficientsForProduct,
   NATIONAL_ACCOUNTS_PRODUCT_IDS,
 } from "./national-accounts";
+import {
+  economicCoordinationPriceAdjustmentSpeedMultiplier,
+  economicCoordinationShortagePressure,
+} from "./economic-coordination";
 
 interface MarketDynamicsConfig {
   priceAdjustmentSpeed: number;
@@ -271,6 +275,9 @@ export function updateMarketDynamics(nation: NationState): void {
   const state = nation.marketDynamics;
   const previousRealWageIndex = updateWages(nation, state);
   const macroInflation = clamp(nation.economy.inflationRate, -0.5, 2);
+  const priceSpeed = config.priceAdjustmentSpeed *
+    economicCoordinationPriceAdjustmentSpeedMultiplier(nation);
+  const shortagePressure = economicCoordinationShortagePressure(nation);
 
   let weightedDemandPressure = 0;
   let weightedCostPressure = 0;
@@ -300,7 +307,11 @@ export function updateMarketDynamics(nation: NationState): void {
       -1,
       10,
     );
-    market.demandPressure = clamp(-market.inventoryGapRatio, -2, 2);
+    market.demandPressure = clamp(
+      -market.inventoryGapRatio + shortagePressure,
+      -2,
+      2,
+    );
     market.inputCostPressure = inputCostPressure(state, id);
     const relativePricePressure = clamp(
       market.demandPressure * config.inventoryDemandPressure +
@@ -314,7 +325,7 @@ export function updateMarketDynamics(nation: NationState): void {
     market.annualPriceInflation = approach(
       market.annualPriceInflation,
       targetInflation,
-      config.priceAdjustmentSpeed,
+      priceSpeed,
     );
     market.priceIndex = Math.max(
       0.01,

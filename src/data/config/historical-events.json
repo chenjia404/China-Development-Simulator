@@ -51,11 +51,13 @@
     "category": "农业农村",
     "impact": "mixed",
     "description": "土地制度发生深刻变化，农业生产关系与农村资源配置被重新组织。农户生产积极性提高，同时大规模制度转换带来短期摩擦。",
-    "effects": ["农业产出提高", "农村购买力改善", "制度转换存在摩擦"],
+    "effects": ["农业产出提高", "农村购买力改善", "对内市场化与家庭经营空间略升", "制度转换存在摩擦"],
     "durationMonths": 36,
     "modifiers": [
       { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
-      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.02 }
+      { "target": "resources.foodSupply", "operation": "multiply", "value": 1.02 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": 0.04 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": -0.02 }
     ]
   },
   {
@@ -137,13 +139,15 @@
     "category": "工业化",
     "impact": "mixed",
     "description": "国家集中资源建设重工业、能源、交通和国防工业项目，工业化基础加速形成，但农业、消费和轻工业资源受到挤压。",
-    "effects": ["工业投资增加", "工业产出提高", "消费与农业资源承压"],
+    "effects": ["工业投资增加", "工业产出提高", "计划协调强度上升", "消费与农业资源承压"],
     "durationMonths": 60,
     "modifiers": [
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 },
       { "target": "sector.secondary.output", "operation": "multiply", "value": 1.045 },
       { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.985 },
-      { "target": "transport.investmentEfficiency", "operation": "multiply", "value": 1.12 }
+      { "target": "transport.investmentEfficiency", "operation": "multiply", "value": 1.12 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": 0.1 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.06 }
     ]
   },
   {
@@ -188,12 +192,14 @@
     "category": "农业农村",
     "impact": "mixed",
     "description": "粮食收购与供应逐步纳入国家计划，城市工业化获得较稳定的粮食保障，但价格信号和农户自主配置空间受到压缩。",
-    "effects": ["城市粮食供应趋稳", "农业市场激励减弱", "工业化保障增强"],
+    "effects": ["城市粮食供应趋稳", "农业市场激励减弱", "计划价格与统购协调加强", "工业化保障增强"],
     "durationMonths": 48,
     "modifiers": [
       { "target": "resources.foodSupply", "operation": "multiply", "value": 1.015 },
       { "target": "sector.primary.output", "operation": "multiply", "value": 0.985 },
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 }
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": 0.06 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.08 }
     ]
   },
   {
@@ -213,7 +219,9 @@
       { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": -0.0024 },
       { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": -0.0014 },
       { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": -0.0009 },
-      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0012 }
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0012 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": 0.04 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.05 }
     ]
   },
   {
@@ -272,7 +280,9 @@
       { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": -0.018, "durationMonths": 28 },
       { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": -0.009, "durationMonths": 32 },
       { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": -0.0065, "durationMonths": 32 },
-      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0065, "durationMonths": 32 }
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": -0.0065, "durationMonths": 32 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": 0.08 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.1 }
     ]
   },
   {
@@ -330,7 +340,8 @@
       "管理失误与错误技术拖累制度与投资效率",
       "家庭副业与民间经营明显收缩",
       "粮食产量与供应承压覆盖1960谷底",
-      "公共食堂与集中分配放大短缺"
+      "公共食堂与集中分配放大短缺",
+      "集体农业与计划协调强度进一步上升"
     ],
     "durationMonths": 36,
     "modifiers": [
@@ -339,7 +350,9 @@
       { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.97, "durationMonths": 36 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.85, "durationMonths": 10 },
       { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95, "delayMonths": 5, "durationMonths": 24 },
-      { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": -0.00005, "durationMonths": 72 }
+      { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": -0.00005, "durationMonths": 72 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": 0.1 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.12 }
     ]
   },
   {
@@ -623,16 +636,18 @@
     "category": "经济改革",
     "impact": "positive",
     "description": "经济建设成为中心任务，农村改革、企业放权和对外开放逐步展开，价格与资源配置开始引入更多市场机制。",
-    "effects": ["制度效率提高", "农业生产改善", "民间投资恢复"],
+    "effects": ["制度效率提高", "农业生产改善", "民间投资恢复", "计划强度回落、对内市场化上升"],
     "durationMonths": 72,
     "modifiers": [
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.055 },
       { "target": "sector.primary.output", "operation": "multiply", "value": 1.035 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04 },
-      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0042 },
-      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.003 },
-      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0025 },
-      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0022 }
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.004 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0028 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0024 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0021 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": -0.08 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": 0.12 }
     ]
   },
   {
@@ -689,16 +704,18 @@
     "category": "经济改革",
     "impact": "positive",
     "description": "国有企业放权让利、利改税、价格双轨制和沿海开放同步推进，微观经营活力增强，但价格与投资波动加大。",
-    "effects": ["企业活力提高", "财政税制转型", "价格与投资波动增加"],
+    "effects": ["企业活力提高", "财政税制转型", "价格双轨与对内市场化推进", "价格与投资波动增加"],
     "durationMonths": 72,
     "modifiers": [
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.05 },
       { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.025 },
       { "target": "fiscal.revenue", "operation": "multiply", "value": 1.02 },
-      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0024 },
-      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0024 },
-      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0018 },
-      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.002 }
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0018 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0018 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0014 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0016 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": -0.05 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": 0.1 }
     ]
   },
   {
@@ -767,16 +784,18 @@
     "category": "经济改革",
     "impact": "positive",
     "description": "市场机制在资源配置中的作用进一步扩大，企业、价格、投资、外贸和所有制改革进入制度化加速阶段。",
-    "effects": ["制度效率提高", "民间投资增加", "外资和贸易扩张"],
+    "effects": ["制度效率提高", "民间投资增加", "外资和贸易扩张", "社会主义市场经济体制目标明确"],
     "durationMonths": 84,
     "modifiers": [
       { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.06 },
       { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.055 },
       { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.12 },
-      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0018 },
-      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0018 },
-      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0015 },
-      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0017 }
+      { "target": "privateEconomy.operatingSpaceChange", "operation": "add", "value": 0.0015 },
+      { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0015 },
+      { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0013 },
+      { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0015 },
+      { "target": "economicCoordination.planningTarget", "operation": "add", "value": -0.06 },
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": 0.1 }
     ]
   },
   {

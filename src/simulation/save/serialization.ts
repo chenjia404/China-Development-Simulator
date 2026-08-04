@@ -33,6 +33,10 @@ import { ensureForeignMarketState } from "../world/foreign-market-demand";
 import { ensureSecurityDefenseState } from "../security/defense-security";
 import { ensureInstitutionCausalityState } from "../institutions/institution-causality";
 import { ensureIndustrialPolicyState } from "../policies/industrial-policy";
+import {
+  ensureEconomicCoordinationState,
+  refreshEconomicCoordinationDerivedShares,
+} from "../economy/economic-coordination";
 import { ensureFamineMortalityAccount } from "../population/famine-mortality-account";
 import { ensureAchievementsState } from "../events/national-achievements";
 import { ensureVictoryState } from "../victory/victory";
@@ -90,6 +94,8 @@ export function deserializeGameState(serialized: string): GameState {
   ensureFiscalFederalismState(state.nation);
   ensureFiscalAgricultureTaxState(state.nation);
   ensureIndustrialPolicyState(state.nation);
+  ensureEconomicCoordinationState(state.nation);
+  refreshEconomicCoordinationDerivedShares(state.nation);
   ensureFinancialSystemState(state);
   ensureAgricultureSystemState(state.nation);
   ensureElectricitySystemState(state.nation);

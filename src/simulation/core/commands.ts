@@ -1,8 +1,11 @@
 import type {
+  EnterpriseInstitutionStance,
   FiscalBudget,
   GameState,
   IndustrialCategoryId,
   IndustrialPolicyStance,
+  LandInstitutionStance,
+  PriceInstitutionStance,
 } from "../state/game-state";
 import type { DiplomaticActionId } from "../diplomacy/diplomacy";
 import type { DiplomaticStrategyId } from "../diplomacy/diplomatic-strategy";
@@ -36,6 +39,15 @@ export interface SetIndustrialPolicyCommand {
   type: "SET_INDUSTRIAL_POLICY";
   industryId: IndustrialCategoryId;
   stance: IndustrialPolicyStance;
+}
+
+export interface SetEconomicCoordinationStanceCommand {
+  type: "SET_ECONOMIC_COORDINATION_STANCE";
+  axis: "land" | "enterprise" | "price";
+  stance:
+    | LandInstitutionStance
+    | EnterpriseInstitutionStance
+    | PriceInstitutionStance;
 }
 
 export interface ImportGameCommand {
@@ -114,6 +126,7 @@ export type SimulationCommand =
   | UpdateBudgetCommand
   | SetPoliciesCommand
   | SetIndustrialPolicyCommand
+  | SetEconomicCoordinationStanceCommand
   | DiplomaticActionCommand
   | JoinOrganizationCommand
   | SetDiplomaticStrategyCommand

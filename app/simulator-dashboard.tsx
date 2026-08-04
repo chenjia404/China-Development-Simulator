@@ -10,8 +10,11 @@ import type {
   FiscalBudget,
   ForeignPolicyDoctrineId,
   ForeignAidProgramId,
+  EnterpriseInstitutionStance,
   GameState,
   IndustrialPolicyStance,
+  LandInstitutionStance,
+  PriceInstitutionStance,
   TargetComparisonMetric,
   TechnologyIndustryPathId,
 } from "@/src/simulation";
@@ -88,6 +91,12 @@ import {
   cityStateRelationLabels,
   cityStateRelationDescriptions,
   cityStateImportAbsorptionMultiplier,
+  classifyEconomicSystem,
+  economicCoordinationInsights,
+  economicCoordinationStanceCooldownRemaining,
+  enterpriseStanceDefinition,
+  landStanceDefinition,
+  priceStanceDefinition,
 } from "@/src/simulation";
 import {
   type SectionId,
@@ -522,6 +531,159 @@ function NationalAccountsPanel({ game }: { game: GameState }) {
   );
 }
 
+function EconomicCoordinationPanel({
+  game,
+  busy,
+}: {
+  game: GameState;
+  busy: boolean;
+}) {
+  const setEconomicCoordinationStance = useSimulationStore(
+    (store) => store.setEconomicCoordinationStance,
+  );
+  const coordination = game.nation.economicCoordination;
+  const classification = classifyEconomicSystem(game.nation);
+  const insights = economicCoordinationInsights(game.nation);
+  const landCooldown = economicCoordinationStanceCooldownRemaining(game.nation, "land");
+  const enterpriseCooldown = economicCoordinationStanceCooldownRemaining(
+    game.nation,
+    "enterprise",
+  );
+  const priceCooldown = economicCoordinationStanceCooldownRemaining(game.nation, "price");
+  const bars: Array<[string, number, string]> = [
+    ["计划程度", coordination.planningIntensity, "资源动员与产业协调；不等于行政制度效率"],
+    ["对内市场", coordination.domesticMarketFreedom, "国内进入与价格自由度；区别于对外开放"],
+    ["公有比重", coordination.publicOwnershipShare, "只读派生：国有+集体增加值份额"],
+    ["开放程度", game.nation.trade.openness, "复用贸易开放度，由开放国策与事件驱动"],
+  ];
+  const landOptions: Array<{ id: LandInstitutionStance; label: string }> = [
+    { id: "household_farming", label: landStanceDefinition("household_farming").name },
+    { id: "cooperative", label: landStanceDefinition("cooperative").name },
+    { id: "collective", label: landStanceDefinition("collective").name },
+  ];
+  const enterpriseOptions: Array<{ id: EnterpriseInstitutionStance; label: string }> = [
+    { id: "private_led", label: enterpriseStanceDefinition("private_led").name },
+    { id: "mixed", label: enterpriseStanceDefinition("mixed").name },
+    { id: "soe_led", label: enterpriseStanceDefinition("soe_led").name },
+  ];
+  const priceOptions: Array<{ id: PriceInstitutionStance; label: string }> = [
+    { id: "free", label: priceStanceDefinition("free").name },
+    { id: "guided", label: priceStanceDefinition("guided").name },
+    { id: "planned", label: priceStanceDefinition("planned").name },
+  ];
+  const choose = (
+    axis: "land" | "enterprise" | "price",
+    stance: LandInstitutionStance | EnterpriseInstitutionStance | PriceInstitutionStance,
+    label: string,
+  ) => {
+    if (
+      !window.confirm(
+        `确定将${axis === "land" ? "土地" : axis === "enterprise" ? "企业" : "价格"}制度调整为“${label}”吗？姿态在槽外渐进生效，不占用五槽国策，并通过计划/对内市场目标弱传导到民营能力、投资配置与价格弹性。`,
+      )
+    ) {
+      return;
+    }
+    void setEconomicCoordinationStance(axis, stance);
+  };
+  return (
+    <section className="panel national-accounts-panel">
+      <div className="panel-heading">
+        <div>
+          <span className="eyebrow">计划 · 市场 · 所有制 · 开放</span>
+          <h2>经济协调体制</h2>
+        </div>
+        <span>{classification.name}</span>
+      </div>
+      <p className="panel-note">
+        此处展示体制仪表盘，不直接改写 GDP。制度效率（行政执行能力）见财政分区；公有比重来自企业所有制账户，对外开放复用贸易开放度。
+      </p>
+      <div className="account-flow-grid">
+        {bars.map(([label, value, note]) => (
+          <div key={label}>
+            <span>{label}</span>
+            <strong>{formatPercent(value)}</strong>
+            <div className="inventory-track">
+              <i style={{ width: `${Math.min(100, Math.max(0, value * 100))}%` }} />
+            </div>
+            <small>{note}</small>
+          </div>
+        ))}
+      </div>
+      <div className="detail-grid" style={{ marginTop: "1rem" }}>
+        <article>
+          <span>当前优势</span>
+          <strong>{insights.advantages.length > 0 ? insights.advantages.join(" · ") : "尚不明显"}</strong>
+          <p>由计划、对内市场、公有派生与开放阈值生成</p>
+        </article>
+        <article>
+          <span>当前问题</span>
+          <strong>{insights.problems.length > 0 ? insights.problems.join(" · ") : "尚不明显"}</strong>
+          <p>高计划可能压制消费品与创新；高市场化可能扩大差距与外部波动</p>
+        </article>
+      </div>
+      <div className="enterprise-ownership-grid" style={{ marginTop: "1rem" }}>
+        <article>
+          <div>
+            <strong>土地制度</strong>
+            <span>{landCooldown > 0 ? `冷却 ${landCooldown} 月` : "可调整"}</span>
+          </div>
+          <div className="industrial-policy-buttons">
+            {landOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                disabled={busy || landCooldown > 0 || coordination.landStance === option.id}
+                className={coordination.landStance === option.id ? "active" : undefined}
+                onClick={() => choose("land", option.id, option.label)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </article>
+        <article>
+          <div>
+            <strong>企业制度</strong>
+            <span>{enterpriseCooldown > 0 ? `冷却 ${enterpriseCooldown} 月` : "可调整"}</span>
+          </div>
+          <div className="industrial-policy-buttons">
+            {enterpriseOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                disabled={busy || enterpriseCooldown > 0 || coordination.enterpriseStance === option.id}
+                className={coordination.enterpriseStance === option.id ? "active" : undefined}
+                onClick={() => choose("enterprise", option.id, option.label)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </article>
+        <article>
+          <div>
+            <strong>价格制度</strong>
+            <span>{priceCooldown > 0 ? `冷却 ${priceCooldown} 月` : "可调整"}</span>
+          </div>
+          <div className="industrial-policy-buttons">
+            {priceOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                disabled={busy || priceCooldown > 0 || coordination.priceStance === option.id}
+                className={coordination.priceStance === option.id ? "active" : undefined}
+                onClick={() => choose("price", option.id, option.label)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function MarketDynamicsPanel({ game }: { game: GameState }) {
   const market = game.nation.marketDynamics;
   const productRows = nationalAccountsProductDefinitions.map((definition) => ({
@@ -860,7 +1022,15 @@ function InstitutionCausalityPanel({ game }: { game: GameState }) {
   </section>;
 }
 
-function DetailSection({ game, section }: { game: GameState; section: SectionId }) {
+function DetailSection({
+  game,
+  section,
+  busy,
+}: {
+  game: GameState;
+  section: SectionId;
+  busy: boolean;
+}) {
   const n = game.nation;
   const data: Record<Exclude<SectionId, "nation" | "transport" | "technology" | "industry" | "policies" | "achievements" | "diplomacy" | "history" | "international" | "statistics" | "settings">, Array<[string, string, string]>> = {
     economy: [["实际 GDP", formatLarge(n.economy.realGDP), "由产业增加值汇总，受内外需求对产能利用的滞后影响"], ["内需规模", formatLarge(n.economy.domesticDemand), `约为名义 GDP 的 ${formatPercent(n.economy.domesticDemandShare)}`], ["居民消费", formatLarge(n.economy.householdConsumption), `消费倾向 ${formatPercent(n.economy.consumptionPropensity)}`], ["社保转移收入", formatLarge(n.economy.socialProtectionIncome), "降低预防性储蓄，但不直接计入 GDP"], ["居民可支配收入", formatLarge(n.economy.householdDisposableIncome), "税后收入、侨汇与社保转移的综合结果"], ["资本存量", formatLarge(n.economy.capitalStock), "含月度折旧"], ["国内储蓄", formatLarge(n.economy.nationalSavings), "投资的重要来源"], ["通胀率", formatPercent(n.economy.inflationRate), `价格指数 ${n.economy.priceLevelIndex.toFixed(2)}`]],
@@ -872,7 +1042,7 @@ function DetailSection({ game, section }: { game: GameState; section: SectionId 
   };
   if (!(section in data)) return null;
   const title = menuItems.find((item) => item.id === section)?.label ?? "国家指标";
-  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <><BudgetPanel game={game} busy={false} /><SecurityDefensePanel game={game} /><InstitutionCausalityPanel game={game} /></> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
+  return <section className="panel detail-page"><div className="detail-hero"><span className="eyebrow">国家统计公报</span><h2>{title}</h2><p>所有指标来自独立 Web Worker 中的月度模拟结算。</p></div><div className="detail-grid">{data[section as keyof typeof data].map(([label, value, note]) => <article key={label}><span>{label}</span><strong>{value}</strong><p>{note}</p></article>)}</div>{section === "economy" ? <><EconomicCoordinationPanel game={game} busy={busy} /><NationalAccountsPanel game={game} /><MarketDynamicsPanel game={game} /></> : null}{section === "population" ? <><DemographicDetailPanel game={game} /><RegionalEconomyPanel game={game} /></> : null}{section === "fiscal" ? <><BudgetPanel game={game} busy={false} /><SecurityDefensePanel game={game} /><InstitutionCausalityPanel game={game} /></> : null}{section === "agriculture" ? <AgricultureSystemPanel game={game} /> : null}{section === "infrastructure" ? <><InfrastructureResourcePanel game={game} /><UrbanHousingPanel game={game} /></> : null}{section === "education" ? <HumanDevelopmentPanel game={game} /> : null}</section>;
 }
 
 function IndustrySection({ game, busy }: { game: GameState; busy: boolean }) {
@@ -2886,7 +3056,7 @@ export function SimulatorDashboard() {
             {activeSection === "international" ? <InternationalSection game={game} /> : null}
             {activeSection === "statistics" ? <StatisticsSection game={game} darkMode={darkMode} /> : null}
             {activeSection === "settings" ? <SettingsSection game={game} /> : null}
-            {!(["nation", "technology", "industry", "transport", "policies", "achievements", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} /> : null}
+            {!(["nation", "technology", "industry", "transport", "policies", "achievements", "diplomacy", "history", "international", "statistics", "settings"] as SectionId[]).includes(activeSection) ? <DetailSection game={game} section={activeSection} busy={busy} /> : null}
           </div>
         </div>
         <button

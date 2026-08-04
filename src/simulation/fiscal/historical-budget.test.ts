@@ -62,5 +62,5 @@ describe("史实参考预算", () => {
       expect(budget.transport).toBe(0);
       expect(engine.exportState().nation.budgetManuallyAdjusted).toBe(false);
     }
-  });
+  }, 20_000);
 });

@@ -82,6 +82,8 @@ export const historicalModifierLabels: Readonly<Record<string, string>> = {
   "privateEconomy.entrepreneurialCapacityChange": "企业家组织能力变化",
   "privateEconomy.technologyCommercializationChange": "民营科技商业化能力变化",
   "privateEconomy.exportNetworkChange": "民营出口网络变化",
+  "economicCoordination.planningTarget": "计划协调强度目标",
+  "economicCoordination.domesticMarketFreedomTarget": "对内市场化目标",
 };
 
 export interface HistoricalModifierTextInput {

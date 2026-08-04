@@ -66,6 +66,11 @@ import {
   ensureIndustrialPolicyState,
   setIndustrialPolicyStance,
 } from "../policies/industrial-policy";
+import {
+  ensureEconomicCoordinationState,
+  refreshEconomicCoordinationDerivedShares,
+  setEconomicCoordinationStance,
+} from "../economy/economic-coordination";
 import { ensureVictoryState } from "../victory/victory";
 
 export interface SimulationResult {
@@ -114,6 +119,8 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureFiscalFederalismState(this.state.nation);
     ensureFiscalAgricultureTaxState(this.state.nation);
     ensureIndustrialPolicyState(this.state.nation);
+    ensureEconomicCoordinationState(this.state.nation);
+    refreshEconomicCoordinationDerivedShares(this.state.nation);
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
     ensureElectricitySystemState(this.state.nation);
@@ -172,10 +179,12 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureFiscalFederalismState(this.state.nation);
         ensureFiscalAgricultureTaxState(this.state.nation);
         ensureIndustrialPolicyState(this.state.nation);
+        ensureEconomicCoordinationState(this.state.nation);
+        refreshEconomicCoordinationDerivedShares(this.state.nation);
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
         ensureElectricitySystemState(this.state.nation);
-    ensureInfrastructureResourceState(this.state.nation);
+        ensureInfrastructureResourceState(this.state.nation);
         ensureTransportState(this.state.nation);
         ensureHumanDevelopmentState(this.state.nation);
         ensureUrbanHousingState(this.state.nation);
@@ -210,6 +219,13 @@ class DeterministicSimulationEngine implements SimulationEngine {
         setIndustrialPolicyStance(
           this.state.nation,
           command.industryId,
+          command.stance,
+        );
+        break;
+      case "SET_ECONOMIC_COORDINATION_STANCE":
+        setEconomicCoordinationStance(
+          this.state.nation,
+          command.axis,
           command.stance,
         );
         break;

@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "description": "经济协调体制：计划强度与对内市场化为慢变库存；公有份额与对外开放只读派生/引用。不占用常驻国策槽，不直接修改 GDP 或企业所有制 targetShares。与 institutionalEfficiency（行政执行效率）及 institutions（内生风险）语义分离。",
+    "sources": [
+      "https://www.stats.gov.cn/zt_18555/ztfx/jnggkf30n/202303/t20230301_1920468.html",
+      "https://www.gov.cn/gongbao/shuju/1956/gwyb195607.pdf"
+    ]
+  },
+  "initialState": {
+    "planningIntensity": 0.72,
+    "planningTarget": 0.72,
+    "domesticMarketFreedom": 0.22,
+    "domesticMarketFreedomTarget": 0.22,
+    "publicOwnershipShare": 0.55,
+    "landStance": "household_farming",
+    "enterpriseStance": "mixed",
+    "priceStance": "planned"
+  },
+  "baseline": {
+    "planning": 0.7,
+    "domesticMarketFreedom": 0.2
+  },
+  "monthlyConvergence": 0.08,
+  "minimumStanceChangeIntervalMonths": 6,
+  "landStances": {
+    "household_farming": {
+      "name": "家庭农业",
+      "planningOffset": -0.08,
+      "domesticMarketFreedomOffset": 0.12
+    },
+    "cooperative": {
+      "name": "农业合作社",
+      "planningOffset": 0.1,
+      "domesticMarketFreedomOffset": -0.06
+    },
+    "collective": {
+      "name": "集体农业",
+      "planningOffset": 0.18,
+      "domesticMarketFreedomOffset": -0.14
+    }
+  },
+  "enterpriseStances": {
+    "private_led": {
+      "name": "私营企业主导",
+      "planningOffset": -0.1,
+      "domesticMarketFreedomOffset": 0.14
+    },
+    "mixed": {
+      "name": "混合所有制",
+      "planningOffset": 0,
+      "domesticMarketFreedomOffset": 0.04
+    },
+    "soe_led": {
+      "name": "国有企业主导",
+      "planningOffset": 0.12,
+      "domesticMarketFreedomOffset": -0.1
+    }
+  },
+  "priceStances": {
+    "free": {
+      "name": "自由市场价格",
+      "planningOffset": -0.06,
+      "domesticMarketFreedomOffset": 0.16
+    },
+    "guided": {
+      "name": "政府指导价格",
+      "planningOffset": 0.04,
+      "domesticMarketFreedomOffset": -0.02
+    },
+    "planned": {
+      "name": "计划价格",
+      "planningOffset": 0.1,
+      "domesticMarketFreedomOffset": -0.14
+    }
+  },
+  "softEffects": {
+    "secondaryAllocationBiasPerPlanning": 0.03,
+    "maximumSecondaryAllocationBias": 0.025,
+    "privateOperatingSpaceBiasPerMarket": 0.001,
+    "privateEntrepreneurBiasPerMarket": 0.0007,
+    "privateOperatingSpaceBiasPerPlanning": -0.0003,
+    "maximumPrivateMonthlyBias": 0.0015,
+    "distortionBiasPerPlanning": 0.015,
+    "maximumDistortionBias": 0.015,
+    "priceAdjustmentSpeedFloor": 0.55,
+    "priceAdjustmentSpeedSpan": 0.55,
+    "shortagePressurePerPlanning": 0.08,
+    "maximumShortagePressure": 0.06
+  },
+  "classification": {
+    "highlyPlanned": {
+      "id": "highly_planned",
+      "name": "高度计划经济",
+      "minimumPlanning": 0.8,
+      "minimumPublicOwnership": 0.8,
+      "maximumDomesticMarket": 0.2
+    },
+    "marketOriented": {
+      "id": "market_oriented",
+      "name": "市场取向经济",
+      "maximumPlanning": 0.3,
+      "minimumDomesticMarket": 0.7
+    },
+    "socialistMarket": {
+      "id": "socialist_market",
+      "name": "社会主义市场经济",
+      "minimumPlanning": 0.3,
+      "maximumPlanning": 0.7,
+      "minimumDomesticMarket": 0.35,
+      "maximumDomesticMarket": 0.75,
+      "minimumOpenness": 0.25,
+      "minimumPublicOwnership": 0.25,
+      "maximumPublicOwnership": 0.7
+    },
+    "mixed": {
+      "id": "mixed",
+      "name": "混合经济",
+      "minimumPlanning": 0.3,
+      "maximumPlanning": 0.7,
+      "minimumDomesticMarket": 0.3,
+      "maximumDomesticMarket": 0.7
+    },
+    "transitional": {
+      "id": "transitional",
+      "name": "转轨中的经济体制",
+      "fallback": true
+    }
+  },
+  "insightRules": {
+    "advantages": [
+      {
+        "id": "industrial_mobilization",
+        "label": "工业动员与基建协调",
+        "when": { "minimumPlanning": 0.65 }
+      },
+      {
+        "id": "enterprise_vitality",
+        "label": "企业活力",
+        "when": { "minimumDomesticMarket": 0.55 }
+      },
+      {
+        "id": "strategic_public_sector",
+        "label": "战略产业可控",
+        "when": { "minimumPublicOwnership": 0.55 }
+      },
+      {
+        "id": "external_linkages",
+        "label": "外部技术与市场联通",
+        "when": { "minimumOpenness": 0.35 }
+      }
+    ],
+    "problems": [
+      {
+        "id": "consumer_shortage",
+        "label": "消费品供应偏紧",
+        "when": { "minimumPlanning": 0.7, "maximumDomesticMarket": 0.35 }
+      },
+      {
+        "id": "innovation_drag",
+        "label": "创新与商业化偏弱",
+        "when": { "minimumPlanning": 0.75, "maximumDomesticMarket": 0.3 }
+      },
+      {
+        "id": "inequality_pressure",
+        "label": "收入差距扩大压力",
+        "when": { "minimumDomesticMarket": 0.65, "maximumPublicOwnership": 0.4 }
+      },
+      {
+        "id": "external_volatility",
+        "label": "外部波动传导增强",
+        "when": { "minimumOpenness": 0.55 }
+      }
+    ]
+  }
+}

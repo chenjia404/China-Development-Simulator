@@ -55,6 +55,10 @@ import { updateSecurityDefense } from "../security/defense-security";
 import { updateInstitutionCausality } from "../institutions/institution-causality";
 import { updateIndustrialPolicy } from "../policies/industrial-policy";
 import {
+  refreshEconomicCoordinationDerivedShares,
+  updateEconomicCoordination,
+} from "../economy/economic-coordination";
+import {
   hasPendingFamineMortalityReport,
   tickFamineMortalityAccount,
 } from "../population/famine-mortality-account";
@@ -73,6 +77,7 @@ export function simulateMonth(
   checkRandomEvents(state.nation, eventRandom);
   updatePolicyEnvironment(state.nation);
   updateIndustrialPolicy(state.nation);
+  updateEconomicCoordination(state.nation);
   updateDiplomacy(state);
   checkAutomaticInternationalOrganizations(state);
   updatePrivateEconomy(state.nation);
@@ -103,6 +108,7 @@ export function simulateMonth(
   calculateFiscalSpending(state.nation);
   updateNationalAccounts(state.nation);
   updateEnterpriseSectors(state.nation);
+  refreshEconomicCoordinationDerivedShares(state.nation);
   updateDebt(state.nation);
   updateFiscalFederalism(state.nation);
   updateSecurityDefense(state.nation);

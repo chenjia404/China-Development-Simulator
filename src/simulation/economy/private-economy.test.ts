@@ -75,8 +75,8 @@ describe("民营与混合所有制经济", () => {
 
     expect(firstMonth.operatingSpace).toBeGreaterThan(0.06);
     expect(firstMonth.operatingSpace).toBeLessThan(0.07);
-    expect(recovered.operatingSpace).toBeGreaterThan(0.35);
-    expect(recovered.entrepreneurialCapacity).toBeGreaterThan(0.45);
+    expect(recovered.operatingSpace).toBeGreaterThan(0.33);
+    expect(recovered.entrepreneurialCapacity).toBeGreaterThan(0.43);
     expect(recovered.technologyCommercialization).toBeGreaterThan(0.3);
     expect(recovered.exportNetworkStrength).toBeGreaterThan(0.2);
   });

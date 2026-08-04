@@ -171,6 +171,42 @@ export interface IndustrialPolicyState {
   supplyChainConstraint: number;
 }
 
+/** 土地制度姿态；槽外命令，不占用常驻国策槽。 */
+export type LandInstitutionStance =
+  | "household_farming"
+  | "cooperative"
+  | "collective";
+
+/** 企业制度姿态；只通过民营流量间接影响所有制展示份额。 */
+export type EnterpriseInstitutionStance =
+  | "private_led"
+  | "mixed"
+  | "soe_led";
+
+/** 价格制度姿态；影响对内市场化目标与价格调整弹性。 */
+export type PriceInstitutionStance = "free" | "guided" | "planned";
+
+/**
+ * 经济协调体制：计划强度与对内市场化为慢变库存。
+ * 公有份额派生自 enterprises.stateControlledShare；对外开放引用 trade.openness。
+ * 与 institutionalEfficiency（行政执行效率）、institutions（内生风险）语义分离，
+ * 禁止再驱动 enterprise targetShares 或直接乘 GDP。
+ */
+export interface EconomicCoordinationState {
+  planningIntensity: number;
+  planningTarget: number;
+  domesticMarketFreedom: number;
+  domesticMarketFreedomTarget: number;
+  /** 当月快照：国有+集体增加值份额，只读派生。 */
+  publicOwnershipShare: number;
+  landStance: LandInstitutionStance;
+  enterpriseStance: EnterpriseInstitutionStance;
+  priceStance: PriceInstitutionStance;
+  landStanceChangedElapsedMonth: number | null;
+  enterpriseStanceChangedElapsedMonth: number | null;
+  priceStanceChangedElapsedMonth: number | null;
+}
+
 export interface FiscalBudget {
   education: number;
   health: number;
@@ -936,6 +972,8 @@ export interface NationState {
   industries: Record<IndustrialCategoryId, IndustrialCategoryState>;
   /** 可按工业类别分别扶持或限制的产业政策账户。 */
   industrialPolicy: IndustrialPolicyState;
+  /** 计划/对内市场协调体制；槽外姿态，不占用国策槽。 */
+  economicCoordination: EconomicCoordinationState;
   fiscal: FiscalState;
   education: EducationState;
   health: HealthState;

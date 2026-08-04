@@ -7,6 +7,7 @@ import type {
   PrivateEconomyState,
 } from "../state/game-state";
 import { capitalMarketCapabilityGains } from "./monetary-financial";
+import { economicCoordinationPrivateEconomyBias } from "./economic-coordination";
 
 interface PrivateEconomyCapabilityMultipliers {
   investment: number;
@@ -76,11 +77,12 @@ function monthlyChange(nation: NationState, target: string): number {
 export function updatePrivateEconomy(nation: NationState): void {
   ensurePrivateEconomyState(nation);
   const capitalMarketGains = capitalMarketCapabilityGains(nation);
+  const coordinationBias = economicCoordinationPrivateEconomyBias(nation);
   nation.privateEconomy.operatingSpace = clamp(
     nation.privateEconomy.operatingSpace + monthlyChange(
       nation,
       "privateEconomy.operatingSpaceChange",
-    ),
+    ) + coordinationBias.operatingSpace,
     0,
     1,
   );
@@ -88,7 +90,8 @@ export function updatePrivateEconomy(nation: NationState): void {
     nation.privateEconomy.entrepreneurialCapacity + monthlyChange(
       nation,
       "privateEconomy.entrepreneurialCapacityChange",
-    ) + capitalMarketGains.entrepreneurship,
+    ) + capitalMarketGains.entrepreneurship +
+      coordinationBias.entrepreneurialCapacity,
     0,
     1,
   );

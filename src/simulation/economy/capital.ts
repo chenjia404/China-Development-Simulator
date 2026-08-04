@@ -12,6 +12,7 @@ import { calculatePrivateEconomyMultipliers } from "./private-economy";
 import { foreignAidProgramEffects } from "../diplomacy/foreign-aid";
 import { capitalMarketInvestmentMultipliers } from "./monetary-financial";
 import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
+import { economicCoordinationSecondaryAllocationBias } from "./economic-coordination";
 
 export function updateCapitalAndInvestment(nation: NationState): void {
   const { economy, fiscal } = nation;
@@ -100,10 +101,14 @@ export function updateCapitalAndInvestment(nation: NationState): void {
     "capital.primaryAllocation",
     0.2,
   );
-  const secondaryAllocation = applyPolicyModifiers(
-    nation,
-    "capital.secondaryAllocation",
-    0.42,
+  const secondaryAllocation = clamp(
+    applyPolicyModifiers(
+      nation,
+      "capital.secondaryAllocation",
+      0.42,
+    ) + economicCoordinationSecondaryAllocationBias(nation),
+    0.2,
+    0.62,
   );
   const allocation: Record<SectorId, number> = {
     primary: primaryAllocation,

@@ -9,6 +9,7 @@ import {
   applySovietDebtRepaymentChoice,
   SOVIET_DEBT_REPAYMENT_EVENT_ID,
 } from "../economy/soviet-debt-repayment";
+import { applyHistoricalEconomicCoordinationStance } from "../economy/economic-coordination";
 import { addModifier } from "./modifiers";
 import {
   AGRICULTURAL_TAX_ABOLITION_EVENT_ID,
@@ -781,6 +782,12 @@ function applyChoice(
       stackRule: "stack",
     });
   }
+  const outcome = choice.outcome ?? "occurred";
+  applyHistoricalEconomicCoordinationStance(nation, event.id, {
+    outcome,
+    choiceId: choice.id,
+    recordCooldown: true,
+  });
   applyForeignAidEventAdjustment(
     nation,
     choice.foreignAidAdjustment,
@@ -801,7 +808,7 @@ function applyChoice(
     choiceId: choice.id,
     choiceName: choice.name,
     choiceDescription: choice.description,
-    outcome: choice.outcome ?? "occurred",
+    outcome,
   };
   nation.history.historicalEvents.push(record);
   ensureFiscalAgricultureTaxState(nation);
