@@ -4,7 +4,6 @@ import { createInitialGameState } from "../state/initial-state";
 import { updateResourceSupply } from "./production";
 import { updateInfrastructureResources } from "./energy-transport-environment";
 import {
-  createEmptyElectricitySystemState,
   electricityProductionModifier,
   ensureElectricitySystemState,
   updateElectricitySystem,
@@ -81,5 +80,21 @@ describe("电力发电与用电系统", () => {
     ensureElectricitySystemState(second.nation);
     expect(first.nation.resources.electricity).toEqual(second.nation.resources.electricity);
     expect(first.nation.resources.electricity.totalConsumption).toBeGreaterThan(0);
+  });
+
+  it("旧存档缺失电力账户时按历史发电量估算装机", () => {
+    const legacy = createInitialGameState(9105);
+    legacy.nation.date.year = 2000;
+    legacy.nation.resources.energySupply = 180;
+    legacy.nation.resources.infrastructureResources.electricityGeneration = 12_500;
+    delete (legacy.nation.resources as Partial<NationState["resources"]>).electricity;
+
+    ensureElectricitySystemState(legacy.nation);
+    const totalCapacity = Object.values(legacy.nation.resources.electricity.capacity)
+      .reduce((sum, value) => sum + value, 0);
+
+    expect(totalCapacity).toBeGreaterThan(3_500);
+    expect(legacy.nation.resources.infrastructureResources.electricityGeneration)
+      .toBe(legacy.nation.resources.electricity.netGeneration);
   });
 });

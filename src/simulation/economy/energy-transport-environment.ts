@@ -7,6 +7,7 @@ import type {
   NationState,
 } from "../state/game-state";
 import { technologyNormalizedEffect } from "../technology/technology-growth";
+import { syncInfrastructureElectricityGeneration } from "./electricity-system";
 
 interface ResourceConfig {
   electricityPerEnergyUnit: number;
@@ -46,7 +47,10 @@ export function ensureInfrastructureResourceState(nation: NationState): void {
   const existing = nation.resources.infrastructureResources as
     | Partial<InfrastructureResourceState> | undefined;
   if (existing?.energyMix && ENERGY_SOURCE_IDS.every((id) => existing.energyMix?.[id]) &&
-    Number.isFinite(existing.energyShareError)) return;
+    Number.isFinite(existing.energyShareError)) {
+    syncInfrastructureElectricityGeneration(nation);
+    return;
+  }
   nation.resources.infrastructureResources = createEmptyInfrastructureResourceState();
   updateInfrastructureResources(nation, true);
 }

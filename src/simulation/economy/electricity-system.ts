@@ -219,18 +219,75 @@ function computeConsumption(nation: NationState): ElectricitySystemState["consum
   };
 }
 
-export function ensureElectricitySystemState(nation: NationState): void {
-  const existing = nation.resources.electricity as Partial<ElectricitySystemState> | undefined;
+function isCompleteElectricityState(
+  existing: Partial<ElectricitySystemState> | undefined,
+): existing is ElectricitySystemState {
+  return Boolean(
+    existing?.capacity &&
+      existing.consumption &&
+      SOURCE_IDS.every((id) => Number.isFinite(existing.capacity?.[id])) &&
+      Number.isFinite(existing.consumption.residential) &&
+      Number.isFinite(existing.grossGeneration) &&
+      Number.isFinite(existing.netGeneration) &&
+      Number.isFinite(existing.totalConsumption) &&
+      Number.isFinite(existing.electricitySupplyRatio) &&
+      Number.isFinite(existing.balanceError),
+  );
+}
+
+function estimateInitialCapacity(
+  nation: NationState,
+  shares: Record<EnergySourceId, number>,
+): number {
+  const legacyGeneration =
+    nation.resources.infrastructureResources?.electricityGeneration;
+  if (Number.isFinite(legacyGeneration) && legacyGeneration > 0) {
+    const lossRate = gridLossRate(nation);
+    const gross = legacyGeneration / Math.max(1 - lossRate, 0.5);
+    const maintenanceFactor = clamp(
+      0.82 + nation.economy.infrastructureIndex / 100 * 0.16,
+      0.7,
+      0.98,
+    );
+    const weightedFactor = SOURCE_IDS.reduce(
+      (sum, id) => sum + shares[id] * config.capacityFactors[id],
+      0,
+    );
+    return gross / Math.max(weightedFactor * maintenanceFactor, 0.05);
+  }
+  const development = clamp((nation.date.year - 1949) / 60, 0.04, 1);
+  const energyScale = clamp(
+    nation.resources.energySupply / 24,
+    0.25,
+    12,
+  );
+  return config.initialTotalCapacity * (0.28 + development * 2.6) * energyScale ** 0.35;
+}
+
+export function syncInfrastructureElectricityGeneration(nation: NationState): void {
+  const netGeneration = nation.resources.electricity?.netGeneration;
   if (
-    existing &&
-    existing.capacity &&
-    SOURCE_IDS.every((id) => Number.isFinite(existing.capacity?.[id])) &&
-    Number.isFinite(existing.balanceError)
+    !Number.isFinite(netGeneration) ||
+    !nation.resources.infrastructureResources
   ) {
+    return;
+  }
+  nation.resources.infrastructureResources.electricityGeneration = Math.max(
+    0,
+    netGeneration,
+  );
+}
+
+export function ensureElectricitySystemState(nation: NationState): void {
+  const existing = nation.resources.electricity as
+    | Partial<ElectricitySystemState> | undefined;
+  if (isCompleteElectricityState(existing)) {
+    syncInfrastructureElectricityGeneration(nation);
     return;
   }
   nation.resources.electricity = createEmptyElectricitySystemState();
   updateElectricitySystem(nation, true);
+  syncInfrastructureElectricityGeneration(nation);
 }
 
 /** 按月结算发电装机、分部门用电与电力供需平衡，并反馈宏观能源约束。 */
@@ -242,9 +299,12 @@ export function updateElectricitySystem(nation: NationState, initialize = false)
   const state = nation.resources.electricity;
   const shares = normalizedEnergyShares(nation);
 
-  if (initialize || SOURCE_IDS.reduce((sum, id) => sum + state.capacity[id], 0) <= 0) {
-    state.capacity = distributeByShares(config.initialTotalCapacity, shares);
-  } else if (!initialize) {
+  if (initialize) {
+    state.capacity = distributeByShares(
+      estimateInitialCapacity(nation, shares),
+      shares,
+    );
+  } else {
     updateCapacityStock(nation, shares);
   }
 
@@ -299,6 +359,7 @@ export function updateElectricitySystem(nation: NationState, initialize = false)
   state.balanceError = Math.abs(
     SOURCE_IDS.reduce((sum, id) => sum + state.generation[id], 0) - grossGeneration,
   ) / Math.max(grossGeneration, 1);
+  syncInfrastructureElectricityGeneration(nation);
 }
 
 export function effectiveEnergySupplyRatio(nation: NationState): number {
@@ -328,10 +389,16 @@ export function electricityProductionModifier(nation: NationState): number {
 
 export function electricityInflationPressure(nation: NationState): number {
   const ratio = nation.resources.electricity?.electricitySupplyRatio ?? 1;
+  if (ratio >= 0.8) {
+    return 0;
+  }
   return Math.max(0, 1 - ratio) * config.shortageInflationWeight;
 }
 
 export function electricityWellbeingPenalty(nation: NationState): number {
   const ratio = nation.resources.electricity?.electricitySupplyRatio ?? 1;
+  if (ratio >= 0.8) {
+    return 0;
+  }
   return Math.max(0, 1 - ratio) * config.shortageWellbeingWeight;
 }

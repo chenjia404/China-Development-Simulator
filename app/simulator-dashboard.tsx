@@ -607,7 +607,7 @@ function InfrastructureResourcePanel({ game }: { game: GameState }) {
   const electricity = game.nation.resources.electricity;
   const energyNames: Record<string, string> = { coal: "煤炭", oil: "石油", gas: "天然气", hydro: "水电", nuclear: "核电", renewables: "可再生能源" };
   return <section className="panel national-accounts-panel">
-    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 电力平衡 · 环境约束</span><h2>能源与资源环境</h2></div><span>电力供应率 {formatPercent(electricity.electricitySupplyRatio)}</span></div>
+    <div className="panel-heading"><div><span className="eyebrow">能源结构 · 电力平衡 · 环境约束</span><h2>能源与资源环境</h2></div><span>电力供应率 {formatPercent(electricity.electricitySupplyRatio)} · 能源进口依赖 {formatPercent(state.energyImportDependence)}</span></div>
     <div className="account-flow-grid">{Object.values(state.energyMix).map((item) => <div key={item.id}><span>{energyNames[item.id]}</span><strong>{formatPercent(item.share)}</strong></div>)}</div>
     <div className="detail-grid">
       <article><span>发电总量</span><strong>{formatLarge(electricity.grossGeneration)}</strong><p>净供电 {formatLarge(electricity.netGeneration)} · 装机利用 {formatPercent(electricity.capacityUtilization)}</p></article>
