@@ -17,7 +17,22 @@
   "urbanBirthSuppression": 0.56,
   "educationBirthSuppression": 0.36,
   "incomeBirthSuppression": 0.18,
+  "secondaryEducationBirthSuppression": 0.045,
+  "universityEducationBirthSuppression": 0.03,
+  "elderlyShareBirthSuppression": 0.025,
+  "childDependencyBirthSuppression": 0.02,
+  "mediaInformationBirthSuppression": 0.04,
+  "structureEffectStartYear": 2000,
+  "structureEffectMaturityYears": 24,
+  "penetrationEffectStartYear": 2000,
+  "penetrationEffectMaturityYears": 24,
   "healthMortalityProtection": 0.8,
+  "electricityMortalityProtection": 0.1,
+  "mediaHealthMortalityProtection": 0.035,
+  "elderlyShareMortalityPressure": 0.65,
   "annualUrbanMigrationRate": 0.021,
-  "monthlyAdjustmentSpeed": 0.08
+  "monthlyAdjustmentSpeed": 0.08,
+  "urbanMigrationElectricityWeight": 0.06,
+  "urbanMigrationMediaWeight": 0.04,
+  "urbanMigrationWorkingAgeWeight": 0.05
 }

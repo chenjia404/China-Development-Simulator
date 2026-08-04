@@ -24,6 +24,7 @@ import { ensureAgricultureSystemState } from "../economy/agriculture-rural";
 import { ensureInfrastructureResourceState } from "../economy/energy-transport-environment";
 import { ensureHumanDevelopmentState } from "../society/human-development";
 import { ensureUrbanHousingState } from "../society/housing-urbanization";
+import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
 import { ensureRegionalEconomyState } from "../economy/regional-economy";
 import { ensureWorldTradeNetworkState } from "../economy/international-network";
 import { ensureWorldCountriesState } from "../world/countries";
@@ -92,6 +93,7 @@ export function deserializeGameState(serialized: string): GameState {
   ensureInfrastructureResourceState(state.nation);
   ensureHumanDevelopmentState(state.nation);
   ensureUrbanHousingState(state.nation);
+  ensureInfrastructurePenetrationState(state.nation);
   ensureRegionalEconomyState(state.nation);
   ensureWorldCountriesState(state.world);
   ensureForeignMarketState(state);

@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "description": "电力、电视、手机与互联网普及率的目标构成与月度收敛速度。",
+    "sources": [
+      "https://www.stats.gov.cn/sj/ndsj/2024/indexch.htm",
+      "https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=CN"
+    ]
+  },
+  "electricityAdjustmentSpeed": 0.018,
+  "televisionAdjustmentSpeed": 0.022,
+  "mobileAdjustmentSpeed": 0.035,
+  "internetAdjustmentSpeed": 0.04,
+  "electricityPerCapitaSaturation": 6800,
+  "electrificationStartYear": 1949,
+  "electrificationMaturityYears": 48,
+  "televisionBroadcastStartYear": 1958,
+  "mobileCommercialStartYear": 1992,
+  "internetCommercialStartYear": 1995,
+  "electricityTargetWeights": {
+    "energySupplyRatio": 0.22,
+    "perCapitaElectricity": 0.34,
+    "urbanization": 0.28,
+    "infrastructureIndex": 0.16
+  },
+  "televisionTargetWeights": {
+    "electricity": 0.45,
+    "urbanization": 0.22,
+    "incomeDevelopment": 0.18,
+    "infrastructureIndex": 0.15
+  },
+  "mobileTargetWeights": {
+    "technologyAdoption": 0.34,
+    "electricity": 0.24,
+    "incomeDevelopment": 0.22,
+    "urbanization": 0.12,
+    "infrastructureIndex": 0.08
+  },
+  "internetTargetWeights": {
+    "mobile": 0.28,
+    "technologyAdoption": 0.24,
+    "educationIndex": 0.2,
+    "urbanization": 0.14,
+    "incomeDevelopment": 0.14
+  }
+}
