@@ -5,12 +5,17 @@ export function isWorldGdpLeader(state: GameState): boolean {
   return state.world.rankings.nominalGDP.china === 1;
 }
 
+/** 是否已记录胜利年份（排除 null / undefined）。 */
+export function hasRecordedVictory(state: GameState): boolean {
+  return typeof state.nation.victoryYear === "number";
+}
+
 /**
  * 在年度世界排名结算后调用；首次登顶时记录胜利年份。
  * 已记录胜利年份后不再改写，保证存档连续性。
  */
 export function checkVictoryCondition(state: GameState): void {
-  if (state.nation.victoryYear !== null) return;
+  if (hasRecordedVictory(state)) return;
   if (!isWorldGdpLeader(state)) return;
   state.nation.victoryYear = state.nation.date.year;
 }
@@ -27,8 +32,8 @@ export function inferVictoryYearFromHistory(state: GameState): number | null {
   return earliest;
 }
 
+/** 补齐缺失字段，并从年度历史回填已达成但未写入的胜利年份。 */
 export function ensureVictoryState(state: GameState): void {
-  if (state.nation.victoryYear === undefined) {
-    state.nation.victoryYear = inferVictoryYearFromHistory(state);
-  }
+  if (hasRecordedVictory(state)) return;
+  state.nation.victoryYear = inferVictoryYearFromHistory(state);
 }

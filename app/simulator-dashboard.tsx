@@ -21,6 +21,7 @@ import {
   getPlayableEndYear,
   isPastPlayableHorizon,
 } from "@/src/ui/playable-horizon";
+import { hasRecordedVictory } from "@/src/simulation/victory/victory";
 import { ShareDialog } from "./share-dialog";
 import { SourceNoticeDialog } from "./source-notice-dialog";
 import { GameGoalDialog } from "./game-goal-dialog";
@@ -2730,26 +2731,31 @@ function SettingsSection({ game }: { game: GameState }) {
 
 export function SimulatorDashboard() {
   const store = useSimulationStore();
-  const { game, activeSection, darkMode, speed, autoRunning, busy, error, initialize } = store;
-  const setAutoRunning = useSimulationStore((state) => state.setAutoRunning);
+  const {
+    game,
+    activeSection,
+    darkMode,
+    speed,
+    autoRunning,
+    busy,
+    error,
+    initialize,
+    showGameGoalPrompt,
+    gameGoalAcknowledged,
+    pendingVictoryCelebration,
+  } = store;
+  const acknowledgeGameGoal = useSimulationStore((state) => state.acknowledgeGameGoal);
+  const clearVictoryCelebration = useSimulationStore(
+    (state) => state.clearVictoryCelebration,
+  );
   const [sourceNoticeOpen, setSourceNoticeOpen] = useState(true);
-  const [gameGoalOpen, setGameGoalOpen] = useState(false);
-  const [victoryModalOpen, setVictoryModalOpen] = useState(false);
-  const initialVictoryYearRef = useRef<number | null | undefined>(undefined);
+  const [victoryReviewOpen, setVictoryReviewOpen] = useState(false);
+
+  const gameGoalOpen =
+    showGameGoalPrompt && !gameGoalAcknowledged && !sourceNoticeOpen;
+  const victoryModalOpen = pendingVictoryCelebration || victoryReviewOpen;
 
   useEffect(() => { void initialize(); }, [initialize]);
-  useEffect(() => {
-    if (!game) return;
-    if (initialVictoryYearRef.current === undefined) {
-      initialVictoryYearRef.current = game.nation.victoryYear;
-      return;
-    }
-    if (game.nation.victoryYear !== null && initialVictoryYearRef.current === null) {
-      setVictoryModalOpen(true);
-      setAutoRunning(false);
-    }
-    initialVictoryYearRef.current = game.nation.victoryYear;
-  }, [game, setAutoRunning]);
   useEffect(() => { document.documentElement.dataset.theme = darkMode ? "dark" : "light"; }, [darkMode]);
   useEffect(() => {
     if (
@@ -2791,17 +2797,14 @@ export function SimulatorDashboard() {
         <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>
         <SourceNoticeDialog
           open={sourceNoticeOpen}
-          onConfirm={() => {
-            setSourceNoticeOpen(false);
-            setGameGoalOpen(true);
-          }}
+          onConfirm={() => setSourceNoticeOpen(false)}
         />
-        <GameGoalDialog open={gameGoalOpen} onConfirm={() => setGameGoalOpen(false)} />
+        <GameGoalDialog open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
       </>
     );
   }
 
-  const hasWon = game.nation.victoryYear !== null;
+  const hasWon = hasRecordedVictory(game);
   const gdpRank = game.world.rankings.nominalGDP.china;
 
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
@@ -2842,7 +2845,7 @@ export function SimulatorDashboard() {
                   type="button"
                   className="victory-review-button"
                   disabled={busy}
-                  onClick={() => setVictoryModalOpen(true)}
+                  onClick={() => setVictoryReviewOpen(true)}
                 >
                   胜利回顾
                 </button>
@@ -2906,17 +2909,17 @@ export function SimulatorDashboard() {
         <VictoryDialog
           game={game}
           open={victoryModalOpen}
-          onContinue={() => setVictoryModalOpen(false)}
+          onContinue={() => {
+            setVictoryReviewOpen(false);
+            clearVictoryCelebration();
+          }}
         />
       </main>
       <SourceNoticeDialog
         open={sourceNoticeOpen}
-        onConfirm={() => {
-          setSourceNoticeOpen(false);
-          setGameGoalOpen(true);
-        }}
+        onConfirm={() => setSourceNoticeOpen(false)}
       />
-      <GameGoalDialog open={gameGoalOpen} onConfirm={() => setGameGoalOpen(false)} />
+      <GameGoalDialog open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
     </>
   );
 }

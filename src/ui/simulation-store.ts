@@ -18,6 +18,19 @@ import {
 import { getPlayableEndYear, isPastPlayableHorizon } from "./playable-horizon";
 import { clearAutoSave, loadAutoSave, saveAutoSave } from "./save-storage";
 import { getSimulationClient } from "./simulation-client";
+import { hasRecordedVictory } from "../simulation/victory/victory";
+
+function shouldCelebrateVictory(
+  command: SimulationCommand,
+  previousGame: GameState | null,
+  nextGame: GameState,
+): boolean {
+  if (command.type === "IMPORT_GAME" || command.type === "CREATE_GAME") {
+    return false;
+  }
+  const hadVictory = previousGame ? hasRecordedVictory(previousGame) : false;
+  return !hadVictory && hasRecordedVictory(nextGame);
+}
 
 export type SectionId =
   | "nation"
@@ -40,6 +53,12 @@ export type SectionId =
 
 interface SimulationStore {
   game: GameState | null;
+  /** 新开局（非自动存档恢复）时为 true，用于决定是否展示游戏目标提示。 */
+  showGameGoalPrompt: boolean;
+  /** 用户已确认游戏目标说明。 */
+  gameGoalAcknowledged: boolean;
+  /** 本局推进过程中首次达成胜利，用于弹出庆祝界面。 */
+  pendingVictoryCelebration: boolean;
   activeSection: SectionId;
   darkMode: boolean;
   speed: 1 | 5 | 10;
@@ -75,6 +94,8 @@ interface SimulationStore {
   setDarkMode(enabled: boolean): void;
   setSpeed(speed: 1 | 5 | 10): void;
   setAutoRunning(running: boolean): void;
+  acknowledgeGameGoal(): void;
+  clearVictoryCelebration(): void;
 }
 
 async function persist(state: GameState): Promise<void> {
@@ -87,6 +108,9 @@ async function persist(state: GameState): Promise<void> {
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
   game: null,
+  showGameGoalPrompt: false,
+  gameGoalAcknowledged: true,
+  pendingVictoryCelebration: false,
   activeSection: "nation",
   darkMode: false,
   speed: 1,
@@ -99,6 +123,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set({ busy: true, error: null });
     try {
       const saved = await loadAutoSave().catch(() => undefined);
+      const resumedFromSave = Boolean(saved);
       const client = getSimulationClient();
       let result = await client.dispatch(saved
         ? { type: "IMPORT_GAME", state: saved }
@@ -114,7 +139,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           mode: "interactive",
         });
       }
-      set({ game: result.state, busy: false });
+      set({
+        game: result.state,
+        busy: false,
+        showGameGoalPrompt: !resumedFromSave,
+        gameGoalAcknowledged: resumedFromSave,
+        pendingVictoryCelebration: false,
+      });
     } catch (error) {
       set({
         busy: false,
@@ -127,15 +158,28 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     if (get().busy) return;
     set({ busy: true, error: null });
     try {
+      const previousGame = get().game;
       const result = await getSimulationClient().dispatch(command);
       const shouldStopAuto =
         Boolean(result.state.nation.pendingHistoricalEventId) ||
         Boolean(result.state.nation.famineMortality?.pendingReport) ||
         isPastPlayableHorizon(result.state.nation.date);
+      const newlyCelebrating = shouldCelebrateVictory(
+        command,
+        previousGame,
+        result.state,
+      );
+      const pendingVictoryCelebration =
+        newlyCelebrating || get().pendingVictoryCelebration;
       set({
         game: result.state,
         busy: false,
-        autoRunning: shouldStopAuto ? false : get().autoRunning,
+        autoRunning: pendingVictoryCelebration
+          ? false
+          : shouldStopAuto
+            ? false
+            : get().autoRunning,
+        pendingVictoryCelebration,
       });
       await persist(result.state);
     } catch (error) {
@@ -256,7 +300,12 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   async newGame(seed = 1949) {
-    set({ autoRunning: false });
+    set({
+      autoRunning: false,
+      showGameGoalPrompt: true,
+      gameGoalAcknowledged: false,
+      pendingVictoryCelebration: false,
+    });
     await clearAutoSave().catch(() => undefined);
     await get().dispatch({
       type: "CREATE_GAME",
@@ -267,6 +316,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   async importSave(serialized) {
+    set({
+      showGameGoalPrompt: false,
+      gameGoalAcknowledged: true,
+      pendingVictoryCelebration: false,
+    });
     const state = deserializeGameState(serialized);
     await get().dispatch({ type: "IMPORT_GAME", state });
     await get().dispatch({
@@ -301,5 +355,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       return;
     }
     set({ autoRunning: !blockedByPopup && !pastHorizon });
+  },
+  clearVictoryCelebration() {
+    set({ pendingVictoryCelebration: false });
+  },
+  acknowledgeGameGoal() {
+    set({ gameGoalAcknowledged: true });
   },
 }));

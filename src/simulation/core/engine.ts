@@ -66,6 +66,7 @@ import {
   ensureIndustrialPolicyState,
   setIndustrialPolicyStance,
 } from "../policies/industrial-policy";
+import { ensureVictoryState } from "../victory/victory";
 
 export interface SimulationResult {
   state: GameState;
@@ -187,6 +188,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureInstitutionCausalityState(this.state.nation);
         ensureAchievementsState(this.state.nation);
         ensureHistoricalBudgetState(this.state.nation);
+        ensureVictoryState(this.state);
         break;
       case "UPDATE_BUDGET":
         ensureHistoricalBudgetState(this.state.nation);

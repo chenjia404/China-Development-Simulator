@@ -1,5 +1,6 @@
 import type { GameState } from "../../simulation/state/game-state";
 import type { AnnualSnapshot } from "../../simulation/state/history-state";
+import { hasRecordedVictory } from "../../simulation/victory/victory";
 import { formatLarge, formatPercent, formatUsd } from "../format";
 
 export interface ShareMilestoneMetric {
@@ -280,7 +281,7 @@ export const shareMilestoneDefinitions: readonly ShareMilestoneDefinition[] = [
     title: "GDP 全球第一",
     description: "名义 GDP 登顶世界第一，达成游戏胜利目标。",
     resolveReachedYear: (game) => {
-      if (game.nation.victoryYear !== null) return game.nation.victoryYear;
+      if (hasRecordedVictory(game)) return game.nation.victoryYear;
       return resolveRankMilestoneYear(game, 1);
     },
     metrics: (game, reachedYear) => {

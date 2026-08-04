@@ -1,5 +1,6 @@
 import type { GameState } from "../../simulation/state/game-state";
 import type { AnnualSnapshot } from "../../simulation/state/history-state";
+import { hasRecordedVictory } from "../../simulation/victory/victory";
 import { formatLarge, formatPercent, formatUsd } from "../format";
 
 export interface VictoryStatRow {
@@ -61,8 +62,9 @@ function resolveVictorySnapshot(
 
 /** 构建胜利页面展示数据，优先使用达成年度的年度快照。 */
 export function buildVictorySummary(game: GameState): VictorySummary | null {
-  const victoryYear = game.nation.victoryYear;
-  if (victoryYear === null) return null;
+  if (!hasRecordedVictory(game)) return null;
+
+  const victoryYear = game.nation.victoryYear as number;
 
   const data = resolveVictorySnapshot(game, victoryYear);
   const startYear = 1949;
