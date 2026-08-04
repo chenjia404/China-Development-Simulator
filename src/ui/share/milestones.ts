@@ -276,6 +276,32 @@ export const shareMilestoneDefinitions: readonly ShareMilestoneDefinition[] = [
     },
   },
   {
+    id: "gdp_rank_1",
+    title: "GDP 全球第一",
+    description: "名义 GDP 登顶世界第一，达成游戏胜利目标。",
+    resolveReachedYear: (game) => {
+      if (game.nation.victoryYear !== null) return game.nation.victoryYear;
+      return resolveRankMilestoneYear(game, 1);
+    },
+    metrics: (game, reachedYear) => {
+      const data = snapshotOrCurrentLive(game, reachedYear);
+      return [
+        {
+          label: "GDP 世界排名",
+          value: data.gdpRank === null ? "—" : `第 ${data.gdpRank} 名`,
+        },
+        {
+          label: "实际 GDP",
+          value: formatOrDash(data.realGDP, formatLarge),
+        },
+        {
+          label: "人均美元",
+          value: formatOrDash(data.currentUSDGDPPerCapita, formatUsd),
+        },
+      ];
+    },
+  },
+  {
     id: "urbanization_50",
     title: "城市化率过半",
     description: "城镇人口比重跨过 50%。",

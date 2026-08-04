@@ -23,6 +23,8 @@ import {
 } from "@/src/ui/playable-horizon";
 import { ShareDialog } from "./share-dialog";
 import { SourceNoticeDialog } from "./source-notice-dialog";
+import { GameGoalDialog } from "./game-goal-dialog";
+import { VictoryDialog } from "./victory-dialog";
 import {
   averageInternationalRelation,
   developmentRouteBlueprints,
@@ -2729,9 +2731,25 @@ function SettingsSection({ game }: { game: GameState }) {
 export function SimulatorDashboard() {
   const store = useSimulationStore();
   const { game, activeSection, darkMode, speed, autoRunning, busy, error, initialize } = store;
+  const setAutoRunning = useSimulationStore((state) => state.setAutoRunning);
   const [sourceNoticeOpen, setSourceNoticeOpen] = useState(true);
+  const [gameGoalOpen, setGameGoalOpen] = useState(false);
+  const [victoryModalOpen, setVictoryModalOpen] = useState(false);
+  const initialVictoryYearRef = useRef<number | null | undefined>(undefined);
 
   useEffect(() => { void initialize(); }, [initialize]);
+  useEffect(() => {
+    if (!game) return;
+    if (initialVictoryYearRef.current === undefined) {
+      initialVictoryYearRef.current = game.nation.victoryYear;
+      return;
+    }
+    if (game.nation.victoryYear !== null && initialVictoryYearRef.current === null) {
+      setVictoryModalOpen(true);
+      setAutoRunning(false);
+    }
+    initialVictoryYearRef.current = game.nation.victoryYear;
+  }, [game, setAutoRunning]);
   useEffect(() => { document.documentElement.dataset.theme = darkMode ? "dark" : "light"; }, [darkMode]);
   useEffect(() => {
     if (
@@ -2771,10 +2789,20 @@ export function SimulatorDashboard() {
     return (
       <>
         <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>
-        <SourceNoticeDialog open={sourceNoticeOpen} onConfirm={() => setSourceNoticeOpen(false)} />
+        <SourceNoticeDialog
+          open={sourceNoticeOpen}
+          onConfirm={() => {
+            setSourceNoticeOpen(false);
+            setGameGoalOpen(true);
+          }}
+        />
+        <GameGoalDialog open={gameGoalOpen} onConfirm={() => setGameGoalOpen(false)} />
       </>
     );
   }
+
+  const hasWon = game.nation.victoryYear !== null;
+  const gdpRank = game.world.rankings.nominalGDP.china;
 
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
   const playableEndYear = getPlayableEndYear();
@@ -2809,6 +2837,16 @@ export function SimulatorDashboard() {
           <header className="topbar">
             <div className="page-title"><span>{sectionTitle}</span><h1>{displayYear} 年 · 中华人民共和国</h1></div>
             <div className="top-actions">
+              {hasWon ? (
+                <button
+                  type="button"
+                  className="victory-review-button"
+                  disabled={busy}
+                  onClick={() => setVictoryModalOpen(true)}
+                >
+                  胜利回顾
+                </button>
+              ) : null}
               <button className="restart-button" disabled={busy} onClick={() => void handleRestart()}>重新开始</button>
               <button className="theme-button" onClick={() => store.setDarkMode(!darkMode)} aria-label="切换深色模式">{darkMode ? "日" : "夜"}</button>
               <div className="speed-control">{([1, 5, 10] as const).map((value) => <button className={speed === value ? "active" : ""} key={value} onClick={() => store.setSpeed(value)}>{value}×</button>)}</div>
@@ -2833,7 +2871,7 @@ export function SimulatorDashboard() {
           </header>
           {error ? <div className="error-banner">{error}</div> : null}
           <div className="workspace">
-            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
+            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成全球 GDP 第一（{game.nation.victoryYear} 年）</strong></div> : <div className="victory-goal-hint"><span>游戏目标</span><strong>GDP 全球第 {gdpRank ?? "—"} 名 → 第 1 名</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
             {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
             {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
             {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}
@@ -2865,8 +2903,20 @@ export function SimulatorDashboard() {
         ) : game.nation.famineMortality?.pendingReport ? (
           <FamineMortalityReportModal game={game} busy={busy} />
         ) : null}
+        <VictoryDialog
+          game={game}
+          open={victoryModalOpen}
+          onContinue={() => setVictoryModalOpen(false)}
+        />
       </main>
-      <SourceNoticeDialog open={sourceNoticeOpen} onConfirm={() => setSourceNoticeOpen(false)} />
+      <SourceNoticeDialog
+        open={sourceNoticeOpen}
+        onConfirm={() => {
+          setSourceNoticeOpen(false);
+          setGameGoalOpen(true);
+        }}
+      />
+      <GameGoalDialog open={gameGoalOpen} onConfirm={() => setGameGoalOpen(false)} />
     </>
   );
 }
