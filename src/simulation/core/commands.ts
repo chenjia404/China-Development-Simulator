@@ -131,6 +131,12 @@ export interface ResolveAnnualReviewCommand {
   nextPlanPriorityIds?: StrategicPriorityId[];
 }
 
+export interface ResolveFutureDecisionCommand {
+  type: "RESOLVE_FUTURE_DECISION";
+  decisionId: string;
+  choiceId: string;
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -152,4 +158,5 @@ export type SimulationCommand =
   | StartAchievementBreakthroughCommand
   | DismissFamineMortalityReportCommand
   | ResolveAnnualReviewCommand
+  | ResolveFutureDecisionCommand
   | ImportGameCommand;

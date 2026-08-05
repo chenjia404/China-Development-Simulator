@@ -17,6 +17,7 @@ import {
   getGameScenario,
   scenarioRatingNames,
 } from "../scenarios/game-scenarios";
+import { getFutureDecision } from "../future/future-era";
 
 const MAX_MONTHLY_HISTORY = 120;
 
@@ -88,6 +89,17 @@ function buildCausalDrivers(
       label: "在施国策",
       tone: "mixed",
       detail: `${state.nation.policies.length} 项普通国策处于实施或退出传导期。`,
+    });
+  }
+  if (annual.year >= 2027) {
+    const future = state.nation.futureEra;
+    drivers.push({
+      label: "未来转型",
+      tone: future.climateRisk + future.ageingPressure >
+        future.adaptationCapacity + future.careCapacity
+        ? "negative"
+        : "mixed",
+      detail: `气候风险 ${(future.climateRisk * 100).toFixed(0)}%、老龄压力 ${(future.ageingPressure * 100).toFixed(0)}%；适应能力 ${(future.adaptationCapacity * 100).toFixed(0)}%、照护能力 ${(future.careCapacity * 100).toFixed(0)}%。`,
     });
   }
   const risk = state.nation.institutions.risks[state.nation.institutions.highestRiskId];
@@ -322,6 +334,13 @@ export function recordHistory(state: GameState): void {
         .map((achievement) => `成就解锁：${achievement.name}`),
       ...completedBlueprintStageNamesForYear(state, nation.date.year)
         .map((stageName) => `蓝图任务：${stageName}`),
+      ...nation.futureEra.decisions
+        .filter((record) => record.year === nation.date.year)
+        .map((record) => {
+          const decision = getFutureDecision(record.decisionId);
+          const choice = decision?.choices.find((item) => item.id === record.choiceId);
+          return `未来抉择：${decision?.name ?? record.decisionId}（${choice?.name ?? record.choiceId}）`;
+        }),
       ...nation.modifiers
         .filter(
           (modifier) =>
@@ -329,6 +348,8 @@ export function recordHistory(state: GameState): void {
             !modifier.sourceId.startsWith("annual_focus:") &&
             !modifier.sourceId.startsWith("blueprint_mission:") &&
             !modifier.sourceId.startsWith("difficulty:") &&
+            !modifier.sourceId.startsWith("future_decision:") &&
+            !modifier.sourceId.startsWith("future_pressure:") &&
             !nation.history.historicalEvents.some(
               (event) => event.id === modifier.sourceId,
             ),

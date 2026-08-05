@@ -90,6 +90,11 @@ import {
   ensureStrategicPlanningState,
   resolveAnnualReview,
 } from "../policies/strategic-planning";
+import {
+  ensureFutureEraState,
+  getFutureDecision,
+  resolveFutureDecision,
+} from "../future/future-era";
 
 export interface SimulationResult {
   state: GameState;
@@ -158,6 +163,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureStrategicPlanningState(this.state.nation);
     ensureBlueprintMissionState(this.state);
     ensureScenarioState(this.state);
+    ensureFutureEraState(this.state);
     ensureVictoryState(this.state);
   }
 
@@ -268,6 +274,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureStrategicPlanningState(this.state.nation);
         ensureBlueprintMissionState(this.state);
         ensureScenarioState(this.state);
+        ensureFutureEraState(this.state);
         ensureVictoryState(this.state);
         break;
       case "UPDATE_BUDGET":
@@ -313,10 +320,23 @@ class DeterministicSimulationEngine implements SimulationEngine {
         setForeignPolicyDoctrine(this.state, command.doctrineId);
         break;
       case "SET_HISTORICAL_EVENT_MODE":
-        setHistoricalEventDecisionMode(this.state.nation, command.mode);
-        if (command.mode === "automatic") {
-          clearPendingFamineMortalityReport(this.state.nation);
-          clearPendingAnnualReview(this.state.nation);
+        {
+          const pendingFutureDecisionId = this.state.nation.futureEra.pendingDecisionId;
+          setHistoricalEventDecisionMode(this.state.nation, command.mode);
+          if (command.mode === "automatic") {
+            clearPendingFamineMortalityReport(this.state.nation);
+            clearPendingAnnualReview(this.state.nation);
+            if (pendingFutureDecisionId) {
+              const decision = getFutureDecision(pendingFutureDecisionId);
+              if (decision) {
+                resolveFutureDecision(
+                  this.state,
+                  decision.id,
+                  decision.defaultChoiceId,
+                );
+              }
+            }
+          }
         }
         break;
       case "RESOLVE_HISTORICAL_EVENT":
@@ -353,6 +373,9 @@ class DeterministicSimulationEngine implements SimulationEngine {
           command.annualFocusId,
           command.nextPlanPriorityIds,
         );
+        break;
+      case "RESOLVE_FUTURE_DECISION":
+        resolveFutureDecision(this.state, command.decisionId, command.choiceId);
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

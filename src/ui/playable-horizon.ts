@@ -1,18 +1,19 @@
 import type { GameState } from "../simulation/state/game-state";
 
-/** 交互游玩的可玩截止年份，与「一键模拟至当前年」一致。 */
-export function getPlayableEndYear(now = new Date()): number {
-  return now.getFullYear();
+/** 完整战役进入不确定未来时代后的统一截止年份。 */
+export const FULL_CAMPAIGN_END_YEAR = 2050;
+
+export function getPlayableEndYear(): number {
+  return FULL_CAMPAIGN_END_YEAR;
 }
 
 /** 短剧本使用自身终局年；完整战役使用全局可玩年份。 */
 export function getGamePlayableEndYear(
   game: GameState,
-  now = new Date(),
 ): number {
   return game.nation.scenario.short
     ? game.nation.scenario.endYear
-    : getPlayableEndYear(now);
+    : getPlayableEndYear();
 }
 
 /** 已越过可玩截止年（进入截止年的下一年及以后）。 */

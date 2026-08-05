@@ -22,7 +22,7 @@ import {
 describe("科技树", () => {
   it("配置中的节点、前置关系和科研成本均有效", () => {
     expect(() => validateTechnologyTreeDefinitions()).not.toThrow();
-    expect(technologyTreeDefinitions).toHaveLength(34);
+    expect(technologyTreeDefinitions).toHaveLength(42);
     expect(
       technologyTreeDefinitions.every((node) => node.industrialEffects.length > 0),
     ).toBe(true);

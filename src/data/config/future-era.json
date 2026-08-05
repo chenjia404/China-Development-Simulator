@@ -1,0 +1,299 @@
+{
+  "metadata": {
+    "description": "2027—2050 不确定未来时代。事件年份用于形成决策节奏，不代表预测必然发生；压力方向参考联合国人口展望、IPCC、IEA 与 OECD/ILO。",
+    "sources": [
+      "https://www.un.org/development/desa/pd/node/4324",
+      "https://www.ipcc.ch/report/ar6/wg2/resources/spm-headline-statements/",
+      "https://www.iea.org/reports/net-zero-roadmap-a-global-pathway-to-keep-the-15-c-goal-in-reach/a-renewed-pathway-to-net-zero-emissions",
+      "https://www.oecd.org/en/publications/oecd-employment-outlook-2023_08785bba-en/full-report/artificial-intelligence-and-jobs-no-signs-of-slowing-labour-demand-yet_5aebe670.html",
+      "https://www.ilo.org/publications/generative-ai-and-jobs-2025-update"
+    ]
+  },
+  "startYear": 2027,
+  "endYear": 2050,
+  "decisions": [
+    {
+      "id": "ai_social_contract_2028",
+      "year": 2028,
+      "month": 1,
+      "name": "人工智能社会契约",
+      "description": "通用人工智能工具开始广泛改变知识工作与制造流程，生产率、岗位替代和技能差距同时上升。",
+      "defaultChoiceId": "human_complement",
+      "choices": [
+        {
+          "id": "rapid_automation",
+          "name": "加速自动化",
+          "description": "优先释放生产率，但接受更强的就业和分配压力。",
+          "effects": ["科研与结构生产率提高", "消费、幸福与社会稳定承压"],
+          "stateAdjustments": { "aiDiffusion": 0.14, "careCapacity": 0, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.06, "durationMonths": 96 },
+            { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.003, "durationMonths": 96 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 0.975, "durationMonths": 72 },
+            { "target": "society.stability", "operation": "add", "value": -2.5, "durationMonths": 72 }
+          ]
+        },
+        {
+          "id": "human_complement",
+          "name": "人机互补与再培训",
+          "description": "把部署速度与职业教育、终身学习和劳动者转岗绑定。",
+          "effects": ["科研、人力资本和生产率稳步提升", "教育与转型财政成本增加"],
+          "stateAdjustments": { "aiDiffusion": 0.09, "careCapacity": 0.03, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.035, "durationMonths": 96 },
+            { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.05, "durationMonths": 96 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.012, "durationMonths": 72 }
+          ]
+        },
+        {
+          "id": "strict_precaution",
+          "name": "严格审慎准入",
+          "description": "优先控制算法风险和岗位冲击，接受扩散与创新速度放缓。",
+          "effects": ["稳定和制度可信度提高", "科研扩散与技术商业化放慢"],
+          "stateAdjustments": { "aiDiffusion": -0.03, "careCapacity": 0, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "society.stability", "operation": "add", "value": 1.8, "durationMonths": 72 },
+            { "target": "economy.institutionalEfficiencyTarget", "operation": "add", "value": 0.012, "durationMonths": 72 },
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 0.98, "durationMonths": 60 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ageing_social_contract_2031",
+      "year": 2031,
+      "month": 1,
+      "name": "老龄社会新契约",
+      "description": "低生育与寿命延长持续改变劳动供给、医疗照护和代际财政结构。",
+      "defaultChoiceId": "care_productivity",
+      "choices": [
+        {
+          "id": "universal_care",
+          "name": "全民长期照护",
+          "description": "快速扩展公共照护和养老金保障。",
+          "effects": ["健康、幸福与照护能力显著提高", "长期财政支出增加"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0.14, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "health.efficiency", "operation": "multiply", "value": 1.05, "durationMonths": 120 },
+            { "target": "society.happiness", "operation": "add", "value": 2.5, "durationMonths": 120 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.025, "durationMonths": 120 }
+          ]
+        },
+        {
+          "id": "care_productivity",
+          "name": "智慧照护与弹性就业",
+          "description": "以照护技术、弹性退休和社区服务平衡保障与财政。",
+          "effects": ["照护、健康和人力资本保持平衡", "需要持续科研与行政投入"],
+          "stateAdjustments": { "aiDiffusion": 0.03, "careCapacity": 0.1, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "health.efficiency", "operation": "multiply", "value": 1.035, "durationMonths": 120 },
+            { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.04, "durationMonths": 120 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.012, "durationMonths": 96 }
+          ]
+        },
+        {
+          "id": "family_responsibility",
+          "name": "家庭照护为主",
+          "description": "控制公共财政扩张，但家庭劳动与消费承担更大压力。",
+          "effects": ["财政支出压力较低", "消费、幸福与女性劳动参与机会承压"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0.035, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "fiscal.spending", "operation": "multiply", "value": 0.992, "durationMonths": 84 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 0.98, "durationMonths": 84 },
+            { "target": "society.happiness", "operation": "add", "value": -1.5, "durationMonths": 84 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "climate_resilience_2035",
+      "year": 2035,
+      "month": 1,
+      "name": "气候韧性投资窗口",
+      "description": "复合高温、洪涝和水资源风险迫使基础设施、农业和城市系统提前适应。",
+      "defaultChoiceId": "integrated_adaptation",
+      "choices": [
+        {
+          "id": "mega_engineering",
+          "name": "大型防护工程",
+          "description": "集中建设防洪、调水和城市防护体系。",
+          "effects": ["适应能力和基建保障快速提高", "财政、投资效率和生态承压"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0, "adaptationCapacity": 0.18, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.08, "durationMonths": 120 },
+            { "target": "resources.foodSupply", "operation": "multiply", "value": 1.025, "durationMonths": 120 },
+            { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.985, "durationMonths": 84 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.02, "durationMonths": 120 }
+          ]
+        },
+        {
+          "id": "integrated_adaptation",
+          "name": "城市、农业与生态协同",
+          "description": "组合早期预警、韧性城市、节水农业和生态修复。",
+          "effects": ["适应能力、粮食和健康稳步改善", "长期公共投入增加"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0, "adaptationCapacity": 0.14, "cleanEnergyTransition": 0.03 },
+          "modifiers": [
+            { "target": "resources.foodSupply", "operation": "multiply", "value": 1.02, "durationMonths": 120 },
+            { "target": "health.efficiency", "operation": "multiply", "value": 1.02, "durationMonths": 120 },
+            { "target": "transport.investmentEfficiency", "operation": "multiply", "value": 1.02, "durationMonths": 120 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.014, "durationMonths": 120 }
+          ]
+        },
+        {
+          "id": "reactive_relief",
+          "name": "灾后救助优先",
+          "description": "控制前置投资，在灾害发生后集中救助。",
+          "effects": ["短期财政投入较低", "气候、粮食和基础设施风险继续累积"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0, "adaptationCapacity": 0.03, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "fiscal.spending", "operation": "multiply", "value": 0.995, "durationMonths": 60 },
+            { "target": "resources.foodSupply", "operation": "multiply", "value": 0.985, "durationMonths": 96 },
+            { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.99, "durationMonths": 96 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clean_energy_2039",
+      "year": 2039,
+      "month": 1,
+      "name": "深度能源转型",
+      "description": "高比例可再生能源、储能、电网与工业电气化进入必须协同推进的阶段。",
+      "defaultChoiceId": "balanced_grid",
+      "choices": [
+        {
+          "id": "accelerated_transition",
+          "name": "加速零碳转型",
+          "description": "以更高投资换取更快的清洁能源扩散和出口优势。",
+          "effects": ["能源保障、绿色制造与出口提高", "财政和资本品需求显著增加"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0, "adaptationCapacity": 0.04, "cleanEnergyTransition": 0.2 },
+          "modifiers": [
+            { "target": "resources.energySupply", "operation": "multiply", "value": 1.045, "durationMonths": 132 },
+            { "target": "industry.electrical_equipment.productivity", "operation": "multiply", "value": 1.04, "durationMonths": 132 },
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025, "durationMonths": 120 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.025, "durationMonths": 120 }
+          ]
+        },
+        {
+          "id": "balanced_grid",
+          "name": "电网、储能与供给平衡",
+          "description": "同步投资清洁电源、灵活电网和储能，优先保持能源安全。",
+          "effects": ["转型速度与能源安全平衡", "财政和电网维护成本上升"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0, "adaptationCapacity": 0.03, "cleanEnergyTransition": 0.14 },
+          "modifiers": [
+            { "target": "resources.energySupply", "operation": "multiply", "value": 1.03, "durationMonths": 132 },
+            { "target": "industry.electrical_equipment.productivity", "operation": "multiply", "value": 1.025, "durationMonths": 120 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.014, "durationMonths": 108 }
+          ]
+        },
+        {
+          "id": "security_first",
+          "name": "传统能源安全优先",
+          "description": "减缓结构切换以降低短期供给风险，但承受更高气候与贸易压力。",
+          "effects": ["短期能源供给稳定", "清洁技术扩散、声誉和长期气候韧性下降"],
+          "stateAdjustments": { "aiDiffusion": 0, "careCapacity": 0, "adaptationCapacity": -0.02, "cleanEnergyTransition": 0.035 },
+          "modifiers": [
+            { "target": "resources.energySupply", "operation": "multiply", "value": 1.02, "durationMonths": 72 },
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.985, "durationMonths": 108 },
+            { "target": "diplomacy.reputationTarget", "operation": "add", "value": -2, "durationMonths": 108 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "automation_dividend_2043",
+      "year": 2043,
+      "month": 1,
+      "name": "自动化红利分配",
+      "description": "智能系统显著提高生产能力，社会必须决定生产率红利如何在投资、劳动与公共服务之间分配。",
+      "defaultChoiceId": "shared_dividend",
+      "choices": [
+        {
+          "id": "capital_deepening",
+          "name": "继续资本深化",
+          "description": "把红利优先投入下一轮研发和高端资本。",
+          "effects": ["科研、投资与先进制造提升", "消费和分配压力加大"],
+          "stateAdjustments": { "aiDiffusion": 0.1, "careCapacity": 0, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.04, "durationMonths": 96 },
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.04, "durationMonths": 96 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 0.97, "durationMonths": 96 }
+          ]
+        },
+        {
+          "id": "shared_dividend",
+          "name": "共享生产率红利",
+          "description": "通过公共服务、终身教育和收入支持扩大红利覆盖。",
+          "effects": ["消费、幸福和人力资本提高", "财政与投资积累速度承压"],
+          "stateAdjustments": { "aiDiffusion": 0.07, "careCapacity": 0.06, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "society.happiness", "operation": "add", "value": 2.5, "durationMonths": 108 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 1.025, "durationMonths": 108 },
+            { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.04, "durationMonths": 108 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.015, "durationMonths": 108 }
+          ]
+        },
+        {
+          "id": "market_distribution",
+          "name": "市场自主分配",
+          "description": "减少政府干预，让企业和劳动力市场自行调整。",
+          "effects": ["财政成本较低、民间投资增强", "幸福、稳定与技能差距风险上升"],
+          "stateAdjustments": { "aiDiffusion": 0.08, "careCapacity": -0.015, "adaptationCapacity": 0, "cleanEnergyTransition": 0 },
+          "modifiers": [
+            { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.03, "durationMonths": 96 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 0.992, "durationMonths": 84 },
+            { "target": "society.stability", "operation": "add", "value": -2, "durationMonths": 96 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "global_cooperation_2047",
+      "year": 2047,
+      "month": 1,
+      "name": "全球公共品合作",
+      "description": "气候、技术安全、传染病和跨境供应链成为相互依赖的全球公共品议题。",
+      "defaultChoiceId": "issue_coalitions",
+      "choices": [
+        {
+          "id": "multilateral_leadership",
+          "name": "承担多边领导责任",
+          "description": "投入更多外交、援助和技术公共品，换取开放市场与制度影响力。",
+          "effects": ["声誉、贸易与技术扩散提高", "财政和国内资源机会成本增加"],
+          "stateAdjustments": { "aiDiffusion": 0.04, "careCapacity": 0.02, "adaptationCapacity": 0.06, "cleanEnergyTransition": 0.04 },
+          "modifiers": [
+            { "target": "diplomacy.reputationTarget", "operation": "add", "value": 5, "durationMonths": 120 },
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.03, "durationMonths": 120 },
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.02, "durationMonths": 120 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.018, "durationMonths": 120 }
+          ]
+        },
+        {
+          "id": "issue_coalitions",
+          "name": "议题联盟合作",
+          "description": "在气候、健康、贸易与技术标准上分别建立务实联盟。",
+          "effects": ["关系、贸易和适应能力平衡改善", "需要持续外交资源"],
+          "stateAdjustments": { "aiDiffusion": 0.025, "careCapacity": 0.015, "adaptationCapacity": 0.045, "cleanEnergyTransition": 0.025 },
+          "modifiers": [
+            { "target": "diplomacy.reputationTarget", "operation": "add", "value": 3, "durationMonths": 108 },
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.018, "durationMonths": 108 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.008, "durationMonths": 96 }
+          ]
+        },
+        {
+          "id": "strategic_autonomy",
+          "name": "战略自主与内循环",
+          "description": "降低外部依赖并建设冗余供应链，接受市场与技术交流损失。",
+          "effects": ["国内投资和安全韧性提高", "出口、外资和声誉承压"],
+          "stateAdjustments": { "aiDiffusion": -0.015, "careCapacity": 0, "adaptationCapacity": 0.025, "cleanEnergyTransition": 0.02 },
+          "modifiers": [
+            { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.025, "durationMonths": 108 },
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 0.98, "durationMonths": 108 },
+            { "target": "trade.foreignInvestment", "operation": "multiply", "value": 0.97, "durationMonths": 108 },
+            { "target": "diplomacy.reputationTarget", "operation": "add", "value": -2, "durationMonths": 96 }
+          ]
+        }
+      ]
+    }
+  ]
+}

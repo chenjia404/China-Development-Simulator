@@ -4,7 +4,9 @@
     "sources": [
       "https://www.stats.gov.cn/zs/tjws/tjbz/202301/t20230101_1903766.html",
       "https://www.stats.gov.cn/sj/zxfb/202412/t20241226_1957891.html",
-      "https://www.nber.org/papers/w27107"
+      "https://www.nber.org/papers/w27107",
+      "https://www.iea.org/reports/net-zero-roadmap-a-global-pathway-to-keep-the-15-c-goal-in-reach/a-renewed-pathway-to-net-zero-emissions",
+      "https://www.oecd.org/en/publications/oecd-employment-outlook-2023_08785bba-en/full-report/artificial-intelligence-and-jobs-no-signs-of-slowing-labour-demand-yet_5aebe670.html"
     ]
   },
   "researchAllocationRate": 0.8,
@@ -551,6 +553,138 @@
         { "industryId": "electronics_communications", "productivityMultiplier": 1.08, "exportMultiplier": 1.09 },
         { "industryId": "precision_medical", "productivityMultiplier": 1.06, "exportMultiplier": 1.07 },
         { "industryId": "aerospace_advanced", "productivityMultiplier": 1.055, "exportMultiplier": 1.05 }
+      ]
+    },
+    {
+      "id": "advanced_ai_compute",
+      "name": "先进智能算力与基础模型",
+      "category": "智能制造",
+      "description": "建设高效智能芯片、算力网络、基础模型和可信评测体系，为广泛的人机协同提供底座。",
+      "researchCost": 380,
+      "requiredEducationIndex": 84,
+      "requiredTechnologyIndex": 106,
+      "prerequisiteIds": ["artificial_intelligence", "integrated_circuit_equipment", "digital_networks"],
+      "industryTier": 7,
+      "effects": ["提高智能算力与模型能力", "增强电子信息和精密设备外溢"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.075, "exportMultiplier": 1.08 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.025, "exportMultiplier": 1.03 }
+      ]
+    },
+    {
+      "id": "autonomous_industrial_systems",
+      "name": "自主工业系统",
+      "category": "智能制造",
+      "description": "把智能体、机器人、数字孪生和柔性供应链整合为可自适应的复杂生产网络。",
+      "researchCost": 470,
+      "requiredEducationIndex": 87,
+      "requiredTechnologyIndex": 114,
+      "prerequisiteIds": ["advanced_ai_compute", "intelligent_manufacturing"],
+      "industryTier": 7,
+      "effects": ["提高复杂制造的柔性和良率", "降低多品种生产的组织损耗"],
+      "industrialEffects": [
+        { "industryId": "general_machinery", "productivityMultiplier": 1.075, "exportMultiplier": 1.065 },
+        { "industryId": "transport_equipment", "productivityMultiplier": 1.04, "exportMultiplier": 1.04 },
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.035, "exportMultiplier": 1.035 }
+      ]
+    },
+    {
+      "id": "next_generation_energy_storage",
+      "name": "下一代储能体系",
+      "category": "电气能源",
+      "description": "发展长时储能、固态电池、氢能调峰和电力电子控制，吸收高比例波动性清洁能源。",
+      "researchCost": 420,
+      "requiredEducationIndex": 85,
+      "requiredTechnologyIndex": 108,
+      "prerequisiteIds": ["renewable_energy_equipment", "advanced_materials", "power_equipment"],
+      "industryTier": 7,
+      "effects": ["提高电网灵活性", "扩大清洁能源装备出口"],
+      "industrialEffects": [
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.08, "exportMultiplier": 1.085 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.025, "exportMultiplier": 1.025 }
+      ]
+    },
+    {
+      "id": "advanced_nuclear_and_grid",
+      "name": "先进核能与智能电网",
+      "category": "电气能源",
+      "description": "发展更安全灵活的核能系统、广域电网协调和高可靠电力基础设施。",
+      "researchCost": 530,
+      "requiredEducationIndex": 89,
+      "requiredTechnologyIndex": 122,
+      "prerequisiteIds": ["next_generation_energy_storage", "advanced_energy_systems", "instrumentation"],
+      "industryTier": 7,
+      "effects": ["增强低碳基荷和电网安全", "提高大型能源装备能力"],
+      "industrialEffects": [
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.07, "exportMultiplier": 1.065 },
+        { "industryId": "basic_materials", "productivityMultiplier": 1.025, "exportMultiplier": 1.02 },
+        { "industryId": "construction", "productivityMultiplier": 1.02, "exportMultiplier": 1.015 }
+      ]
+    },
+    {
+      "id": "precision_biomedicine",
+      "name": "精准生物医学",
+      "category": "化工医药",
+      "description": "融合多组学、智能诊疗、生物制造和个体化干预，提高健康寿命与医疗效率。",
+      "researchCost": 490,
+      "requiredEducationIndex": 90,
+      "requiredTechnologyIndex": 118,
+      "prerequisiteIds": ["pharmaceutical_synthesis", "medical_devices", "advanced_ai_compute"],
+      "industryTier": 7,
+      "effects": ["提高精准诊疗和生物制造能力", "增强医疗设备与医药出口"],
+      "industrialEffects": [
+        { "industryId": "precision_medical", "productivityMultiplier": 1.085, "exportMultiplier": 1.085 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.06, "exportMultiplier": 1.065 }
+      ]
+    },
+    {
+      "id": "climate_resilient_agriculture",
+      "name": "气候韧性农业",
+      "category": "农业",
+      "description": "利用精准育种、智能灌溉、环境感知和土壤修复提高极端气候下的稳产能力。",
+      "researchCost": 410,
+      "requiredEducationIndex": 84,
+      "requiredTechnologyIndex": 110,
+      "prerequisiteIds": ["modern_agronomy", "advanced_ai_compute", "advanced_materials"],
+      "industryTier": 7,
+      "effects": ["提高农业气候适应能力", "改善食品加工原料稳定性"],
+      "industrialEffects": [
+        { "industryId": "consumer_goods", "productivityMultiplier": 1.055, "exportMultiplier": 1.045 },
+        { "industryId": "chemicals_pharmaceuticals", "productivityMultiplier": 1.02, "exportMultiplier": 1.02 }
+      ]
+    },
+    {
+      "id": "quantum_sensing_communications",
+      "name": "量子传感与通信",
+      "category": "电子信息",
+      "description": "发展高精度量子测量、导航、计时和安全通信，服务科研、制造与关键基础设施。",
+      "researchCost": 620,
+      "requiredEducationIndex": 93,
+      "requiredTechnologyIndex": 135,
+      "prerequisiteIds": ["advanced_ai_compute", "advanced_materials", "aerospace_systems"],
+      "industryTier": 7,
+      "effects": ["提高极限测量与安全通信能力", "增强精密制造和航天外溢"],
+      "industrialEffects": [
+        { "industryId": "electronics_communications", "productivityMultiplier": 1.06, "exportMultiplier": 1.065 },
+        { "industryId": "precision_medical", "productivityMultiplier": 1.045, "exportMultiplier": 1.045 },
+        { "industryId": "aerospace_advanced", "productivityMultiplier": 1.045, "exportMultiplier": 1.04 }
+      ]
+    },
+    {
+      "id": "circular_manufacturing_systems",
+      "name": "循环制造系统",
+      "category": "资源材料",
+      "description": "通过全生命周期设计、材料追踪、高值回收和再制造降低先进工业的资源与碳约束。",
+      "researchCost": 560,
+      "requiredEducationIndex": 90,
+      "requiredTechnologyIndex": 128,
+      "prerequisiteIds": ["autonomous_industrial_systems", "next_generation_energy_storage", "advanced_materials"],
+      "industryTier": 7,
+      "effects": ["降低制造资源约束", "提高材料与装备的循环利用效率"],
+      "industrialEffects": [
+        { "industryId": "basic_materials", "productivityMultiplier": 1.07, "exportMultiplier": 1.055 },
+        { "industryId": "general_machinery", "productivityMultiplier": 1.04, "exportMultiplier": 1.04 },
+        { "industryId": "electrical_equipment", "productivityMultiplier": 1.035, "exportMultiplier": 1.035 }
       ]
     }
   ]

@@ -996,6 +996,27 @@ export interface ScenarioState {
   lastEvaluatedYear: number | null;
 }
 
+export interface FutureEraDecisionRecord {
+  decisionId: string;
+  decisionName: string;
+  choiceId: string;
+  choiceName: string;
+  year: number;
+  month: number;
+}
+
+/** 2027—2050 的人口、气候、智能化和能源转型压力库存。 */
+export interface FutureEraState {
+  climateRisk: number;
+  ageingPressure: number;
+  aiDiffusion: number;
+  cleanEnergyTransition: number;
+  adaptationCapacity: number;
+  careCapacity: number;
+  pendingDecisionId: string | null;
+  decisions: FutureEraDecisionRecord[];
+}
+
 export interface StrategicPlanningState {
   /** 当前五年规划的起止年份，均为包含端点。 */
   planStartYear: number;
@@ -1088,6 +1109,8 @@ export interface NationState {
   openingChoices?: OpeningChoices;
   /** 当前完整战役或短剧本状态。 */
   scenario: ScenarioState;
+  /** 2027 年后启用的不确定未来时代状态。 */
+  futureEra: FutureEraState;
   /** 年度复盘、年度重点与五年规划状态。 */
   strategicPlanning: StrategicPlanningState;
   /** 开局蓝图三阶段任务链进度。 */

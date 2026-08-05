@@ -24,6 +24,10 @@ import { calculateWorldRankings } from "../world/rankings";
 import { checkVictoryCondition } from "../victory/victory";
 import { updateBlueprintMission } from "../policies/blueprint-missions";
 import { updateScenarioProgress } from "../scenarios/game-scenarios";
+import {
+  checkFutureDecision,
+  updateFutureEra,
+} from "../future/future-era";
 import { isEndOfYear } from "./time";
 import { recordHistory } from "../reports/history";
 import { updatePolicyEnvironment } from "../policies/policy-engine";
@@ -78,10 +82,13 @@ export function simulateMonth(
   eventRandom: RandomGenerator,
 ): boolean {
   if (hasPendingAnnualReview(state.nation)) return false;
+  if (state.nation.futureEra?.pendingDecisionId) return false;
   checkHistoricalEvents(state.nation);
   if (state.nation.pendingHistoricalEventId) return false;
+  if (checkFutureDecision(state)) return false;
   if (hasPendingFamineMortalityReport(state.nation)) return false;
   checkRandomEvents(state.nation, eventRandom);
+  updateFutureEra(state);
   updatePolicyEnvironment(state.nation);
   updateIndustrialPolicy(state.nation);
   updateEconomicCoordination(state.nation);

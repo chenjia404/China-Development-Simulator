@@ -93,6 +93,21 @@ export function AnnualReviewDialog({ game, busy }: AnnualReviewDialogProps) {
           </section>
         </div>
 
+        {reviewYear >= 2027 ? (
+          <section className="annual-victory-section">
+            <div>
+              <h3>未来时代压力</h3>
+              <p>这些是持续变化的系统库存，会与政策选择共同影响后续年度。</p>
+            </div>
+            <div className="future-pressure-strip">
+              <span>气候风险 {(game.nation.futureEra.climateRisk * 100).toFixed(0)}%</span>
+              <span>老龄压力 {(game.nation.futureEra.ageingPressure * 100).toFixed(0)}%</span>
+              <span>适应能力 {(game.nation.futureEra.adaptationCapacity * 100).toFixed(0)}%</span>
+              <span>照护能力 {(game.nation.futureEra.careCapacity * 100).toFixed(0)}%</span>
+            </div>
+          </section>
+        ) : null}
+
         <section className="annual-victory-section">
           <div>
             <h3>国家目标进度</h3>

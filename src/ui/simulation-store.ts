@@ -92,6 +92,7 @@ interface SimulationStore {
     annualFocusId: StrategicPriorityId,
     nextPlanPriorityIds?: StrategicPriorityId[],
   ): Promise<void>;
+  resolveFutureDecision(decisionId: string, choiceId: string): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   startAchievementBreakthrough(achievementId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
@@ -190,6 +191,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         Boolean(result.state.nation.pendingHistoricalEventId) ||
         Boolean(result.state.nation.famineMortality?.pendingReport) ||
         result.state.nation.strategicPlanning.pendingReviewYear !== null ||
+        result.state.nation.futureEra.pendingDecisionId !== null ||
         isPastPlayableHorizon(
           result.state.nation.date,
           getGamePlayableEndYear(result.state),
@@ -298,6 +300,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       type: "RESOLVE_ANNUAL_REVIEW",
       annualFocusId,
       nextPlanPriorityIds,
+    });
+  },
+
+  async resolveFutureDecision(decisionId, choiceId) {
+    await get().dispatch({
+      type: "RESOLVE_FUTURE_DECISION",
+      decisionId,
+      choiceId,
     });
   },
 
@@ -422,6 +432,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       Boolean(game?.nation.pendingHistoricalEventId) ||
       Boolean(game?.nation.famineMortality?.pendingReport) ||
       game?.nation.strategicPlanning.pendingReviewYear !== null;
+    const blockedByFutureDecision = Boolean(game?.nation.futureEra.pendingDecisionId);
     const pastHorizon = game
       ? isPastPlayableHorizon(game.nation.date, getGamePlayableEndYear(game))
       : false;
@@ -430,7 +441,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       set({ autoRunning: false });
       return;
     }
-    set({ autoRunning: !blockedByPopup && !pastHorizon });
+    set({ autoRunning: !blockedByPopup && !blockedByFutureDecision && !pastHorizon });
   },
   clearVictoryCelebration() {
     set({ pendingVictoryCelebration: false });

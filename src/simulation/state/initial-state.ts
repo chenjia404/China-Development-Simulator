@@ -93,6 +93,7 @@ import {
   createInitialScenarioState,
   ensureScenarioState,
 } from "../scenarios/game-scenarios";
+import { createInitialFutureEraState } from "../future/future-era";
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
 const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
@@ -443,6 +444,7 @@ export function createInitialGameState(
       policyProgress: openingSetup.policyProgress,
       openingChoices: openingSetup.openingChoices,
       scenario: createInitialScenarioState(openingChoices),
+      futureEra: createInitialFutureEraState(),
       strategicPlanning: initialStrategicPlanning,
       blueprintMission: createInitialBlueprintMissionState(
         openingChoices?.developmentBlueprintId,
