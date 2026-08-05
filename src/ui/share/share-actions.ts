@@ -9,6 +9,14 @@ export interface ShareActionResult {
   message: string;
 }
 
+/** 海报出图选项。默认按手机竖屏画布 1080×1440。 */
+export interface RenderPosterOptions {
+  width?: number;
+  height?: number;
+  backgroundColor?: string;
+  pixelRatio?: number;
+}
+
 function triggerDownload(href: string, fileName: string): void {
   const anchor = document.createElement("a");
   anchor.href = href;
@@ -20,7 +28,10 @@ function triggerDownload(href: string, fileName: string): void {
 }
 
 /** 将海报 DOM 渲染为 PNG data URL。 */
-export async function renderPosterDataUrl(element: HTMLElement): Promise<string> {
+export async function renderPosterDataUrl(
+  element: HTMLElement,
+  options: RenderPosterOptions = {},
+): Promise<string> {
   const { toPng } = await import("html-to-image");
   // 等一帧，避免刚切换卡片类型时字体/布局未完成就截图
   await new Promise<void>((resolve) => {
@@ -29,10 +40,10 @@ export async function renderPosterDataUrl(element: HTMLElement): Promise<string>
   try {
     return await toPng(element, {
       cacheBust: true,
-      pixelRatio: 2,
-      backgroundColor: "#f7f4ef",
-      width: SHARE_POSTER_WIDTH,
-      height: SHARE_POSTER_HEIGHT,
+      pixelRatio: options.pixelRatio ?? 2,
+      backgroundColor: options.backgroundColor ?? "#f7f4ef",
+      width: options.width ?? SHARE_POSTER_WIDTH,
+      height: options.height ?? SHARE_POSTER_HEIGHT,
       style: {
         transform: "none",
         margin: "0",
@@ -49,9 +60,10 @@ export async function renderPosterDataUrl(element: HTMLElement): Promise<string>
 export async function downloadPng(
   element: HTMLElement,
   fileName: string,
+  options?: RenderPosterOptions,
 ): Promise<ShareActionResult> {
   try {
-    const dataUrl = await renderPosterDataUrl(element);
+    const dataUrl = await renderPosterDataUrl(element, options);
     triggerDownload(dataUrl, fileName);
     return {
       ok: true,
@@ -120,11 +132,16 @@ export async function shareNative(options: {
   /** 降级复制时使用；默认回退到 text。 */
   clipboardText?: string;
   url?: string;
+  renderOptions?: RenderPosterOptions;
 }): Promise<ShareActionResult> {
   const clipboardPayload = options.clipboardText ?? options.text;
   try {
     if (typeof navigator.share !== "function") {
-      const download = await downloadPng(options.element, options.fileName);
+      const download = await downloadPng(
+        options.element,
+        options.fileName,
+        options.renderOptions,
+      );
       if (!download.ok) return download;
       const copied = await copyText(clipboardPayload);
       return {
@@ -136,7 +153,7 @@ export async function shareNative(options: {
       };
     }
 
-    const dataUrl = await renderPosterDataUrl(options.element);
+    const dataUrl = await renderPosterDataUrl(options.element, options.renderOptions);
     const file = dataUrlToFile(dataUrl, options.fileName);
     const withFiles = {
       title: options.title,

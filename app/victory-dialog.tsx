@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { GameState } from "@/src/simulation";
 import { buildVictorySummary } from "@/src/ui/victory/victory-stats";
 import { downloadPng } from "@/src/ui/share";
+import { VictoryPoster } from "./victory-poster";
 
 interface VictoryDialogProps {
   game: GameState;
@@ -39,6 +40,21 @@ export function VictoryDialog({ game, open, onContinue }: VictoryDialogProps) {
 
   const fileName = `china-dev-sim-victory-${summary.victoryYear}.png`;
 
+  const handleDownload = () => {
+    if (busy) return;
+    if (!captureRef.current) {
+      setStatus("海报尚未就绪，请稍后重试");
+      return;
+    }
+    setBusy(true);
+    setStatus(null);
+    void downloadPng(captureRef.current, fileName, {
+      backgroundColor: "#0f1f3d",
+    })
+      .then((result) => setStatus(result.message))
+      .finally(() => setBusy(false));
+  };
+
   return (
     <div className="victory-overlay" role="presentation">
       <section
@@ -52,56 +68,29 @@ export function VictoryDialog({ game, open, onContinue }: VictoryDialogProps) {
           <h2 id="victory-title">全球 GDP 第一</h2>
           <p>
             {summary.victoryYear} 年，中华人民共和国名义 GDP 跃居世界第一。
-            你可以截图分享这一成就，也可以继续执政，追求更高的人均水平与发展质量。
+            你可以下载手机竖屏海报分享成就，也可以继续执政，追求更高的人均水平与发展质量。
           </p>
         </header>
 
-        <article ref={captureRef} className="victory-poster" aria-label="胜利成绩海报">
-          <div className="victory-poster-brand">
-            <span className="victory-poster-mark">华</span>
-            <div>
-              <strong>中国国家发展模拟器</strong>
-              <small>CHINA 1949</small>
+        <div className="victory-preview-shell">
+          <div className="victory-preview-scaler">
+            <div className="victory-poster-capture">
+              <VictoryPoster summary={summary} />
             </div>
           </div>
-          <div className="victory-poster-eyebrow">胜利 · {summary.victoryYear} 年</div>
-          <h3 className="victory-poster-title">全球第一大经济体</h3>
-          <div className="victory-poster-hero">
-            <span>{summary.hero.label}</span>
-            <strong>{summary.hero.value}</strong>
-            {summary.hero.detail ? <small>{summary.hero.detail}</small> : null}
-          </div>
-          <div className="victory-poster-metrics">
-            {summary.metrics.map((metric) => (
-              <div key={metric.label} className="victory-poster-metric">
-                <span>{metric.label}</span>
-                <strong>{metric.value}</strong>
-                {metric.detail ? <small>{metric.detail}</small> : null}
-              </div>
-            ))}
-          </div>
-          <footer className="victory-poster-footer">
-            <span>1949 起局 · 种子 {summary.seed}</span>
-            <span>长按或下载图片即可分享</span>
-          </footer>
-        </article>
+        </div>
+
+        {/* 不受预览缩放 transform 影响的离屏节点，专供出图 */}
+        <div className="victory-poster-offscreen" aria-hidden="true">
+          <VictoryPoster ref={captureRef} summary={summary} />
+        </div>
 
         <div className="victory-actions">
           <button
             type="button"
             className="victory-secondary"
             disabled={busy}
-            onClick={() => {
-              if (!captureRef.current) {
-                setStatus("海报尚未就绪，请稍后重试");
-                return;
-              }
-              setBusy(true);
-              setStatus(null);
-              void downloadPng(captureRef.current, fileName)
-                .then((result) => setStatus(result.message))
-                .finally(() => setBusy(false));
-            }}
+            onClick={handleDownload}
           >
             下载截图
           </button>
@@ -114,7 +103,7 @@ export function VictoryDialog({ game, open, onContinue }: VictoryDialogProps) {
             继续执政
           </button>
         </div>
-        {status ? <p className="victory-status">{status}</p> : null}
+        {status ? <p className="victory-status" role="status">{status}</p> : null}
       </section>
     </div>
   );

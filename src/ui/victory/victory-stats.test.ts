@@ -33,7 +33,10 @@ describe("buildVictorySummary", () => {
     const summary = buildVictorySummary(game);
     expect(summary).not.toBeNull();
     expect(summary?.victoryYear).toBe(2010);
+    expect(summary?.yearsPlayed).toBe(61);
     expect(summary?.hero.value).toBe("第 1 名");
     expect(summary?.metrics.some((metric) => metric.label === "综合评分")).toBe(true);
+    expect(summary?.metrics.some((metric) => metric.label === "历时")).toBe(false);
+    expect(summary?.metrics).toHaveLength(6);
   });
 });

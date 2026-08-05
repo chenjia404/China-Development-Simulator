@@ -26,5 +26,6 @@ export {
   downloadPng,
   renderPosterDataUrl,
   shareNative,
+  type RenderPosterOptions,
   type ShareActionResult,
 } from "./share-actions";

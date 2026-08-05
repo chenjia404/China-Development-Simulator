@@ -104,11 +104,6 @@ export function buildVictorySummary(game: GameState): VictorySummary | null {
         label: "幸福度",
         value: data.happinessIndex.toFixed(1),
       },
-      {
-        label: "历时",
-        value: `${victoryYear - startYear} 年`,
-        detail: `${startYear} 年起局 · 种子 ${game.seed}`,
-      },
     ],
   };
 }
