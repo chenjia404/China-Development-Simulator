@@ -467,9 +467,9 @@ export function createInitialGameState(
   updateNationalAccounts(state.nation);
   updateAgricultureSystem(state.nation, true);
   updatePublicTransport(state.nation, true);
+  updateInfrastructurePenetration(state.nation, true);
   updateElectricitySystem(state.nation, true);
   updateInfrastructureResources(state.nation, true);
-  updateInfrastructurePenetration(state.nation, true);
   updateHumanDevelopment(state.nation);
   updateUrbanHousing(state.nation, true);
   updateRegionalEconomy(state.nation);

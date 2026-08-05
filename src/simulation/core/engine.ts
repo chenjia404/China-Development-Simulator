@@ -146,12 +146,12 @@ class DeterministicSimulationEngine implements SimulationEngine {
     refreshEconomicCoordinationDerivedShares(this.state.nation);
     ensureFinancialSystemState(this.state);
     ensureAgricultureSystemState(this.state.nation);
+    ensureInfrastructurePenetrationState(this.state.nation);
     ensureElectricitySystemState(this.state.nation);
     ensureInfrastructureResourceState(this.state.nation);
     ensureTransportState(this.state.nation);
     ensureHumanDevelopmentState(this.state.nation);
     ensureUrbanHousingState(this.state.nation);
-    ensureInfrastructurePenetrationState(this.state.nation);
     ensureRegionalEconomyState(this.state.nation);
     ensureWorldCountriesState(this.state.world);
     ensureForeignMarketState(this.state);
@@ -257,12 +257,12 @@ class DeterministicSimulationEngine implements SimulationEngine {
         refreshEconomicCoordinationDerivedShares(this.state.nation);
         ensureFinancialSystemState(this.state);
         ensureAgricultureSystemState(this.state.nation);
+        ensureInfrastructurePenetrationState(this.state.nation);
         ensureElectricitySystemState(this.state.nation);
         ensureInfrastructureResourceState(this.state.nation);
         ensureTransportState(this.state.nation);
         ensureHumanDevelopmentState(this.state.nation);
         ensureUrbanHousingState(this.state.nation);
-        ensureInfrastructurePenetrationState(this.state.nation);
         ensureRegionalEconomyState(this.state.nation);
         ensureWorldCountriesState(this.state.world);
         ensureForeignMarketState(this.state);

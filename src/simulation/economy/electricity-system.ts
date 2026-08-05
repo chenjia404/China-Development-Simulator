@@ -9,6 +9,7 @@ import type {
   NationState,
 } from "../state/game-state";
 import { normalizedEnergyShares } from "./energy-transport-environment";
+import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
 import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
 import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
 
@@ -140,6 +141,7 @@ function updateCapacityStock(nation: NationState, shares: Record<EnergySourceId,
 }
 
 function computeConsumption(nation: NationState): ElectricitySystemState["consumption"] {
+  ensureInfrastructurePenetrationState(nation);
   const structuralDemand = Math.max(
     0,
     nation.resources.energyDemand * config.demandPerEnergyUnit,
