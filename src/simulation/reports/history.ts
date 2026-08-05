@@ -12,6 +12,7 @@ import { technologyNormalizedEffect } from "../technology/technology-growth";
 import { ensureAchievementsState } from "../events/national-achievements";
 import { endogenousRiskDefinitions } from "../institutions/institution-causality";
 import { strategicPriorityName } from "../policies/strategic-planning";
+import { completedBlueprintStageNamesForYear } from "../policies/blueprint-missions";
 
 const MAX_MONTHLY_HISTORY = 120;
 
@@ -20,6 +21,7 @@ function signedPercent(value: number): string {
 }
 
 function buildHighlights(
+  state: GameState,
   annual: AnnualSnapshot,
   previous: AnnualSnapshot | undefined,
 ): string[] {
@@ -29,12 +31,15 @@ function buildHighlights(
   const populationGrowth = previous
     ? safeDivide(annual.population, previous.population, 1) - 1
     : 0;
-  return [
+  const highlights = [
     `实际 GDP ${signedPercent(growth)}，世界排名第 ${annual.gdpRank} 名`,
     `人口 ${signedPercent(populationGrowth)}，人均 GDP ${annual.currentPriceGDPPerCapita.toFixed(0)} 元`,
     `幸福度 ${annual.happinessIndex.toFixed(1)}，贫困率 ${(annual.povertyRate * 100).toFixed(1)}%`,
     `财政余额 ${annual.fiscalBalance >= 0 ? "盈余" : "赤字"}，债务率 ${(annual.debtToGDP * 100).toFixed(1)}%`,
   ];
+  const missionStages = completedBlueprintStageNamesForYear(state, annual.year);
+  if (missionStages.length > 0) highlights.push(`蓝图阶段完成：${missionStages.join("、")}`);
+  return highlights;
 }
 
 function buildRisks(state: GameState): string[] {
@@ -306,16 +311,22 @@ export function recordHistory(state: GameState): void {
       ...nation.achievements.unlocked
         .filter((achievement) => achievement.year === nation.date.year)
         .map((achievement) => `成就解锁：${achievement.name}`),
+      ...completedBlueprintStageNamesForYear(state, nation.date.year)
+        .map((stageName) => `蓝图任务：${stageName}`),
       ...nation.modifiers
         .filter(
-          (modifier) => !nation.history.historicalEvents.some(
-            (event) => event.id === modifier.sourceId,
-          ),
+          (modifier) =>
+            !modifier.sourceId.startsWith("five_year_plan:") &&
+            !modifier.sourceId.startsWith("annual_focus:") &&
+            !modifier.sourceId.startsWith("blueprint_mission:") &&
+            !nation.history.historicalEvents.some(
+              (event) => event.id === modifier.sourceId,
+            ),
         )
         .map((modifier) => eventName(modifier.sourceId)),
     ])],
     completedProjects: [],
-    highlights: buildHighlights(annual, previous),
+    highlights: buildHighlights(state, annual, previous),
     risks: buildRisks(state),
     causalDrivers: buildCausalDrivers(state, annual, previous),
   });

@@ -1353,6 +1353,17 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .annual-victory-grid small { color: var(--muted); font-size: 9px; line-height: 1.55; }
 .annual-review-actions { display: flex; justify-content: flex-end; margin-top: 24px; }
 .annual-review-actions button { min-height: 46px; padding: 0 20px; }
+.blueprint-mission-panel { margin-bottom: 22px; padding: 18px; background: var(--panel-soft); border: 1px solid var(--line); border-radius: 14px; }
+.blueprint-mission-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.blueprint-mission-grid article { padding: 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
+.blueprint-mission-grid article.is-current { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 14%, transparent); }
+.blueprint-mission-grid article.is-completed { border-color: color-mix(in srgb, #39a66d 55%, var(--line)); }
+.blueprint-mission-grid article.is-locked { opacity: .58; }
+.blueprint-mission-grid article > span { color: var(--gold); font-size: 9px; font-weight: 700; }
+.blueprint-mission-grid h3 { margin: 7px 0; font-size: 13px; }
+.blueprint-mission-grid p, .blueprint-mission-grid small { color: var(--muted); font-size: 10px; line-height: 1.6; }
+.blueprint-mission-grid ul { display: grid; gap: 4px; margin: 10px 0; padding: 0; list-style: none; color: var(--muted); font-size: 10px; }
+.blueprint-mission-grid li.is-met { color: #39a66d; }
 
 @media (max-width: 760px) {
   .annual-review-overlay { place-items: end center; padding: 0; }
@@ -1361,5 +1372,6 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .annual-review-columns { grid-template-columns: 1fr; }
   .annual-victory-grid { grid-template-columns: 1fr; }
   .annual-priority-grid { grid-template-columns: 1fr; }
+  .blueprint-mission-grid { grid-template-columns: 1fr; }
   .annual-review-actions button { width: 100%; }
 }

@@ -72,6 +72,7 @@ import {
   setEconomicCoordinationStance,
 } from "../economy/economic-coordination";
 import { ensureVictoryState } from "../victory/victory";
+import { ensureBlueprintMissionState } from "../policies/blueprint-missions";
 import {
   clearPendingAnnualReview,
   ensureStrategicPlanningState,
@@ -143,6 +144,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureAchievementsState(this.state.nation);
     ensureHistoricalBudgetState(this.state.nation);
     ensureStrategicPlanningState(this.state.nation);
+    ensureBlueprintMissionState(this.state);
     ensureVictoryState(this.state);
   }
 
@@ -206,6 +208,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureAchievementsState(this.state.nation);
         ensureHistoricalBudgetState(this.state.nation);
         ensureStrategicPlanningState(this.state.nation);
+        ensureBlueprintMissionState(this.state);
         ensureVictoryState(this.state);
         break;
       case "UPDATE_BUDGET":

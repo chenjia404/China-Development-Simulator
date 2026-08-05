@@ -1,0 +1,222 @@
+{
+  "chains": [
+    {
+      "blueprintId": "heavy_industry_priority",
+      "name": "重工业优先任务链",
+      "stages": [
+        {
+          "id": "heavy_industry_foundation",
+          "name": "建立工业基础",
+          "description": "先形成可持续的工业、能源与基础设施底盘。",
+          "metrics": [
+            { "id": "secondary_sector_share", "label": "第二产业占比", "comparison": "at_least", "target": 0.2, "format": "percent" },
+            { "id": "energy_supply_ratio", "label": "能源满足率", "comparison": "at_least", "target": 0.9, "format": "percent" },
+            { "id": "infrastructure_index", "label": "基建指数", "comparison": "at_least", "target": 12, "format": "index" }
+          ],
+          "rewardText": ["工业产出与能源保障提升五年", "财政和居民消费承受额外压力"],
+          "completionModifiers": [
+            { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
+            { "target": "resources.energySupply", "operation": "multiply", "value": 1.015 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 0.992 }
+          ]
+        },
+        {
+          "id": "heavy_industry_system",
+          "name": "形成制造体系",
+          "description": "把基础工业扩展为具备技术层级与物流支撑的完整制造体系。",
+          "metrics": [
+            { "id": "secondary_sector_share", "label": "第二产业占比", "comparison": "at_least", "target": 0.35, "format": "percent" },
+            { "id": "industry_technology_tier", "label": "工业技术层级", "comparison": "at_least", "target": 3, "format": "count" },
+            { "id": "logistics_efficiency", "label": "物流效率", "comparison": "at_least", "target": 45, "format": "index" }
+          ],
+          "rewardText": ["机械与运输装备生产率提升五年", "能源和财政负担继续上升"],
+          "completionModifiers": [
+            { "target": "industry.general_machinery.productivity", "operation": "multiply", "value": 1.03 },
+            { "target": "industry.transport_equipment.productivity", "operation": "multiply", "value": 1.025 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.012 }
+          ]
+        },
+        {
+          "id": "heavy_industry_upgrade",
+          "name": "迈向先进工业",
+          "description": "以科技树、产业层级和人均发展完成从规模扩张到质量升级。",
+          "metrics": [
+            { "id": "completed_technologies", "label": "已完成科技节点", "comparison": "at_least", "target": 24, "format": "count" },
+            { "id": "technology_index", "label": "科技指数", "comparison": "at_least", "target": 100, "format": "index" },
+            { "id": "gdp_per_capita_usd", "label": "人均 GDP", "comparison": "at_least", "target": 12000, "format": "usd" }
+          ],
+          "rewardText": ["结构生产率和科研组织能力提升五年", "高端体系维持成本提高"],
+          "completionModifiers": [
+            { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": 0.002 },
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.025 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+          ]
+        }
+      ]
+    },
+    {
+      "blueprintId": "agriculture_first",
+      "name": "农业优先任务链",
+      "stages": [
+        {
+          "id": "agriculture_food_security",
+          "name": "稳定粮食供给",
+          "description": "优先消除基本营养风险并稳定农村社会。",
+          "metrics": [
+            { "id": "food_supply_ratio", "label": "粮食供给率", "comparison": "at_least", "target": 0.95, "format": "percent" },
+            { "id": "daily_calories", "label": "人均每日热量", "comparison": "at_least", "target": 2100, "format": "count" },
+            { "id": "stability", "label": "社会稳定", "comparison": "at_least", "target": 55, "format": "index" }
+          ],
+          "rewardText": ["粮食供给和农业投资效率提升五年", "工业资本形成速度略降"],
+          "completionModifiers": [
+            { "target": "resources.foodSupply", "operation": "multiply", "value": 1.025 },
+            { "target": "sector.primary.output", "operation": "multiply", "value": 1.02 },
+            { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.992 }
+          ]
+        },
+        {
+          "id": "agriculture_modernization",
+          "name": "推进农业现代化",
+          "description": "以教育、机械化和单位面积产出改善农村生产条件。",
+          "metrics": [
+            { "id": "grain_yield", "label": "粮食单产", "comparison": "at_least", "target": 3500, "format": "count" },
+            { "id": "mechanization_rate", "label": "农业机械化", "comparison": "at_least", "target": 0.35, "format": "percent" },
+            { "id": "education_index", "label": "教育指数", "comparison": "at_least", "target": 45, "format": "index" }
+          ],
+          "rewardText": ["农业产出和教育形成效率提升五年", "财政农业投入保持高位"],
+          "completionModifiers": [
+            { "target": "sector.primary.output", "operation": "multiply", "value": 1.025 },
+            { "target": "education.efficiency", "operation": "multiply", "value": 1.015 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+          ]
+        },
+        {
+          "id": "agriculture_shared_prosperity",
+          "name": "实现城乡共享",
+          "description": "让粮食安全转化为低贫困、较高幸福与长期自给能力。",
+          "metrics": [
+            { "id": "food_supply_ratio", "label": "粮食供给率", "comparison": "at_least", "target": 1, "format": "percent" },
+            { "id": "poverty_rate", "label": "贫困率", "comparison": "at_most", "target": 0.1, "format": "percent" },
+            { "id": "happiness", "label": "幸福度", "comparison": "at_least", "target": 65, "format": "index" }
+          ],
+          "rewardText": ["民生、消费与农业韧性提升五年", "福利保障增加财政支出"],
+          "completionModifiers": [
+            { "target": "society.happiness", "operation": "add", "value": 2 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 1.015 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+          ]
+        }
+      ]
+    },
+    {
+      "blueprintId": "education_science",
+      "name": "教育科技任务链",
+      "stages": [
+        {
+          "id": "education_universal_foundation",
+          "name": "普及基础教育",
+          "description": "先建立识字、基础教育覆盖与稳定投入能力。",
+          "metrics": [
+            { "id": "literacy_rate", "label": "识字率", "comparison": "at_least", "target": 0.65, "format": "percent" },
+            { "id": "education_index", "label": "教育指数", "comparison": "at_least", "target": 40, "format": "index" },
+            { "id": "stability", "label": "社会稳定", "comparison": "at_least", "target": 55, "format": "index" }
+          ],
+          "rewardText": ["教育效率与人力资本形成提升五年", "财政教育支出继续增加"],
+          "completionModifiers": [
+            { "target": "education.efficiency", "operation": "multiply", "value": 1.025 },
+            { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.02 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+          ]
+        },
+        {
+          "id": "education_research_system",
+          "name": "形成科研体系",
+          "description": "把高等教育、科研组织和产业科技节点连接起来。",
+          "metrics": [
+            { "id": "higher_education_rate", "label": "高等教育入学率", "comparison": "at_least", "target": 0.15, "format": "percent" },
+            { "id": "technology_index", "label": "科技指数", "comparison": "at_least", "target": 60, "format": "index" },
+            { "id": "completed_technologies", "label": "已完成科技节点", "comparison": "at_least", "target": 12, "format": "count" }
+          ],
+          "rewardText": ["科研产出与科技树研究效率提升五年", "科研组织成本抬高财政支出"],
+          "completionModifiers": [
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.03 },
+            { "target": "technology.treeResearchProgress", "operation": "multiply", "value": 1.025 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.01 }
+          ]
+        },
+        {
+          "id": "education_innovation_frontier",
+          "name": "进入创新前沿",
+          "description": "以领先科技、教育与完整技术体系形成自主创新循环。",
+          "metrics": [
+            { "id": "technology_rank", "label": "科技世界排名", "comparison": "at_most", "target": 3, "format": "rank" },
+            { "id": "education_rank", "label": "教育世界排名", "comparison": "at_most", "target": 10, "format": "rank" },
+            { "id": "completed_technologies", "label": "已完成科技节点", "comparison": "at_least", "target": 28, "format": "count" }
+          ],
+          "rewardText": ["科研人才留存与成果转化提升五年", "高水平教育科研维持成本增加"],
+          "completionModifiers": [
+            { "target": "education.researchTalentRetention", "operation": "multiply", "value": 1.03 },
+            { "target": "technology.researchOutput", "operation": "multiply", "value": 1.025 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+          ]
+        }
+      ]
+    },
+    {
+      "blueprintId": "light_export_earning",
+      "name": "轻工创汇任务链",
+      "stages": [
+        {
+          "id": "light_export_channels",
+          "name": "打开创汇渠道",
+          "description": "以开放、出口竞争力和外汇储备建立外向生产循环。",
+          "metrics": [
+            { "id": "openness", "label": "开放度", "comparison": "at_least", "target": 0.2, "format": "percent" },
+            { "id": "exports_to_gdp", "label": "出口占 GDP", "comparison": "at_least", "target": 0.08, "format": "percent" },
+            { "id": "foreign_exchange_reserves", "label": "外汇储备", "comparison": "at_least", "target": 1000000000, "format": "money" }
+          ],
+          "rewardText": ["出口竞争力和侨汇流入提升五年", "内需消费倾向略降"],
+          "completionModifiers": [
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
+            { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.02 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 0.992 }
+          ]
+        },
+        {
+          "id": "light_export_manufacturing",
+          "name": "形成轻工网络",
+          "description": "把外向市场转化为民营与混合所有制制造网络和物流能力。",
+          "metrics": [
+            { "id": "private_mixed_share", "label": "民营与混合所有制份额", "comparison": "at_least", "target": 0.35, "format": "percent" },
+            { "id": "secondary_sector_share", "label": "第二产业占比", "comparison": "at_least", "target": 0.3, "format": "percent" },
+            { "id": "logistics_efficiency", "label": "物流效率", "comparison": "at_least", "target": 45, "format": "index" }
+          ],
+          "rewardText": ["轻工产出、物流与民间投资提升五年", "外需风险暴露有所上升"],
+          "completionModifiers": [
+            { "target": "industry.consumer_goods.productivity", "operation": "multiply", "value": 1.03 },
+            { "target": "trade.logisticsEfficiency", "operation": "multiply", "value": 1.02 },
+            { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.015 },
+            { "target": "economy.consumptionPropensity", "operation": "multiply", "value": 0.995 }
+          ]
+        },
+        {
+          "id": "light_export_upgrade",
+          "name": "完成出口升级",
+          "description": "以多元市场、技术积累和高储备降低单纯依赖低端外需的风险。",
+          "metrics": [
+            { "id": "trade_agreements", "label": "贸易协定", "comparison": "at_least", "target": 5, "format": "count" },
+            { "id": "completed_technologies", "label": "已完成科技节点", "comparison": "at_least", "target": 20, "format": "count" },
+            { "id": "foreign_exchange_reserves", "label": "外汇储备", "comparison": "at_least", "target": 50000000000, "format": "money" }
+          ],
+          "rewardText": ["出口、物流与资本品进口保障提升五年", "对外部门维持成本增加"],
+          "completionModifiers": [
+            { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.025 },
+            { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.02 },
+            { "target": "fiscal.spending", "operation": "multiply", "value": 1.006 }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -22,6 +22,7 @@ import { updateWellbeing } from "../society/wellbeing";
 import { simulateWorldCountries } from "../world/world-simulation";
 import { calculateWorldRankings } from "../world/rankings";
 import { checkVictoryCondition } from "../victory/victory";
+import { updateBlueprintMission } from "../policies/blueprint-missions";
 import { isEndOfYear } from "./time";
 import { recordHistory } from "../reports/history";
 import { updatePolicyEnvironment } from "../policies/policy-engine";
@@ -130,6 +131,7 @@ export function simulateMonth(
   if (isEndOfYear(state.nation.date)) {
     calculateWorldRankings(state);
     checkVictoryCondition(state);
+    updateBlueprintMission(state);
   }
   recordHistory(state);
   if (isEndOfYear(state.nation.date)) {

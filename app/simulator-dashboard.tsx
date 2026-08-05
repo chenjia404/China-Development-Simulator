@@ -58,6 +58,7 @@ import {
   historicalInitiativeDefinitions,
   getNationalAchievementStatus,
   nationalAchievementDefinitions,
+  getBlueprintMissionStatus,
   isComparisonTargetId,
   maximumActivePolicies,
   nationalPolicyDefinitions,
@@ -1607,11 +1608,27 @@ const achievementMetricLabels: Record<string, string> = {
   institutionalEfficiency: "制度效率",
 };
 
+function formatBlueprintMetric(
+  value: number,
+  format: "percent" | "index" | "count" | "usd" | "decimal" | "money" | "rank",
+): string {
+  switch (format) {
+    case "percent": return formatPercent(value);
+    case "usd": return `$${value.toLocaleString("zh-CN", { maximumFractionDigits: 0 })}`;
+    case "money": return formatLarge(value);
+    case "rank": return `第 ${Math.round(value)} 名`;
+    case "count": return Math.round(value).toLocaleString("zh-CN");
+    case "decimal": return value.toFixed(2);
+    case "index": return value.toFixed(1);
+  }
+}
+
 function AchievementsSection({ game, busy }: { game: GameState; busy: boolean }) {
   const startAchievementBreakthrough = useSimulationStore(
     (store) => store.startAchievementBreakthrough,
   );
   const unlockedCount = game.nation.achievements?.unlocked.length ?? 0;
+  const missionStatus = getBlueprintMissionStatus(game);
   const startBreakthrough = (achievementId: string, name: string) => {
     const confirmed = window.confirm(
       `确定对“${name}”启动集中突破吗？建设期会挤出财政并写入存档。`,
@@ -1632,6 +1649,50 @@ function AchievementsSection({ game, busy }: { game: GameState; busy: boolean })
           <strong>{unlockedCount}</strong> / {nationalAchievementDefinitions.length} 项已解锁
         </div>
       </div>
+      {missionStatus.chain ? (
+        <section className="blueprint-mission-panel">
+          <div className="panel-heading">
+            <div>
+              <span className="eyebrow">开局蓝图长期任务</span>
+              <h2>{missionStatus.chain.name}</h2>
+              <p>每年十二月评估当前阶段；每年最多完成一段，奖励与代价均持续五年。</p>
+            </div>
+            <span className="history-count">
+              {game.nation.blueprintMission.completedStages.length}/{missionStatus.chain.stages.length} 阶段
+            </span>
+          </div>
+          <div className="blueprint-mission-grid">
+            {missionStatus.chain.stages.map((stage, index) => {
+              const completed = index < game.nation.blueprintMission.currentStageIndex;
+              const current = index === game.nation.blueprintMission.currentStageIndex;
+              const stageMetrics = current ? missionStatus.metrics : [];
+              return (
+                <article
+                  key={stage.id}
+                  className={completed ? "is-completed" : current ? "is-current" : "is-locked"}
+                >
+                  <span>阶段 {index + 1} · {completed ? "已完成" : current ? "进行中" : "待解锁"}</span>
+                  <h3>{stage.name}</h3>
+                  <p>{stage.description}</p>
+                  {current ? (
+                    <ul>
+                      {stageMetrics.map((metric) => (
+                        <li className={metric.met ? "is-met" : ""} key={metric.id}>
+                          {metric.label}：{formatBlueprintMetric(metric.value, metric.format)}
+                          {metric.met ? " ✓" : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <small>{stage.rewardText.join("；")}</small>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : (
+        <p className="panel-note">本局未记录开局发展蓝图，因此不会启用蓝图任务链；国家成就仍可正常解锁。</p>
+      )}
       <div className="initiative-grid">
         {nationalAchievementDefinitions.map((achievement) => {
           const status = getNationalAchievementStatus(game, achievement.id);

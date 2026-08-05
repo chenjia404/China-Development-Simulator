@@ -88,6 +88,7 @@ import {
   ensureStrategicPlanningState,
 } from "../policies/strategic-planning";
 import { createInitialVictoryState } from "../victory/victory";
+import { createInitialBlueprintMissionState } from "../policies/blueprint-missions";
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
 const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
@@ -438,6 +439,9 @@ export function createInitialGameState(
       policyProgress: openingSetup.policyProgress,
       openingChoices: openingSetup.openingChoices,
       strategicPlanning: initialStrategicPlanning,
+      blueprintMission: createInitialBlueprintMissionState(
+        openingChoices?.developmentBlueprintId,
+      ),
       projects: [],
       modifiers: [],
       achievements: createEmptyAchievementsState(),

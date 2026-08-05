@@ -1006,6 +1006,20 @@ export interface VictoryState {
   paths: Record<VictoryPathId, VictoryPathProgress>;
 }
 
+export interface BlueprintMissionCompletionRecord {
+  stageId: string;
+  stageName: string;
+  year: number;
+}
+
+/** 开局发展蓝图对应的三阶段长期任务。 */
+export interface BlueprintMissionState {
+  blueprintId: string | null;
+  currentStageIndex: number;
+  completedStages: BlueprintMissionCompletionRecord[];
+  lastEvaluatedYear: number | null;
+}
+
 export interface NationState {
   id: "china";
   name: "中国";
@@ -1045,6 +1059,8 @@ export interface NationState {
   openingChoices?: OpeningChoices;
   /** 年度复盘、年度重点与五年规划状态。 */
   strategicPlanning: StrategicPlanningState;
+  /** 开局蓝图三阶段任务链进度。 */
+  blueprintMission: BlueprintMissionState;
   projects: ProjectState[];
   modifiers: ModifierState[];
   /** 国家成就：能力分解锁与集中突破进度。 */

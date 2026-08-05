@@ -64,6 +64,7 @@ export * from "./policies/industrial-policy";
 export * from "./policies/development-routes";
 export * from "./policies/opening-routes";
 export * from "./policies/strategic-planning";
+export * from "./policies/blueprint-missions";
 export * from "./victory/victory";
 export * from "./events/event-engine";
 export * from "./events/historical-event-engine";
