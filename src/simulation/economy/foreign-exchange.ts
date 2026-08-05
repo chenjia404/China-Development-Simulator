@@ -143,10 +143,14 @@ function domesticRemittanceValue(nation: NationState): number {
 
 export function remittanceInvestmentRate(nation: NationState): number {
   return clamp(
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "capital.remittanceInvestmentRate",
-      foreignExchangeConfig.baseRemittanceInvestmentRate,
+      applyPolicyModifiers(
+        nation,
+        "capital.remittanceInvestmentRate",
+        foreignExchangeConfig.baseRemittanceInvestmentRate,
+      ),
     ),
     0,
     0.65,
@@ -346,10 +350,14 @@ export function updateForeignExchange(state: GameState): void {
     foreignExchangeConfig.remittanceAdjustmentSpeed,
   );
   const remittanceRetentionRate = clamp(
-    applyPolicyModifiers(
+    applyModifiers(
       nation,
       "trade.remittanceReserveRetention",
-      foreignExchangeConfig.remittanceSettlementRetentionRate,
+      applyPolicyModifiers(
+        nation,
+        "trade.remittanceReserveRetention",
+        foreignExchangeConfig.remittanceSettlementRetentionRate,
+      ),
     ),
     0,
     1,

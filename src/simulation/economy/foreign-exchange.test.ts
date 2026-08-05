@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { createSimulationEngine } from "../core/engine";
 import { createInitialGameState } from "../state/initial-state";
+import {
+  applyPolicyModifiers,
+  getNationalPolicy,
+} from "../policies/policy-engine";
 import { calculateGDP } from "./gdp";
 import { updateCapitalAndInvestment } from "./capital";
 import {
+  foreignExchangeInvestmentMultiplier,
   remittanceDirectedInvestment,
   remittanceDomesticIncome,
   remittanceInvestmentRate,
@@ -66,6 +71,33 @@ describe("外汇储备与侨汇", () => {
     );
   });
 
+  it("历史事件可提高侨汇转投资比例并分流更多侨汇进入资本形成", () => {
+    const baseline = createInitialGameState(1955);
+    const boosted = structuredClone(baseline);
+    boosted.nation.modifiers.push({
+      id: "test:remittance-investment-rate",
+      sourceId: "test",
+      target: "capital.remittanceInvestmentRate",
+      operation: "add",
+      value: 0.12,
+      remainingMonths: 12,
+      stackRule: "stack",
+    });
+    baseline.nation.trade.remittanceInflows = 2_000_000_000;
+    boosted.nation.trade.remittanceInflows = 2_000_000_000;
+
+    expect(remittanceInvestmentRate(boosted.nation)).toBeCloseTo(
+      remittanceInvestmentRate(baseline.nation) + 0.12,
+      6,
+    );
+    expect(remittanceDirectedInvestment(boosted.nation)).toBeGreaterThan(
+      remittanceDirectedInvestment(baseline.nation),
+    );
+    expect(remittanceDomesticIncome(boosted.nation)).toBeLessThan(
+      remittanceDomesticIncome(baseline.nation),
+    );
+  });
+
   it("历史事件也可提高侨汇到户效率并增加居民所得", () => {
     const baseline = createInitialGameState(1955);
     const boosted = structuredClone(baseline);
@@ -85,6 +117,46 @@ describe("外汇储备与侨汇", () => {
       remittanceDomesticIncome(baseline.nation),
     );
   });
+
+  it("保护侨汇权益国策满额后可长期显著提高侨汇流入", () => {
+    const policy = getNationalPolicy("remittance_protection");
+    expect(policy).toMatchObject({
+      transitionMonths: 36,
+    });
+    expect(
+      policy?.modifiers.find(
+        (modifier) => modifier.target === "trade.remittanceInflows",
+      ),
+    ).toMatchObject({ operation: "multiply", value: 1.32 });
+
+    const baseline = createSimulationEngine(createInitialGameState(1955));
+    const protectedRights = createSimulationEngine(
+      createInitialGameState(1955),
+    );
+    protectedRights.dispatch({
+      type: "SET_POLICIES",
+      policyIds: ["remittance_protection"],
+    });
+
+    // 过渡期满后再继续维持多年，确认增益不会自行消退。
+    baseline.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
+    protectedRights.dispatch({ type: "ADVANCE_MONTHS", months: 120 });
+
+    const baselineState = baseline.getState();
+    const protectedState = protectedRights.getState();
+    expect(protectedState.nation.policyProgress.remittance_protection).toBe(1);
+    expect(protectedState.nation.policies).toContain("remittance_protection");
+    expect(
+      applyPolicyModifiers(
+        protectedState.nation,
+        "trade.remittanceInflows",
+        100,
+      ),
+    ).toBeCloseTo(132, 6);
+    expect(protectedState.nation.trade.remittanceInflows).toBeGreaterThan(
+      baselineState.nation.trade.remittanceInflows * 1.18,
+    );
+  }, 20_000);
 
   it("侨汇国策会在家庭收入、投资与储备之间形成取舍", () => {
     const baseline = createInitialGameState(1949);
@@ -125,6 +197,66 @@ describe("外汇储备与侨汇", () => {
       centralizedSettlement.nation.trade.remittanceReserveContribution,
     ).toBeGreaterThan(
       baseline.nation.trade.remittanceReserveContribution,
+    );
+  });
+
+  it("更高侨汇结汇会提高资本品进口保障并缓解设备投资约束", () => {
+    const lowRemittances = createInitialGameState(1955);
+    const highRemittances = structuredClone(lowRemittances);
+    for (const state of [lowRemittances, highRemittances]) {
+      state.nation.trade.foreignExchangeReserves = 20_000_000;
+      state.nation.trade.exports = 80_000_000;
+      state.nation.trade.foreignInvestment = 0;
+      state.nation.economy.investment = 40_000_000_000;
+      state.nation.modifiers.push({
+        id: "test:no-external-borrowing",
+        sourceId: "test",
+        target: "trade.externalBorrowing",
+        operation: "override",
+        value: 0,
+        remainingMonths: 1,
+        stackRule: "replace",
+      });
+    }
+    lowRemittances.nation.trade.remittanceInflows = 40_000_000;
+    highRemittances.nation.trade.remittanceInflows = 800_000_000;
+    lowRemittances.nation.modifiers.push({
+      id: "test:low-remittance-for-capital-goods",
+      sourceId: "test",
+      target: "trade.remittanceInflows",
+      operation: "override",
+      value: 40_000_000,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+    highRemittances.nation.modifiers.push({
+      id: "test:high-remittance-for-capital-goods",
+      sourceId: "test",
+      target: "trade.remittanceInflows",
+      operation: "override",
+      value: 800_000_000,
+      remainingMonths: 1,
+      stackRule: "replace",
+    });
+
+    updateForeignExchange(lowRemittances);
+    updateForeignExchange(highRemittances);
+    updateCapitalAndInvestment(lowRemittances.nation);
+    updateCapitalAndInvestment(highRemittances.nation);
+
+    expect(highRemittances.nation.trade.remittanceReserveContribution).toBeGreaterThan(
+      lowRemittances.nation.trade.remittanceReserveContribution,
+    );
+    expect(highRemittances.nation.trade.capitalGoodsImportCoverage).toBeGreaterThan(
+      lowRemittances.nation.trade.capitalGoodsImportCoverage,
+    );
+    expect(
+      foreignExchangeInvestmentMultiplier(highRemittances.nation),
+    ).toBeGreaterThan(
+      foreignExchangeInvestmentMultiplier(lowRemittances.nation),
+    );
+    expect(highRemittances.nation.economy.capitalStock).toBeGreaterThan(
+      lowRemittances.nation.economy.capitalStock,
     );
   });
 
@@ -389,6 +521,59 @@ describe("外汇储备与侨汇", () => {
       -2,
     );
   });
+
+  it("建国后前三十年年度侨汇流入不低于工业品出口创汇", () => {
+    const industrialIds = [
+      "mining_energy",
+      "basic_materials",
+      "general_machinery",
+      "chemicals_pharmaceuticals",
+      "electrical_equipment",
+      "electronics_communications",
+      "transport_equipment",
+      "consumer_goods",
+      "construction",
+      "precision_medical",
+      "aerospace_advanced",
+    ] as const;
+    const engine = createSimulationEngine(createInitialGameState(1949));
+    const comparisons: Array<{
+      year: number;
+      remittanceInflows: number;
+      industrialExportFx: number;
+    }> = [];
+
+    for (let year = 1949; year <= 1979; year += 1) {
+      const { nation } = engine.getState();
+      const conversion =
+        nation.economy.internationalComparableGDP /
+        Math.max(nation.economy.nominalGDP, 1);
+      const industrialExportFx = industrialIds.reduce(
+        (sum, id) => sum + (nation.industries[id]?.exportValue ?? 0) * conversion,
+        0,
+      );
+      comparisons.push({
+        year: nation.date.year,
+        remittanceInflows: nation.trade.remittanceInflows,
+        industrialExportFx,
+      });
+      engine.dispatch({
+        type: "ADVANCE_MONTHS",
+        months: 12 - nation.date.month + 1,
+      });
+    }
+
+    for (const row of comparisons) {
+      if (row.year === 1949) {
+        expect(row.remittanceInflows).toBeGreaterThan(0);
+        continue;
+      }
+      expect(
+        row.remittanceInflows,
+        `${row.year} 年侨汇应不低于工业出口创汇`,
+      ).toBeGreaterThanOrEqual(row.industrialExportFx);
+    }
+  }, 20_000);
 
   it("史实路线的外储和侨汇数量级合理并稳定运行至 2026 年", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));

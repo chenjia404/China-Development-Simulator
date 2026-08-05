@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "description": "外汇储备、侨汇、资本品用汇与外债的长期参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。史实对苏还债以农产品、矿产品与轻工出口为主，historicalDebtWriteOffCapitalChargeRate 表示实货冲销中转化为资本存量损失的比例，应显著小于 1。",
+    "description": "外汇储备、侨汇、资本品用汇与外债的长期参数。金额采用与世界比较 GDP 一致的美元等值口径，历史锚点只确定数量级，不直接覆盖模拟结果。建国至改革开放前夕三十余年史实累计侨汇约 75.86 亿美元，足以覆盖同期对外贸易总逆差约 61.24 亿美元；模型锚点使该时期年度侨汇流入不低于工业品出口创汇。侨汇结汇既补充外储，也按 capitalGoodsRemittanceAllocationRate 直接支持资本品/工业设备进口用汇，再经资本品进口保障率约束设备投资。改革开放后贸易出口主导，侨汇占可比 GDP 份额回落。史实对苏还债以农产品、矿产品与轻工出口为主，historicalDebtWriteOffCapitalChargeRate 表示实货冲销中转化为资本存量损失的比例，应显著小于 1。",
     "sources": [
       "https://www.safe.gov.cn/safe/whcb/",
       "https://data.worldbank.org/indicator/BX.TRF.PWKR.CD.DT?locations=CN",
@@ -9,13 +9,14 @@
       "https://www.safe.gov.cn/safe/2016/0331/5174.html",
       "https://www.safe.gov.cn/xiamen/2019/0930/1371.html",
       "https://euroasia.cssn.cn/xsyj/xsyj_elswj/200912/t20091218_1784437.shtml",
-      "https://chinawto.mofcom.gov.cn/article/ap/p/201912/20191202923754.shtml"
+      "https://chinawto.mofcom.gov.cn/article/ap/p/201912/20191202923754.shtml",
+      "https://www.dswxyjy.org.cn/n1/2020/0708/c219022-31776014.html"
     ]
   },
   "initialForeignExchangeReserves": 150000000,
-  "initialRemittanceInflows": 200000000,
+  "initialRemittanceInflows": 250000000,
   "remittanceAdjustmentSpeed": 0.08,
-  "remittanceSettlementRetentionRate": 0.45,
+  "remittanceSettlementRetentionRate": 0.52,
   "remittanceHouseholdIncomePassThrough": 0.92,
   "baseRemittanceInvestmentRate": 0.08,
   "tradeSurplusRetentionRate": 0.012,
@@ -52,7 +53,7 @@
   "capitalGoodsExportAllocationRate": 0.18,
   "capitalGoodsReserveDrawRate": 0.12,
   "capitalGoodsFDIAllocationRate": 0.2,
-  "capitalGoodsRemittanceAllocationRate": 0.08,
+  "capitalGoodsRemittanceAllocationRate": 0.28,
   "reserveGDPShareAnchors": [
     { "year": 1949, "share": 0.0012 },
     { "year": 1978, "share": 0.005 },
@@ -64,11 +65,13 @@
     { "year": 2026, "share": 0.16 }
   ],
   "remittanceGDPShareAnchors": [
-    { "year": 1949, "share": 0.0016 },
-    { "year": 1955, "share": 0.0021 },
-    { "year": 1966, "share": 0.0008 },
-    { "year": 1979, "share": 0.00175 },
-    { "year": 1981, "share": 0.0012 },
+    { "year": 1949, "share": 0.0095 },
+    { "year": 1955, "share": 0.009 },
+    { "year": 1960, "share": 0.008 },
+    { "year": 1966, "share": 0.0085 },
+    { "year": 1972, "share": 0.0095 },
+    { "year": 1979, "share": 0.0115 },
+    { "year": 1981, "share": 0.003 },
     { "year": 1995, "share": 0.0022 },
     { "year": 2005, "share": 0.0035 },
     { "year": 2010, "share": 0.003 },

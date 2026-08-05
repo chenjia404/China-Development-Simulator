@@ -365,13 +365,14 @@
       "id": "remittance_protection",
       "name": "保护侨汇权益",
       "category": "开放",
-      "description": "保障侨眷对侨汇的所有权和使用权，改善正规汇款渠道与兑换服务，提高侨汇流入和实际到户比例。",
-      "transitionMonths": 24,
+      "description": "把保护侨汇所有权与使用权确立为长期制度：保障侨眷正当权益，畅通正规汇款与兑换渠道，持续提高侨汇流入和实际到户比例。更多结汇外汇可支持工业设备等资本品进口，缓解早期外汇瓶颈对投资与工业化的约束。政策在过渡期内渐进生效，只要维持实施，增益可长期保持。",
+      "transitionMonths": 36,
       "conflictsWith": ["centralized_fx_settlement"],
       "modifiers": [
-        { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.2 },
-        { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.04 },
-        { "target": "trade.remittanceReserveRetention", "operation": "multiply", "value": 1.05 }
+        { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.32 },
+        { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.07 },
+        { "target": "trade.remittanceReserveRetention", "operation": "multiply", "value": 1.08 },
+        { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.04 }
       ]
     },
     {

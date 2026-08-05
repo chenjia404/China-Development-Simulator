@@ -487,14 +487,19 @@ describe("确定性历史事件", () => {
     });
     expect(choices[1]).toMatchObject({
       name: "感谢抗战贡献、保护海外侨胞并保留国籍",
-      durationMonths: 60,
+      durationMonths: 144,
     });
     expect(choices[1]?.description).toContain("保护海外侨胞");
+    expect(choices[1]?.description).toContain("75.86");
+    expect(choices[1]?.description).toContain("归国");
     expect(choices[1]?.effects).toEqual(
       expect.arrayContaining([
         "保护海外侨胞权益",
         "保留华侨中国国籍",
-        "侨汇与开放度提高",
+        "侨汇、侨资与归国投资显著增强",
+        "更多外汇支持工业设备进口与资本形成",
+        "企业家能力与出口网络随归侨积累",
+        "安置与侨务支出上升",
         "东南亚关系承压",
       ]),
     );
@@ -506,8 +511,23 @@ describe("确定性历史事件", () => {
       (modifier) => modifier.target === "trade.remittanceInflows",
     )?.value;
     expect(historicalRemittance).toBe(0.97);
-    expect(retainRemittance).toBe(1.18);
+    expect(retainRemittance).toBe(1.4);
     expect(retainRemittance ?? 0).toBeGreaterThan(historicalRemittance ?? 0);
+    expect(
+      choices[1]?.modifiers.find(
+        (modifier) => modifier.target === "capital.remittanceInvestmentRate",
+      ),
+    ).toMatchObject({ operation: "add", value: 0.12 });
+    expect(
+      choices[1]?.modifiers.find(
+        (modifier) => modifier.target === "trade.foreignInvestment",
+      ),
+    ).toMatchObject({ operation: "multiply", value: 1.14 });
+    expect(
+      choices[1]?.modifiers.find(
+        (modifier) => modifier.target === "capital.privateInvestment",
+      ),
+    ).toMatchObject({ operation: "multiply", value: 1.06 });
 
     expect(
       choices[0]?.modifiers.find(
@@ -533,7 +553,7 @@ describe("确定性历史事件", () => {
       choices[1]?.modifiers.find(
         (modifier) => modifier.target === "trade.opennessTarget",
       ),
-    ).toMatchObject({ operation: "add", value: 0.04 });
+    ).toMatchObject({ operation: "add", value: 0.05 });
     expect(
       choices[0]?.modifiers.some(
         (modifier) => modifier.target === "trade.opennessTarget",
@@ -600,11 +620,39 @@ describe("确定性历史事件", () => {
     ).toBeGreaterThan(
       applyModifiers(historical.nation, "trade.opennessTarget", 0.1),
     );
+    expect(
+      applyModifiers(retained.nation, "capital.remittanceInvestmentRate", 0.08),
+    ).toBeGreaterThan(
+      applyModifiers(
+        historical.nation,
+        "capital.remittanceInvestmentRate",
+        0.08,
+      ),
+    );
+    expect(
+      applyModifiers(retained.nation, "trade.foreignInvestment", 100),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "trade.foreignInvestment", 100),
+    );
+    expect(
+      applyModifiers(retained.nation, "capital.privateInvestment", 100),
+    ).toBeGreaterThan(
+      applyModifiers(historical.nation, "capital.privateInvestment", 100),
+    );
     expect(retained.nation.trade.openness).toBeGreaterThan(
       historical.nation.trade.openness,
     );
     expect(retained.nation.trade.remittanceInflows).toBeGreaterThan(
       historical.nation.trade.remittanceInflows,
+    );
+    expect(retained.nation.trade.foreignInvestment).toBeGreaterThan(
+      historical.nation.trade.foreignInvestment,
+    );
+    expect(retained.nation.trade.capitalGoodsImportCoverage).toBeGreaterThan(
+      historical.nation.trade.capitalGoodsImportCoverage,
+    );
+    expect(retained.nation.privateEconomy.entrepreneurialCapacity).toBeGreaterThan(
+      historical.nation.privateEconomy.entrepreneurialCapacity,
     );
     expect(
       applyModifiers(retained.nation, "trade.remittanceTransferEfficiency", 1),

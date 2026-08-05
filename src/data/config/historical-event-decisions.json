@@ -163,25 +163,40 @@
       {
         "id": "retain_overseas_chinese_nationality",
         "name": "感谢抗战贡献、保护海外侨胞并保留国籍",
-        "description": "在万隆场合感谢海外华人对抗战的支持，以国家力量保护海外侨胞权益，不推动侨民放弃中国国籍，并以侨务联络强化汇款渠道与对外经贸弹性；东南亚东道国对“双重效忠”的疑虑随之上升，印尼等国关系目标承压。",
+        "description": "在万隆场合感谢海外华人对抗战的支持，以国家力量保护海外侨胞权益，不推动侨民放弃中国国籍，并以侨务联络巩固汇款、归国与侨资渠道。史实上建国至改革开放前夕三十余年累计侨汇约 75.86 亿美元，足以覆盖同期对外贸易总逆差约 61.24 亿美元；保留国籍会吸引更多华侨归国居住、回乡投资与定向侨汇，增加可用于进口工业设备的外汇，缓解资本品用汇约束并带动投资与工业化，但也抬高安置与侨务支出。东南亚东道国对“双重效忠”的疑虑随之上升，印尼等国关系目标承压。",
         "effects": [
           "保护海外侨胞权益",
           "保留华侨中国国籍",
-          "侨汇与开放度提高",
+          "侨汇、侨资与归国投资显著增强",
+          "更多外汇支持工业设备进口与资本形成",
+          "企业家能力与出口网络随归侨积累",
+          "安置与侨务支出上升",
           "东南亚关系承压"
         ],
-        "durationMonths": 60,
+        "durationMonths": 144,
         "modifiers": [
-          { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.18 },
-          { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.03 },
-          { "target": "trade.opennessTarget", "operation": "add", "value": 0.04 },
-          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.015 },
+          { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.4 },
+          { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.08 },
+          { "target": "trade.remittanceReserveRetention", "operation": "multiply", "value": 1.06 },
+          { "target": "trade.capitalGoodsImportCoverage", "operation": "multiply", "value": 1.05 },
+          { "target": "capital.remittanceInvestmentRate", "operation": "add", "value": 0.12 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.06 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.02 },
+          { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.14 },
+          { "target": "privateEconomy.entrepreneurialCapacityChange", "operation": "add", "value": 0.0024, "durationMonths": 180 },
+          { "target": "privateEconomy.exportNetworkChange", "operation": "add", "value": 0.0018, "durationMonths": 180 },
+          { "target": "privateEconomy.technologyCommercializationChange", "operation": "add", "value": 0.0012, "durationMonths": 144 },
+          { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.03 },
+          { "target": "urban.migration", "operation": "multiply", "value": 1.025 },
+          { "target": "trade.opennessTarget", "operation": "add", "value": 0.05 },
+          { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.02 },
           { "target": "diplomacy.reputationTarget", "operation": "add", "value": 2 },
           { "target": "diplomacy.relationTarget.indonesia", "operation": "add", "value": -12 },
           { "target": "diplomacy.relationTarget.india", "operation": "add", "value": -4 },
           { "target": "diplomacy.relationTarget.myanmar", "operation": "add", "value": -6 },
           { "target": "society.stability", "operation": "add", "value": 1.5 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 }
+          { "target": "society.happiness", "operation": "add", "value": 1 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.015 }
         ]
       }
     ]
