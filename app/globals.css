@@ -319,7 +319,22 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .route-blueprint-card button { width: 100%; margin-top: auto; padding: 8px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 9px; font-weight: 700; }
 .route-blueprint-card button:disabled { color: var(--green); background: transparent; border-color: color-mix(in srgb, var(--green) 35%, var(--line)); cursor: default; }
 .policy-list-heading { margin: 28px 3px 13px; padding-top: 22px; border-top: 1px solid var(--line); }
+.policy-list-heading p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+.policy-priority-section:first-of-type .policy-list-heading { margin-top: 6px; padding-top: 0; border-top: 0; }
 .policy-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.policy-recommendation-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.policy-recommendation-reasons span { padding: 4px 6px; color: var(--gold); background: color-mix(in srgb, var(--gold) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 22%, var(--line)); border-radius: 6px; font-size: 8px; }
+.policy-near-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.policy-near-grid article { display: grid; gap: 5px; padding: 12px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 9px; }
+.policy-near-grid article > span { color: var(--blue); font-size: 8px; font-weight: 700; }
+.policy-near-grid strong { font-size: 11px; }
+.policy-near-grid p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+.policy-catalog-section { margin-top: 26px; }
+.policy-catalog-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px; padding: 14px 16px; color: var(--text); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; text-align: left; }
+.policy-catalog-toggle span, .policy-catalog-toggle strong, .policy-catalog-toggle small { display: block; }
+.policy-catalog-toggle strong { font-size: 13px; }
+.policy-catalog-toggle small { margin-top: 4px; color: var(--muted); font-size: 9px; }
+.policy-catalog-toggle b { color: var(--blue); font-size: 10px; }
 .policy-card { display: flex; flex-direction: column; min-height: 235px; padding: 17px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); transition: border-color .18s ease, transform .18s ease; }
 .policy-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--blue) 35%, var(--line)); }
 .policy-card.is-selected { border-color: color-mix(in srgb, var(--blue) 58%, var(--line)); background: color-mix(in srgb, var(--blue-soft) 68%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 12%, transparent); }
@@ -1010,7 +1025,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .technology-path-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .industry-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .industry-category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .policy-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .policy-grid, .policy-near-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .initiative-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .diplomacy-layout { grid-template-columns: 1fr; }
@@ -1111,7 +1126,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
     font-size: 13px;
   }
   .industry-category-grid { grid-template-columns: 1fr; }
-  .policy-grid, .diplomacy-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .policy-grid, .policy-near-grid, .diplomacy-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .route-blueprint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .initiative-grid { grid-template-columns: 1fr; }
   .initiative-heading { align-items: flex-start; }
@@ -1235,7 +1250,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .industry-summary { grid-template-columns: 1fr; }
   .metric-card strong { font-size: 19px; }
   .panel { padding: 14px; }
-  .policy-grid, .diplomacy-metrics { grid-template-columns: 1fr; }
+  .policy-grid, .policy-near-grid, .diplomacy-metrics { grid-template-columns: 1fr; }
   .foreign-aid-metrics { grid-template-columns: 1fr; }
   .normalization-metrics { grid-template-columns: 1fr; }
   .route-blueprint-grid { grid-template-columns: 1fr; }

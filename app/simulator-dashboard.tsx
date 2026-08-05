@@ -17,6 +17,7 @@ import type {
   PriceInstitutionStance,
   TargetComparisonMetric,
   TechnologyIndustryPathId,
+  NationalPolicyDefinition,
 } from "@/src/simulation";
 import { formatLarge, formatPercent, formatUsdLarge } from "@/src/ui/format";
 import { nominalToUsd } from "@/src/simulation/economy/currency-conversion";
@@ -112,6 +113,7 @@ import {
 } from "@/src/ui/simulation-store";
 import { formatHistoricalModifier } from "@/src/ui/historical-modifier-text";
 import { AnnualReviewDialog } from "./annual-review-dialog";
+import { buildPolicyPresentationGroups } from "@/src/ui/policies/policy-presentation";
 
 const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "nation", label: "国家总览", mark: "国" },
@@ -1369,11 +1371,13 @@ function policyUnavailableReason(game: GameState, policyId: string): string | nu
 }
 
 function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const setPolicies = useSimulationStore((store) => store.setPolicies);
   const enactHistoricalInitiative = useSimulationStore(
     (store) => store.enactHistoricalInitiative,
   );
   const technologyMetrics = calculateTechnologyTreeMetrics(game.nation);
+  const policyGroups = useMemo(() => buildPolicyPresentationGroups(game), [game]);
   const togglePolicy = (policyId: string) => {
     const selected = game.nation.policies.includes(policyId);
     const next = selected
@@ -1397,6 +1401,49 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
       `采用“${blueprint.referenceEconomy}参考 · ${blueprint.name}”会替换当前普通国策组合，之后仍可逐项调整和跨路线混搭。是否继续？`,
     );
     if (confirmed) void setPolicies(blueprint.policyIds);
+  };
+  const renderPolicyCard = (
+    policy: NationalPolicyDefinition,
+    recommendationReasons: string[] = [],
+  ) => {
+    const selected = game.nation.policies.includes(policy.id);
+    const progress = game.nation.policyProgress[policy.id] ?? 0;
+    const reason = policyUnavailableReason(game, policy.id);
+    const conflicts = policy.conflictsWith
+      .map((id) => nationalPolicyDefinitions.find((item) => item.id === id)?.name)
+      .filter(Boolean)
+      .join("、");
+    const requirementDescriptions = nationalPolicyRequirementDescriptions(policy);
+    return (
+      <article className={selected ? "policy-card is-selected" : "policy-card"} key={policy.id}>
+        <div className="policy-card-head"><span>{policy.category}</span><small>{policy.transitionMonths} 个月过渡</small></div>
+        <h3>{policy.name}</h3>
+        <p>{policy.description}</p>
+        {recommendationReasons.length > 0 ? (
+          <div className="policy-recommendation-reasons">
+            {recommendationReasons.map((item) => <span key={item}>{item}</span>)}
+          </div>
+        ) : null}
+        {requirementDescriptions.length > 0 ? (
+          <div className="policy-requirements">
+            <strong>启动门槛</strong>
+            <span>{requirementDescriptions.join(" · ")}</span>
+          </div>
+        ) : null}
+        <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
+        <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
+        {policy.id === "compulsory_education_implementation" ? <div className="policy-capability">当前落实率 {formatPercent(nationalPolicyImplementationRate(game.nation, policy.id))}；预算或执行能力低于门槛后，教育收益会按比例下降，财政承诺仍保留。</div> : null}
+        {policy.id === "industrial_upgrading" ? <div className="policy-capability">科技准备度 {formatPercent(technologyMetrics.industrialUpgradeReadiness)} · 产业科技第 {technologyMetrics.industryTier} 层；收益按准备度折算，成本照常发生。</div> : null}
+        <button
+          className={selected ? "policy-toggle remove" : "policy-toggle"}
+          disabled={busy || (!selected && reason !== null)}
+          title={reason ?? undefined}
+          onClick={() => togglePolicy(policy.id)}
+        >
+          {selected ? "停止实施" : reason ?? "开始实施"}
+        </button>
+      </article>
+    );
   };
 
   return (
@@ -1426,6 +1473,46 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
           </p>
         ) : null}
       </div>
+      <section className="policy-priority-section">
+        <div className="policy-list-heading">
+          <span className="eyebrow">结合规划、蓝图与风险</span>
+          <h2>当前推荐</h2>
+          <p>推荐只用于减少检索成本，不会自动替玩家启用国策。</p>
+        </div>
+        <div className="policy-grid">
+          {policyGroups.recommended.map((item) =>
+            renderPolicyCard(item.policy, item.reasons)
+          )}
+        </div>
+      </section>
+      {policyGroups.active.length > 0 ? (
+        <section className="policy-priority-section">
+          <div className="policy-list-heading">
+            <span className="eyebrow">正在传导</span>
+            <h2>在施国策</h2>
+          </div>
+          <div className="policy-grid">
+            {policyGroups.active.map((policy) => renderPolicyCard(policy))}
+          </div>
+        </section>
+      ) : null}
+      {policyGroups.nearUnlock.length > 0 ? (
+        <section className="policy-priority-section">
+          <div className="policy-list-heading">
+            <span className="eyebrow">仅差一至两项条件</span>
+            <h2>接近解锁</h2>
+          </div>
+          <div className="policy-near-grid">
+            {policyGroups.nearUnlock.map(({ policy, blockers }) => (
+              <article key={policy.id}>
+                <span>{policy.category}</span>
+                <strong>{policy.name}</strong>
+                <p>{blockers.join("；")}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <div className="route-blueprint-heading">
         <div>
           <span className="eyebrow">快捷组合 · 不锁定路线</span>
@@ -1468,47 +1555,22 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
           );
         })}
       </div>
-      <div className="policy-list-heading">
-        <span className="eyebrow">自由组合</span>
-        <h2>全部普通国策</h2>
-      </div>
-      <div className="policy-grid">
-        {nationalPolicyDefinitions.map((policy) => {
-          const selected = game.nation.policies.includes(policy.id);
-          const progress = game.nation.policyProgress[policy.id] ?? 0;
-          const reason = policyUnavailableReason(game, policy.id);
-          const conflicts = policy.conflictsWith
-            .map((id) => nationalPolicyDefinitions.find((item) => item.id === id)?.name)
-            .filter(Boolean)
-            .join("、");
-          const requirementDescriptions = nationalPolicyRequirementDescriptions(policy);
-          return (
-            <article className={selected ? "policy-card is-selected" : "policy-card"} key={policy.id}>
-              <div className="policy-card-head"><span>{policy.category}</span><small>{policy.transitionMonths} 个月过渡</small></div>
-              <h3>{policy.name}</h3>
-              <p>{policy.description}</p>
-              {requirementDescriptions.length > 0 ? (
-                <div className="policy-requirements">
-                  <strong>启动门槛</strong>
-                  <span>{requirementDescriptions.join(" · ")}</span>
-                </div>
-              ) : null}
-              <div className="policy-progress"><i style={{ width: `${progress * 100}%` }} /></div>
-              <div className="policy-meta"><span>生效程度 {formatPercent(progress, 0)}</span><span>{conflicts ? `互斥：${conflicts}` : "无互斥国策"}</span></div>
-              {policy.id === "compulsory_education_implementation" ? <div className="policy-capability">当前落实率 {formatPercent(nationalPolicyImplementationRate(game.nation, policy.id))}；预算或执行能力低于门槛后，教育收益会按比例下降，财政承诺仍保留。</div> : null}
-              {policy.id === "industrial_upgrading" ? <div className="policy-capability">科技准备度 {formatPercent(technologyMetrics.industrialUpgradeReadiness)} · 产业科技第 {technologyMetrics.industryTier} 层；收益按准备度折算，成本照常发生。</div> : null}
-              <button
-                className={selected ? "policy-toggle remove" : "policy-toggle"}
-                disabled={busy || (!selected && reason !== null)}
-                title={reason ?? undefined}
-                onClick={() => togglePolicy(policy.id)}
-              >
-                {selected ? "停止实施" : reason ?? "开始实施"}
-              </button>
-            </article>
-          );
-        })}
-      </div>
+      <section className="policy-catalog-section">
+        <button
+          type="button"
+          className="policy-catalog-toggle"
+          aria-expanded={catalogOpen}
+          onClick={() => setCatalogOpen((open) => !open)}
+        >
+          <span><strong>全部普通国策档案</strong><small>{policyGroups.catalog.length} 项 · 自由组合</small></span>
+          <b>{catalogOpen ? "收起" : "展开"}</b>
+        </button>
+        {catalogOpen ? (
+          <div className="policy-grid">
+            {policyGroups.catalog.map((policy) => renderPolicyCard(policy))}
+          </div>
+        ) : null}
+      </section>
       <div className="initiative-heading">
         <div>
           <span className="eyebrow">一次性重大决策</span>
