@@ -8,10 +8,12 @@ import {
 import { calculateGDP } from "./gdp";
 import { updateCapitalAndInvestment } from "./capital";
 import {
+  applyRemittanceChannelModifiers,
   foreignExchangeInvestmentMultiplier,
   remittanceDirectedInvestment,
   remittanceDomesticIncome,
   remittanceInvestmentRate,
+  remittanceShockImmunity,
   updateForeignExchange,
 } from "./foreign-exchange";
 
@@ -158,14 +160,14 @@ describe("外汇储备与侨汇", () => {
     );
   }, 20_000);
 
-  it("史实路线呈现1951—1952高峰与1953年后回落，保护侨汇则持续上涨", () => {
+  it("史实路线呈现高峰、1953回落、1962低谷与恢复；保护侨汇在大跃进前持续上涨", () => {
     const sampleYears = (policyIds: string[]) => {
       const engine = createSimulationEngine(createInitialGameState(1949));
       if (policyIds.length > 0) {
         engine.dispatch({ type: "SET_POLICIES", policyIds });
       }
       const byYear = new Map<number, number>();
-      for (let year = 1949; year <= 1960; year += 1) {
+      for (let year = 1949; year <= 1966; year += 1) {
         const { nation } = engine.getState();
         byYear.set(nation.date.year, nation.trade.remittanceInflows);
         engine.dispatch({
@@ -181,23 +183,149 @@ describe("外汇储备与侨汇", () => {
     const earlyPeak = Math.max(
       baseline.get(1951) ?? 0,
       baseline.get(1952) ?? 0,
-      baseline.get(1953) ?? 0,
     );
     expect(earlyPeak).toBeGreaterThan(180_000_000);
+    expect(baseline.get(1954) ?? 0).toBeLessThan(earlyPeak * 0.9);
 
     for (const year of [1955, 1956, 1957]) {
       const remittance = baseline.get(year) ?? 0;
       expect(remittance).toBeGreaterThan(115_000_000);
-      expect(remittance).toBeLessThan(155_000_000);
+      expect(remittance).toBeLessThan(165_000_000);
       expect(remittance).toBeLessThan(earlyPeak * 0.85);
     }
 
+    const trough = Math.min(
+      baseline.get(1960) ?? Number.POSITIVE_INFINITY,
+      baseline.get(1961) ?? Number.POSITIVE_INFINITY,
+      baseline.get(1962) ?? Number.POSITIVE_INFINITY,
+    );
+    expect(trough).toBeGreaterThan(30_000_000);
+    expect(trough).toBeLessThan(85_000_000);
+    expect(trough).toBeLessThan((baseline.get(1957) ?? 0) * 0.65);
+
+    const recovery1965 = baseline.get(1965) ?? 0;
+    expect(recovery1965).toBeGreaterThan(trough * 1.5);
+    expect(recovery1965).toBeGreaterThan(100_000_000);
+
     const protected1954 = protectedRights.get(1954) ?? 0;
-    const protected1960 = protectedRights.get(1960) ?? 0;
+    const protected1957 = protectedRights.get(1957) ?? 0;
+    const protected1962 = protectedRights.get(1962) ?? 0;
     expect(protected1954).toBeGreaterThan(baseline.get(1954) ?? 0);
-    expect(protected1960).toBeGreaterThan(protected1954);
-    expect(protected1960).toBeGreaterThan(baseline.get(1960) ?? 0);
-  }, 20_000);
+    expect(protected1957).toBeGreaterThan(protected1954);
+    expect(protected1957).toBeGreaterThan(baseline.get(1957) ?? 0);
+    // 满额保护后免疫大跃进等侨汇负面冲击，1962 年仍高于 1957 并远高于史实低谷。
+    expect(protected1962).toBeGreaterThan(protected1957);
+    expect(protected1962).toBeGreaterThan(trough * 2.2);
+  }, 30_000);
+
+  it("保护侨汇满额后免疫侨汇渠道负面修正，并与正面修正叠加", () => {
+    const unprotected = createInitialGameState(1960);
+    const protectedRights = structuredClone(unprotected);
+    protectedRights.nation.policyProgress.remittance_protection = 1;
+    expect(remittanceShockImmunity(protectedRights.nation)).toBe(1);
+
+    for (const state of [unprotected, protectedRights]) {
+      state.nation.modifiers.push(
+        {
+          id: "test:glf-remittance-hit",
+          sourceId: "test",
+          target: "trade.remittanceInflows",
+          operation: "multiply",
+          value: 0.5,
+          remainingMonths: 12,
+          stackRule: "replace",
+        },
+        {
+          id: "test:decree-remittance-boost",
+          sourceId: "test",
+          target: "trade.remittanceInflows",
+          operation: "multiply",
+          value: 1.2,
+          remainingMonths: 12,
+          stackRule: "replace",
+        },
+      );
+    }
+
+    expect(
+      applyRemittanceChannelModifiers(unprotected.nation, "trade.remittanceInflows", 100),
+    ).toBeCloseTo(60, 6);
+    expect(
+      applyRemittanceChannelModifiers(
+        protectedRights.nation,
+        "trade.remittanceInflows",
+        100,
+      ),
+    ).toBeCloseTo(120, 6);
+  });
+
+  it("保护侨汇路线在冲击期仍抬高侨汇、外储贡献与资本品保障", () => {
+    const runTo = (policyIds: string[], endYear: number) => {
+      const engine = createSimulationEngine(createInitialGameState(1949));
+      if (policyIds.length > 0) {
+        engine.dispatch({ type: "SET_POLICIES", policyIds });
+      }
+      while (engine.getState().nation.date.year < endYear) {
+        const { nation } = engine.getState();
+        engine.dispatch({
+          type: "ADVANCE_MONTHS",
+          months: 12 - nation.date.month + 1,
+        });
+      }
+      return engine.getState().nation;
+    };
+
+    const baseline = runTo([], 1965);
+    const protectedRights = runTo(["remittance_protection"], 1965);
+    expect(protectedRights.trade.remittanceInflows).toBeGreaterThan(
+      baseline.trade.remittanceInflows * 1.8,
+    );
+    expect(protectedRights.trade.remittanceReserveContribution).toBeGreaterThan(
+      baseline.trade.remittanceReserveContribution * 1.8,
+    );
+    expect(protectedRights.trade.capitalGoodsImportCoverage).toBeGreaterThan(
+      baseline.trade.capitalGoodsImportCoverage,
+    );
+    expect(protectedRights.economy.capitalStock).toBeGreaterThan(
+      baseline.economy.capitalStock,
+    );
+    expect(protectedRights.economy.householdIncome).toBeGreaterThan(
+      baseline.economy.householdIncome,
+    );
+  }, 30_000);
+
+  it("避免大跃进与公社化可使1962年侨汇显著高于史实低谷", () => {
+    const runTo1962 = (choices: Array<{ eventId: string; choiceId: string }>) => {
+      const engine = createSimulationEngine(
+        createInitialGameState(1956, 1956, "interactive"),
+      );
+      while (engine.getState().nation.date.year < 1963) {
+        const pending = engine.getState().nation.pendingHistoricalEventId;
+        if (pending) {
+          const choice = choices.find((item) => item.eventId === pending);
+          engine.dispatch({
+            type: "RESOLVE_HISTORICAL_EVENT",
+            eventId: pending,
+            choiceId: choice?.choiceId ?? "historical_path",
+          });
+        }
+        engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+        if (engine.getState().nation.famineMortality?.pendingReport) {
+          engine.dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+        }
+      }
+      return engine.getState().nation.trade.remittanceInflows;
+    };
+
+    const historical = runTo1962([]);
+    const avoided = runTo1962([
+      { eventId: "great_leap_forward_1958", choiceId: "avoid_great_leap" },
+      { eventId: "peoples_communes_1958", choiceId: "avoid_communes" },
+    ]);
+    expect(historical).toBeLessThan(95_000_000);
+    expect(avoided).toBeGreaterThan(historical * 1.35);
+    expect(avoided).toBeGreaterThan(110_000_000);
+  }, 30_000);
 
   it("侨汇国策会在家庭收入、投资与储备之间形成取舍", () => {
     const baseline = createInitialGameState(1949);
@@ -225,7 +353,7 @@ describe("外汇储备与侨汇", () => {
       centralizedSettlement.nation.economy.householdIncome,
     );
     expect(remittanceInvestmentRate(directedInvestment.nation)).toBeCloseTo(
-      0.26,
+      0.25,
       8,
     );
     expect(remittanceDirectedInvestment(directedInvestment.nation)).toBeGreaterThan(

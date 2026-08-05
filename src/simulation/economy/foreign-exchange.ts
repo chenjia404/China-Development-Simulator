@@ -89,8 +89,9 @@ function remittanceAccessMultiplier(state: GameState): number {
 }
 
 /**
- * 史实份额体现 1951—1952 高峰与 1953 年后回落；
- * 保护侨汇、侨资回乡等有利政策按峰值后缓升路径混合，避免被史实回落拖累。
+ * 史实份额体现论文所述波浪：1951—1952 高峰、1953 年后回落、
+ * 1962 年前后低谷与 1963 年后恢复；保护侨汇、侨资回乡等有利政策
+ * 按峰值后缓升路径混合，避免被史实回落拖累。
  */
 function remittanceShareTarget(nation: NationState, year: number): number {
   const historicalShare = interpolateShare(remittanceShareAnchors, year);
@@ -119,6 +120,68 @@ function remittanceShareTarget(nation: NationState, year: number): number {
   const protectedPath = peakShare + yearsAfterPeak * annualGrowth;
   const supportedShare = Math.max(historicalShare, protectedPath);
   return historicalShare * (1 - blend) + supportedShare * blend;
+}
+
+/** 「保护侨汇权益」进度对侨汇渠道负面冲击的免疫强度（0—1）。 */
+export function remittanceShockImmunity(nation: NationState): number {
+  const maxImmunity = clamp(
+    (foreignExchangeConfig as { remittanceProtectionShockImmunity?: number })
+      .remittanceProtectionShockImmunity ?? 1,
+    0,
+    1,
+  );
+  return clamp(
+    (nation.policyProgress.remittance_protection ?? 0) * maxImmunity,
+    0,
+    1,
+  );
+}
+
+function softenRemittanceShockValue(
+  operation: string,
+  value: number,
+  immunity: number,
+): number {
+  if (immunity <= 0) return value;
+  if (operation === "multiply" && value < 1) {
+    return 1 - (1 - value) * (1 - immunity);
+  }
+  if (operation === "add" && value < 0) {
+    return value * (1 - immunity);
+  }
+  return value;
+}
+
+/**
+ * 对侨汇渠道应用事件修正；保护侨汇国策按进度削弱乘子小于 1、加项小于 0 的负面冲击，
+ * 正面修正仍完整叠加，从而形成「免疫冲击 + 保护增益」的叠加路径。
+ */
+export function applyRemittanceChannelModifiers(
+  nation: NationState,
+  target: string,
+  baseValue: number,
+): number {
+  const immunity = remittanceShockImmunity(nation);
+  if (immunity <= 0) return applyModifiers(nation, target, baseValue);
+
+  const modifiers = nation.modifiers
+    .filter(
+      (modifier) =>
+        modifier.target === target && (modifier.delayMonths ?? 0) <= 0,
+    )
+    .toSorted((left, right) => left.id.localeCompare(right.id));
+  let value = baseValue;
+  for (const modifier of modifiers) {
+    const softened = softenRemittanceShockValue(
+      modifier.operation,
+      modifier.value,
+      immunity,
+    );
+    if (modifier.operation === "add") value += softened;
+    if (modifier.operation === "multiply") value *= softened;
+    if (modifier.operation === "override") value = modifier.value;
+  }
+  return value;
 }
 
 function calculateImportCoverageMonths(state: GameState): number {
@@ -192,7 +255,7 @@ export function remittanceInvestmentRate(nation: NationState): number {
 
 export function remittanceDomesticIncome(nation: NationState): number {
   const transferEfficiency = clamp(
-    applyModifiers(
+    applyRemittanceChannelModifiers(
       nation,
       "trade.remittanceTransferEfficiency",
       applyPolicyModifiers(
@@ -364,7 +427,7 @@ export function updateForeignExchange(state: GameState): void {
     comparable * remittanceShare * remittanceAccessMultiplier(state);
   const remittanceTarget = Math.max(
     0,
-    applyModifiers(
+    applyRemittanceChannelModifiers(
       nation,
       "trade.remittanceInflows",
       applyPolicyModifiers(
@@ -380,7 +443,7 @@ export function updateForeignExchange(state: GameState): void {
     foreignExchangeConfig.remittanceAdjustmentSpeed,
   );
   const remittanceRetentionRate = clamp(
-    applyModifiers(
+    applyRemittanceChannelModifiers(
       nation,
       "trade.remittanceReserveRetention",
       applyPolicyModifiers(

@@ -225,6 +225,29 @@
     ]
   },
   {
+    "id": "remittance_protection_decree_1955",
+    "name": "国务院保护侨汇命令",
+    "year": 1955,
+    "month": 2,
+    "category": "开放",
+    "impact": "positive",
+    "description": "1955 年 2 月国务院颁布《关于贯彻保护侨汇政策的命令》，明确侨汇是侨眷合法收入，保护侨汇是国家长远政策；禁止强迫借贷、积压与侵犯侨汇，并便利侨汇建房与物资供应。史实上有助于扭转 1953 年秋后侨汇下滑，当年侨汇约较上年回升。",
+    "effects": [
+      "侨汇所有权与使用权受法律保护",
+      "正规汇款与到户效率改善",
+      "侨汇流入较 1953—1954 年回落阶段回升",
+      "地方执法与物资配套仍有执行成本"
+    ],
+    "durationMonths": 84,
+    "modifiers": [
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 1.09 },
+      { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 1.05 },
+      { "target": "trade.remittanceReserveRetention", "operation": "multiply", "value": 1.03 },
+      { "target": "society.stability", "operation": "add", "value": 1.2 },
+      { "target": "fiscal.spending", "operation": "multiply", "value": 1.004 }
+    ]
+  },
+  {
     "id": "bandung_conference_1955",
     "name": "万隆会议",
     "year": 1955,
@@ -319,12 +342,14 @@
     "category": "工业化",
     "impact": "negative",
     "description": "工业和农业生产指标被大幅提高，大量劳动力与资源向低效率工业项目集中。短期工业统计扩张伴随农业减产、能源浪费和资本效率下降。",
-    "effects": ["短期工业动员增强", "农业劳动力与资源被抽走", "投资效率下降"],
+    "effects": ["短期工业动员增强", "农业劳动力与资源被抽走", "投资效率下降", "平调摊派与共产风挫伤侨汇意愿"],
     "durationMonths": 30,
     "modifiers": [
       { "target": "sector.secondary.output", "operation": "multiply", "value": 1.025 },
       { "target": "sector.primary.output", "operation": "multiply", "value": 0.945, "delayMonths": 3, "durationMonths": 36 },
-      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 }
+      { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.94 },
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.62, "durationMonths": 54 },
+      { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 0.92, "durationMonths": 42 }
     ]
   },
   {
@@ -341,7 +366,8 @@
       "家庭副业与民间经营明显收缩",
       "粮食产量与供应承压覆盖1960谷底",
       "公共食堂与集中分配放大短缺",
-      "集体农业与计划协调强度进一步上升"
+      "集体农业与计划协调强度进一步上升",
+      "强迫侨汇入社与侵犯侨汇产权压低汇款意愿"
     ],
     "durationMonths": 36,
     "modifiers": [
@@ -352,7 +378,9 @@
       { "target": "resources.foodSupply", "operation": "multiply", "value": 0.95, "delayMonths": 5, "durationMonths": 24 },
       { "target": "economy.structuralProductivityGrowth", "operation": "add", "value": -0.00005, "durationMonths": 72 },
       { "target": "economicCoordination.planningTarget", "operation": "add", "value": 0.1 },
-      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.12 }
+      { "target": "economicCoordination.domesticMarketFreedomTarget", "operation": "add", "value": -0.12 },
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.72, "durationMonths": 48 },
+      { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 0.88, "durationMonths": 42 }
     ]
   },
   {
@@ -367,14 +395,16 @@
       "粮食供应严重下降",
       "死亡率上升",
       "工农业产出收缩",
-      "史实路径继续高额粮食净出口加重国内短缺"
+      "史实路径继续高额粮食净出口加重国内短缺",
+      "侨眷生活困难与产权不安全进一步压制侨汇"
     ],
     "durationMonths": 48,
     "modifiers": [
       { "target": "resources.foodSupply", "operation": "multiply", "value": 0.94 },
       { "target": "resources.foodSupply", "operation": "multiply", "value": 0.97, "delayMonths": 12, "durationMonths": 24 },
       { "target": "population.deathRate", "operation": "multiply", "value": 1.022, "durationMonths": 36 },
-      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 }
+      { "target": "sector.secondary.output", "operation": "multiply", "value": 0.99, "durationMonths": 36 },
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.8, "durationMonths": 42 }
     ]
   },
   {
@@ -529,9 +559,11 @@
     "category": "社会教育",
     "impact": "negative",
     "description": "1966—1976 年教育、科研、行政和企业管理体系长期受扰。1967—1968 年群众组织冲突、停工和运输失序造成连续经济收缩，随后生产秩序分阶段恢复；高校招生和正常教学中断又形成长期人力资本与创新损失。",
-    "effects": ["1967—1968 年工农业与服务业连续收缩", "1976 年再次出现生产扰动", "高校正常招生和科研人才培养中断约十年", "科学家遭迫害、死亡或永久离开科研岗位", "科研、企业管理与投资效率下降", "人才代际缺口在事件结束后仍需十余年修复"],
+    "effects": ["1967—1968 年工农业与服务业连续收缩", "1976 年再次出现生产扰动", "高校正常招生和科研人才培养中断约十年", "科学家遭迫害、死亡或永久离开科研岗位", "科研、企业管理与投资效率下降", "人才代际缺口在事件结束后仍需十余年修复", "中央仍要求保护侨汇，但地方执行受扰、侨汇物资供应一度中断"],
     "durationMonths": 120,
     "modifiers": [
+      { "target": "trade.remittanceInflows", "operation": "multiply", "value": 0.93, "durationMonths": 72 },
+      { "target": "trade.remittanceTransferEfficiency", "operation": "multiply", "value": 0.95, "durationMonths": 60 },
       { "target": "education.efficiency", "operation": "multiply", "value": 0.82 },
       { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 0.78 },
       { "target": "education.higherEducationAdmissions", "operation": "multiply", "value": 0.02, "durationMonths": 54 },
