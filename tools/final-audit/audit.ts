@@ -2050,8 +2050,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
           canceledThirdFront.nation.sectors.tertiary.output &&
         historicalThirdFront.nation.economy.institutionalEfficiency <
           canceledThirdFront.nation.economy.institutionalEfficiency &&
+        canceledThirdFront.nation.economy.realGDP >
+          historicalThirdFront.nation.economy.realGDP &&
+        canceledThirdFront.nation.economy.capitalStock >
+          historicalThirdFront.nation.economy.capitalStock &&
+        canceledThirdFront.nation.regionalEconomy.regions.central.population +
+            canceledThirdFront.nation.regionalEconomy.regions.west.population <
+          historicalThirdFront.nation.regionalEconomy.regions.central.population +
+            historicalThirdFront.nation.regionalEconomy.regions.west.population &&
         canceledThirdFrontRecord?.outcome === "prevented",
-      `史实/集中/取消安全指数 ${historicalThirdFront.nation.diplomacy.securityIndex.toFixed(1)}/${focusedThirdFront.nation.diplomacy.securityIndex.toFixed(1)}/${canceledThirdFront.nation.diplomacy.securityIndex.toFixed(1)}；史实/取消基建指数 ${historicalThirdFront.nation.economy.infrastructureIndex.toFixed(2)}/${canceledThirdFront.nation.economy.infrastructureIndex.toFixed(2)}，服务业产出 ${historicalThirdFront.nation.sectors.tertiary.output.toFixed(0)}/${canceledThirdFront.nation.sectors.tertiary.output.toFixed(0)}`,
+      `史实/集中/取消安全指数 ${historicalThirdFront.nation.diplomacy.securityIndex.toFixed(1)}/${focusedThirdFront.nation.diplomacy.securityIndex.toFixed(1)}/${canceledThirdFront.nation.diplomacy.securityIndex.toFixed(1)}；史实/取消实际GDP ${historicalThirdFront.nation.economy.realGDP.toFixed(0)}/${canceledThirdFront.nation.economy.realGDP.toFixed(0)}，资本存量 ${historicalThirdFront.nation.economy.capitalStock.toFixed(0)}/${canceledThirdFront.nation.economy.capitalStock.toFixed(0)}，基建指数 ${historicalThirdFront.nation.economy.infrastructureIndex.toFixed(2)}/${canceledThirdFront.nation.economy.infrastructureIndex.toFixed(2)}，服务业产出 ${historicalThirdFront.nation.sectors.tertiary.output.toFixed(0)}/${canceledThirdFront.nation.sectors.tertiary.output.toFixed(0)}；取消不抬中西部人口份额`,
     ),
     makeCheck(
       "historical-initiatives",

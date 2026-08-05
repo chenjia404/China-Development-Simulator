@@ -984,11 +984,29 @@ describe("确定性历史事件", () => {
     expect(choices[2]?.outcome).toBe("prevented");
     expect(
       choices[0]?.modifiers.find(
-        (modifier) => modifier.target === "sector.secondary.output",
+        (modifier) =>
+          modifier.target === "sector.secondary.output" &&
+          modifier.value === 0.995,
       )?.durationMonths,
-    ).toBe(72);
+    ).toBe(96);
+    expect(
+      choices[0]?.modifiers.find(
+        (modifier) => modifier.target === "capital.investmentEfficiency",
+      )?.value,
+    ).toBe(0.96);
+    expect(
+      choices[2]?.modifiers.find(
+        (modifier) => modifier.target === "capital.investmentEfficiency",
+      )?.value,
+    ).toBe(1.06);
 
-    const runChoice = (choiceId: string) => {
+    const inlandPopulationShare = (state: GameState) => {
+      const regions = state.nation.regionalEconomy.regions;
+      const total = state.nation.population.total;
+      return (regions.central.population + regions.west.population) / total;
+    };
+
+    const runChoice = (choiceId: string, months = 12) => {
       const state = createInitialGameState(1964, 1964, "interactive");
       state.nation.date.month = 5;
       seedSinoSovietSplit(state);
@@ -1003,7 +1021,7 @@ describe("确定性历史事件", () => {
         choiceId,
       });
       engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
-      engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months });
       return engine.getState();
     };
 
@@ -1015,11 +1033,14 @@ describe("确定性历史事件", () => {
       choiceId: "cancel_third_front",
       outcome: "prevented",
     });
+    // 建设高峰惩罚仍在 delay 中；12 个月后尚未进入 remaining 倒数。
     expect(
       historical.nation.modifiers.find(
-        (modifier) => modifier.target === "sector.secondary.output",
-      )?.remainingMonths,
-    ).toBe(60);
+        (modifier) =>
+          modifier.target === "capital.investmentEfficiency" &&
+          modifier.value === 0.96,
+      ),
+    ).toMatchObject({ delayMonths: 12, remainingMonths: 168 });
     expect(
       historical.nation.modifiers.find(
         (modifier) => modifier.target === "diplomacy.securityTarget",
@@ -1050,6 +1071,70 @@ describe("确定性历史事件", () => {
     );
     expect(historical.nation.economy.institutionalEfficiency).toBeLessThan(
       canceled.nation.economy.institutionalEfficiency,
+    );
+    // 12 个月窗口：取消路线实际 GDP 与资本存量应高于史实全面铺开。
+    expect(canceled.nation.economy.realGDP).toBeGreaterThan(
+      historical.nation.economy.realGDP,
+    );
+    expect(canceled.nation.economy.capitalStock).toBeGreaterThan(
+      historical.nation.economy.capitalStock,
+    );
+    // 取消路线 outcome=prevented，不得抬高中西部人口份额。
+    expect(inlandPopulationShare(canceled)).toBeLessThan(
+      inlandPopulationShare(historical),
+    );
+    expect(inlandPopulationShare(canceled)).toBeLessThan(
+      inlandPopulationShare(focused),
+    );
+
+    const runCancelWithCulturalRevolution = (crChoiceId: string) => {
+      const state = createInitialGameState(1964, 1964, "interactive");
+      state.nation.date.month = 5;
+      seedSinoSovietSplit(state);
+      const engine = createSimulationEngine(state);
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "third_front_construction_1964",
+        choiceId: "cancel_third_front",
+      });
+      // 推进到文革挂起；途中其它待决策事件按史实路径消化。
+      for (let guard = 0; guard < 40; guard += 1) {
+        const pending = engine.getState().nation.pendingHistoricalEventId;
+        if (pending === "cultural_revolution_disruption_1966") break;
+        if (pending) {
+          engine.dispatch({
+            type: "RESOLVE_HISTORICAL_EVENT",
+            eventId: pending,
+            choiceId: "historical_path",
+          });
+          continue;
+        }
+        engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+      }
+      expect(engine.getState().nation.pendingHistoricalEventId).toBe(
+        "cultural_revolution_disruption_1966",
+      );
+      engine.dispatch({
+        type: "RESOLVE_HISTORICAL_EVENT",
+        eventId: "cultural_revolution_disruption_1966",
+        choiceId: crChoiceId,
+      });
+      engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 12 });
+      return engine.getState();
+    };
+
+    const cancelOnly = runCancelWithCulturalRevolution("historical_path");
+    const cancelPlusAvoidCr = runCancelWithCulturalRevolution(
+      "protect_institutions",
+    );
+    // 不同 sourceId 连乘叠加：取消三线 + 避免文革应优于单独取消（仍走史实文革）。
+    expect(cancelPlusAvoidCr.nation.economy.realGDP).toBeGreaterThan(
+      cancelOnly.nation.economy.realGDP,
+    );
+    expect(cancelPlusAvoidCr.nation.economy.capitalStock).toBeGreaterThan(
+      cancelOnly.nation.economy.capitalStock,
     );
   });
 

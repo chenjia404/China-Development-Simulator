@@ -64,9 +64,12 @@ export function updateRegionalEconomy(nation: NationState): void {
     nation.regionalEconomy = createEmptyRegionalEconomyState();
   }
   const state = nation.regionalEconomy;
-  const thirdFrontActive = nation.modifiers.some((item) =>
-    item.sourceId === "third_front_construction_1964"
+  // 仅史实/集中建设（含提前国策）生效；取消路线 outcome=prevented 不抬中西部权重。
+  const thirdFrontRecord = nation.history.historicalEvents.find(
+    (event) => event.id === "third_front_construction_1964",
   );
+  const thirdFrontActive =
+    thirdFrontRecord !== undefined && thirdFrontRecord.outcome !== "prevented";
   const populationWeights = Object.fromEntries(ECONOMIC_REGION_IDS.map((id) => {
     const item = definition(id);
     const inlandBonus = thirdFrontActive && (id === "west" || id === "central") ? 0.08 : 0;

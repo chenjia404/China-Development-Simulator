@@ -41,4 +41,79 @@ describe("区域经济与跨区域流动", () => {
     ensureRegionalEconomyState(second.nation);
     expect(first.nation.regionalEconomy).toEqual(second.nation.regionalEconomy);
   });
+
+  it("仅史实/集中建设抬高中西部份额，取消三线不触发 inland 加成", () => {
+    const inlandShare = (nation: NationState) => {
+      const regions = nation.regionalEconomy.regions;
+      return (
+        (regions.central.population + regions.west.population) /
+        nation.population.total
+      );
+    };
+    const base = createInitialGameState(9004);
+    updateRegionalEconomy(base.nation);
+    const baselineShare = inlandShare(base.nation);
+
+    const built = structuredClone(base);
+    built.nation.history.historicalEvents.push({
+      id: "third_front_construction_1964",
+      name: "三线建设展开",
+      year: 1964,
+      month: 5,
+      scheduledYear: 1964,
+      scheduledMonth: 5,
+      category: "工业化",
+      impact: "mixed",
+      description: "测试",
+      effects: [],
+      durationMonths: 192,
+      choiceId: "historical_path",
+      choiceName: "史实",
+      choiceDescription: "测试",
+      outcome: "occurred",
+    });
+    // 旧逻辑会误用同 sourceId 的取消修正触发 inland；此处故意写入以确认已改为看 outcome。
+    built.nation.modifiers.push({
+      id: "test-third-front",
+      sourceId: "third_front_construction_1964",
+      target: "capital.investmentEfficiency",
+      operation: "multiply",
+      value: 0.94,
+      remainingMonths: 180,
+      stackRule: "stack",
+    });
+    updateRegionalEconomy(built.nation);
+
+    const canceled = structuredClone(base);
+    canceled.nation.history.historicalEvents.push({
+      id: "third_front_construction_1964",
+      name: "三线建设展开",
+      year: 1964,
+      month: 5,
+      scheduledYear: 1964,
+      scheduledMonth: 5,
+      category: "工业化",
+      impact: "mixed",
+      description: "测试",
+      effects: [],
+      durationMonths: 192,
+      choiceId: "cancel_third_front",
+      choiceName: "取消",
+      choiceDescription: "测试",
+      outcome: "prevented",
+    });
+    canceled.nation.modifiers.push({
+      id: "test-cancel-third-front",
+      sourceId: "third_front_construction_1964",
+      target: "capital.investmentEfficiency",
+      operation: "multiply",
+      value: 1.06,
+      remainingMonths: 180,
+      stackRule: "stack",
+    });
+    updateRegionalEconomy(canceled.nation);
+
+    expect(inlandShare(built.nation)).toBeGreaterThan(baselineShare);
+    expect(inlandShare(canceled.nation)).toBeCloseTo(baselineShare, 6);
+  });
 });

@@ -825,44 +825,60 @@
       {
         "id": "focused_third_front",
         "name": "集中建设交通节点与核心基地",
-        "description": "保留必要的战略后方，但把项目集中在既有铁路、城市和资源产地周边，优先完成交通、能源及少数关键国防工业基地，减少分散选址、重复配套和突击上马。",
-        "effects": ["保留部分国防纵深和内陆工业能力", "交通能源投资效率提高", "财政与民用经济挤出较小", "战略覆盖和人口迁移规模低于史实"],
+        "description": "保留必要的战略后方，但把项目集中在既有铁路、城市和资源产地周边，优先完成交通、能源及少数关键国防工业基地，减少山散洞与重复配套；代价约为全面三线的一半，战略覆盖亦弱于史实。",
+        "effects": [
+          "保留部分国防纵深和内陆工业能力",
+          "交通能源投资效率相对史实更高",
+          "投资效率与民用挤出代价约为史实一半",
+          "居民消费与服务业承压轻于全面铺开",
+          "战略覆盖和人口迁移规模低于史实"
+        ],
         "durationMonths": 144,
         "modifiers": [
           { "target": "diplomacy.securityTarget", "operation": "add", "value": 8 },
-          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.02 },
-          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.01 },
-          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.12 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 0.995 },
+          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.05 },
           { "target": "resources.energySupply", "operation": "multiply", "value": 1.01 },
-          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.012 },
-          { "target": "urban.migration", "operation": "multiply", "value": 1.035 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.008 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.997 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.99 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.002 }
+          { "target": "technology.researchOutput", "operation": "multiply", "value": 1.008 },
+          { "target": "urban.migration", "operation": "multiply", "value": 1.02 },
+          { "target": "fiscal.spending", "operation": "multiply", "value": 1.008 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 0.995 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.98, "delayMonths": 24, "durationMonths": 120 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.975, "delayMonths": 24, "durationMonths": 96 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 0.994, "delayMonths": 24, "durationMonths": 96 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 0.988, "delayMonths": 24, "durationMonths": 96 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 0.998, "delayMonths": 24, "durationMonths": 72 },
+          { "target": "economy.consumptionPropensity", "operation": "add", "value": -0.008, "delayMonths": 24, "durationMonths": 72 }
         ]
       },
       {
         "id": "cancel_third_front",
         "name": "不启动全面三线建设",
-        "description": "判断全面战争风险不足以支持大规模内迁，取消全国性三线计划，把更多资源留给既有工业区、农业、轻工业和居民经济；短期配置效率较高，但缺少战略后方、内陆交通和国防科研储备。",
-        "effects": ["避免长期财政和民用投资挤出", "沿海及居民经济配置效率提高", "内陆基础设施与工业集聚减弱", "国防纵深和战备安全明显降低"],
+        "description": "判断全面战争风险不足以支持大规模内迁，取消全国性三线计划，把资源留给既有工业区、农业、轻工业和居民消费；不承受山散洞无效投资与沿海挤出，配置效率与民生明显更好，但缺少战略后方与国防纵深。正面经济修正可与避免大跃进、避免文革等其它反事实路线自然叠加。",
+        "effects": [
+          "避免山散洞与三边工程造成的投资效率损失",
+          "民间投资、农业与服务业配置改善",
+          "居民消费倾向回升、财政挤出减轻",
+          "制度与资本形成效率提高",
+          "内陆战略后方与国防纵深明显削弱",
+          "收益可与其它反事实历史决策叠加"
+        ],
         "durationMonths": 192,
         "modifiers": [
           { "target": "diplomacy.securityTarget", "operation": "add", "value": -8 },
-          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.02 },
-          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.03 },
-          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.01 },
+          { "target": "capital.governmentInvestment", "operation": "multiply", "value": 1.04 },
+          { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.06 },
+          { "target": "economy.infrastructureInvestment", "operation": "multiply", "value": 1.05 },
           { "target": "resources.energySupply", "operation": "multiply", "value": 1.01 },
           { "target": "technology.researchOutput", "operation": "multiply", "value": 1.01 },
           { "target": "urban.migration", "operation": "multiply", "value": 0.995 },
-          { "target": "fiscal.spending", "operation": "multiply", "value": 0.995 },
-          { "target": "sector.primary.output", "operation": "multiply", "value": 1.008 },
-          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.01 },
-          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.018 },
-          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.035 },
-          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.012 }
+          { "target": "fiscal.spending", "operation": "multiply", "value": 0.98 },
+          { "target": "sector.primary.output", "operation": "multiply", "value": 1.02 },
+          { "target": "sector.secondary.output", "operation": "multiply", "value": 1.02 },
+          { "target": "sector.tertiary.output", "operation": "multiply", "value": 1.035 },
+          { "target": "capital.privateInvestment", "operation": "multiply", "value": 1.06 },
+          { "target": "economy.institutionalEfficiencyTarget", "operation": "multiply", "value": 1.03 },
+          { "target": "economy.consumptionPropensity", "operation": "add", "value": 0.015 }
         ],
         "outcome": "prevented"
       }
