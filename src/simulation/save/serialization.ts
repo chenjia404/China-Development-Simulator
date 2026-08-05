@@ -102,11 +102,11 @@ export function deserializeGameState(serialized: string): GameState {
   refreshEconomicCoordinationDerivedShares(state.nation);
   ensureFinancialSystemState(state);
   ensureAgricultureSystemState(state.nation);
+  ensureInfrastructurePenetrationState(state.nation);
   ensureElectricitySystemState(state.nation);
   ensureInfrastructureResourceState(state.nation);
   ensureHumanDevelopmentState(state.nation);
   ensureUrbanHousingState(state.nation);
-  ensureInfrastructurePenetrationState(state.nation);
   ensureRegionalEconomyState(state.nation);
   ensureWorldCountriesState(state.world);
   ensureForeignMarketState(state);
