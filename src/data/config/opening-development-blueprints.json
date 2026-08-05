@@ -1,0 +1,62 @@
+[
+  {
+    "id": "heavy_industry_priority",
+    "name": "重工业优先",
+    "eraNote": "1949 开局：以投资与发展型金融推动工业化起步",
+    "summary": "把资本、信贷与职业技能优先导向工业积累，配套基础教育与长期融资，加快工业基础建设。",
+    "policyIds": [
+      "industry_priority",
+      "investment_driven",
+      "developmental_finance",
+      "vocational_technical_education",
+      "education_priority"
+    ],
+    "strengths": ["工业资本形成", "技能与长期信贷", "基建动员"],
+    "tradeoffs": ["农业与消费受压", "财政与能源压力", "产业结构偏重"]
+  },
+  {
+    "id": "agriculture_first",
+    "name": "农业优先稳根基",
+    "eraNote": "1949 开局：先稳住粮食、农村与侨汇资源",
+    "summary": "优先保障农业资本与侨汇权益，并以教育和侨资回乡增强农村与地方资本形成。",
+    "policyIds": [
+      "agriculture_priority",
+      "education_priority",
+      "remittance_protection",
+      "overseas_chinese_investment",
+      "developmental_finance"
+    ],
+    "strengths": ["粮食与农村稳定", "侨汇与地方投资", "人力资本起步"],
+    "tradeoffs": ["工业扩张偏慢", "居民消费仍受储蓄约束", "外向创汇有限"]
+  },
+  {
+    "id": "education_science",
+    "name": "教育科技立国",
+    "eraNote": "1949 开局：以人力资本与科研组织换长期增长",
+    "summary": "把教育、职业技能和科研组织放在前面，并以投资驱动与有限开放吸收外部技术。",
+    "policyIds": [
+      "education_priority",
+      "technology_priority",
+      "vocational_technical_education",
+      "investment_driven",
+      "expand_opening"
+    ],
+    "strengths": ["人力资本积累", "科研转化", "长期生产率"],
+    "tradeoffs": ["短期产出见效慢", "财政持续投入", "开放带来外部波动"]
+  },
+  {
+    "id": "light_export_earning",
+    "name": "轻工创汇",
+    "eraNote": "1949 开局：以出口、侨汇与中小制造换取外汇与就业",
+    "summary": "依靠出口导向、扩大开放、中小企业出口网络和侨汇保护，尽快积累外汇与制造就业。",
+    "policyIds": [
+      "export_oriented",
+      "expand_opening",
+      "vocational_technical_education",
+      "sme_export_networks",
+      "remittance_protection"
+    ],
+    "strengths": ["出口学习", "就业与外汇", "民营制造网络"],
+    "tradeoffs": ["外需依赖", "消费倾向下降", "公共服务与能源成本"]
+  }
+]

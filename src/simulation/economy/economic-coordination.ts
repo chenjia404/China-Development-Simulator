@@ -97,16 +97,65 @@ function isPriceStance(value: unknown): value is PriceInstitutionStance {
     priceInstitutionStances.includes(value as PriceInstitutionStance);
 }
 
-export function createInitialEconomicCoordinationState(): EconomicCoordinationState {
+export type EconomicMechanismId = "planned" | "market";
+
+export interface EconomicMechanismPreset {
+  id: EconomicMechanismId;
+  name: string;
+  summary: string;
+  planningIntensity: number;
+  planningTarget: number;
+  domesticMarketFreedom: number;
+  domesticMarketFreedomTarget: number;
+  landStance: LandInstitutionStance;
+  enterpriseStance: EnterpriseInstitutionStance;
+  priceStance: PriceInstitutionStance;
+}
+
+const openingMechanismPresets = (
+  economicCoordinationConfig as typeof economicCoordinationConfig & {
+    openingMechanismPresets: Record<EconomicMechanismId, EconomicMechanismPreset>;
+  }
+).openingMechanismPresets;
+
+export function getEconomicMechanismPreset(
+  mechanismId: EconomicMechanismId,
+): EconomicMechanismPreset {
+  const preset = openingMechanismPresets[mechanismId];
+  if (!preset) throw new Error(`未知开局经济机制：${mechanismId}`);
+  if (
+    !isLandStance(preset.landStance) ||
+    !isEnterpriseStance(preset.enterpriseStance) ||
+    !isPriceStance(preset.priceStance)
+  ) {
+    throw new Error(`开局经济机制姿态无效：${mechanismId}`);
+  }
+  return preset;
+}
+
+export function listEconomicMechanismPresets(): EconomicMechanismPreset[] {
+  return (["planned", "market"] as const).map((id) => getEconomicMechanismPreset(id));
+}
+
+export function createInitialEconomicCoordinationState(
+  mechanismId?: EconomicMechanismId,
+): EconomicCoordinationState {
+  const preset = mechanismId
+    ? getEconomicMechanismPreset(mechanismId)
+    : undefined;
   return {
-    planningIntensity: initialState.planningIntensity,
-    planningTarget: initialState.planningTarget,
-    domesticMarketFreedom: initialState.domesticMarketFreedom,
-    domesticMarketFreedomTarget: initialState.domesticMarketFreedomTarget,
+    planningIntensity: preset?.planningIntensity ?? initialState.planningIntensity,
+    planningTarget: preset?.planningTarget ?? initialState.planningTarget,
+    domesticMarketFreedom:
+      preset?.domesticMarketFreedom ?? initialState.domesticMarketFreedom,
+    domesticMarketFreedomTarget:
+      preset?.domesticMarketFreedomTarget ??
+      initialState.domesticMarketFreedomTarget,
     publicOwnershipShare: initialState.publicOwnershipShare,
-    landStance: initialState.landStance as LandInstitutionStance,
-    enterpriseStance: initialState.enterpriseStance as EnterpriseInstitutionStance,
-    priceStance: initialState.priceStance as PriceInstitutionStance,
+    landStance: (preset?.landStance ?? initialState.landStance) as LandInstitutionStance,
+    enterpriseStance: (preset?.enterpriseStance ??
+      initialState.enterpriseStance) as EnterpriseInstitutionStance,
+    priceStance: (preset?.priceStance ?? initialState.priceStance) as PriceInstitutionStance,
     landStanceChangedElapsedMonth: null,
     enterpriseStanceChangedElapsedMonth: null,
     priceStanceChangedElapsedMonth: null,

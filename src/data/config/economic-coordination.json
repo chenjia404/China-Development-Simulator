@@ -16,6 +16,32 @@
     "enterpriseStance": "mixed",
     "priceStance": "planned"
   },
+  "openingMechanismPresets": {
+    "planned": {
+      "id": "planned",
+      "name": "计划经济",
+      "summary": "以较高计划强度、国有企业主导和计划价格动员资源，适合重工业与基建集中配置；消费品供应与市场调节空间偏紧。",
+      "planningIntensity": 0.85,
+      "planningTarget": 0.85,
+      "domesticMarketFreedom": 0.15,
+      "domesticMarketFreedomTarget": 0.15,
+      "landStance": "cooperative",
+      "enterpriseStance": "soe_led",
+      "priceStance": "planned"
+    },
+    "market": {
+      "id": "market",
+      "name": "市场经济",
+      "summary": "降低计划强度、扩大对内市场化与民营空间，价格以政府指导为主；仍保留一定协调能力，避免 1949 年瞬时完全自由市场。",
+      "planningIntensity": 0.35,
+      "planningTarget": 0.35,
+      "domesticMarketFreedom": 0.55,
+      "domesticMarketFreedomTarget": 0.55,
+      "landStance": "household_farming",
+      "enterpriseStance": "private_led",
+      "priceStance": "guided"
+    }
+  },
   "baseline": {
     "planning": 0.7,
     "domesticMarketFreedom": 0.2

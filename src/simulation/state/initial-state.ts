@@ -12,7 +12,12 @@ import diplomacyConfig from "../../data/config/diplomacy.json";
 import { createInitialIndustrialCategories } from "../economy/industrial-structure";
 import { createInitialIndustrialPolicyState } from "../policies/industrial-policy";
 import { createInitialEconomicCoordinationState } from "../economy/economic-coordination";
+import { getDiplomaticStrategy } from "../diplomacy/diplomatic-strategy";
+import { getForeignPolicyDoctrine } from "../diplomacy/foreign-policy-doctrine";
+import { getOpeningDevelopmentBlueprint } from "../policies/opening-routes";
+import { validatePolicySelection } from "../policies/policy-engine";
 import { createInitialPrivateEconomyState } from "../economy/private-economy";
+import type { OpeningChoices } from "./game-state";
 import { createEmptyFamineMortalityAccount } from "../population/famine-mortality-account";
 import sinoUSNormalizationConfig from "../../data/config/sino-us-normalization.json";
 import {
@@ -107,12 +112,64 @@ function createSector(
   };
 }
 
+function resolveOpeningPolicySetup(openingChoices?: OpeningChoices): {
+  policies: string[];
+  policyProgress: Record<string, number>;
+  openingChoices?: OpeningChoices;
+  diplomaticStrategyId: "pro_soviet" | "balanced" | "pro_western";
+  strategyAlignment: number;
+  foreignPolicyDoctrineId: OpeningChoices["foreignPolicyDoctrineId"];
+  economicMechanism?: OpeningChoices["economicMechanism"];
+} {
+  if (!openingChoices) {
+    return {
+      policies: [],
+      policyProgress: {},
+      diplomaticStrategyId: "balanced",
+      strategyAlignment: 0,
+      foreignPolicyDoctrineId: "status_quo",
+    };
+  }
+
+  const strategy = getDiplomaticStrategy(openingChoices.diplomaticStrategyId);
+  if (!strategy) {
+    throw new Error(`未知开局外交战略：${openingChoices.diplomaticStrategyId}`);
+  }
+  const doctrine = getForeignPolicyDoctrine(openingChoices.foreignPolicyDoctrineId);
+  if (!doctrine) {
+    throw new Error(`未知开局外交学说：${openingChoices.foreignPolicyDoctrineId}`);
+  }
+  const blueprint = getOpeningDevelopmentBlueprint(
+    openingChoices.developmentBlueprintId,
+  );
+  if (!blueprint) {
+    throw new Error(`未知开局发展蓝图：${openingChoices.developmentBlueprintId}`);
+  }
+  validatePolicySelection(blueprint.policyIds);
+  const policyProgress: Record<string, number> = {};
+  for (const policyId of blueprint.policyIds) {
+    policyProgress[policyId] = 1;
+  }
+
+  return {
+    policies: [...blueprint.policyIds],
+    policyProgress,
+    openingChoices: { ...openingChoices },
+    diplomaticStrategyId: strategy.id,
+    strategyAlignment: strategy.targetAlignment,
+    foreignPolicyDoctrineId: doctrine.id,
+    economicMechanism: openingChoices.economicMechanism,
+  };
+}
+
 export function createInitialGameState(
   seed: number,
   startYear = 1949,
   historicalEventDecisionMode: "automatic" | "interactive" = "automatic",
+  openingChoices?: OpeningChoices,
 ): GameState {
   const normalizedSeed = seed >>> 0;
+  const openingSetup = resolveOpeningPolicySetup(openingChoices);
   const population = 541_670_000;
   const workingAge = population * 0.56;
   const initialPopulation = {
@@ -202,7 +259,9 @@ export function createInitialGameState(
       },
       industries: createInitialIndustrialCategories(28_000_000_000),
       industrialPolicy: createInitialIndustrialPolicyState(),
-      economicCoordination: createInitialEconomicCoordinationState(),
+      economicCoordination: createInitialEconomicCoordinationState(
+        openingSetup.economicMechanism,
+      ),
       fiscal: {
         revenue: INITIAL_FISCAL_REVENUE,
         expenditure: 13_000_000_000,
@@ -315,10 +374,10 @@ export function createInitialGameState(
         globalReputation: diplomacyConfig.initialReputation,
         securityIndex: diplomacyConfig.initialSecurityIndex,
         organizationIds: [],
-        strategyId: "balanced",
-        strategyAlignment: 0,
+        strategyId: openingSetup.diplomaticStrategyId,
+        strategyAlignment: openingSetup.strategyAlignment,
         lastStrategyChangeMonth: null,
-        foreignPolicyDoctrineId: "status_quo",
+        foreignPolicyDoctrineId: openingSetup.foreignPolicyDoctrineId,
         previousForeignPolicyDoctrineId: null,
         foreignPolicyDoctrineProgress: 1,
         lastForeignPolicyDoctrineChangeMonth: null,
@@ -365,8 +424,9 @@ export function createInitialGameState(
       },
       securityDefense: createEmptySecurityDefenseState(),
       institutions: createEmptyInstitutionCausalityState(),
-      policies: [],
-      policyProgress: {},
+      policies: openingSetup.policies,
+      policyProgress: openingSetup.policyProgress,
+      openingChoices: openingSetup.openingChoices,
       projects: [],
       modifiers: [],
       achievements: createEmptyAchievementsState(),

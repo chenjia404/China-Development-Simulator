@@ -28,6 +28,7 @@ import { hasRecordedVictory } from "@/src/simulation/victory/victory";
 import { ShareDialog } from "./share-dialog";
 import { SourceNoticeDialog } from "./source-notice-dialog";
 import { GameGoalDialog } from "./game-goal-dialog";
+import { OpeningSetupDialog } from "./opening-setup-dialog";
 import { VictoryDialog } from "./victory-dialog";
 import {
   averageInternationalRelation,
@@ -39,6 +40,8 @@ import {
   foreignPolicyDoctrineCooldownRemaining,
   foreignPolicyDoctrineDefinitions,
   foreignPolicyDoctrineEffects,
+  getEconomicMechanismPreset,
+  getOpeningDevelopmentBlueprint,
   getInternationalOrganizationStatus,
   internationalOrganizations,
   getHistoricalEvent,
@@ -1397,6 +1400,25 @@ function PoliciesSection({ game, busy }: { game: GameState; busy: boolean }) {
         <h2>重要国策</h2>
         <p>国策不直接增加 GDP，而是通过资本配置、人口、公共服务、科研、贸易和财政逐月传导。取消后也会经历退出期。</p>
         <div className="selection-count"><strong>{game.nation.policies.length}</strong> / {maximumActivePolicies} 项正在实施</div>
+        {game.nation.openingChoices ? (
+          <p className="opening-route-note">
+            <strong>开局路线：</strong>
+            {getEconomicMechanismPreset(game.nation.openingChoices.economicMechanism).name}
+            {" · "}
+            {diplomaticStrategyDefinitions.find(
+              (item) => item.id === game.nation.openingChoices?.diplomaticStrategyId,
+            )?.name ?? game.nation.openingChoices.diplomaticStrategyId}
+            {" · "}
+            {foreignPolicyDoctrineDefinitions.find(
+              (item) => item.id === game.nation.openingChoices?.foreignPolicyDoctrineId,
+            )?.name ?? game.nation.openingChoices.foreignPolicyDoctrineId}
+            {" · "}
+            {getOpeningDevelopmentBlueprint(
+              game.nation.openingChoices.developmentBlueprintId,
+            )?.name ?? game.nation.openingChoices.developmentBlueprintId}
+            。开局后仍可调整，本行仅作记录。
+          </p>
+        ) : null}
       </div>
       <div className="route-blueprint-heading">
         <div>
@@ -2910,19 +2932,25 @@ export function SimulatorDashboard() {
     busy,
     error,
     initialize,
+    showOpeningSetupPrompt,
     showGameGoalPrompt,
     gameGoalAcknowledged,
     pendingVictoryCelebration,
   } = store;
   const acknowledgeGameGoal = useSimulationStore((state) => state.acknowledgeGameGoal);
+  const confirmOpeningSetup = useSimulationStore((state) => state.confirmOpeningSetup);
   const clearVictoryCelebration = useSimulationStore(
     (state) => state.clearVictoryCelebration,
   );
   const [sourceNoticeOpen, setSourceNoticeOpen] = useState(true);
   const [victoryReviewOpen, setVictoryReviewOpen] = useState(false);
 
+  const openingSetupOpen = showOpeningSetupPrompt && !sourceNoticeOpen;
   const gameGoalOpen =
-    showGameGoalPrompt && !gameGoalAcknowledged && !sourceNoticeOpen;
+    showGameGoalPrompt &&
+    !gameGoalAcknowledged &&
+    !sourceNoticeOpen &&
+    !showOpeningSetupPrompt;
   const victoryModalOpen = pendingVictoryCelebration || victoryReviewOpen;
 
   useEffect(() => { void initialize(); }, [initialize]);
@@ -2952,6 +2980,7 @@ export function SimulatorDashboard() {
     return () => window.clearInterval(interval);
   }, [
     autoRunning,
+    game,
     game?.nation.date.year,
     game?.nation.date.month,
     game?.nation.pendingHistoricalEventId,
@@ -2964,10 +2993,24 @@ export function SimulatorDashboard() {
   if (!game) {
     return (
       <>
-        <main className="loading-screen"><div className="loading-mark">华</div><h1>中国国家发展模拟器</h1><p>{error ?? "正在启动独立模拟核心…"}</p></main>
+        <main className="loading-screen">
+          <div className="loading-mark">华</div>
+          <h1>中国国家发展模拟器</h1>
+          <p>
+            {error ??
+              (showOpeningSetupPrompt
+                ? "请先选定建国初期路线…"
+                : "正在启动独立模拟核心…")}
+          </p>
+        </main>
         <SourceNoticeDialog
           open={sourceNoticeOpen}
           onConfirm={() => setSourceNoticeOpen(false)}
+        />
+        <OpeningSetupDialog
+          open={openingSetupOpen}
+          busy={busy}
+          onConfirm={confirmOpeningSetup}
         />
         <GameGoalDialog open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
       </>
@@ -3088,6 +3131,11 @@ export function SimulatorDashboard() {
       <SourceNoticeDialog
         open={sourceNoticeOpen}
         onConfirm={() => setSourceNoticeOpen(false)}
+      />
+      <OpeningSetupDialog
+        open={openingSetupOpen}
+        busy={busy}
+        onConfirm={confirmOpeningSetup}
       />
       <GameGoalDialog open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
     </>

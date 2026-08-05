@@ -159,6 +159,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
           command.seed,
           command.startYear,
           command.historicalEventDecisionMode,
+          command.openingChoices,
         );
         break;
       case "IMPORT_GAME":

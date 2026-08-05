@@ -5,6 +5,7 @@ import type {
   IndustrialCategoryId,
   IndustrialPolicyStance,
   LandInstitutionStance,
+  OpeningChoices,
   PriceInstitutionStance,
 } from "../state/game-state";
 import type { DiplomaticActionId } from "../diplomacy/diplomacy";
@@ -18,6 +19,8 @@ export interface CreateGameCommand {
   seed: number;
   startYear?: number;
   historicalEventDecisionMode?: "automatic" | "interactive";
+  /** 新建游戏时的开局路线选择；省略则保持校准默认初值。 */
+  openingChoices?: OpeningChoices;
 }
 
 export interface AdvanceMonthsCommand {

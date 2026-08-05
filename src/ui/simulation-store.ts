@@ -14,6 +14,7 @@ import {
   type IndustrialCategoryId,
   type IndustrialPolicyStance,
   type LandInstitutionStance,
+  type OpeningChoices,
   type PriceInstitutionStance,
   type SimulationCommand,
   type TechnologyIndustryPathId,
@@ -56,6 +57,10 @@ export type SectionId =
 
 interface SimulationStore {
   game: GameState | null;
+  /** 新开局时为 true，展示开局路线向导。 */
+  showOpeningSetupPrompt: boolean;
+  /** 待开局使用的随机种子（重新开始时保留原种子）。 */
+  pendingOpeningSeed: number;
   /** 新开局（非自动存档恢复）时为 true，用于决定是否展示游戏目标提示。 */
   showGameGoalPrompt: boolean;
   /** 用户已确认游戏目标说明。 */
@@ -97,7 +102,9 @@ interface SimulationStore {
       | EnterpriseInstitutionStance
       | PriceInstitutionStance,
   ): Promise<void>;
+  /** 打开开局向导；确认后由 confirmOpeningSetup 真正建局。 */
   newGame(seed?: number): Promise<void>;
+  confirmOpeningSetup(choices: OpeningChoices): Promise<void>;
   importSave(serialized: string): Promise<void>;
   exportSave(): string | null;
   setActiveSection(section: SectionId): void;
@@ -118,6 +125,8 @@ async function persist(state: GameState): Promise<void> {
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
   game: null,
+  showOpeningSetupPrompt: false,
+  pendingOpeningSeed: 1949,
   showGameGoalPrompt: false,
   gameGoalAcknowledged: true,
   pendingVictoryCelebration: false,
@@ -129,31 +138,33 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   error: null,
 
   async initialize() {
-    if (get().game || get().busy) return;
+    if (get().game || get().busy || get().showOpeningSetupPrompt) return;
     set({ busy: true, error: null });
     try {
       const saved = await loadAutoSave().catch(() => undefined);
-      const resumedFromSave = Boolean(saved);
-      const client = getSimulationClient();
-      let result = await client.dispatch(saved
-        ? { type: "IMPORT_GAME", state: saved }
-        : {
-            type: "CREATE_GAME",
-            seed: 1949,
-            startYear: 1949,
-            historicalEventDecisionMode: "interactive",
-          });
-      if (saved) {
-        result = await client.dispatch({
-          type: "SET_HISTORICAL_EVENT_MODE",
-          mode: "interactive",
+      if (!saved) {
+        set({
+          busy: false,
+          showOpeningSetupPrompt: true,
+          pendingOpeningSeed: 1949,
+          showGameGoalPrompt: false,
+          gameGoalAcknowledged: false,
+          pendingVictoryCelebration: false,
         });
+        return;
       }
+      const client = getSimulationClient();
+      let result = await client.dispatch({ type: "IMPORT_GAME", state: saved });
+      result = await client.dispatch({
+        type: "SET_HISTORICAL_EVENT_MODE",
+        mode: "interactive",
+      });
       set({
         game: result.state,
         busy: false,
-        showGameGoalPrompt: !resumedFromSave,
-        gameGoalAcknowledged: resumedFromSave,
+        showOpeningSetupPrompt: false,
+        showGameGoalPrompt: false,
+        gameGoalAcknowledged: true,
         pendingVictoryCelebration: false,
       });
     } catch (error) {
@@ -320,9 +331,26 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   async newGame(seed = 1949) {
     set({
       autoRunning: false,
-      showGameGoalPrompt: true,
+      showOpeningSetupPrompt: true,
+      pendingOpeningSeed: seed,
+      showGameGoalPrompt: false,
       gameGoalAcknowledged: false,
       pendingVictoryCelebration: false,
+      error: null,
+    });
+    await clearAutoSave().catch(() => undefined);
+  },
+
+  async confirmOpeningSetup(choices) {
+    if (get().busy) return;
+    const seed = get().pendingOpeningSeed;
+    set({
+      autoRunning: false,
+      showOpeningSetupPrompt: false,
+      showGameGoalPrompt: false,
+      gameGoalAcknowledged: false,
+      pendingVictoryCelebration: false,
+      error: null,
     });
     await clearAutoSave().catch(() => undefined);
     await get().dispatch({
@@ -330,11 +358,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       seed,
       startYear: 1949,
       historicalEventDecisionMode: "interactive",
+      openingChoices: choices,
+    });
+    if (get().error || !get().game) {
+      set({ showOpeningSetupPrompt: true });
+      return;
+    }
+    set({
+      showGameGoalPrompt: true,
+      gameGoalAcknowledged: false,
     });
   },
 
   async importSave(serialized) {
     set({
+      showOpeningSetupPrompt: false,
       showGameGoalPrompt: false,
       gameGoalAcknowledged: true,
       pendingVictoryCelebration: false,

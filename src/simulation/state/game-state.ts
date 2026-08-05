@@ -959,6 +959,14 @@ export interface AchievementsState {
   activeBreakthroughs: AchievementBreakthroughState[];
 }
 
+/** 新建游戏时选定的开局路线；局中仍可按现有命令调整，本字段仅作记录。 */
+export interface OpeningChoices {
+  economicMechanism: "planned" | "market";
+  diplomaticStrategyId: "pro_soviet" | "balanced" | "pro_western";
+  foreignPolicyDoctrineId: DiplomacyState["foreignPolicyDoctrineId"];
+  developmentBlueprintId: string;
+}
+
 export interface NationState {
   id: "china";
   name: "中国";
@@ -994,6 +1002,8 @@ export interface NationState {
   institutions: InstitutionCausalityState;
   policies: string[];
   policyProgress: Record<string, number>;
+  /** 本局开局时选定的路线；旧存档或未走开局向导时为 undefined。 */
+  openingChoices?: OpeningChoices;
   projects: ProjectState[];
   modifiers: ModifierState[];
   /** 国家成就：能力分解锁与集中突破进度。 */

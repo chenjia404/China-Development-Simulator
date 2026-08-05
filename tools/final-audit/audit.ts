@@ -49,6 +49,8 @@ import {
   validateFiscalFederalismConfig,
   validateTechnologyTreeDefinitions,
   validateDevelopmentRouteBlueprints,
+  openingDevelopmentBlueprints,
+  validateOpeningDevelopmentBlueprints,
   evaluateModelIntegrity,
   searchCalibrationCandidates,
   summarizeUncertainty,
@@ -207,6 +209,14 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     validateDevelopmentRouteBlueprints();
   } catch (error) {
     developmentBlueprintValidationError = error instanceof Error
+      ? error.message
+      : String(error);
+  }
+  let openingBlueprintValidationError: string | null = null;
+  try {
+    validateOpeningDevelopmentBlueprints();
+  } catch (error) {
+    openingBlueprintValidationError = error instanceof Error
       ? error.message
       : String(error);
   }
@@ -1503,6 +1513,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       developmentBlueprintValidationError ??
         developmentRouteBlueprints.map((blueprint) =>
           `${blueprint.referenceEconomy}=${blueprint.policyIds.length} 项`,
+        ).join("；"),
+    ),
+    makeCheck(
+      "opening-development-blueprints",
+      "开局中国语境发展蓝图均为合法可组合国策推荐",
+      openingBlueprintValidationError === null &&
+        openingDevelopmentBlueprints.length === 4,
+      openingBlueprintValidationError ??
+        openingDevelopmentBlueprints.map((blueprint) =>
+          `${blueprint.name}=${blueprint.policyIds.length} 项`,
         ).join("；"),
     ),
     makeCheck(
