@@ -32,6 +32,7 @@ describe("基础设施普及率存档迁移", () => {
     const legacy = createInitialGameState(2010);
     delete (legacy.nation.society as { infrastructurePenetration?: unknown })
       .infrastructurePenetration;
+    delete (legacy.nation.resources as { electricity?: unknown }).electricity;
 
     const engine = createSimulationEngine(createInitialGameState(1));
     engine.dispatch({ type: "IMPORT_GAME", state: legacy });
@@ -42,6 +43,20 @@ describe("基础设施普及率存档迁移", () => {
     expect(Number.isFinite(penetration.televisionPenetration)).toBe(true);
     expect(Number.isFinite(penetration.mobilePenetration)).toBe(true);
     expect(Number.isFinite(penetration.internetPenetration)).toBe(true);
+  });
+
+  it("直接构造引擎时缺失电力与普及率字段不会崩溃", () => {
+    const legacy = createInitialGameState(2010);
+    delete (legacy.nation.society as { infrastructurePenetration?: unknown })
+      .infrastructurePenetration;
+    delete (legacy.nation.resources as { electricity?: unknown }).electricity;
+
+    const engine = createSimulationEngine(legacy);
+    const penetration = engine.getState().nation.society.infrastructurePenetration;
+
+    expect(penetration).toBeDefined();
+    expect(Number.isFinite(penetration.electricityPenetration)).toBe(true);
+    expect(Number.isFinite(engine.getState().nation.resources.electricity.grossGeneration)).toBe(true);
   });
 
   it("部分字段缺失时保留已有值并仅修复缺失项", () => {

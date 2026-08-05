@@ -4,6 +4,7 @@ import type { RandomGenerator } from "../core/random";
 import type { NationState } from "../state/game-state";
 import { applyModifiers } from "../events/modifiers";
 import { applyPolicyModifiers } from "../policies/policy-engine";
+import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
 
 function distributeDeaths(
   children: number,
@@ -35,6 +36,7 @@ export function updateDemographics(
   nation: NationState,
   random: RandomGenerator,
 ): void {
+  ensureInfrastructurePenetrationState(nation);
   const {
     population,
     society,

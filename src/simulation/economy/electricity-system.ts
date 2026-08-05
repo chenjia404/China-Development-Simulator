@@ -9,6 +9,7 @@ import type {
   NationState,
 } from "../state/game-state";
 import { normalizedEnergyShares } from "./energy-transport-environment";
+import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
 import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
 import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
 import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
