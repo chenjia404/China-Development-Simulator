@@ -117,13 +117,17 @@
     "eventId": "third_front_construction_1964",
     "name": "提前启动三线建设",
     "category": "战略工业",
-    "description": "在具备基础工业、科研和组织能力后，主动把国防、能源、交通和机械项目布局到内陆。安全纵深增强，但长期财政占用、重复配套和沿海投资挤出仍会完整发生。",
+    "description": "中苏交恶后，面对苏联核打击与战略突袭威胁，在具备一定工业与组织能力时，主动把国防、能源、交通和机械项目布局到内陆战略腹地。安全纵深增强，但长期财政占用、重复配套和沿海投资挤出仍会完整发生。",
     "availableFromYear": 1949,
     "diplomaticPointCost": 0,
     "transitionDurationMonths": 48,
     "requirements": {
-      "historicalEventIds": ["first_five_year_plan"],
-      "minimumMonthsSinceEvents": { "first_five_year_plan": 36 },
+      "historicalEventIds": ["first_five_year_plan", "sino_soviet_split_1960"],
+      "minimumMonthsSinceEvents": {
+        "first_five_year_plan": 36,
+        "sino_soviet_split_1960": 12
+      },
+      "maximumCountryRelations": { "russia": 5 },
       "minimumInstitutionalEfficiency": 0.4,
       "minimumStability": 50,
       "minimumOpenness": 0,

@@ -88,6 +88,39 @@ function remittanceAccessMultiplier(state: GameState): number {
   );
 }
 
+/**
+ * 史实份额体现 1951—1952 高峰与 1953 年后回落；
+ * 保护侨汇、侨资回乡等有利政策按峰值后缓升路径混合，避免被史实回落拖累。
+ */
+function remittanceShareTarget(nation: NationState, year: number): number {
+  const historicalShare = interpolateShare(remittanceShareAnchors, year);
+  const config = foreignExchangeConfig as {
+    remittanceEarlyPeakYear?: number;
+    remittanceProtectionPathBlend?: number;
+    remittanceInvestmentPathBlend?: number;
+    remittanceProtectedShareGrowthPerYear?: number;
+  };
+  const peakYear = config.remittanceEarlyPeakYear ?? 1952;
+  const protectionBlend = config.remittanceProtectionPathBlend ?? 0;
+  const investmentBlend = config.remittanceInvestmentPathBlend ?? 0;
+  const annualGrowth = config.remittanceProtectedShareGrowthPerYear ?? 0;
+  const protection = nation.policyProgress.remittance_protection ?? 0;
+  const overseasInvestment =
+    nation.policyProgress.overseas_chinese_investment ?? 0;
+  const blend = clamp(
+    protection * protectionBlend + overseasInvestment * investmentBlend,
+    0,
+    1,
+  );
+  if (blend <= 0 || annualGrowth <= 0) return historicalShare;
+
+  const peakShare = interpolateShare(remittanceShareAnchors, peakYear);
+  const yearsAfterPeak = Math.max(0, year - peakYear);
+  const protectedPath = peakShare + yearsAfterPeak * annualGrowth;
+  const supportedShare = Math.max(historicalShare, protectedPath);
+  return historicalShare * (1 - blend) + supportedShare * blend;
+}
+
 function calculateImportCoverageMonths(state: GameState): number {
   const comparable = comparableGDP(state);
   const comparableImports = state.nation.trade.imports * safeDivide(
@@ -326,10 +359,7 @@ export function updateForeignExchange(state: GameState): void {
   ensureForeignExchangeState(state);
   const { nation } = state;
   const comparable = comparableGDP(state);
-  const remittanceShare = interpolateShare(
-    remittanceShareAnchors,
-    nation.date.year,
-  );
+  const remittanceShare = remittanceShareTarget(nation, nation.date.year);
   const baseRemittanceTarget =
     comparable * remittanceShare * remittanceAccessMultiplier(state);
   const remittanceTarget = Math.max(

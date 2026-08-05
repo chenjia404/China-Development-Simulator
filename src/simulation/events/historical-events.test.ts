@@ -31,6 +31,31 @@ function advanceMonthsDismissingFamineReports(
   }
 }
 
+/** 写入已发生的中苏交恶记录，供依赖该前置事件的用例使用。 */
+function seedSinoSovietSplit(
+  state: GameState,
+  year = 1960,
+  month = 7,
+): void {
+  state.nation.history.historicalEvents.push({
+    id: "sino_soviet_split_1960",
+    name: "中苏交恶",
+    year,
+    month,
+    scheduledYear: 1960,
+    scheduledMonth: 7,
+    category: "外交",
+    impact: "negative",
+    description: "测试用中苏交恶记录",
+    effects: [],
+    durationMonths: 60,
+    choiceId: "historical_path",
+    choiceName: "遵循历史路径",
+    choiceDescription: "测试",
+    outcome: "occurred",
+  });
+}
+
 describe("确定性历史事件", () => {
   it("事件目录具有唯一编号、有效日期和详细影响说明", () => {
     const ids = historicalEventDefinitions.map((event) => event.id);
@@ -903,6 +928,50 @@ describe("确定性历史事件", () => {
     expect(engine.getState().nation.trade.externalDebt).toBeLessThan(1_000_000);
   });
 
+  it("未发生中苏交恶时，1964年5月不触发三线建设", () => {
+    const state = createInitialGameState(1964, 1964, "interactive");
+    state.nation.date.month = 5;
+    state.nation.diplomacy.strategyId = "balanced";
+    state.nation.diplomacy.strategyAlignment = 0;
+    const engine = createSimulationEngine(state);
+    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    expect(engine.getState().nation.pendingHistoricalEventId).not.toBe(
+      "third_front_construction_1964",
+    );
+    expect(
+      engine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "third_front_construction_1964",
+      ),
+    ).toBe(false);
+  });
+
+  it("亲苏路线爆发中苏交恶后，1964年5月才会触发三线建设", () => {
+    const state = createInitialGameState(1960, 1960, "automatic");
+    state.nation.date.month = 7;
+    state.nation.diplomacy.strategyId = "pro_soviet";
+    state.nation.diplomacy.strategyAlignment = -1;
+    const engine = createSimulationEngine(state);
+    // 从 1960-07 起推进 46 个月后日期为 1964-05，再结算当月才会写入三线建设。
+    advanceMonthsDismissingFamineReports(engine, 46);
+    expect(engine.getState().nation.date).toMatchObject({ year: 1964, month: 5 });
+    expect(
+      engine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "sino_soviet_split_1960",
+      ),
+    ).toBe(true);
+    expect(
+      engine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "third_front_construction_1964",
+      ),
+    ).toBe(false);
+    advanceMonthsDismissingFamineReports(engine, 1);
+    expect(
+      engine.getState().nation.history.historicalEvents.some(
+        (event) => event.id === "third_front_construction_1964",
+      ),
+    ).toBe(true);
+  });
+
   it("三线建设可选，史实、集中建设和取消路线形成完整收益代价", () => {
     const choices = getHistoricalEventChoices("third_front_construction_1964");
     expect(choices.map((choice) => choice.id)).toEqual([
@@ -922,6 +991,7 @@ describe("确定性历史事件", () => {
     const runChoice = (choiceId: string) => {
       const state = createInitialGameState(1964, 1964, "interactive");
       state.nation.date.month = 5;
+      seedSinoSovietSplit(state);
       const engine = createSimulationEngine(state);
       engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
       expect(engine.getState().nation.pendingHistoricalEventId).toBe(
@@ -2357,6 +2427,8 @@ describe("确定性历史事件", () => {
 
     const balanced = createInitialGameState(1960, 1960, "interactive");
     balanced.nation.date.month = 7;
+    balanced.nation.diplomacy.strategyId = "balanced";
+    balanced.nation.diplomacy.strategyAlignment = 0;
     const balancedEngine = createSimulationEngine(balanced);
     balancedEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
     expect(balancedEngine.getState().nation.pendingHistoricalEventId).not.toBe(

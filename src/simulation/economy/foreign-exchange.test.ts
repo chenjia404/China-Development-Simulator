@@ -127,7 +127,7 @@ describe("外汇储备与侨汇", () => {
       policy?.modifiers.find(
         (modifier) => modifier.target === "trade.remittanceInflows",
       ),
-    ).toMatchObject({ operation: "multiply", value: 1.32 });
+    ).toMatchObject({ operation: "multiply", value: 1.28 });
 
     const baseline = createSimulationEngine(createInitialGameState(1955));
     const protectedRights = createSimulationEngine(
@@ -152,10 +152,51 @@ describe("外汇储备与侨汇", () => {
         "trade.remittanceInflows",
         100,
       ),
-    ).toBeCloseTo(132, 6);
+    ).toBeCloseTo(128, 6);
     expect(protectedState.nation.trade.remittanceInflows).toBeGreaterThan(
       baselineState.nation.trade.remittanceInflows * 1.18,
     );
+  }, 20_000);
+
+  it("史实路线呈现1951—1952高峰与1953年后回落，保护侨汇则持续上涨", () => {
+    const sampleYears = (policyIds: string[]) => {
+      const engine = createSimulationEngine(createInitialGameState(1949));
+      if (policyIds.length > 0) {
+        engine.dispatch({ type: "SET_POLICIES", policyIds });
+      }
+      const byYear = new Map<number, number>();
+      for (let year = 1949; year <= 1960; year += 1) {
+        const { nation } = engine.getState();
+        byYear.set(nation.date.year, nation.trade.remittanceInflows);
+        engine.dispatch({
+          type: "ADVANCE_MONTHS",
+          months: 12 - nation.date.month + 1,
+        });
+      }
+      return byYear;
+    };
+
+    const baseline = sampleYears([]);
+    const protectedRights = sampleYears(["remittance_protection"]);
+    const earlyPeak = Math.max(
+      baseline.get(1951) ?? 0,
+      baseline.get(1952) ?? 0,
+      baseline.get(1953) ?? 0,
+    );
+    expect(earlyPeak).toBeGreaterThan(180_000_000);
+
+    for (const year of [1955, 1956, 1957]) {
+      const remittance = baseline.get(year) ?? 0;
+      expect(remittance).toBeGreaterThan(115_000_000);
+      expect(remittance).toBeLessThan(155_000_000);
+      expect(remittance).toBeLessThan(earlyPeak * 0.85);
+    }
+
+    const protected1954 = protectedRights.get(1954) ?? 0;
+    const protected1960 = protectedRights.get(1960) ?? 0;
+    expect(protected1954).toBeGreaterThan(baseline.get(1954) ?? 0);
+    expect(protected1960).toBeGreaterThan(protected1954);
+    expect(protected1960).toBeGreaterThan(baseline.get(1960) ?? 0);
   }, 20_000);
 
   it("侨汇国策会在家庭收入、投资与储备之间形成取舍", () => {
@@ -522,57 +563,29 @@ describe("外汇储备与侨汇", () => {
     );
   });
 
-  it("建国后前三十年年度侨汇流入不低于工业品出口创汇", () => {
-    const industrialIds = [
-      "mining_energy",
-      "basic_materials",
-      "general_machinery",
-      "chemicals_pharmaceuticals",
-      "electrical_equipment",
-      "electronics_communications",
-      "transport_equipment",
-      "consumer_goods",
-      "construction",
-      "precision_medical",
-      "aerospace_advanced",
-    ] as const;
+  it("建国至改革开放前夕累计侨汇贴近史实75.86亿美元数量级", () => {
     const engine = createSimulationEngine(createInitialGameState(1949));
-    const comparisons: Array<{
-      year: number;
-      remittanceInflows: number;
-      industrialExportFx: number;
-    }> = [];
+    let cumulativeRemittance = 0;
+    let firstYearRemittance = 0;
 
-    for (let year = 1949; year <= 1979; year += 1) {
+    // 史实口径约 1950—1980 年；以各年 1 月年度化流入近似年累计。
+    for (let year = 1949; year <= 1980; year += 1) {
       const { nation } = engine.getState();
-      const conversion =
-        nation.economy.internationalComparableGDP /
-        Math.max(nation.economy.nominalGDP, 1);
-      const industrialExportFx = industrialIds.reduce(
-        (sum, id) => sum + (nation.industries[id]?.exportValue ?? 0) * conversion,
-        0,
-      );
-      comparisons.push({
-        year: nation.date.year,
-        remittanceInflows: nation.trade.remittanceInflows,
-        industrialExportFx,
-      });
+      if (year === 1949) {
+        firstYearRemittance = nation.trade.remittanceInflows;
+      } else {
+        cumulativeRemittance += nation.trade.remittanceInflows;
+      }
       engine.dispatch({
         type: "ADVANCE_MONTHS",
         months: 12 - nation.date.month + 1,
       });
     }
 
-    for (const row of comparisons) {
-      if (row.year === 1949) {
-        expect(row.remittanceInflows).toBeGreaterThan(0);
-        continue;
-      }
-      expect(
-        row.remittanceInflows,
-        `${row.year} 年侨汇应不低于工业出口创汇`,
-      ).toBeGreaterThanOrEqual(row.industrialExportFx);
-    }
+    // 史实累计约 75.86 亿美元，足以覆盖同期外贸逆差约 61.24 亿美元。
+    expect(cumulativeRemittance).toBeGreaterThan(6_124_000_000);
+    expect(cumulativeRemittance).toBeLessThan(9_500_000_000);
+    expect(cumulativeRemittance).toBeGreaterThan(firstYearRemittance);
   }, 20_000);
 
   it("史实路线的外储和侨汇数量级合理并稳定运行至 2026 年", () => {

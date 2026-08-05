@@ -1,5 +1,6 @@
 import diplomacyConfig from "../../data/config/diplomacy.json";
 import initiativeData from "../../data/config/historical-event-initiatives.json";
+import worldCountries from "../../data/config/world-countries.json";
 import { averageInternationalRelation } from "../diplomacy/diplomacy";
 import { ensureSinoUSNormalizationState } from "../diplomacy/sino-us-normalization";
 import type { GameState, ModifierState } from "../state/game-state";
@@ -15,6 +16,8 @@ export interface HistoricalInitiativeRequirements {
   minimumMonthsSinceEvents: Partial<Record<string, number>>;
   requiredOrganizationIds?: string[];
   requireSinoUSNormalization?: boolean;
+  /** 指定国家对华关系不得高于该上限（用于敌对/威胁环境门槛）。 */
+  maximumCountryRelations?: Partial<Record<string, number>>;
   minimumInstitutionalEfficiency: number;
   minimumStateCapacity?: number;
   minimumLocalImplementationCapacity?: number;
@@ -41,6 +44,12 @@ function organizationName(organizationId: string): string {
     (item) => item.id === organizationId,
   );
   return organization?.name ?? organizationId;
+}
+
+function countryRelationLabel(countryId: string): string {
+  if (countryId === "russia") return "对苏联／俄罗斯关系";
+  const country = worldCountries.find((item) => item.id === countryId);
+  return `对${country?.name ?? countryId}关系`;
 }
 
 export interface HistoricalInitiativeDefinition {
@@ -149,6 +158,21 @@ export function getHistoricalInitiativeStatus(
     ensureSinoUSNormalizationState(state);
     if (nation.diplomacy.sinoUSNormalizationStatus !== "established") {
       blockers.push("需先完成中美建交");
+    }
+  }
+  for (const [countryId, maximumRelation] of Object.entries(
+    requirements.maximumCountryRelations ?? {},
+  )) {
+    if (maximumRelation === undefined) continue;
+    const country = state.world.countries.find((item) => item.id === countryId);
+    if (!country) {
+      blockers.push(`缺少${countryRelationLabel(countryId)}数据`);
+      continue;
+    }
+    if (country.relationWithChina > maximumRelation) {
+      blockers.push(
+        `${countryRelationLabel(countryId)}需不高于 ${maximumRelation.toFixed(0)}（当前核威胁与战略压力不足）`,
+      );
     }
   }
   if (nation.economy.institutionalEfficiency < requirements.minimumInstitutionalEfficiency) {

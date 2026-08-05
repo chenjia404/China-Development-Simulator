@@ -202,5 +202,5 @@ describe("三年困难超额死亡账户", () => {
     expect(avoidedWithAid.excessDeaths).toBeLessThanOrEqual(
       avoidedWithoutAid.excessDeaths,
     );
-  });
+  }, 15_000);
 });

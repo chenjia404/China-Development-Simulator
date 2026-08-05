@@ -677,4 +677,87 @@ describe("历史转折国策", () => {
     historicalDate.nation.date.month = 1;
     expect(checkHistoricalEvents(historicalDate.nation)).toEqual([]);
   });
+
+  it("三线建设须中苏交恶且对苏关系恶化后才可提前发动", () => {
+    const engine = createSimulationEngine(createInitialGameState(1949, 1949));
+    expect(
+      getHistoricalInitiativeStatus(engine.exportState(), "early_third_front_construction")
+        .blockers,
+    ).toEqual(expect.arrayContaining([
+      "需先完成第一个五年计划启动",
+      "需先完成中苏交恶",
+    ]));
+
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_unified_finance",
+    });
+    engine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_land_reform",
+    });
+    const afterLand = engine.exportState();
+    afterLand.nation.date.month = 7;
+    afterLand.nation.date.elapsedMonths = 6;
+    const fiveYearEngine = createSimulationEngine(afterLand);
+    fiveYearEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_first_five_year_plan",
+    });
+
+    const afterPlan = fiveYearEngine.exportState();
+    afterPlan.nation.date.year = 1953;
+    afterPlan.nation.date.month = 1;
+    afterPlan.nation.date.elapsedMonths = 48;
+    afterPlan.nation.economy.institutionalEfficiency = 0.42;
+    afterPlan.nation.society.stabilityIndex = 55;
+    afterPlan.nation.education.index = 16;
+    afterPlan.nation.technology.index = 12;
+    afterPlan.nation.sectors.secondary.output = 40_000_000_000;
+    afterPlan.nation.sectors.primary.output = 60_000_000_000;
+    afterPlan.nation.sectors.tertiary.output = 20_000_000_000;
+    expect(
+      getHistoricalInitiativeStatus(afterPlan, "early_third_front_construction").blockers,
+    ).toContain("需先完成中苏交恶");
+
+    afterPlan.nation.history.historicalEvents.push({
+      id: "sino_soviet_split_1960",
+      name: "中苏交恶",
+      year: 1952,
+      month: 1,
+      scheduledYear: 1960,
+      scheduledMonth: 7,
+      category: "外交",
+      impact: "negative",
+      description: "测试用中苏交恶记录",
+      effects: [],
+      durationMonths: 60,
+      choiceId: "historical_path",
+      choiceName: "遵循历史路径",
+      choiceDescription: "测试",
+      outcome: "occurred",
+    });
+    const stillWarm = createSimulationEngine(afterPlan).exportState();
+    const russia = stillWarm.world.countries.find((country) => country.id === "russia");
+    expect(russia).toBeDefined();
+    russia!.relationWithChina = 20;
+    expect(
+      getHistoricalInitiativeStatus(stillWarm, "early_third_front_construction").blockers,
+    ).toContain("对苏联／俄罗斯关系需不高于 5（当前核威胁与战略压力不足）");
+
+    russia!.relationWithChina = -10;
+    const readyEngine = createSimulationEngine(stillWarm);
+    expect(
+      getHistoricalInitiativeStatus(readyEngine.exportState(), "early_third_front_construction")
+        .available,
+    ).toBe(true);
+    readyEngine.dispatch({
+      type: "ENACT_HISTORICAL_INITIATIVE",
+      initiativeId: "early_third_front_construction",
+    });
+    expect(readyEngine.getState().nation.history.historicalEvents.at(-1)).toMatchObject({
+      id: "third_front_construction_1964",
+      outcome: "enacted_early",
+    });
+  });
 });
