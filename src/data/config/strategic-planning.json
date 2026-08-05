@@ -1,0 +1,75 @@
+{
+  "maximumFiveYearPriorities": 3,
+  "definitions": [
+    {
+      "id": "industrialization",
+      "name": "工业体系建设",
+      "summary": "提高工业组织、设备投资和产业配套能力，同时增加能源与财政压力。",
+      "effects": [
+        { "target": "sector.secondary.output", "operation": "multiply", "value": 1.012 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.008 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.004 }
+      ]
+    },
+    {
+      "id": "food_security",
+      "name": "农业与粮食安全",
+      "summary": "提高农业供给与农村投入效率，但会占用一部分财政和工业资本。",
+      "effects": [
+        { "target": "resources.foodSupply", "operation": "multiply", "value": 1.018 },
+        { "target": "sector.primary.output", "operation": "multiply", "value": 1.008 },
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.996 }
+      ]
+    },
+    {
+      "id": "education",
+      "name": "教育普及与人才",
+      "summary": "提高教育投入转化和人力资本形成，收益滞后且需要持续财政保障。",
+      "effects": [
+        { "target": "education.efficiency", "operation": "multiply", "value": 1.025 },
+        { "target": "education.humanCapitalFormation", "operation": "multiply", "value": 1.015 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.005 }
+      ]
+    },
+    {
+      "id": "technology",
+      "name": "科技研发与转化",
+      "summary": "强化科研组织和成果转化，但会提高财政、人才与设备占用。",
+      "effects": [
+        { "target": "technology.researchOutput", "operation": "multiply", "value": 1.025 },
+        { "target": "economy.structuralProductivityGrowth", "operation": "multiply", "value": 1.008 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.006 }
+      ]
+    },
+    {
+      "id": "livelihood",
+      "name": "民生与社会保障",
+      "summary": "改善公共服务、稳定和居民消费能力，同时降低当期投资积累。",
+      "effects": [
+        { "target": "wellbeing.welfare", "operation": "multiply", "value": 1.03 },
+        { "target": "society.stability", "operation": "add", "value": 0.35 },
+        { "target": "capital.privateInvestment", "operation": "multiply", "value": 0.995 }
+      ]
+    },
+    {
+      "id": "fiscal_stability",
+      "name": "财政与治理能力",
+      "summary": "改善征管和财政韧性，但行政建设会轻微拖慢投资扩张。",
+      "effects": [
+        { "target": "fiscal.revenue", "operation": "multiply", "value": 1.008 },
+        { "target": "society.stability", "operation": "add", "value": 0.2 },
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.997 }
+      ]
+    },
+    {
+      "id": "opening",
+      "name": "开放与国际市场",
+      "summary": "提高出口与外部资源获取能力，同时增加外部需求和制裁风险暴露。",
+      "effects": [
+        { "target": "trade.exportCompetitiveness", "operation": "multiply", "value": 1.018 },
+        { "target": "trade.foreignInvestment", "operation": "multiply", "value": 1.012 },
+        { "target": "society.stability", "operation": "add", "value": -0.15 }
+      ]
+    }
+  ]
+}

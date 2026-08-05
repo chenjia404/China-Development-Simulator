@@ -72,6 +72,11 @@ import {
   setEconomicCoordinationStance,
 } from "../economy/economic-coordination";
 import { ensureVictoryState } from "../victory/victory";
+import {
+  clearPendingAnnualReview,
+  ensureStrategicPlanningState,
+  resolveAnnualReview,
+} from "../policies/strategic-planning";
 
 export interface SimulationResult {
   state: GameState;
@@ -137,6 +142,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureInstitutionCausalityState(this.state.nation);
     ensureAchievementsState(this.state.nation);
     ensureHistoricalBudgetState(this.state.nation);
+    ensureStrategicPlanningState(this.state.nation);
   }
 
   getState(): Readonly<GameState> {
@@ -198,6 +204,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureInstitutionCausalityState(this.state.nation);
         ensureAchievementsState(this.state.nation);
         ensureHistoricalBudgetState(this.state.nation);
+        ensureStrategicPlanningState(this.state.nation);
         ensureVictoryState(this.state);
         break;
       case "UPDATE_BUDGET":
@@ -246,6 +253,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         setHistoricalEventDecisionMode(this.state.nation, command.mode);
         if (command.mode === "automatic") {
           clearPendingFamineMortalityReport(this.state.nation);
+          clearPendingAnnualReview(this.state.nation);
         }
         break;
       case "RESOLVE_HISTORICAL_EVENT":
@@ -275,6 +283,13 @@ class DeterministicSimulationEngine implements SimulationEngine {
         break;
       case "DISMISS_FAMINE_MORTALITY_REPORT":
         dismissFamineMortalityReport(this.state.nation);
+        break;
+      case "RESOLVE_ANNUAL_REVIEW":
+        resolveAnnualReview(
+          this.state.nation,
+          command.annualFocusId,
+          command.nextPlanPriorityIds,
+        );
         break;
       case "ADVANCE_MONTHS":
         this.advanceMonths(command.months);

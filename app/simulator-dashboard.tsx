@@ -106,6 +106,7 @@ import {
   useSimulationStore,
 } from "@/src/ui/simulation-store";
 import { formatHistoricalModifier } from "@/src/ui/historical-modifier-text";
+import { AnnualReviewDialog } from "./annual-review-dialog";
 
 const menuItems: Array<{ id: SectionId; label: string; mark: string }> = [
   { id: "nation", label: "国家总览", mark: "国" },
@@ -2959,7 +2960,8 @@ export function SimulatorDashboard() {
     if (
       !autoRunning ||
       game?.nation.pendingHistoricalEventId ||
-      game?.nation.famineMortality?.pendingReport
+      game?.nation.famineMortality?.pendingReport ||
+      game?.nation.strategicPlanning.pendingReviewYear !== null
     ) {
       return;
     }
@@ -2985,6 +2987,7 @@ export function SimulatorDashboard() {
     game?.nation.date.month,
     game?.nation.pendingHistoricalEventId,
     game?.nation.famineMortality?.pendingReport,
+    game?.nation.strategicPlanning.pendingReviewYear,
     speed,
   ]);
 
@@ -3025,11 +3028,14 @@ export function SimulatorDashboard() {
   const pastPlayableHorizon = isPastPlayableHorizon(game.nation.date, playableEndYear);
   const awaitingHistoricalDecision = Boolean(game.nation.pendingHistoricalEventId);
   const awaitingFamineReport = Boolean(game.nation.famineMortality?.pendingReport);
-  const awaitingBlockingPopup = awaitingHistoricalDecision || awaitingFamineReport;
+  const awaitingAnnualReview = game.nation.strategicPlanning.pendingReviewYear !== null;
+  const awaitingBlockingPopup = awaitingHistoricalDecision || awaitingFamineReport || awaitingAnnualReview;
   const advanceYearLabel = awaitingHistoricalDecision
     ? "请先决策"
     : awaitingFamineReport
       ? "请先确认报告"
+      : awaitingAnnualReview
+        ? "请先完成复盘"
       : busy
         ? "结算中…"
         : "推进一年";
@@ -3087,7 +3093,7 @@ export function SimulatorDashboard() {
           </header>
           {error ? <div className="error-banner">{error}</div> : null}
           <div className="workspace">
-            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成全球 GDP 第一（{game.nation.victoryYear} 年）</strong></div> : <div className="victory-goal-hint"><span>游戏目标</span><strong>GDP 全球第 {gdpRank ?? "—"} 名 → 第 1 名</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
+            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成全球 GDP 第一（{game.nation.victoryYear} 年）</strong></div> : <div className="victory-goal-hint"><span>游戏目标</span><strong>GDP 全球第 {gdpRank ?? "—"} 名 → 第 1 名</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}{awaitingAnnualReview ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待年度复盘</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
             {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
             {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
             {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}
@@ -3110,7 +3116,9 @@ export function SimulatorDashboard() {
         >
           {advanceYearLabel}
         </button>
-        {game.nation.pendingHistoricalEventId ? (
+        {awaitingAnnualReview ? (
+          <AnnualReviewDialog game={game} busy={busy} />
+        ) : game.nation.pendingHistoricalEventId ? (
           <HistoricalDecisionModal
             key={game.nation.pendingHistoricalEventId}
             game={game}

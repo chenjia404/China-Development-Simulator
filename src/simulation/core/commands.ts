@@ -13,6 +13,7 @@ import type { DiplomaticStrategyId } from "../diplomacy/diplomatic-strategy";
 import type { ForeignPolicyDoctrineId } from "../diplomacy/foreign-policy-doctrine";
 import type { TechnologyIndustryPathId } from "../technology/technology-industry-path";
 import type { ForeignAidProgramId } from "../diplomacy/foreign-aid";
+import type { StrategicPriorityId } from "../policies/strategic-planning";
 
 export interface CreateGameCommand {
   type: "CREATE_GAME";
@@ -123,6 +124,13 @@ export interface DismissFamineMortalityReportCommand {
   type: "DISMISS_FAMINE_MORTALITY_REPORT";
 }
 
+export interface ResolveAnnualReviewCommand {
+  type: "RESOLVE_ANNUAL_REVIEW";
+  annualFocusId: StrategicPriorityId;
+  /** 仅当前五年规划到期时需要提供。 */
+  nextPlanPriorityIds?: StrategicPriorityId[];
+}
+
 export type SimulationCommand =
   | CreateGameCommand
   | AdvanceMonthsCommand
@@ -143,4 +151,5 @@ export type SimulationCommand =
   | StartSinoUSNormalizationCommand
   | StartAchievementBreakthroughCommand
   | DismissFamineMortalityReportCommand
+  | ResolveAnnualReviewCommand
   | ImportGameCommand;

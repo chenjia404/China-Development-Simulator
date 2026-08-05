@@ -116,6 +116,13 @@ export interface AnnualReport {
   rankingChange: number;
   majorEvents: string[];
   completedProjects: string[];
+  highlights: string[];
+  risks: string[];
+  causalDrivers: Array<{
+    label: string;
+    tone: "positive" | "negative" | "mixed";
+    detail: string;
+  }>;
 }
 
 export interface HistoricalEventRecord {

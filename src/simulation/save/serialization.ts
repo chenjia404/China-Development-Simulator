@@ -40,6 +40,7 @@ import {
 import { ensureFamineMortalityAccount } from "../population/famine-mortality-account";
 import { ensureAchievementsState } from "../events/national-achievements";
 import { ensureVictoryState } from "../victory/victory";
+import { ensureStrategicPlanningState } from "../policies/strategic-planning";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -110,6 +111,12 @@ export function deserializeGameState(serialized: string): GameState {
   ensureSecurityDefenseState(state.nation);
   ensureInstitutionCausalityState(state.nation);
   ensureAchievementsState(state.nation);
+  ensureStrategicPlanningState(state.nation);
+  for (const report of state.nation.history.reports) {
+    report.highlights ??= [];
+    report.risks ??= [];
+    report.causalDrivers ??= [];
+  }
   ensureVictoryState(state);
   return state;
 }

@@ -83,6 +83,10 @@ import {
 import {
   getHistoricalReferenceBudget,
 } from "../fiscal/historical-budget";
+import {
+  createInitialStrategicPlanningState,
+  ensureStrategicPlanningState,
+} from "../policies/strategic-planning";
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
 const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
@@ -196,6 +200,11 @@ export function createInitialGameState(
         (startYear - sinoUSNormalizationConfig.historicalEstablishmentYear) * 12,
       )
     : 0;
+  const initialDate = createGameDate(startYear);
+  const initialStrategicPlanning = createInitialStrategicPlanningState({
+    date: initialDate,
+    openingChoices: openingSetup.openingChoices,
+  });
 
   const state: GameState = {
     schemaVersion: SAVE_SCHEMA_VERSION,
@@ -207,7 +216,7 @@ export function createInitialGameState(
       id: "china",
       name: "中国",
       internationalInfluence: 12,
-      date: createGameDate(startYear),
+      date: initialDate,
       population: {
         ...initialPopulation,
         demographicDetail: createInitialDemographicDetailState(initialPopulation),
@@ -427,6 +436,7 @@ export function createInitialGameState(
       policies: openingSetup.policies,
       policyProgress: openingSetup.policyProgress,
       openingChoices: openingSetup.openingChoices,
+      strategicPlanning: initialStrategicPlanning,
       projects: [],
       modifiers: [],
       achievements: createEmptyAchievementsState(),
@@ -439,6 +449,7 @@ export function createInitialGameState(
     },
     world: createInitialWorldState(),
   };
+  ensureStrategicPlanningState(state.nation);
   updateNationalAccounts(state.nation);
   updateAgricultureSystem(state.nation, true);
   updatePublicTransport(state.nation, true);

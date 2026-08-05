@@ -1,13 +1,91 @@
 import { clamp, safeDivide } from "../core/math";
 import { isEndOfYear } from "../core/time";
 import type { GameState } from "../state/game-state";
-import type { AnnualSnapshot, MonthlySnapshot } from "../state/history-state";
+import type {
+  AnnualReport,
+  AnnualSnapshot,
+  MonthlySnapshot,
+} from "../state/history-state";
 import { eventName } from "../events/event-engine";
 import { calculateTechnologyTreeMetrics } from "../technology/technology-tree";
 import { technologyNormalizedEffect } from "../technology/technology-growth";
 import { ensureAchievementsState } from "../events/national-achievements";
+import { endogenousRiskDefinitions } from "../institutions/institution-causality";
+import { strategicPriorityName } from "../policies/strategic-planning";
 
 const MAX_MONTHLY_HISTORY = 120;
+
+function signedPercent(value: number): string {
+  return `${value >= 0 ? "+" : ""}${(value * 100).toFixed(1)}%`;
+}
+
+function buildHighlights(
+  annual: AnnualSnapshot,
+  previous: AnnualSnapshot | undefined,
+): string[] {
+  const growth = previous
+    ? safeDivide(annual.realGDP, previous.realGDP, 1) - 1
+    : 0;
+  const populationGrowth = previous
+    ? safeDivide(annual.population, previous.population, 1) - 1
+    : 0;
+  return [
+    `实际 GDP ${signedPercent(growth)}，世界排名第 ${annual.gdpRank} 名`,
+    `人口 ${signedPercent(populationGrowth)}，人均 GDP ${annual.currentPriceGDPPerCapita.toFixed(0)} 元`,
+    `幸福度 ${annual.happinessIndex.toFixed(1)}，贫困率 ${(annual.povertyRate * 100).toFixed(1)}%`,
+    `财政余额 ${annual.fiscalBalance >= 0 ? "盈余" : "赤字"}，债务率 ${(annual.debtToGDP * 100).toFixed(1)}%`,
+  ];
+}
+
+function buildRisks(state: GameState): string[] {
+  const risks = Object.values(state.nation.institutions.risks)
+    .toSorted((left, right) => right.pressure - left.pressure)
+    .slice(0, 3)
+    .map((risk) => {
+      const name = endogenousRiskDefinitions.find((item) => item.id === risk.id)?.name ?? risk.id;
+      return `${name}压力 ${(risk.pressure * 100).toFixed(0)}%：${risk.primaryDriver}`;
+    });
+  return risks.length > 0 ? risks : ["当前未发现显著内生风险"];
+}
+
+function buildCausalDrivers(
+  state: GameState,
+  annual: AnnualSnapshot,
+  previous: AnnualSnapshot | undefined,
+): AnnualReport["causalDrivers"] {
+  const drivers: AnnualReport["causalDrivers"] = [];
+  const growth = previous
+    ? safeDivide(annual.realGDP, previous.realGDP, 1) - 1
+    : state.nation.economy.annualRealGDPGrowth;
+  drivers.push({
+    label: growth >= 0 ? "经济扩张" : "经济收缩",
+    tone: growth >= 0 ? "positive" : "negative",
+    detail: `实际 GDP 同比 ${signedPercent(growth)}，由需求实现、资本、劳动力和生产率共同传导。`,
+  });
+  if (state.nation.strategicPlanning.priorityIds.length > 0) {
+    drivers.push({
+      label: "五年规划",
+      tone: "mixed",
+      detail: `当前重点：${state.nation.strategicPlanning.priorityIds.map(strategicPriorityName).join("、")}；收益与资源代价均已进入月度结算。`,
+    });
+  }
+  if (state.nation.policies.length > 0) {
+    drivers.push({
+      label: "在施国策",
+      tone: "mixed",
+      detail: `${state.nation.policies.length} 项普通国策处于实施或退出传导期。`,
+    });
+  }
+  const risk = state.nation.institutions.risks[state.nation.institutions.highestRiskId];
+  if (risk.pressure >= 0.35) {
+    drivers.push({
+      label: "风险拖累",
+      tone: "negative",
+      detail: `${risk.primaryDriver}使${endogenousRiskDefinitions.find((item) => item.id === risk.id)?.name ?? risk.id}压力升至 ${(risk.pressure * 100).toFixed(0)}%。`,
+    });
+  }
+  return drivers.slice(0, 4);
+}
 
 function calculateScore(state: GameState): number {
   const nation = state.nation;
@@ -237,5 +315,8 @@ export function recordHistory(state: GameState): void {
         .map((modifier) => eventName(modifier.sourceId)),
     ])],
     completedProjects: [],
+    highlights: buildHighlights(annual, previous),
+    risks: buildRisks(state),
+    causalDrivers: buildCausalDrivers(state, annual, previous),
   });
 }

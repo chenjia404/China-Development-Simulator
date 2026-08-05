@@ -1250,3 +1250,100 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .annual-head, .annual-row { grid-template-columns: repeat(3, 1fr); }
   .annual-head span:nth-child(3), .annual-row span:nth-child(3), .annual-head span:nth-child(4), .annual-row span:nth-child(4), .annual-head span:nth-child(5), .annual-row span:nth-child(5), .annual-head span:nth-child(6), .annual-row span:nth-child(6), .annual-head span:nth-child(7), .annual-row span:nth-child(7) { display: none; }
 }
+
+.annual-review-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(4 12 28 / 78%);
+  backdrop-filter: blur(8px);
+}
+
+.annual-review-modal {
+  width: min(1080px, 100%);
+  max-height: min(92vh, 980px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--panel);
+  box-shadow: 0 28px 80px rgb(0 0 0 / 32%);
+}
+
+.annual-review-header h2,
+.annual-review-header p,
+.annual-focus-section h3,
+.annual-focus-section p,
+.five-year-plan-section h3,
+.five-year-plan-section p { margin: 6px 0; }
+
+.annual-review-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.annual-review-summary > div,
+.annual-driver,
+.annual-review-columns > section {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-soft);
+}
+
+.annual-review-columns {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 14px;
+}
+
+.annual-review-columns h3 { margin-top: 0; }
+.annual-review-columns ul { margin: 0; padding-left: 20px; }
+.annual-review-columns li + li { margin-top: 10px; }
+.annual-driver + .annual-driver { margin-top: 8px; }
+.annual-driver p { margin: 5px 0 0; color: var(--muted); }
+.annual-driver.is-positive { border-left: 3px solid #2da46f; }
+.annual-driver.is-negative { border-left: 3px solid #d95555; }
+.annual-driver.is-mixed { border-left: 3px solid #d5a739; }
+
+.annual-focus-section,
+.five-year-plan-section { margin-top: 22px; }
+.annual-priority-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.annual-priority-grid button {
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-align: left;
+  color: var(--text);
+  background: var(--panel-soft);
+}
+.annual-priority-grid button.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.annual-priority-grid button strong,
+.annual-priority-grid button span { display: block; }
+.annual-priority-grid button span { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.annual-review-note { color: var(--muted); }
+.annual-review-actions { display: flex; justify-content: flex-end; margin-top: 24px; }
+.annual-review-actions button { min-height: 46px; padding: 0 20px; }
+
+@media (max-width: 760px) {
+  .annual-review-overlay { place-items: end center; padding: 0; }
+  .annual-review-modal { width: 100%; max-height: 94vh; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0; }
+  .annual-review-summary { grid-template-columns: 1fr 1fr; }
+  .annual-review-columns { grid-template-columns: 1fr; }
+  .annual-priority-grid { grid-template-columns: 1fr; }
+  .annual-review-actions button { width: 100%; }
+}

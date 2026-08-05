@@ -64,6 +64,10 @@ import {
 } from "../population/famine-mortality-account";
 import { updateNationalAchievements } from "../events/national-achievements";
 import { applyHistoricalReferenceBudgetIfNeeded } from "../fiscal/historical-budget";
+import {
+  hasPendingAnnualReview,
+  openAnnualReviewIfNeeded,
+} from "../policies/strategic-planning";
 
 /** 固定的月度管线入口；后续系统按设计文档顺序接入此处。 */
 export function simulateMonth(
@@ -71,6 +75,7 @@ export function simulateMonth(
   _random: RandomGenerator,
   eventRandom: RandomGenerator,
 ): boolean {
+  if (hasPendingAnnualReview(state.nation)) return false;
   checkHistoricalEvents(state.nation);
   if (state.nation.pendingHistoricalEventId) return false;
   if (hasPendingFamineMortalityReport(state.nation)) return false;
@@ -127,6 +132,9 @@ export function simulateMonth(
     checkVictoryCondition(state);
   }
   recordHistory(state);
+  if (isEndOfYear(state.nation.date)) {
+    openAnnualReviewIfNeeded(state.nation);
+  }
   advanceModifiers(state.nation);
   advanceMonth(state.nation.date);
   applyHistoricalReferenceBudgetIfNeeded(state.nation);

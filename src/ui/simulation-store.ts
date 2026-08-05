@@ -18,6 +18,7 @@ import {
   type PriceInstitutionStance,
   type SimulationCommand,
   type TechnologyIndustryPathId,
+  type StrategicPriorityId,
 } from "../simulation";
 import { getPlayableEndYear, isPastPlayableHorizon } from "./playable-horizon";
 import { clearAutoSave, loadAutoSave, saveAutoSave } from "./save-storage";
@@ -87,6 +88,10 @@ interface SimulationStore {
   startSinoUSNormalization(): Promise<void>;
   resolveHistoricalEvent(eventId: string, choiceId: string): Promise<void>;
   dismissFamineMortalityReport(): Promise<void>;
+  resolveAnnualReview(
+    annualFocusId: StrategicPriorityId,
+    nextPlanPriorityIds?: StrategicPriorityId[],
+  ): Promise<void>;
   enactHistoricalInitiative(initiativeId: string): Promise<void>;
   startAchievementBreakthrough(achievementId: string): Promise<void>;
   selectTechnologyResearch(technologyId: string): Promise<void>;
@@ -184,6 +189,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       const shouldStopAuto =
         Boolean(result.state.nation.pendingHistoricalEventId) ||
         Boolean(result.state.nation.famineMortality?.pendingReport) ||
+        result.state.nation.strategicPlanning.pendingReviewYear !== null ||
         isPastPlayableHorizon(result.state.nation.date);
       const newlyCelebrating = shouldCelebrateVictory(
         command,
@@ -282,6 +288,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   async dismissFamineMortalityReport() {
     await get().dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+  },
+
+  async resolveAnnualReview(annualFocusId, nextPlanPriorityIds) {
+    await get().dispatch({
+      type: "RESOLVE_ANNUAL_REVIEW",
+      annualFocusId,
+      nextPlanPriorityIds,
+    });
   },
 
   async enactHistoricalInitiative(initiativeId) {
@@ -403,7 +417,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const game = get().game;
     const blockedByPopup =
       Boolean(game?.nation.pendingHistoricalEventId) ||
-      Boolean(game?.nation.famineMortality?.pendingReport);
+      Boolean(game?.nation.famineMortality?.pendingReport) ||
+      game?.nation.strategicPlanning.pendingReviewYear !== null;
     const pastHorizon = game ? isPastPlayableHorizon(game.nation.date) : false;
     // 暂停请求始终生效；只有在未越界且无阻塞弹窗时才允许启动自动运行。
     if (!autoRunning) {

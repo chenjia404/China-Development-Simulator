@@ -5,7 +5,9 @@ import {
   getDiplomaticStrategy,
   type AnnualSnapshot,
   type GameState,
+  annualReviewRequiresNewPlan,
 } from "../../src/simulation/index";
+import type { StrategicPriorityId } from "../../src/simulation/index";
 import {
   getAnnualDecision,
   getHistoricalEventChoice,
@@ -26,6 +28,30 @@ export interface SimulationRunResult {
   durationMs: number;
   annual: AnnualSnapshot[];
   finalState: GameState;
+}
+
+function planningPrioritiesForStrategy(strategy: StrategyId): StrategicPriorityId[] {
+  switch (strategy) {
+    case "korean_catch_up":
+    case "japan_quality_industry":
+    case "industrial":
+      return ["industrialization", "education", "opening"];
+    case "taiwan_sme_export":
+    case "hong_kong_free_port":
+      return ["opening", "industrialization", "fiscal_stability"];
+    case "singapore_fdi_city":
+      return ["opening", "education", "fiscal_stability"];
+    case "us_innovation_market":
+    case "education_technology":
+      return ["technology", "education", "opening"];
+    case "livelihood":
+      return ["livelihood", "education", "food_security"];
+    case "debt":
+    case "none":
+    case "historical":
+    default:
+      return ["fiscal_stability"];
+  }
 }
 
 /** 仅史实校准路线施加亲苏开局，以保证中苏交恶→三线建设链条。 */
@@ -91,6 +117,16 @@ export function runSimulation(options: SimulationRunOptions): SimulationRunResul
         }
         if (engine.getState().nation.famineMortality?.pendingReport) {
           engine.dispatchHeadless({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+        }
+        if (engine.getState().nation.strategicPlanning.pendingReviewYear !== null) {
+          const priorities = planningPrioritiesForStrategy(options.strategy);
+          engine.dispatchHeadless({
+            type: "RESOLVE_ANNUAL_REVIEW",
+            annualFocusId: priorities[0],
+            nextPlanPriorityIds: annualReviewRequiresNewPlan(engine.getState().nation)
+              ? priorities
+              : undefined,
+          });
         }
       }
     }

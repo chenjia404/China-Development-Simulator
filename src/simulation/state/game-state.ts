@@ -967,6 +967,20 @@ export interface OpeningChoices {
   developmentBlueprintId: string;
 }
 
+export interface StrategicPlanningState {
+  /** 当前五年规划的起止年份，均为包含端点。 */
+  planStartYear: number;
+  planEndYear: number;
+  /** 当前五年规划最多三个长期重点。 */
+  priorityIds: string[];
+  /** 本年度额外聚焦的一项重点，效果弱于五年规划。 */
+  annualFocusId: string | null;
+  /** 最近一次已确认的年度复盘年份。 */
+  lastReviewYear: number | null;
+  /** 交互模式下等待玩家确认的年度报告年份。 */
+  pendingReviewYear: number | null;
+}
+
 export interface NationState {
   id: "china";
   name: "中国";
@@ -1004,6 +1018,8 @@ export interface NationState {
   policyProgress: Record<string, number>;
   /** 本局开局时选定的路线；旧存档或未走开局向导时为 undefined。 */
   openingChoices?: OpeningChoices;
+  /** 年度复盘、年度重点与五年规划状态。 */
+  strategicPlanning: StrategicPlanningState;
   projects: ProjectState[];
   modifiers: ModifierState[];
   /** 国家成就：能力分解锁与集中突破进度。 */
