@@ -5,12 +5,16 @@ import type { OpeningChoices } from "@/src/simulation";
 import {
   diplomaticStrategyDefinitions,
   foreignPolicyDoctrineDefinitions,
+  gameDifficultyDefinitions,
+  gameScenarioDefinitions,
   getEconomicMechanismPreset,
   listEconomicMechanismPresets,
   openingDevelopmentBlueprints,
 } from "@/src/simulation";
 
 const STEPS = [
+  { id: "scenario", title: "剧本" },
+  { id: "difficulty", title: "难度" },
   { id: "mechanism", title: "经济机制" },
   { id: "strategy", title: "外交战略" },
   { id: "doctrine", title: "外交学说" },
@@ -22,6 +26,8 @@ const DEFAULT_CHOICES: OpeningChoices = {
   diplomaticStrategyId: "balanced",
   foreignPolicyDoctrineId: "status_quo",
   developmentBlueprintId: "heavy_industry_priority",
+  scenarioId: "full_campaign",
+  difficultyId: "standard",
 };
 
 interface OpeningSetupDialogProps {
@@ -64,6 +70,12 @@ function OpeningSetupDialogContent({
   const step = STEPS[stepIndex];
   const isLast = stepIndex === STEPS.length - 1;
   const selectedMechanism = getEconomicMechanismPreset(choices.economicMechanism);
+  const selectedScenario = gameScenarioDefinitions.find(
+    (item) => item.id === choices.scenarioId,
+  ) ?? gameScenarioDefinitions[0];
+  const selectedDifficulty = gameDifficultyDefinitions.find(
+    (item) => item.id === choices.difficultyId,
+  ) ?? gameDifficultyDefinitions[1];
   const selectedStrategy = diplomaticStrategyDefinitions.find(
     (item) => item.id === choices.diplomaticStrategyId,
   );
@@ -84,9 +96,9 @@ function OpeningSetupDialogContent({
       >
         <header className="game-goal-header">
           <span className="eyebrow">开局路线 · {stepIndex + 1}/{STEPS.length}</span>
-          <h2 id="opening-setup-title">选定建国初期路线</h2>
+          <h2 id="opening-setup-title">选定本局剧本与路线</h2>
           <p>
-            这些选择写入 1949 年初始状态；开局后仍可在国策中心与外交页按冷却与过渡规则调整。
+            后期短剧本会先确定性预演背景历史，再从剧本起点交给玩家；路线选择仍可在开局后调整。
           </p>
         </header>
 
@@ -112,6 +124,45 @@ function OpeningSetupDialogContent({
 
         <div className="opening-setup-body">
           <h3>{step.title}</h3>
+          {step.id === "scenario" && (
+            <div className="opening-setup-options">
+              {gameScenarioDefinitions.map((scenario) => (
+                <button
+                  key={scenario.id}
+                  type="button"
+                  className={choices.scenarioId === scenario.id ? "opening-setup-card is-selected" : "opening-setup-card"}
+                  onClick={() => setChoices((current) => ({ ...current, scenarioId: scenario.id }))}
+                  disabled={busy}
+                >
+                  <strong>{scenario.name}</strong>
+                  <small>{scenario.startYear}—{scenario.endYear} 年 · {scenario.short ? "短剧本" : "完整战役"}</small>
+                  <p>{scenario.summary}</p>
+                  {scenario.objectives.length > 0 ? (
+                    <p className="opening-setup-meta">终局目标：{scenario.objectives.map((objective) => objective.label).join("、")}</p>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {step.id === "difficulty" && (
+            <div className="opening-setup-options">
+              {gameDifficultyDefinitions.map((difficulty) => (
+                <button
+                  key={difficulty.id}
+                  type="button"
+                  className={choices.difficultyId === difficulty.id ? "opening-setup-card is-selected" : "opening-setup-card"}
+                  onClick={() => setChoices((current) => ({ ...current, difficultyId: difficulty.id }))}
+                  disabled={busy}
+                >
+                  <strong>{difficulty.name}</strong>
+                  <p>{difficulty.summary}</p>
+                  <p className="opening-setup-meta">{difficulty.modifiers.length > 0 ? `${difficulty.modifiers.length} 项永久环境修正` : "不附加环境修正"}</p>
+                </button>
+              ))}
+            </div>
+          )}
+
           {step.id === "mechanism" && (
             <div className="opening-setup-options">
               {mechanisms.map((preset) => (
@@ -238,7 +289,7 @@ function OpeningSetupDialogContent({
           <aside className="opening-setup-summary">
             <span className="eyebrow">本局摘要</span>
             <p>
-              {selectedMechanism.name} · {selectedStrategy?.shortName ?? selectedStrategy?.name} ·{" "}
+              {selectedScenario.name} · {selectedDifficulty.name} · {selectedMechanism.name} · {selectedStrategy?.shortName ?? selectedStrategy?.name} ·{" "}
               {selectedDoctrine?.shortName ?? selectedDoctrine?.name} · {selectedBlueprint?.name}
             </p>
           </aside>

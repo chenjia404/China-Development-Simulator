@@ -1,0 +1,81 @@
+{
+  "scenarios": [
+    {
+      "id": "full_campaign",
+      "name": "复兴长征",
+      "summary": "从 1949 年开始完整经营国家，跨越历史转折并进入未来时代。",
+      "startYear": 1949,
+      "endYear": 2026,
+      "short": false,
+      "objectives": []
+    },
+    {
+      "id": "recovery_1962",
+      "name": "走出困难时期",
+      "summary": "从 1962 年的低谷接手，在九年内恢复粮食、稳定和财政韧性。",
+      "startYear": 1962,
+      "endYear": 1970,
+      "short": true,
+      "objectives": [
+        { "id": "food_supply_ratio", "label": "粮食供给率", "comparison": "at_least", "target": 1, "format": "percent" },
+        { "id": "stability", "label": "社会稳定", "comparison": "at_least", "target": 65, "format": "index" },
+        { "id": "debt_to_gdp", "label": "政府债务率", "comparison": "at_most", "target": 0.8, "format": "percent" }
+      ]
+    },
+    {
+      "id": "reform_1978",
+      "name": "改革起飞",
+      "summary": "从 1978 年接手，在十五年内建立开放、减贫和多元企业体系。",
+      "startYear": 1978,
+      "endYear": 1992,
+      "short": true,
+      "objectives": [
+        { "id": "openness", "label": "开放度", "comparison": "at_least", "target": 0.35, "format": "percent" },
+        { "id": "poverty_rate", "label": "贫困率", "comparison": "at_most", "target": 0.35, "format": "percent" },
+        { "id": "private_mixed_share", "label": "民营与混合所有制份额", "comparison": "at_least", "target": 0.3, "format": "percent" }
+      ]
+    },
+    {
+      "id": "wto_2001",
+      "name": "入世转型",
+      "summary": "从 2001 年接手，在十二年内把市场准入转化为出口、收入和科技能力。",
+      "startYear": 2001,
+      "endYear": 2012,
+      "short": true,
+      "objectives": [
+        { "id": "exports_to_gdp", "label": "出口占 GDP", "comparison": "at_least", "target": 0.18, "format": "percent" },
+        { "id": "gdp_per_capita_usd", "label": "人均 GDP", "comparison": "at_least", "target": 6000, "format": "usd" },
+        { "id": "technology_index", "label": "科技指数", "comparison": "at_least", "target": 85, "format": "index" }
+      ]
+    }
+  ],
+  "difficulties": [
+    {
+      "id": "relaxed",
+      "name": "宽松",
+      "summary": "适合熟悉系统：投资、教育和财政资源更充裕。",
+      "modifiers": [
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 1.05 },
+        { "target": "education.efficiency", "operation": "multiply", "value": 1.04 },
+        { "target": "fiscal.revenue", "operation": "multiply", "value": 1.03 }
+      ]
+    },
+    {
+      "id": "standard",
+      "name": "标准",
+      "summary": "采用完整模拟参数，不附加难度修正。",
+      "modifiers": []
+    },
+    {
+      "id": "challenge",
+      "name": "挑战",
+      "summary": "投资转化、外资和粮食环境更严苛，财政维持成本更高。",
+      "modifiers": [
+        { "target": "capital.investmentEfficiency", "operation": "multiply", "value": 0.96 },
+        { "target": "trade.foreignInvestment", "operation": "multiply", "value": 0.95 },
+        { "target": "resources.foodSupply", "operation": "multiply", "value": 0.98 },
+        { "target": "fiscal.spending", "operation": "multiply", "value": 1.02 }
+      ]
+    }
+  ]
+}

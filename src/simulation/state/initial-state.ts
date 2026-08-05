@@ -89,6 +89,10 @@ import {
 } from "../policies/strategic-planning";
 import { createInitialVictoryState } from "../victory/victory";
 import { createInitialBlueprintMissionState } from "../policies/blueprint-missions";
+import {
+  createInitialScenarioState,
+  ensureScenarioState,
+} from "../scenarios/game-scenarios";
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
 const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
@@ -438,6 +442,7 @@ export function createInitialGameState(
       policies: openingSetup.policies,
       policyProgress: openingSetup.policyProgress,
       openingChoices: openingSetup.openingChoices,
+      scenario: createInitialScenarioState(openingChoices),
       strategicPlanning: initialStrategicPlanning,
       blueprintMission: createInitialBlueprintMissionState(
         openingChoices?.developmentBlueprintId,
@@ -456,6 +461,7 @@ export function createInitialGameState(
     world: createInitialWorldState(),
   };
   ensureStrategicPlanningState(state.nation);
+  ensureScenarioState(state);
   updateNationalAccounts(state.nation);
   updateAgricultureSystem(state.nation, true);
   updatePublicTransport(state.nation, true);

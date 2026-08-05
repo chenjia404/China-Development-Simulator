@@ -20,7 +20,7 @@ import {
   type TechnologyIndustryPathId,
   type StrategicPriorityId,
 } from "../simulation";
-import { getPlayableEndYear, isPastPlayableHorizon } from "./playable-horizon";
+import { getGamePlayableEndYear, isPastPlayableHorizon } from "./playable-horizon";
 import { clearAutoSave, loadAutoSave, saveAutoSave } from "./save-storage";
 import { getSimulationClient } from "./simulation-client";
 import { hasRecordedVictory } from "../simulation/victory/victory";
@@ -190,7 +190,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         Boolean(result.state.nation.pendingHistoricalEventId) ||
         Boolean(result.state.nation.famineMortality?.pendingReport) ||
         result.state.nation.strategicPlanning.pendingReviewYear !== null ||
-        isPastPlayableHorizon(result.state.nation.date);
+        isPastPlayableHorizon(
+          result.state.nation.date,
+          getGamePlayableEndYear(result.state),
+        );
       const newlyCelebrating = shouldCelebrateVictory(
         command,
         previousGame,
@@ -222,7 +225,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const game = get().game;
     if (!game) return;
     // 自动运行到达可玩截止年后停止；手动「推进一年」仍允许继续探索。
-    if (isPastPlayableHorizon(game.nation.date) && get().autoRunning) {
+    if (isPastPlayableHorizon(game.nation.date, getGamePlayableEndYear(game)) && get().autoRunning) {
       set({ autoRunning: false });
       return;
     }
@@ -231,11 +234,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   async runToCurrentYear() {
     const game = get().game;
-    if (!game || isPastPlayableHorizon(game.nation.date)) {
+    if (!game || isPastPlayableHorizon(game.nation.date, getGamePlayableEndYear(game))) {
       if (get().autoRunning) set({ autoRunning: false });
       return;
     }
-    const currentYear = getPlayableEndYear();
+    const currentYear = getGamePlayableEndYear(game);
     const { year, month } = game.nation.date;
     const months = (currentYear - year) * 12 + (13 - month);
     if (months > 0) {
@@ -419,7 +422,9 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       Boolean(game?.nation.pendingHistoricalEventId) ||
       Boolean(game?.nation.famineMortality?.pendingReport) ||
       game?.nation.strategicPlanning.pendingReviewYear !== null;
-    const pastHorizon = game ? isPastPlayableHorizon(game.nation.date) : false;
+    const pastHorizon = game
+      ? isPastPlayableHorizon(game.nation.date, getGamePlayableEndYear(game))
+      : false;
     // 暂停请求始终生效；只有在未越界且无阻塞弹窗时才允许启动自动运行。
     if (!autoRunning) {
       set({ autoRunning: false });

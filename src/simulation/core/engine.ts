@@ -71,10 +71,22 @@ import {
   refreshEconomicCoordinationDerivedShares,
   setEconomicCoordinationStance,
 } from "../economy/economic-coordination";
-import { ensureVictoryState } from "../victory/victory";
-import { ensureBlueprintMissionState } from "../policies/blueprint-missions";
+import {
+  createInitialVictoryState,
+  ensureVictoryState,
+} from "../victory/victory";
+import {
+  createInitialBlueprintMissionState,
+  ensureBlueprintMissionState,
+} from "../policies/blueprint-missions";
+import {
+  configureScenario,
+  ensureScenarioState,
+  getGameScenario,
+} from "../scenarios/game-scenarios";
 import {
   clearPendingAnnualReview,
+  createInitialStrategicPlanningState,
   ensureStrategicPlanningState,
   resolveAnnualReview,
 } from "../policies/strategic-planning";
@@ -145,6 +157,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureHistoricalBudgetState(this.state.nation);
     ensureStrategicPlanningState(this.state.nation);
     ensureBlueprintMissionState(this.state);
+    ensureScenarioState(this.state);
     ensureVictoryState(this.state);
   }
 
@@ -164,12 +177,57 @@ class DeterministicSimulationEngine implements SimulationEngine {
   dispatchHeadless(command: SimulationCommand): void {
     switch (command.type) {
       case "CREATE_GAME":
-        this.state = createInitialGameState(
-          command.seed,
-          command.startYear,
-          command.historicalEventDecisionMode,
-          command.openingChoices,
-        );
+        {
+          const scenario = getGameScenario(command.openingChoices?.scenarioId);
+          const scenarioSelected = command.openingChoices?.scenarioId !== undefined;
+          const targetStartYear = scenarioSelected
+            ? scenario.startYear
+            : command.startYear ?? 1949;
+          const requiresBackgroundSimulation = targetStartYear > 1949;
+          const backgroundChoices = command.openingChoices
+            ? {
+                ...command.openingChoices,
+                scenarioId: "full_campaign" as const,
+                difficultyId: "standard" as const,
+              }
+            : undefined;
+          this.state = createInitialGameState(
+            command.seed,
+            requiresBackgroundSimulation ? 1949 : targetStartYear,
+            requiresBackgroundSimulation
+              ? "automatic"
+              : command.historicalEventDecisionMode,
+            requiresBackgroundSimulation ? backgroundChoices : command.openingChoices,
+          );
+          if (requiresBackgroundSimulation) {
+            this.advanceMonths((targetStartYear - 1949) * 12);
+            this.state.nation.historicalEventDecisionMode =
+              command.historicalEventDecisionMode ?? "interactive";
+            this.state.nation.openingChoices = command.openingChoices
+              ? { ...command.openingChoices }
+              : undefined;
+            this.state.nation.strategicPlanning = createInitialStrategicPlanningState(
+              this.state.nation,
+            );
+            this.state.nation.modifiers = this.state.nation.modifiers.filter(
+              (modifier) =>
+                !modifier.sourceId.startsWith("five_year_plan:") &&
+                !modifier.sourceId.startsWith("annual_focus:") &&
+                !modifier.sourceId.startsWith("blueprint_mission:"),
+            );
+            ensureStrategicPlanningState(this.state.nation);
+            this.state.nation.blueprintMission = createInitialBlueprintMissionState(
+              command.openingChoices?.developmentBlueprintId,
+            );
+            this.state.nation.victory = createInitialVictoryState();
+            this.state.nation.victoryYear = null;
+            configureScenario(
+              this.state,
+              command.openingChoices?.scenarioId,
+              command.openingChoices?.difficultyId,
+            );
+          }
+        }
         break;
       case "IMPORT_GAME":
         this.state = cloneState(command.state);
@@ -209,6 +267,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
         ensureHistoricalBudgetState(this.state.nation);
         ensureStrategicPlanningState(this.state.nation);
         ensureBlueprintMissionState(this.state);
+        ensureScenarioState(this.state);
         ensureVictoryState(this.state);
         break;
       case "UPDATE_BUDGET":

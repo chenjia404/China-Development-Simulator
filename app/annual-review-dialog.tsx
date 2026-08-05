@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import {
   annualReviewRequiresNewPlan,
   isStrategicPriorityId,
+  getScenarioObjectiveStatus,
+  scenarioRatingNames,
   maximumFiveYearPriorities,
   strategicPriorityDefinitions,
   type GameState,
@@ -38,6 +40,7 @@ export function AnnualReviewDialog({ game, busy }: AnnualReviewDialogProps) {
     planning.priorityIds.filter(isStrategicPriorityId),
   );
   const victoryEvaluations = evaluateVictoryPaths(game);
+  const scenarioStatus = getScenarioObjectiveStatus(game);
   const resolveAnnualReview = useSimulationStore((state) => state.resolveAnnualReview);
 
   if (reviewYear === null || !report) return null;
@@ -108,6 +111,26 @@ export function AnnualReviewDialog({ game, busy }: AnnualReviewDialogProps) {
             ))}
           </div>
         </section>
+
+        {scenarioStatus.scenario.short ? (
+          <section className="annual-victory-section">
+            <div>
+              <h3>短剧本目标 · {scenarioStatus.scenario.name}</h3>
+              <p>
+                终局 {scenarioStatus.scenario.endYear} 年
+                {scenarioStatus.rating ? ` · ${scenarioRatingNames[scenarioStatus.rating]}` : ""}
+              </p>
+            </div>
+            <div className="scenario-objective-grid">
+              {scenarioStatus.objectives.map((objective) => (
+                <article className={objective.met ? "is-met" : ""} key={objective.id}>
+                  <strong>{objective.label}</strong>
+                  <span>{objective.value.toFixed(2)} / {objective.target.toFixed(2)}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="annual-focus-section">
           <div>

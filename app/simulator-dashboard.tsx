@@ -22,7 +22,7 @@ import type {
 import { formatLarge, formatPercent, formatUsdLarge } from "@/src/ui/format";
 import { nominalToUsd } from "@/src/simulation/economy/currency-conversion";
 import {
-  getPlayableEndYear,
+  getGamePlayableEndYear,
   isPastPlayableHorizon,
 } from "@/src/ui/playable-horizon";
 import {
@@ -47,6 +47,8 @@ import {
   foreignPolicyDoctrineEffects,
   getEconomicMechanismPreset,
   getOpeningDevelopmentBlueprint,
+  getGameScenario,
+  getGameDifficulty,
   getInternationalOrganizationStatus,
   internationalOrganizations,
   getHistoricalEvent,
@@ -3092,15 +3094,16 @@ export function SimulatorDashboard() {
     ) {
       return;
     }
-    if (game && isPastPlayableHorizon(game.nation.date)) {
+    if (game && isPastPlayableHorizon(game.nation.date, getGamePlayableEndYear(game))) {
       useSimulationStore.getState().setAutoRunning(false);
       return;
     }
     const interval = window.setInterval(() => {
       const state = useSimulationStore.getState();
       if (state.busy) return;
-      const date = state.game?.nation.date;
-      if (date && isPastPlayableHorizon(date)) {
+      const activeGame = state.game;
+      const date = activeGame?.nation.date;
+      if (activeGame && date && isPastPlayableHorizon(date, getGamePlayableEndYear(activeGame))) {
         state.setAutoRunning(false);
         return;
       }
@@ -3142,7 +3145,7 @@ export function SimulatorDashboard() {
           busy={busy}
           onConfirm={confirmOpeningSetup}
         />
-        <GameGoalDialog open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
+        <GameGoalDialog game={game} open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
       </>
     );
   }
@@ -3160,7 +3163,9 @@ export function SimulatorDashboard() {
     : `${leadingVictoryPath.definition.name} · ${leadingVictoryPath.metrics.filter((metric) => metric.met).length}/${leadingVictoryPath.metrics.length} 项达标`;
 
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
-  const playableEndYear = getPlayableEndYear();
+  const playableEndYear = getGamePlayableEndYear(game);
+  const activeScenario = getGameScenario(game.nation.scenario.scenarioId);
+  const activeDifficulty = getGameDifficulty(game.nation.scenario.difficultyId);
   const pastPlayableHorizon = isPastPlayableHorizon(game.nation.date, playableEndYear);
   const awaitingHistoricalDecision = Boolean(game.nation.pendingHistoricalEventId);
   const awaitingFamineReport = Boolean(game.nation.famineMortality?.pendingReport);
@@ -3229,7 +3234,7 @@ export function SimulatorDashboard() {
           </header>
           {error ? <div className="error-banner">{error}</div> : null}
           <div className="workspace">
-            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成{victoryPathName(game.nation.victory.achievedPathId)}（{game.nation.victory.achievedYear} 年）</strong></div> : <div className="victory-goal-hint"><span>领先路线</span><strong>{victoryProgressLabel}</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}{awaitingAnnualReview ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待年度复盘</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
+            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>本局剧本</span><strong>{activeScenario.name} · {activeDifficulty.name}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成{victoryPathName(game.nation.victory.achievedPathId)}（{game.nation.victory.achievedYear} 年）</strong></div> : <div className="victory-goal-hint"><span>领先路线</span><strong>{victoryProgressLabel}</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}{awaitingAnnualReview ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待年度复盘</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
             {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
             {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
             {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}
@@ -3281,7 +3286,7 @@ export function SimulatorDashboard() {
         busy={busy}
         onConfirm={confirmOpeningSetup}
       />
-      <GameGoalDialog open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
+      <GameGoalDialog game={game} open={gameGoalOpen} onConfirm={acknowledgeGameGoal} />
     </>
   );
 }

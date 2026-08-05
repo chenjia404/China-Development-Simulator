@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getPlayableEndYear, isPastPlayableHorizon } from "./playable-horizon";
+import {
+  getGamePlayableEndYear,
+  getPlayableEndYear,
+  isPastPlayableHorizon,
+} from "./playable-horizon";
+import { createInitialGameState } from "../simulation/state/initial-state";
+import { configureScenario } from "../simulation/scenarios/game-scenarios";
 
 describe("可玩年份上限", () => {
   it("取当前公历年份作为截止年", () => {
@@ -11,5 +17,11 @@ describe("可玩年份上限", () => {
     expect(isPastPlayableHorizon({ year: 2026, month: 12 }, 2026)).toBe(false);
     expect(isPastPlayableHorizon({ year: 2027, month: 1 }, 2026)).toBe(true);
     expect(isPastPlayableHorizon({ year: 2025, month: 6 }, 2026)).toBe(false);
+  });
+
+  it("短剧本使用自身终局年而不是当前公历年", () => {
+    const game = createInitialGameState(1949);
+    configureScenario(game, "reform_1978", "standard");
+    expect(getGamePlayableEndYear(game, new Date("2026-08-05"))).toBe(1992);
   });
 });

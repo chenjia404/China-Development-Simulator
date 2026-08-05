@@ -627,6 +627,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .game-goal-header h2 { margin: 10px 0 12px; font-size: 22px; line-height: 1.4; }
 .game-goal-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .game-goal-header strong { color: var(--text); }
+.game-goal-scenario { margin: 14px 0 0; padding: 9px 11px; color: var(--blue); background: var(--blue-soft); border-radius: 8px; font-size: 10px; font-weight: 700; }
 .game-goal-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
 .game-goal-paths article { padding: 14px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
 .game-goal-paths strong { font-size: 13px; }
@@ -1366,6 +1367,11 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .annual-victory-grid strong { font-size: 11px; }
 .annual-victory-grid span { color: var(--gold); font-size: 10px; font-weight: 700; }
 .annual-victory-grid small { color: var(--muted); font-size: 9px; line-height: 1.55; }
+.scenario-objective-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.scenario-objective-grid article { display: grid; gap: 4px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; }
+.scenario-objective-grid article.is-met { border-color: color-mix(in srgb, #39a66d 50%, var(--line)); }
+.scenario-objective-grid strong { font-size: 10px; }
+.scenario-objective-grid span { color: var(--muted); font-size: 9px; }
 .annual-review-actions { display: flex; justify-content: flex-end; margin-top: 24px; }
 .annual-review-actions button { min-height: 46px; padding: 0 20px; }
 .blueprint-mission-panel { margin-bottom: 22px; padding: 18px; background: var(--panel-soft); border: 1px solid var(--line); border-radius: 14px; }
@@ -1386,6 +1392,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .annual-review-summary { grid-template-columns: 1fr 1fr; }
   .annual-review-columns { grid-template-columns: 1fr; }
   .annual-victory-grid { grid-template-columns: 1fr; }
+  .scenario-objective-grid { grid-template-columns: 1fr; }
   .annual-priority-grid { grid-template-columns: 1fr; }
   .blueprint-mission-grid { grid-template-columns: 1fr; }
   .annual-review-actions button { width: 100%; }

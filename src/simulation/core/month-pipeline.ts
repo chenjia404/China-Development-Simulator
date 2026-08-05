@@ -23,6 +23,7 @@ import { simulateWorldCountries } from "../world/world-simulation";
 import { calculateWorldRankings } from "../world/rankings";
 import { checkVictoryCondition } from "../victory/victory";
 import { updateBlueprintMission } from "../policies/blueprint-missions";
+import { updateScenarioProgress } from "../scenarios/game-scenarios";
 import { isEndOfYear } from "./time";
 import { recordHistory } from "../reports/history";
 import { updatePolicyEnvironment } from "../policies/policy-engine";
@@ -132,6 +133,7 @@ export function simulateMonth(
     calculateWorldRankings(state);
     checkVictoryCondition(state);
     updateBlueprintMission(state);
+    updateScenarioProgress(state);
   }
   recordHistory(state);
   if (isEndOfYear(state.nation.date)) {

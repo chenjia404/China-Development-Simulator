@@ -5,16 +5,22 @@ import {
   requiredVictoryYears,
   victoryPathDefinitions,
 } from "@/src/simulation/victory/victory";
+import {
+  getGameDifficulty,
+  getGameScenario,
+  type GameState,
+} from "@/src/simulation";
 
 interface GameGoalDialogProps {
   open: boolean;
+  game?: GameState | null;
   onConfirm: () => void;
 }
 
 /**
  * 进入游戏时展示的胜利目标说明。
  */
-export function GameGoalDialog({ open, onConfirm }: GameGoalDialogProps) {
+export function GameGoalDialog({ open, game, onConfirm }: GameGoalDialogProps) {
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
@@ -25,6 +31,8 @@ export function GameGoalDialog({ open, onConfirm }: GameGoalDialogProps) {
   }, [open]);
 
   if (!open) return null;
+  const scenario = game ? getGameScenario(game.nation.scenario.scenarioId) : null;
+  const difficulty = game ? getGameDifficulty(game.nation.scenario.difficultyId) : null;
 
   return (
     <div className="game-goal-overlay" role="presentation">
@@ -42,6 +50,11 @@ export function GameGoalDialog({ open, onConfirm }: GameGoalDialogProps) {
             任意路线满足全部门槛并连续保持 <strong>{requiredVictoryYears} 年</strong>即可获胜。
           </p>
         </header>
+        {scenario && difficulty ? (
+          <p className="game-goal-scenario">
+            本局：{scenario.name} · {scenario.startYear}—{scenario.endYear} 年 · {difficulty.name}难度
+          </p>
+        ) : null}
         <div className="game-goal-paths">
           {victoryPathDefinitions.map((path) => (
             <article key={path.id}>

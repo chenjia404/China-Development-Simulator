@@ -965,6 +965,35 @@ export interface OpeningChoices {
   diplomaticStrategyId: "pro_soviet" | "balanced" | "pro_western";
   foreignPolicyDoctrineId: DiplomacyState["foreignPolicyDoctrineId"];
   developmentBlueprintId: string;
+  /** 省略时按完整战役迁移。 */
+  scenarioId?: ScenarioId;
+  /** 省略时按标准难度迁移。 */
+  difficultyId?: DifficultyId;
+}
+
+export type ScenarioId = "full_campaign" | "recovery_1962" | "reform_1978" | "wto_2001";
+export type DifficultyId = "relaxed" | "standard" | "challenge";
+export type ScenarioRating = "gold" | "silver" | "bronze" | "failed";
+
+export interface ScenarioObjectiveResult {
+  id: string;
+  label: string;
+  value: number;
+  target: number;
+  met: boolean;
+}
+
+/** 战役或短剧本的时间范围、难度与终局目标。 */
+export interface ScenarioState {
+  scenarioId: ScenarioId;
+  difficultyId: DifficultyId;
+  startYear: number;
+  endYear: number;
+  short: boolean;
+  completedYear: number | null;
+  rating: ScenarioRating | null;
+  objectiveResults: ScenarioObjectiveResult[];
+  lastEvaluatedYear: number | null;
 }
 
 export interface StrategicPlanningState {
@@ -1057,6 +1086,8 @@ export interface NationState {
   policyProgress: Record<string, number>;
   /** 本局开局时选定的路线；旧存档或未走开局向导时为 undefined。 */
   openingChoices?: OpeningChoices;
+  /** 当前完整战役或短剧本状态。 */
+  scenario: ScenarioState;
   /** 年度复盘、年度重点与五年规划状态。 */
   strategicPlanning: StrategicPlanningState;
   /** 开局蓝图三阶段任务链进度。 */

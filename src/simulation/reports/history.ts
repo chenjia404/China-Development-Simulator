@@ -13,6 +13,10 @@ import { ensureAchievementsState } from "../events/national-achievements";
 import { endogenousRiskDefinitions } from "../institutions/institution-causality";
 import { strategicPriorityName } from "../policies/strategic-planning";
 import { completedBlueprintStageNamesForYear } from "../policies/blueprint-missions";
+import {
+  getGameScenario,
+  scenarioRatingNames,
+} from "../scenarios/game-scenarios";
 
 const MAX_MONTHLY_HISTORY = 120;
 
@@ -39,6 +43,11 @@ function buildHighlights(
   ];
   const missionStages = completedBlueprintStageNamesForYear(state, annual.year);
   if (missionStages.length > 0) highlights.push(`蓝图阶段完成：${missionStages.join("、")}`);
+  if (state.nation.scenario.completedYear === annual.year && state.nation.scenario.rating) {
+    highlights.push(
+      `剧本“${getGameScenario(state.nation.scenario.scenarioId).name}”${scenarioRatingNames[state.nation.scenario.rating]}`,
+    );
+  }
   return highlights;
 }
 
@@ -319,6 +328,7 @@ export function recordHistory(state: GameState): void {
             !modifier.sourceId.startsWith("five_year_plan:") &&
             !modifier.sourceId.startsWith("annual_focus:") &&
             !modifier.sourceId.startsWith("blueprint_mission:") &&
+            !modifier.sourceId.startsWith("difficulty:") &&
             !nation.history.historicalEvents.some(
               (event) => event.id === modifier.sourceId,
             ),

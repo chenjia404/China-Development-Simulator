@@ -116,7 +116,10 @@ export function ensureBlueprintMissionState(state: GameState): void {
   if (chain) mission.currentStageIndex = Math.min(mission.currentStageIndex, chain.stages.length);
 }
 
-function metricValue(state: GameState, metricId: BlueprintMissionMetricId): number {
+export function readBlueprintMissionMetric(
+  state: GameState,
+  metricId: BlueprintMissionMetricId,
+): number {
   switch (metricId) {
     case "secondary_sector_share": return safeDivide(
       state.nation.sectors.secondary.valueAdded,
@@ -163,7 +166,7 @@ export function getBlueprintMissionStatus(state: GameState): BlueprintMissionSta
   const chain = chainForBlueprint(mission.blueprintId);
   const stage = chain?.stages[mission.currentStageIndex] ?? null;
   const metrics = stage?.metrics.map((metric) => {
-    const value = metricValue(state, metric.id);
+    const value = readBlueprintMissionMetric(state, metric.id);
     return { ...metric, value, met: metricMet(metric, value) };
   }) ?? [];
   return {

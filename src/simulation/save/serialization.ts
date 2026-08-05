@@ -42,6 +42,7 @@ import { ensureAchievementsState } from "../events/national-achievements";
 import { ensureVictoryState } from "../victory/victory";
 import { ensureStrategicPlanningState } from "../policies/strategic-planning";
 import { ensureBlueprintMissionState } from "../policies/blueprint-missions";
+import { ensureScenarioState } from "../scenarios/game-scenarios";
 
 function checksum(value: string): string {
   let hash = 0x811c9dc5;
@@ -114,6 +115,7 @@ export function deserializeGameState(serialized: string): GameState {
   ensureAchievementsState(state.nation);
   ensureStrategicPlanningState(state.nation);
   ensureBlueprintMissionState(state);
+  ensureScenarioState(state);
   for (const report of state.nation.history.reports) {
     report.highlights ??= [];
     report.risks ??= [];
