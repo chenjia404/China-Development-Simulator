@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import {
   annualReviewRequiresNewPlan,
+  isStrategicPriorityId,
   maximumFiveYearPriorities,
   strategicPriorityDefinitions,
   type GameState,
   type StrategicPriorityId,
 } from "@/src/simulation";
+import { evaluateVictoryPaths } from "@/src/simulation/victory/victory";
 import { useSimulationStore } from "@/src/ui/simulation-store";
 
 interface AnnualReviewDialogProps {
@@ -23,16 +25,19 @@ export function AnnualReviewDialog({ game, busy }: AnnualReviewDialogProps) {
     [game.nation.history.reports, reviewYear],
   );
   const requiresNewPlan = annualReviewRequiresNewPlan(game.nation);
+  const defaultAnnualFocusId = [
+    planning.annualFocusId,
+    ...planning.priorityIds,
+  ].find((id): id is StrategicPriorityId =>
+    typeof id === "string" && isStrategicPriorityId(id),
+  ) ?? strategicPriorityDefinitions[0].id;
   const [annualFocusId, setAnnualFocusId] = useState<StrategicPriorityId>(
-    (planning.annualFocusId as StrategicPriorityId | null) ??
-      (planning.priorityIds[0] as StrategicPriorityId | undefined) ??
-      strategicPriorityDefinitions[0].id,
+    defaultAnnualFocusId,
   );
   const [planPriorityIds, setPlanPriorityIds] = useState<StrategicPriorityId[]>(
-    planning.priorityIds.filter((id): id is StrategicPriorityId =>
-      strategicPriorityDefinitions.some((item) => item.id === id),
-    ),
+    planning.priorityIds.filter(isStrategicPriorityId),
   );
+  const victoryEvaluations = evaluateVictoryPaths(game);
   const resolveAnnualReview = useSimulationStore((state) => state.resolveAnnualReview);
 
   if (reviewYear === null || !report) return null;
@@ -84,6 +89,25 @@ export function AnnualReviewDialog({ game, busy }: AnnualReviewDialogProps) {
             <ul>{report.risks.map((risk) => <li key={risk}>{risk}</li>)}</ul>
           </section>
         </div>
+
+        <section className="annual-victory-section">
+          <div>
+            <h3>国家目标进度</h3>
+            <p>任一条路线满足全部门槛并连续保持 {game.nation.victory.requiredConsecutiveYears} 年即可获胜。</p>
+          </div>
+          <div className="annual-victory-grid">
+            {victoryEvaluations.map((evaluation) => (
+              <article key={evaluation.definition.id}>
+                <strong>{evaluation.definition.name}</strong>
+                <span>
+                  {evaluation.metrics.filter((metric) => metric.met).length}/{evaluation.metrics.length} 项达标
+                  · 连续 {evaluation.progress.consecutiveQualifiedYears} 年
+                </span>
+                <small>{evaluation.definition.summary}</small>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <section className="annual-focus-section">
           <div>

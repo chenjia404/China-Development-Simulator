@@ -981,6 +981,31 @@ export interface StrategicPlanningState {
   pendingReviewYear: number | null;
 }
 
+export type VictoryPathId =
+  | "economic_leadership"
+  | "common_prosperity"
+  | "technology_civilization";
+
+export type VictoryStage = "building" | "candidate" | "sustaining" | "achieved";
+
+export interface VictoryPathProgress {
+  pathId: VictoryPathId;
+  stage: VictoryStage;
+  consecutiveQualifiedYears: number;
+  bestConsecutiveYears: number;
+  firstQualifiedYear: number | null;
+  lastEvaluatedYear: number | null;
+  qualifiedLastEvaluation: boolean;
+}
+
+/** 多路线胜利进度；所有路线并行评估，最先连续达标的路线完成本局。 */
+export interface VictoryState {
+  requiredConsecutiveYears: number;
+  achievedPathId: VictoryPathId | null;
+  achievedYear: number | null;
+  paths: Record<VictoryPathId, VictoryPathProgress>;
+}
+
 export interface NationState {
   id: "china";
   name: "中国";
@@ -1028,7 +1053,9 @@ export interface NationState {
   /** 玩家手动调整预算后为 true，停止自动对齐史实参考结构。 */
   budgetManuallyAdjusted: boolean;
   pendingHistoricalEventId: string | null;
-  /** 首次达成全球名义 GDP 排名第一的年份；未达成时为 null。 */
+  /** 多路线、持续保持型胜利状态。 */
+  victory: VictoryState;
+  /** 兼容旧存档和既有分享接口的胜利年份镜像；未达成时为 null。 */
   victoryYear: number | null;
   /** 三年困难（1959–1961）超额死亡账户与待确认报告。 */
   famineMortality: FamineMortalityAccount;

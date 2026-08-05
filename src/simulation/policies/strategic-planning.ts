@@ -64,7 +64,7 @@ export function createInitialStrategicPlanningState(
   };
 }
 
-function isPriorityId(value: string): value is StrategicPriorityId {
+export function isStrategicPriorityId(value: string): value is StrategicPriorityId {
   return strategicPriorityDefinitions.some((item) => item.id === value);
 }
 
@@ -114,7 +114,7 @@ function reapplyPlanModifiers(nation: NationState): void {
   removePlanningModifiers(nation, PLAN_SOURCE_PREFIX);
   const months = monthsThroughYear(nation, nation.strategicPlanning.planEndYear);
   for (const priorityId of nation.strategicPlanning.priorityIds) {
-    if (isPriorityId(priorityId)) {
+    if (isStrategicPriorityId(priorityId)) {
       applyPriorityModifiers(nation, priorityId, PLAN_SOURCE_PREFIX, months, 1);
     }
   }
@@ -123,7 +123,7 @@ function reapplyPlanModifiers(nation: NationState): void {
 function reapplyAnnualFocusModifier(nation: NationState): void {
   removePlanningModifiers(nation, ANNUAL_FOCUS_SOURCE_PREFIX);
   const priorityId = nation.strategicPlanning.annualFocusId;
-  if (!priorityId || !isPriorityId(priorityId)) return;
+  if (!priorityId || !isStrategicPriorityId(priorityId)) return;
   applyPriorityModifiers(nation, priorityId, ANNUAL_FOCUS_SOURCE_PREFIX, 12, 0.5);
 }
 
@@ -136,14 +136,14 @@ export function ensureStrategicPlanningState(nation: NationState): void {
     rebuildPlan = true;
     rebuildAnnualFocus = true;
   } else {
-    const validPriorities = candidate.priorityIds.filter(isPriorityId);
+    const validPriorities = candidate.priorityIds.filter(isStrategicPriorityId);
     rebuildPlan = validPriorities.length !== candidate.priorityIds.length;
     candidate.priorityIds = validPriorities;
     if (candidate.priorityIds.length === 0 && nation.openingChoices) {
       candidate.priorityIds = defaultPriorities(nation);
       rebuildPlan = true;
     }
-    if (candidate.annualFocusId && !isPriorityId(candidate.annualFocusId)) {
+    if (candidate.annualFocusId && !isStrategicPriorityId(candidate.annualFocusId)) {
       candidate.annualFocusId = candidate.priorityIds[0] ?? null;
       rebuildAnnualFocus = true;
     }
@@ -196,14 +196,14 @@ export function resolveAnnualReview(
 ): void {
   const reviewYear = nation.strategicPlanning.pendingReviewYear;
   if (reviewYear === null) throw new Error("当前没有待确认的年度复盘");
-  if (!isPriorityId(annualFocusId)) throw new Error(`未知年度重点：${annualFocusId}`);
+  if (!isStrategicPriorityId(annualFocusId)) throw new Error(`未知年度重点：${annualFocusId}`);
 
   if (annualReviewRequiresNewPlan(nation)) {
     const priorities = [...new Set(nextPlanPriorityIds ?? [])];
     if (priorities.length < 1 || priorities.length > maximumFiveYearPriorities) {
       throw new Error(`五年规划必须选择 1 至 ${maximumFiveYearPriorities} 项战略重点`);
     }
-    if (!priorities.every(isPriorityId)) throw new Error("五年规划包含未知战略重点");
+    if (!priorities.every(isStrategicPriorityId)) throw new Error("五年规划包含未知战略重点");
     nation.strategicPlanning.planStartYear = reviewYear + 1;
     nation.strategicPlanning.planEndYear = reviewYear + 5;
     nation.strategicPlanning.priorityIds = priorities;

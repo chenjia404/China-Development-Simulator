@@ -143,6 +143,7 @@ class DeterministicSimulationEngine implements SimulationEngine {
     ensureAchievementsState(this.state.nation);
     ensureHistoricalBudgetState(this.state.nation);
     ensureStrategicPlanningState(this.state.nation);
+    ensureVictoryState(this.state);
   }
 
   getState(): Readonly<GameState> {

@@ -607,11 +607,16 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .source-notice-repo a { color: var(--blue); }
 
 .game-goal-overlay { position: fixed; inset: 0; z-index: 121; display: grid; place-items: center; padding: 24px; background: rgba(8, 15, 28, .72); backdrop-filter: blur(8px); }
-.game-goal-modal { width: min(520px, 100%); padding: 28px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line)); border-radius: 16px; box-shadow: 0 28px 80px rgba(0, 0, 0, .34); }
+.game-goal-modal { width: min(760px, 100%); max-height: calc(100vh - 48px); overflow-y: auto; padding: 28px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line)); border-radius: 16px; box-shadow: 0 28px 80px rgba(0, 0, 0, .34); }
 .game-goal-header .eyebrow { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
 .game-goal-header h2 { margin: 10px 0 12px; font-size: 22px; line-height: 1.4; }
 .game-goal-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .game-goal-header strong { color: var(--text); }
+.game-goal-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.game-goal-paths article { padding: 14px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
+.game-goal-paths strong { font-size: 13px; }
+.game-goal-paths p { min-height: 66px; margin: 8px 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.game-goal-paths span { color: var(--gold); font-size: 10px; font-weight: 700; }
 .game-goal-points { margin: 18px 0 0; padding-left: 18px; color: var(--muted); font-size: 11px; line-height: 1.8; }
 .game-goal-actions { margin-top: 22px; }
 .game-goal-primary { width: 100%; min-height: 46px; padding: 12px 16px; color: white; background: var(--blue); border: 1px solid var(--blue); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; }
@@ -638,6 +643,8 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .opening-route-note { margin: 14px 0 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--line)); border-radius: 10px; background: color-mix(in srgb, var(--gold) 8%, transparent); color: var(--muted); font-size: 12px; line-height: 1.7; }
 .opening-route-note strong { color: var(--text); }
 @media (max-width: 640px) {
+  .game-goal-paths { grid-template-columns: 1fr; }
+  .game-goal-paths p { min-height: 0; }
   .opening-setup-actions { grid-template-columns: 1fr; }
 }
 
@@ -1336,6 +1343,14 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
 .annual-priority-grid button span { display: block; }
 .annual-priority-grid button span { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .annual-review-note { color: var(--muted); }
+.annual-victory-section { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.annual-victory-section h3 { margin: 0; font-size: 13px; }
+.annual-victory-section > div > p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+.annual-victory-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+.annual-victory-grid article { display: grid; gap: 5px; padding: 11px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 9px; }
+.annual-victory-grid strong { font-size: 11px; }
+.annual-victory-grid span { color: var(--gold); font-size: 10px; font-weight: 700; }
+.annual-victory-grid small { color: var(--muted); font-size: 9px; line-height: 1.55; }
 .annual-review-actions { display: flex; justify-content: flex-end; margin-top: 24px; }
 .annual-review-actions button { min-height: 46px; padding: 0 20px; }
 
@@ -1344,6 +1359,7 @@ button:disabled { cursor: not-allowed; opacity: .55; transform: none !important;
   .annual-review-modal { width: 100%; max-height: 94vh; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); border-radius: 22px 22px 0 0; }
   .annual-review-summary { grid-template-columns: 1fr 1fr; }
   .annual-review-columns { grid-template-columns: 1fr; }
+  .annual-victory-grid { grid-template-columns: 1fr; }
   .annual-priority-grid { grid-template-columns: 1fr; }
   .annual-review-actions button { width: 100%; }
 }

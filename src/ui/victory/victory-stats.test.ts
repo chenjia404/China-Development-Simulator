@@ -8,14 +8,17 @@ describe("buildVictorySummary", () => {
     expect(buildVictorySummary(game)).toBeNull();
   });
 
-  it("缺失 victoryYear 字段时返回 null", () => {
+  it("缺失新旧胜利字段时返回 null", () => {
     const game = createInitialGameState(1949);
-    delete (game.nation as { victoryYear?: number | null }).victoryYear;
+    delete (game.nation as Partial<typeof game.nation>).victory;
+    delete (game.nation as Partial<typeof game.nation>).victoryYear;
     expect(buildVictorySummary(game)).toBeNull();
   });
 
   it("已记录胜利年份时返回完整摘要", () => {
     const game = createInitialGameState(1949);
+    game.nation.victory.achievedPathId = "common_prosperity";
+    game.nation.victory.achievedYear = 2010;
     game.nation.victoryYear = 2010;
     game.nation.history.annual.push({
       year: 2010,
@@ -34,7 +37,8 @@ describe("buildVictorySummary", () => {
     expect(summary).not.toBeNull();
     expect(summary?.victoryYear).toBe(2010);
     expect(summary?.yearsPlayed).toBe(61);
-    expect(summary?.hero.value).toBe("第 1 名");
+    expect(summary?.pathName).toBe("共同富裕");
+    expect(summary?.hero.value).toBe("共同富裕");
     expect(summary?.metrics.some((metric) => metric.label === "综合评分")).toBe(true);
     expect(summary?.metrics.some((metric) => metric.label === "历时")).toBe(false);
     expect(summary?.metrics).toHaveLength(6);

@@ -87,6 +87,7 @@ import {
   createInitialStrategicPlanningState,
   ensureStrategicPlanningState,
 } from "../policies/strategic-planning";
+import { createInitialVictoryState } from "../victory/victory";
 
 const INITIAL_PRIMARY_SHARE = 62_000_000_000 / 123_000_000_000;
 const INITIAL_AGRICULTURAL_TAX_SHARE = calculateAgriculturalTaxPotentialShare(
@@ -443,6 +444,7 @@ export function createInitialGameState(
       historicalEventDecisionMode,
       budgetManuallyAdjusted: false,
       pendingHistoricalEventId: null,
+      victory: createInitialVictoryState(),
       victoryYear: null,
       famineMortality: createEmptyFamineMortalityAccount(),
       history: { monthly: [], annual: [], reports: [], historicalEvents: [] },

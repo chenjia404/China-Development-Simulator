@@ -1,0 +1,40 @@
+{
+  "requiredConsecutiveYears": 5,
+  "paths": [
+    {
+      "id": "economic_leadership",
+      "name": "经济领航",
+      "summary": "在经济总量登顶的同时，保持较高的人均发展水平、民生质量与财政韧性。",
+      "metrics": [
+        { "id": "gdp_rank", "label": "名义 GDP 世界排名", "comparison": "at_most", "target": 1, "format": "rank" },
+        { "id": "gdp_per_capita_rank", "label": "人均 GDP 世界排名", "comparison": "at_most", "target": 50, "format": "rank" },
+        { "id": "happiness", "label": "幸福度", "comparison": "at_least", "target": 60, "format": "index" },
+        { "id": "debt_to_gdp", "label": "政府债务率", "comparison": "at_most", "target": 1, "format": "percent" }
+      ]
+    },
+    {
+      "id": "common_prosperity",
+      "name": "共同富裕",
+      "summary": "以较高收入、低贫困、健康长寿和可控差距证明发展成果能够广泛共享。",
+      "metrics": [
+        { "id": "gdp_per_capita_usd", "label": "人均 GDP", "comparison": "at_least", "target": 20000, "format": "usd" },
+        { "id": "poverty_rate", "label": "贫困率", "comparison": "at_most", "target": 0.03, "format": "percent" },
+        { "id": "gini", "label": "基尼系数", "comparison": "at_most", "target": 0.38, "format": "decimal" },
+        { "id": "happiness", "label": "幸福度", "comparison": "at_least", "target": 75, "format": "index" },
+        { "id": "life_expectancy", "label": "预期寿命", "comparison": "at_least", "target": 78, "format": "years" }
+      ]
+    },
+    {
+      "id": "technology_civilization",
+      "name": "科技文明",
+      "summary": "以完整产业科技体系、领先科研能力、高质量教育和国际影响力形成长期创新优势。",
+      "metrics": [
+        { "id": "technology_rank", "label": "科技世界排名", "comparison": "at_most", "target": 3, "format": "rank" },
+        { "id": "education_rank", "label": "教育世界排名", "comparison": "at_most", "target": 10, "format": "rank" },
+        { "id": "completed_technologies", "label": "已完成科技节点", "comparison": "at_least", "target": 28, "format": "count" },
+        { "id": "influence_rank", "label": "国际影响力排名", "comparison": "at_most", "target": 5, "format": "rank" },
+        { "id": "technology_index", "label": "科技指数", "comparison": "at_least", "target": 120, "format": "index" }
+      ]
+    }
+  ]
+}

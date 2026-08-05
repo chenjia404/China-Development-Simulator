@@ -24,7 +24,11 @@ import {
   getPlayableEndYear,
   isPastPlayableHorizon,
 } from "@/src/ui/playable-horizon";
-import { hasRecordedVictory } from "@/src/simulation/victory/victory";
+import {
+  evaluateVictoryPaths,
+  hasRecordedVictory,
+  victoryPathName,
+} from "@/src/simulation/victory/victory";
 import { ShareDialog } from "./share-dialog";
 import { SourceNoticeDialog } from "./source-notice-dialog";
 import { GameGoalDialog } from "./game-goal-dialog";
@@ -3021,7 +3025,16 @@ export function SimulatorDashboard() {
   }
 
   const hasWon = hasRecordedVictory(game);
-  const gdpRank = game.world.rankings.nominalGDP.china;
+  const victoryEvaluations = evaluateVictoryPaths(game);
+  const leadingVictoryPath = [...victoryEvaluations].sort((left, right) => {
+    const years = right.progress.consecutiveQualifiedYears - left.progress.consecutiveQualifiedYears;
+    if (years !== 0) return years;
+    return right.metrics.filter((metric) => metric.met).length -
+      left.metrics.filter((metric) => metric.met).length;
+  })[0];
+  const victoryProgressLabel = leadingVictoryPath.progress.consecutiveQualifiedYears > 0
+    ? `${leadingVictoryPath.definition.name} · 保持 ${leadingVictoryPath.progress.consecutiveQualifiedYears}/${game.nation.victory.requiredConsecutiveYears} 年`
+    : `${leadingVictoryPath.definition.name} · ${leadingVictoryPath.metrics.filter((metric) => metric.met).length}/${leadingVictoryPath.metrics.length} 项达标`;
 
   const displayYear = game.nation.history.annual.at(-1)?.year ?? game.nation.date.year;
   const playableEndYear = getPlayableEndYear();
@@ -3093,7 +3106,7 @@ export function SimulatorDashboard() {
           </header>
           {error ? <div className="error-banner">{error}</div> : null}
           <div className="workspace">
-            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成全球 GDP 第一（{game.nation.victoryYear} 年）</strong></div> : <div className="victory-goal-hint"><span>游戏目标</span><strong>GDP 全球第 {gdpRank ?? "—"} 名 → 第 1 名</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}{awaitingAnnualReview ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待年度复盘</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
+            <section className="status-strip"><div><span>当前进度</span><strong>{game.nation.date.year} 年 {game.nation.date.month} 月</strong></div><div><span>随机种子</span><strong>{game.seed}</strong></div><div><span>年度记录</span><strong>{game.nation.history.annual.length}</strong></div>{hasWon ? <div className="victory-goal-hint"><span>游戏目标</span><strong>已达成{victoryPathName(game.nation.victory.achievedPathId)}（{game.nation.victory.achievedYear} 年）</strong></div> : <div className="victory-goal-hint"><span>领先路线</span><strong>{victoryProgressLabel}</strong></div>}{pastPlayableHorizon ? <div className="pending-decision-status"><span>模拟状态</span><strong>已达 {playableEndYear} 年上限</strong></div> : null}{awaitingHistoricalDecision ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待重大决策</strong></div> : null}{awaitingFamineReport ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待死亡报告确认</strong></div> : null}{awaitingAnnualReview ? <div className="pending-decision-status"><span>模拟状态</span><strong>等待年度复盘</strong></div> : null}<button disabled={busy || awaitingBlockingPopup || pastPlayableHorizon} onClick={() => void store.runToCurrentYear()}>一键模拟至 {playableEndYear}</button></section>
             {activeSection === "nation" ? <Overview game={game} darkMode={darkMode} busy={busy} /> : null}
             {activeSection === "policies" ? <PoliciesSection game={game} busy={busy} /> : null}
             {activeSection === "achievements" ? <AchievementsSection game={game} busy={busy} /> : null}

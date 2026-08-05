@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import {
+  requiredVictoryYears,
+  victoryPathDefinitions,
+} from "@/src/simulation/victory/victory";
 
 interface GameGoalDialogProps {
   open: boolean;
@@ -32,14 +36,23 @@ export function GameGoalDialog({ open, onConfirm }: GameGoalDialogProps) {
       >
         <header className="game-goal-header">
           <span className="eyebrow">游戏目标</span>
-          <h2 id="game-goal-title">让中国成为全球第一大经济体</h2>
+          <h2 id="game-goal-title">选择你的国家发展答案</h2>
           <p>
-            你从 1949 年接手新中国，按月推进国家发展。通过国策、财政、外交与产业政策，
-            逐步提升经济总量，最终在<strong>全球名义 GDP 排名</strong>中登顶第一，即可获胜。
+            你从 1949 年接手新中国，按月推进国家发展。三条路线会并行评估，
+            任意路线满足全部门槛并连续保持 <strong>{requiredVictoryYears} 年</strong>即可获胜。
           </p>
         </header>
+        <div className="game-goal-paths">
+          {victoryPathDefinitions.map((path) => (
+            <article key={path.id}>
+              <strong>{path.name}</strong>
+              <p>{path.summary}</p>
+              <span>{path.metrics.length} 项年度门槛</span>
+            </article>
+          ))}
+        </div>
         <ul className="game-goal-points">
-          <li>排名在每年 12 月年度结算后更新</li>
+          <li>每年 12 月结算后更新路线进度，任何门槛失守都会中断连续年份</li>
           <li>达成目标后可继续推进时间，探索更高发展水平</li>
           <li>胜利页面可截图分享本局关键成绩</li>
         </ul>

@@ -1,6 +1,9 @@
 import type { GameState } from "../../simulation/state/game-state";
 import type { AnnualSnapshot } from "../../simulation/state/history-state";
-import { hasRecordedVictory } from "../../simulation/victory/victory";
+import {
+  hasRecordedVictory,
+  victoryPathDefinitions,
+} from "../../simulation/victory/victory";
 import { formatLarge, formatPercent, formatUsd } from "../format";
 
 export interface VictoryStatRow {
@@ -13,6 +16,8 @@ export interface VictorySummary {
   victoryYear: number;
   yearsPlayed: number;
   seed: number;
+  pathName: string;
+  pathSummary: string;
   hero: VictoryStatRow;
   metrics: VictoryStatRow[];
 }
@@ -64,7 +69,11 @@ function resolveVictorySnapshot(
 export function buildVictorySummary(game: GameState): VictorySummary | null {
   if (!hasRecordedVictory(game)) return null;
 
-  const victoryYear = game.nation.victoryYear as number;
+  const victoryYear = game.nation.victory?.achievedYear ?? game.nation.victoryYear;
+  if (victoryYear === null || victoryYear === undefined) return null;
+  const pathId = game.nation.victory?.achievedPathId ?? "economic_leadership";
+  const path = victoryPathDefinitions.find((item) => item.id === pathId) ??
+    victoryPathDefinitions[0];
 
   const data = resolveVictorySnapshot(game, victoryYear);
   const startYear = 1949;
@@ -73,10 +82,12 @@ export function buildVictorySummary(game: GameState): VictorySummary | null {
     victoryYear,
     yearsPlayed: victoryYear - startYear,
     seed: game.seed,
+    pathName: path.name,
+    pathSummary: path.summary,
     hero: {
-      label: "名义 GDP 世界排名",
-      value: "第 1 名",
-      detail: `${victoryYear} 年登顶全球经济体`,
+      label: "胜利路线",
+      value: path.name,
+      detail: `连续 ${game.nation.victory?.requiredConsecutiveYears ?? 5} 年满足全部条件`,
     },
     metrics: [
       {

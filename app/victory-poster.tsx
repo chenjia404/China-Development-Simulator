@@ -20,9 +20,9 @@ export const VictoryPoster = forwardRef<HTMLElement, VictoryPosterProps>(
         </header>
 
         <div className="victory-poster-eyebrow">胜利 · {summary.victoryYear} 年</div>
-        <h3 className="victory-poster-title">全球第一大经济体</h3>
+        <h3 className="victory-poster-title">{summary.pathName}</h3>
         <p className="victory-poster-subtitle">
-          自 1949 年起局，历时 {summary.yearsPlayed} 年登顶
+          自 1949 年起局，历时 {summary.yearsPlayed} 年完成国家目标
         </p>
 
         <div className="victory-poster-hero">

@@ -65,10 +65,10 @@ export function VictoryDialog({ game, open, onContinue }: VictoryDialogProps) {
       >
         <header className="victory-header">
           <span className="eyebrow">胜利</span>
-          <h2 id="victory-title">全球 GDP 第一</h2>
+          <h2 id="victory-title">{summary.pathName}</h2>
           <p>
-            {summary.victoryYear} 年，中华人民共和国名义 GDP 跃居世界第一。
-            你可以下载手机竖屏海报分享成就，也可以继续执政，追求更高的人均水平与发展质量。
+            {summary.victoryYear} 年，中华人民共和国连续五年完成这条路线的全部目标。
+            {summary.pathSummary}你可以下载手机竖屏海报分享成就，也可以继续执政，挑战其余国家目标。
           </p>
         </header>
 
