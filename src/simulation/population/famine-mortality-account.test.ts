@@ -7,6 +7,17 @@ import {
   HISTORICAL_PATH_FAMINE_EXCESS_DEATHS,
 } from "./famine-mortality-account";
 
+function resolvePendingAnnualReview(
+  engine: ReturnType<typeof createSimulationEngine>,
+): boolean {
+  if (engine.getState().nation.strategicPlanning.pendingReviewYear === null) {
+    return false;
+  }
+  engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+  engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+  return true;
+}
+
 describe("三年困难超额死亡账户", () => {
   it("交互模式下于 1961 年末生成待确认超额死亡报告", () => {
     const engine = createSimulationEngine(
@@ -16,6 +27,7 @@ describe("三年困难超额死亡账户", () => {
     for (let guard = 0; guard < 220; guard += 1) {
       const state = engine.getState();
       if (state.nation.famineMortality.pendingReport) break;
+      if (resolvePendingAnnualReview(engine)) continue;
       if (state.nation.pendingHistoricalEventId) {
         engine.dispatch({
           type: "RESOLVE_HISTORICAL_EVENT",
@@ -63,6 +75,7 @@ describe("三年困难超额死亡账户", () => {
     expect(engine.getState().nation.famineMortality.report?.excessDeaths)
       .toBe(account.report?.excessDeaths);
 
+    resolvePendingAnnualReview(engine);
     engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
     expect(engine.getState().nation.date).toMatchObject({ year: 1962, month: 2 });
     expect(engine.getState().nation.famineMortality.pendingReport).toBeNull();
@@ -87,6 +100,7 @@ describe("三年困难超额死亡账户", () => {
     for (let guard = 0; guard < 220; guard += 1) {
       const state = engine.getState();
       if (state.nation.famineMortality.pendingReport) break;
+      if (resolvePendingAnnualReview(engine)) continue;
       if (state.nation.pendingHistoricalEventId) {
         engine.dispatch({
           type: "RESOLVE_HISTORICAL_EVENT",
@@ -118,6 +132,7 @@ describe("三年困难超额死亡账户", () => {
     for (let guard = 0; guard < 40; guard += 1) {
       const state = engine.getState();
       if (state.nation.famineMortality.pendingReport) break;
+      if (resolvePendingAnnualReview(engine)) continue;
       if (state.nation.pendingHistoricalEventId) {
         engine.dispatch({
           type: "RESOLVE_HISTORICAL_EVENT",
@@ -152,6 +167,7 @@ describe("三年困难超额死亡账户", () => {
           }
           break;
         }
+        if (resolvePendingAnnualReview(engine)) continue;
         if (state.nation.pendingHistoricalEventId) {
           const eventId = state.nation.pendingHistoricalEventId;
           engine.dispatch({

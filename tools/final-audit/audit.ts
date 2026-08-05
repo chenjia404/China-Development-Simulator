@@ -383,6 +383,13 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
     choiceId: "avoid_communes",
   });
   causalEngine.dispatch({ type: "ADVANCE_MONTHS", months: 6 });
+  if (
+    causalEngine.getState().nation.strategicPlanning.pendingReviewYear !== null
+  ) {
+    causalEngine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+    causalEngine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+  }
+  causalEngine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
   const causalChoices = getHistoricalEventChoices(
     "three_year_difficulties_1959",
     causalEngine.getState().nation,
@@ -408,8 +415,16 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       engine.dispatch({ type: "SET_POLICIES", policyIds: decision.policyIds });
       for (let month = 0; month < 12; month += 1) {
         const elapsedMonths = engine.getState().nation.date.elapsedMonths;
+        let guard = 0;
         while (engine.getState().nation.date.elapsedMonths === elapsedMonths) {
+          guard += 1;
+          if (guard > 20) throw new Error("最终审计被未处理的交互决策阻塞");
           const current = engine.getState().nation;
+          if (current.strategicPlanning.pendingReviewYear !== null) {
+            engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+            engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+            continue;
+          }
           const settleHistoricalNormalization =
             current.date.year === 1979 &&
             current.date.month === 1 &&
@@ -1439,7 +1454,7 @@ export async function runFinalAudit(): Promise<FinalAuditReport> {
       "technology-tree-capability",
       "科技树由教育、科研和前置节点推进，并约束产业升级与出口竞争力",
       technologyTreeValidationError === null &&
-        technologyTreeDefinitions.length === 34 &&
+        technologyTreeDefinitions.length === 42 &&
         historicalTechnologyTree.completedCount >= 8 &&
         historicalTechnologyTree.effectiveIndustrialTechnology <=
           historical.finalState.nation.technology.index &&

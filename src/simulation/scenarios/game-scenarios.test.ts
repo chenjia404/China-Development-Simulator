@@ -21,7 +21,9 @@ const reformOpening = {
 describe("短剧本与难度", () => {
   it("提供一个完整战役、三个短剧本与三档难度", () => {
     expect(gameScenarioDefinitions.filter((scenario) => scenario.short)).toHaveLength(3);
-    expect(gameScenarioDefinitions.filter((scenario) => !scenario.short)).toHaveLength(1);
+    const fullCampaign = gameScenarioDefinitions.filter((scenario) => !scenario.short);
+    expect(fullCampaign).toHaveLength(1);
+    expect(fullCampaign[0].endYear).toBe(2050);
     expect(gameDifficultyDefinitions.map((difficulty) => difficulty.id)).toEqual([
       "relaxed",
       "standard",

@@ -300,6 +300,12 @@ describe("外汇储备与侨汇", () => {
         createInitialGameState(1956, 1956, "interactive"),
       );
       while (engine.getState().nation.date.year < 1963) {
+        if (
+          engine.getState().nation.strategicPlanning.pendingReviewYear !== null
+        ) {
+          engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+          engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+        }
         const pending = engine.getState().nation.pendingHistoricalEventId;
         if (pending) {
           const choice = choices.find((item) => item.eventId === pending);

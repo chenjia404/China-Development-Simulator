@@ -24,9 +24,26 @@ function advanceMonthsDismissingFamineReports(
   months: number,
 ): void {
   for (let month = 0; month < months; month += 1) {
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
-    if (engine.getState().nation.famineMortality?.pendingReport) {
-      engine.dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+    const elapsedMonths = engine.getState().nation.date.elapsedMonths;
+    let guard = 0;
+    while (engine.getState().nation.date.elapsedMonths === elapsedMonths) {
+      guard += 1;
+      if (guard > 20) throw new Error("测试推进被未处理的交互决策阻塞");
+      if (
+        engine.getState().nation.strategicPlanning.pendingReviewYear !== null
+      ) {
+        engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+        engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+      }
+      if (engine.getState().nation.famineMortality?.pendingReport) {
+        engine.dispatch({ type: "DISMISS_FAMINE_MORTALITY_REPORT" });
+      }
+      const pendingHistoricalEventId =
+        engine.getState().nation.pendingHistoricalEventId;
+      if (pendingHistoricalEventId) {
+        break;
+      }
+      engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
     }
   }
 }
@@ -1100,6 +1117,13 @@ describe("确定性历史事件", () => {
       });
       // 推进到文革挂起；途中其它待决策事件按史实路径消化。
       for (let guard = 0; guard < 40; guard += 1) {
+        if (
+          engine.getState().nation.strategicPlanning.pendingReviewYear !== null
+        ) {
+          engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "automatic" });
+          engine.dispatch({ type: "SET_HISTORICAL_EVENT_MODE", mode: "interactive" });
+          continue;
+        }
         const pending = engine.getState().nation.pendingHistoricalEventId;
         if (pending === "cultural_revolution_disruption_1966") break;
         if (pending) {
@@ -1286,7 +1310,7 @@ describe("确定性历史事件", () => {
       eventId: "great_leap_forward_1958",
       choiceId: "avoid_great_leap",
     });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 4 });
+    advanceMonthsDismissingFamineReports(engine, 4);
     expect(engine.getState().nation.pendingHistoricalEventId).toBe(
       "peoples_communes_1958",
     );
@@ -1295,8 +1319,7 @@ describe("确定性历史事件", () => {
       eventId: "peoples_communes_1958",
       choiceId: "avoid_communes",
     });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 5 });
-    engine.dispatch({ type: "ADVANCE_MONTHS", months: 1 });
+    advanceMonthsDismissingFamineReports(engine, 6);
 
     const choices = getHistoricalEventChoices(
       "three_year_difficulties_1959",
