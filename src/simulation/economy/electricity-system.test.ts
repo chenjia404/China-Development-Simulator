@@ -82,6 +82,22 @@ describe("电力发电与用电系统", () => {
     expect(first.nation.resources.electricity.totalConsumption).toBeGreaterThan(0);
   });
 
+  it("旧存档同时缺失电力账户与普及率时不应抛错", () => {
+    const legacy = createInitialGameState(9106);
+    delete (legacy.nation.society as { infrastructurePenetration?: unknown })
+      .infrastructurePenetration;
+    delete (legacy.nation.resources as Partial<NationState["resources"]>).electricity;
+
+    expect(() => ensureElectricitySystemState(legacy.nation)).not.toThrow();
+    expect(legacy.nation.society.infrastructurePenetration).toBeDefined();
+    expect(
+      Number.isFinite(
+        legacy.nation.society.infrastructurePenetration.electricityPenetration,
+      ),
+    ).toBe(true);
+    expect(legacy.nation.resources.electricity.totalConsumption).toBeGreaterThan(0);
+  });
+
   it("旧存档缺失电力账户时按历史发电量估算装机", () => {
     const legacy = createInitialGameState(9105);
     legacy.nation.date.year = 2000;

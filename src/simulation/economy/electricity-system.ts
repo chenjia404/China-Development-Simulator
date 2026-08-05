@@ -11,6 +11,7 @@ import type {
 import { normalizedEnergyShares } from "./energy-transport-environment";
 import { calculateIndustrialPolicyAggregateEffects } from "../policies/industrial-policy";
 import { technologyIndustryEnergyDemandMultiplier } from "../technology/technology-industry-path";
+import { ensureInfrastructurePenetrationState } from "../society/infrastructure-penetration";
 
 interface ElectricitySystemConfig {
   demandPerEnergyUnit: number;
@@ -140,6 +141,7 @@ function updateCapacityStock(nation: NationState, shares: Record<EnergySourceId,
 }
 
 function computeConsumption(nation: NationState): ElectricitySystemState["consumption"] {
+  ensureInfrastructurePenetrationState(nation);
   const structuralDemand = Math.max(
     0,
     nation.resources.energyDemand * config.demandPerEnergyUnit,
